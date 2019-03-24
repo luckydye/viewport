@@ -68,6 +68,7 @@ export default class Viewport extends HTMLElement {
             thconsole.engiene.evaluate = function(str) {
                 let viewport = this;
                 let renderer = this.renderer;
+                let camera = this.camera;
                 let gl = this.renderer.gl;
                 return eval(str);
             }.bind(this)
