@@ -10,7 +10,6 @@ import { CameraControler } from './gl/entity/CameraControler.js';
 import { Importer } from './Importer.js';
 import { Plane } from './gl/geo/Plane.js';
 import { Logger } from './Logger.js';
-import { ConsoleEngiene } from '../lib/THConsole.js';
 
 Resources.add({
     'materials': './resources/materials/materials.json',
@@ -69,7 +68,7 @@ export default class Viewport extends HTMLElement {
             thconsole.engiene.evaluate = function(str) {
                 let viewport = this;
                 let renderer = this.renderer;
-                let canvas = this.canvas;
+                let gl = this.renderer.gl;
                 return eval(str);
             }.bind(this)
         });
