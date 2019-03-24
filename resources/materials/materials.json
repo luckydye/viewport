@@ -1,0 +1,18 @@
+{
+    "HEIGHT": {
+        "texture": "heightmap",
+        "displacementMap": "heightmap",
+        "receiveShadows": true,
+        "castShadows": true
+    },
+    "LIGHT": {
+        "receiveShadows": true,
+        "castShadows": true
+    },
+    "WATER": {
+        "diffuseColor": [0.15, 0.15, 0.15],
+        "receiveShadows": true,
+        "castShadows": true,
+        "transparency": 0.125
+    }
+}
