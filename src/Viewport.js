@@ -5,7 +5,6 @@ import { Vec } from "./gl/Math.js";
 import { Camera } from "./gl/scene/Camera.js";
 import { Material } from "./gl/graphics/Material.js";
 import { Resources } from "./gl/Resources.js";
-import { Terrain } from './gl/geo/Terrain.js';
 import { CameraControler } from './gl/entity/CameraControler.js';
 import { Importer } from './Importer.js';
 import { Plane } from './gl/geo/Plane.js';
@@ -13,7 +12,6 @@ import { Logger } from './Logger.js';
 
 Resources.add({
     'materials': './resources/materials/materials.json',
-    'heightmap': './resources/textures/heightmap.png',
     'defaulttexture': './resources/textures/placeholder.png',
 }, false);
 
@@ -108,13 +106,13 @@ export default class Viewport extends HTMLElement {
         nextFrame = requestAnimationFrame(this.render.bind(this));
     }
 
-    init(canvas) {
+    init() {
         const mats = Resources.get('materials');
         for(let name in mats) {
             Importer.importMatFromJson(name, mats[name]);
         }
 
-        this.renderer = new Renderer(canvas);
+        this.renderer = new Renderer(this.canvas);
 
         this.camera = new Camera({ 
             fov: 90,
