@@ -1,7 +1,27 @@
+const loggerListeners = new Map();
+
 export class Logger {
+
+    static listen(name, f) {
+        const listeners = loggerListeners.get(name);
+        if(listeners) {
+            listeners.push(f);
+        }
+    }
+
+    static dispatch(name, msg) {
+        const listeners = loggerListeners.get(name);
+        if(listeners) {
+            for(let listener of listeners) {
+                listener(msg);
+            }
+        }
+    }
 
     constructor(name) {
         this.prefix = name;
+
+        loggerListeners.set(name, []);
 
         this.style = {
             prefix: `
@@ -41,6 +61,12 @@ export class Logger {
                 this.style.text,
             );
         }
+        
+        Logger.dispatch(this.prefix, {
+            style: this.style,
+            prefix: this.prefix,
+            text: text,
+        });
     }
 
     log(text, attr) {

@@ -8,5 +8,6 @@ exports.Plane = require("./src/gl/geo/Plane.js").Plane;
 exports.Cube = require("./src/gl/geo/Cube.js").Cube;
 exports.Vec = require("./src/gl/Math.js").Vec;
 
+exports.Importer = require("./src/Importer.js").Importer;
 exports.Resources = require("./src/gl/Resources.js").Resources;
 exports.Logger = require("./src/Logger.js").Logger;
