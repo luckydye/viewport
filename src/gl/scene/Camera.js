@@ -1,3 +1,4 @@
+import { mat4, vec3 } from 'gl-matrix';
 import { Vec, Transform } from '../Math.js';
 
 export class Camera extends Transform {

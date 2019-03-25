@@ -1,5 +1,5 @@
 {
-  "name": "gl-viewport",
+  "name": "@uncut/viewport",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/luckydye/gl-viewport/issues"
   },
-  "homepage": "https://github.com/luckydye/gl-viewport#readme"
+  "homepage": "https://github.com/luckydye/gl-viewport#readme",
+  "dependencies": {
+    "gl-matrix": "^3.0.0"
+  }
 }

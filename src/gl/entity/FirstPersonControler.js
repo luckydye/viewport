@@ -1,3 +1,4 @@
+import { mat4, vec3 } from 'gl-matrix';
 import { EntityController } from "./EntityController.js";
 
 function isMouseButton(e) {

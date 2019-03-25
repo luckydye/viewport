@@ -2,8 +2,8 @@ import { Resources } from '../Resources.js';
 import { GLShader } from '../graphics/GLShader.js';
 
 Resources.add({
-    'reflection.vs': './resources/shader/reflection.vertex.shader',
-    'reflection.fs': './resources/shader/reflection.fragment.shader',
+    'reflection.vs': require('../../../res/shader/reflection.vertex.shader'),
+    'reflection.fs': require('../../../res/shader/reflection.fragment.shader'),
 }, false);
 
 export default class ReflectionShader extends GLShader {

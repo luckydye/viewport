@@ -1,3 +1,4 @@
+import { mat4, vec3 } from 'gl-matrix';
 import { Transform } from "../Math.js";
 import { GLShader } from "./GLShader.js";
 

@@ -1,4 +1,3 @@
-import noise from '../../../lib/perlin.js';
 import { Geometry } from "../scene/Geometry.js";
 import { VertexBuffer } from "../graphics/VertexBuffer.js";
 
@@ -38,10 +37,7 @@ export class Terrain extends Geometry {
 		const size = this.size;
 		const vertArray = [];
 
-		const heightmap = this.heightMap(size, size, this.smoothness, this.height);
-		const heightmap2 = this.heightMap(size, size, 0.99, 200);
-
-		// const heightmap = this.mergeMap(heightmap1, heightmap2);
+		const heightmap = this.heightMap(size, size);
 
 		for(let x = 0; x < heightmap.length; x++) {
 			for(let z = 0; z < heightmap[x].length; z++) {
@@ -71,32 +67,16 @@ export class Terrain extends Geometry {
 		return vertArray;
 	}
 
-	heightMap(width, height, freq, terrainheight) {
+	heightMap(width, height) {
 		const verts = new Array(width);
-		
-		noise.seed(this.seed);
-		
+
 		for(let x = 0; x < width; x++) {
 			if(!verts[x]) {
 				verts[x] = new Array(height);
 			}
 			for(let y = 0; y < height; y++) {
-				const noiseValue = noise.perlin2(x * freq, y * freq) * terrainheight;
+				const noiseValue = 0;
 				verts[x][y] = -noiseValue;
-			}
-		}
-		return verts;
-	}
-
-	mergeMap(map1, map2) {
-		const verts = new Array(map1.length);
-		for(let x = 0; x < map1.length; x++) {
-			if(!verts[x]) {
-				verts[x] = new Array(map1[x].length);
-			}
-			for(let y = 0; y < verts[x].length; y++) {
-				const noiseValue = map1[x][y] + map2[x][y];
-				verts[x][y] = noiseValue;
 			}
 		}
 		return verts;

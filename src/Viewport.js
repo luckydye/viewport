@@ -1,4 +1,3 @@
-import '../lib/gl-matrix.js';
 import { Renderer } from "./gl/graphics/Renderer.js";
 import { Scene } from "./gl/scene/Scene.js";
 import { Vec } from "./gl/Math.js";
@@ -10,12 +9,24 @@ import { Importer } from './Importer.js';
 import { Plane } from './gl/geo/Plane.js';
 import { Logger } from './Logger.js';
 
-Resources.add({
-    'materials': './resources/materials/materials.json',
-    'defaulttexture': './resources/textures/placeholder.png',
-}, false);
-
 const logger = new Logger('Viewport');
+
+const materials = {
+    "HEIGHT": {
+        "receiveShadows": true,
+        "castShadows": true
+    },
+    "LIGHT": {
+        "receiveShadows": true,
+        "castShadows": true
+    },
+    "WATER": {
+        "diffuseColor": [0.15, 0.15, 0.15],
+        "receiveShadows": true,
+        "castShadows": true,
+        "transparency": 0.125
+    }
+};
 
 let nextFrame = 0, 
     lastFrame = 0, 
@@ -29,8 +40,6 @@ export default class Viewport extends HTMLElement {
             <style>
                 :host {
                     display: block;
-                    width: 100%;
-                    height: 100%;
                 }
                 canvas {
                     image-rendering: pixelated;
@@ -62,14 +71,6 @@ export default class Viewport extends HTMLElement {
 
             logger.log("resources initialized");
             this.render();
-
-            thconsole.engiene.evaluate = function(str) {
-                let viewport = this;
-                let renderer = this.renderer;
-                let camera = this.camera;
-                let gl = this.renderer.gl;
-                return eval(str);
-            }.bind(this)
         });
     }
 
@@ -107,9 +108,9 @@ export default class Viewport extends HTMLElement {
     }
 
     init() {
-        const mats = Resources.get('materials');
+        const mats = materials || Resources.get('materials');
         for(let name in mats) {
-            Importer.importMatFromJson(name, mats[name]);
+            Importer.createMatFromJson(name, mats[name]);
         }
 
         this.renderer = new Renderer(this.canvas);

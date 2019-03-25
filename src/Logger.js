@@ -41,13 +41,6 @@ export class Logger {
                 this.style.text,
             );
         }
-
-        if(thconsole) {
-            thconsole.log(
-                `<span style="${this.style.prefix}">${this.prefix}</span>`, 
-                `<span style="${this.style.text}">${text}</span>`,
-            );
-        }
     }
 
     log(text, attr) {

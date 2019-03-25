@@ -7,7 +7,7 @@ const logger = new Logger('Importer');
 
 export class Importer {
 
-    static importMatFromJson(name, json) {
+    static createMatFromJson(name, json) {
         const mat = Material.create(name);
 
         Object.assign(mat, json);
