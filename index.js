@@ -1,25 +1,12 @@
-import Viewport from "./src/Viewport.js";
-import { Resources } from "./src/gl/Resources.js";
-import { Scene } from "./src/gl/scene/Scene.js";
-import { PointLight } from "./src/gl/scene/PointLight.js";
-import { Terrain } from "./src/gl/geo/Terrain.js";
-import { Plane } from "./src/gl/geo/Plane.js";
-import { Cube } from "./src/gl/geo/Cube.js";
-import { Group } from "./src/gl/geo/Group.js";
-import { Vec } from "./src/gl/Math.js";
-import { Material } from "./src/gl/graphics/Material.js";
-import { Logger } from "./src/Logger.js";
+exports.Viewport = require("./src/Viewport.js").default;
+exports.Scene = require("./src/gl/scene/Scene.js").Scene;
+exports.PointLight = require("./src/gl/scene/PointLight.js").PointLight;
+exports.Terrain = require("./src/gl/geo/Terrain.js").Terrain;
+exports.Group = require("./src/gl/geo/Group.js").Group;
+exports.Material = require("./src/gl/graphics/Material.js").Material;
+exports.Plane = require("./src/gl/geo/Plane.js").Plane;
+exports.Cube = require("./src/gl/geo/Cube.js").Cube;
+exports.Vec = require("./src/gl/Math.js").Vec;
 
-module.exports = {
-    Viewport,
-    Resources,
-    Scene,
-    PointLight,
-    Terrain,
-    Group,
-    Vec,
-    Material,
-    Logger,
-    Plane,
-    Cube
-}
+exports.Resources = require("./src/gl/Resources.js").Resources;
+exports.Logger = require("./src/Logger.js").Logger;
