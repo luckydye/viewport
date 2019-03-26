@@ -90,7 +90,7 @@ export class CameraControler extends EntityController {
 
 	zoom(dir) {
 		const camera = this.entity;
-		camera.position.z += -100 * Math.sign(dir);
+		camera.position.z += -200 * Math.sign(dir);
 	}
 
 }

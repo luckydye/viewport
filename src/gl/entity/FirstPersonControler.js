@@ -1,5 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix';
-import { EntityController } from "./EntityController.js";
+import { EntityController } from "@uncut/viewport/src/gl/entity/EntityController";
 
 function isMouseButton(e) {
 	let mbutton;
@@ -17,57 +16,86 @@ function isMouseButton(e) {
 
 export class FirstPersonControler extends EntityController {
 
-	static get sensivity() {
-		return 100;
+	move(dir) {
+		const camera = this.entity;
+		const speed = 10 * dir;
+		
+		const a = -camera.rotation.y;
+		const b = -camera.rotation.x;
+
+		camera.position.x += speed * Math.sin(a);
+		camera.position.z += speed * Math.cos(a);
+		
+		camera.position.y += speed * Math.sin(b);
+	}
+
+	strafe(dir) {
+		const camera = this.entity;
+		const speed = 10 * dir;
+		
+		const a = camera.rotation.y;
+
+		camera.position.z += speed * Math.sin(a);
+		camera.position.x += speed * Math.cos(a);
 	}
 
 	constructor(entity, viewport) {
 		super(entity);
+
+		const entityUpdate = entity.update.bind(entity);
+		entity.update = (arg) => {
+
+			if(this.checkKey("w")) this.move(1);
+			if(this.checkKey("s")) this.move(-1);
+
+			if(this.checkKey("a")) this.strafe(1);
+			if(this.checkKey("d")) this.strafe(-1);
+
+			entityUpdate(arg);
+		}
 		
 		this.viewport = viewport;
 
-		entity.update = () => {
-			this.updateCamera();
-		};
-
-		this.initalSettings = {
-			pos: [ entity.position.x, entity.position.y, entity.position.z ],
-			rot: [ entity.rotation.x, entity.rotation.y, entity.rotation.z ],
-		}
-
 		this.initMouse();
 		this.initKeyboard();
+
+		this.sensivity = 0.0033;
 	}
 
 	initMouse() {
 		const entity = this.entity;
 
-		let lastEvent = null;
-
 		const down = e => {
 			this.moving = true;
+			this.viewport.requestPointerLock();
 		}
 
 		const up = e => {
 			this.moving = false;
 			this.viewport.style.cursor = "default";
-			lastEvent = null;
+			document.exitPointerLock();
 		}
 
 		const move = e => {
-			if(this.moving && lastEvent) {
+			if(this.moving) {
 				if(isMouseButton(e) == 1 || e.type == "touchmove") {
-					entity.rotation.y += (e.x - lastEvent.x) / window.innerWidth * this.constructor.sensivity;
-					entity.rotation.x += (e.y - lastEvent.y) / window.innerWidth * this.constructor.sensivity;
+					entity.rotation.y += e.movementX * this.sensivity;
+					entity.rotation.x += e.movementY * this.sensivity;
+
+					entity.rotation.x = entity.rotation.x % (Math.PI * 2);
+					entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
+
+					entity.rotation.y = entity.rotation.y % (Math.PI * 2);
+					entity.rotation.z = entity.rotation.z % (Math.PI * 2);
+
 					this.viewport.style.cursor = "grabbing";
 				}
 			}
-			lastEvent = e;
 		}
 
 		this.viewport.addEventListener("mousedown", down);
 		window.addEventListener("mouseup", up);
-		window.addEventListener("mousemove", move);
+		this.viewport.addEventListener("mousemove", move);
 	}
 
 	initKeyboard() {
@@ -84,52 +112,6 @@ export class FirstPersonControler extends EntityController {
 
 	checkKey(key) {
 		return this.keyMap.has(key);
-	}
-
-	updateCamera() {
-		if (this.moving === false && 
-			this.keyMap.size < 1 && 
-			!this.moving) return;
-
-		const camera = this.entity;
-		const moveDir = [0, 0];
-
-		// moveDir[1] = this.checkKey("s") ? -1 : moveDir[1];
-		// moveDir[1] = this.checkKey("w") ? 1 : moveDir[1];
-
-		moveDir[0] = this.checkKey("a") ? 1 : moveDir[0];
-		moveDir[0] = this.checkKey("d") ? -1 : moveDir[0];
-
-		const projMatrix = camera.projMatrix;
-		const viewMatrix = camera.viewMatrix;
-
-		const ar = camera.sensor.width / camera.sensor.height;
-		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-		mat4.lookAt(
-			viewMatrix, 
-			vec3.fromValues(0, 0, 0),
-			vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), 
-			vec3.fromValues(0, 1, 0)
-		);
-
-		mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
-			camera.scale, 
-			camera.scale, 
-			camera.scale,
-		));
-
-		const viewDir = Math.PI / 180 * camera.rotation.y;
-
-		camera.position.z += moveDir[1] * 10;
-		camera.position.x += moveDir[0] * 10;
-
-		mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(
-			camera.position.x,
-			-camera.position.y,
-			camera.position.z,
-		));
-		
-		mat4.multiply(camera.projViewMatrix, camera.projMatrix, camera.viewMatrix);
 	}
 
 }
