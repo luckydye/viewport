@@ -102,7 +102,9 @@ export class FirstPersonControler extends EntityController {
 		this.keyMap = new Map();
 
 		window.addEventListener('keydown', e => {
-			this.keyMap.set(e.key, true);
+			if(document.pointerLockElement != null) {
+				this.keyMap.set(e.key, true);
+			}
 		})
 		
 		window.addEventListener('keyup', e => {

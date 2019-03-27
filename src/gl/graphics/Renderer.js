@@ -19,6 +19,10 @@ export class Renderer extends GLContext {
 		}
 	}
 
+	get frameRate() {
+		return 1000 / this.frameTime;
+	}
+
 	setScene(scene) {
 		this.scene = scene;
 	}
@@ -64,6 +68,8 @@ export class Renderer extends GLContext {
 	draw() {
 		if(!this.scene) return;
 
+		const frameTime = performance.now();
+
 		// update animated textures
 		for(let geo of this.scene.objects) {
 			if(geo.mat && geo.mat.animated) {
@@ -73,6 +79,11 @@ export class Renderer extends GLContext {
 
 		this.renderMultiPasses(this.renderPasses);
 		this.compositePasses(this.renderPasses);
+
+		if(this.lastFrameTime) {
+			this.frameTime = frameTime - this.lastFrameTime;
+		}
+		this.lastFrameTime = frameTime;
 	}
 
 	renderMultiPasses(passes) {
