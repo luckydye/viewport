@@ -21,16 +21,20 @@ void main(void) {
 	vec4 light = texture(lightBuffer, texCoords);
 	vec4 reflection = texture(reflectionBuffer, texCoords);
 
-	oFragColor = vec4(color.rgb, 1.0);
+	if(color.a > 0.0) {
+		oFragColor = color;
+	}
 	
-	oFragColor *= light;
+	if(color.a > 0.0 && light.a > 0.0) {
+		oFragColor *= light;
+	}
 
-	if(color.g == 1.0 && color.r == 0.0 && color.b == 0.0) {
+	if(color.a == 0.0) {
 		oFragColor = vec4(reflection.rgb * vec3(0.4, 0.4, 0.5) + vec3(0.1, 0.15, 0.8), 1.0);
 		oFragColor *= light;
 	}
 
-	if(fog) {
+	if(fog && color.a > 0.0) {
 		vec3 fogColor = vec3(0.04);
 		vec3 fogValue = vec3(pow(depth, 150.0)) * fogColor;
 		oFragColor += vec4(fogValue, 1.0) * 2.0;

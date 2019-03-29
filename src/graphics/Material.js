@@ -16,7 +16,8 @@ export class Material {
         this.diffuseColor = [1, 1, 1];
         this.transparency = 0;
         this.reflection = 0;
-        
+
+        this.textureScale = 1;
         this.receiveShadows = true;
         this.castShadows = true;
     }

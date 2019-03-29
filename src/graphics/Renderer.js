@@ -88,19 +88,19 @@ export class Renderer extends GLContext {
 
 	renderMultiPasses(passes) {
 		for(let pass of passes) {
-			pass.use();
-
 			const lightS = this.scene.lightSources;
 			
 			switch(pass.id) {
 				
 				case "shadow":
+					pass.use();
 					this.drawScene(this.scene, this.scene.lightSources, obj => {
 						return obj.mat && obj.mat.castShadows;
 					});
 					break;
 
 				case "light":
+					pass.use();
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
 
 					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, 
@@ -109,16 +109,17 @@ export class Renderer extends GLContext {
 					this.drawScene(this.scene, this.scene.camera, obj => {
 						return obj.mat && obj.mat.receiveShadows;
 					});
-					this.drawGrid();
 					break;
 				
 				case "reflection":
+					pass.use();
 					this.gl.cullFace(this.gl.FRONT);
 					this.drawScene(this.scene, this.scene.camera);
 					this.gl.cullFace(this.gl.BACK);
 					break;
 
 				case "diffuse":
+					pass.use();
 					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
 					this.drawScene(this.scene);
 					this.drawGrid();
@@ -159,9 +160,9 @@ export class Renderer extends GLContext {
 	}
 
 	compositePasses(passes) {
+		this.gl.clearColor(0.12, 0.12, 0.12, 1.0);
 		this.clear();
-		this.gl.clearColor(0.05, 0.1, 0.15, 1.0);
-		
+
 		this.viewport(this.width, this.height);
 
 		this.useShader(this.compShader);
@@ -175,6 +176,8 @@ export class Renderer extends GLContext {
 		this.gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 
 		this.drawGeo(this.renderTarget);
+		
+		this.gl.clearColor(0, 0, 0, 0);
 	}
 
 	// give texture a .gltexture
@@ -210,6 +213,7 @@ export class Renderer extends GLContext {
 			this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 		}
 
+		this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
 		this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
 		this.gl.uniform1f(shader.uniforms.reflection, material.reflection);
 		this.gl.uniform1f(shader.uniforms.transparency, material.transparency);

@@ -19,7 +19,7 @@ export class Texture {
     constructor(image) {
         this.gltexture = null; // gets filled in by the renderer
         this.image = image || null;
-        this.scale = 16;
+        this.textureScale = 1;
         this.animated = false;
         
         this.animated = image && image.localName === "video" || false;

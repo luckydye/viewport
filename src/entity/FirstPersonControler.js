@@ -1,4 +1,4 @@
-import { EntityController } from "@uncut/viewport/src/gl/entity/EntityController";
+import { EntityController } from "./EntityController";
 
 function isMouseButton(e) {
 	let mbutton;

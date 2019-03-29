@@ -1,5 +1,5 @@
-import { Camera } from "@uncut/viewport/src/gl/scene/Camera";
 import { mat4, vec3 } from "gl-matrix";
+import { Camera } from "./Camera";
 
 export class FirstPersonCamera extends Camera {
 
