@@ -38,6 +38,7 @@ export class Renderer extends GLContext {
     onCreate() {
 		this.fogEnabled = false;
 		this.bloomEnabled = false;
+		this.gridEnabled = true;
 
 		this.renderTarget = new Plane({ material: null });
 
@@ -136,6 +137,8 @@ export class Renderer extends GLContext {
 	}
 
 	drawGrid() {
+
+		if(!this.gridEnabled) return;
 
 		if(!this.gridShader) {
 			this.gridShader = new GridShader();
