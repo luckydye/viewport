@@ -1,5 +1,5 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { Transform } from "../Math.js";
+import { Transform, Vec } from "../Math.js";
 import { GLShader } from "./GLShader.js";
 
 export class GLContext {
@@ -293,7 +293,7 @@ export class GLContext {
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
 
-		const position = geo.position.add(geo.origin);
+		const position = Vec.add(geo.position, geo.origin);
 		const rotation = geo.rotation;
 		const scale = geo.scale;
 

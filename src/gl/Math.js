@@ -1,5 +1,21 @@
 export class Vec {
 
+	static add(vec1, vec2) {
+		return new Vec(
+			vec1.x + vec2.x,
+			vec1.y + vec2.y,
+			vec1.z + vec2.z
+		);
+	}
+
+	static multiply(vec1, vec2) {
+		return new Vec(
+			vec1.x * vec2.x,
+			vec1.y * vec2.y,
+			vec1.z * vec2.z
+		);
+	}
+
 	get 0() { return this.x; }
 	get 1() { return this.y; }
 	get 2() { return this.z; }
@@ -8,22 +24,24 @@ export class Vec {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+
+		if(Array.isArray(x)) {
+			this.x = x[0];
+			this.y = x[1];
+			this.z = x[2];
+		} else if(x.x) {
+			this.x = x.x;
+			this.y = x.y;
+			this.z = x.z;
+		}
 	}
 
 	add(vec) {
-		return new Vec(
-			this.x + vec.x,
-			this.y + vec.y,
-			this.z + vec.z
-		);
+		return Vec.add(this, vec);
 	}
 
 	multiply(vec) {
-		return new Vec(
-			this.x * vec.x,
-			this.y * vec.y,
-			this.z * vec.z
-		);
+		return Vec.multiply(this, vec);
 	} 
 }
 
