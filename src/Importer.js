@@ -1,6 +1,6 @@
-import { Material } from "./gl/graphics/Material.js";
-import { Resources } from "./gl/Resources.js";
-import { Texture } from "./gl/graphics/Texture.js";
+import { Material } from "./graphics/Material.js";
+import { Resources } from "./Resources.js";
+import { Texture } from "./graphics/Texture.js";
 import { Logger } from "./Logger.js";
 
 const logger = new Logger('Importer');

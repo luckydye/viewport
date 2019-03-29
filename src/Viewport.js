@@ -1,12 +1,10 @@
-import { Renderer } from "./gl/graphics/Renderer.js";
-import { Scene } from "./gl/scene/Scene.js";
-import { Vec } from "./gl/Math.js";
-import { Camera } from "./gl/scene/Camera.js";
-import { Material } from "./gl/graphics/Material.js";
-import { Resources } from "./gl/Resources.js";
-import { CameraControler } from './gl/entity/CameraControler.js';
+import { Renderer } from "./graphics/Renderer.js";
+import { Scene } from "./scene/Scene.js";
+import { Vec } from "./Math.js";
+import { Camera } from "./scene/Camera.js";
+import { Resources } from "./Resources.js";
+import { CameraControler } from './entity/CameraControler.js';
 import { Importer } from './Importer.js';
-import { Plane } from './gl/geo/Plane.js';
 import { Logger } from './Logger.js';
 
 const logger = new Logger('Viewport');
@@ -19,6 +17,11 @@ const materials = {
     "LIGHT": {
         "receiveShadows": true,
         "castShadows": true
+    },
+    "PRIMITIVE": {
+        "diffuseColor": [1, 1, 1],
+        "receiveShadows": false,
+        "castShadows": false
     },
     "WATER": {
         "diffuseColor": [0.15, 0.15, 0.15],
