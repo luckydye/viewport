@@ -30,6 +30,20 @@ export class Camera extends Transform {
 		}
 
 		this.update();
+
+		const self = this;
+
+		this.worldPosition = {
+			get x() {
+				return -self.position.x;
+			},
+			get y() {
+				return -self.position.y;
+			},
+			get z() {
+				return -self.position.z;
+			}
+		}
 	}
 
 	zoom(dir) {
