@@ -57,11 +57,7 @@ export class Camera extends Transform {
 			camera.scale,
 		));
 
-		mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(
-			camera.position.x,
-			-camera.position.y,
-			camera.position.z,
-		));
+		mat4.translate(viewMatrix, viewMatrix, camera.position);
 
 		mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
 		mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);

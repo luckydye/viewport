@@ -290,23 +290,23 @@ export class GLContext {
 
 	setTransformUniforms(uniforms, geo) {
 		const gl = this.gl;
-		const modelMatrix = mat4.create();
-		const transform = geo || new Transform();
+		geo.modelMatrix = geo.modelMatrix || mat4.create();
+		const modelMatrix = geo.modelMatrix;
+
+		const position = geo.position.add(geo.origin);
+		const rotation = geo.rotation;
+		const scale = geo.scale;
 
 		mat4.identity(modelMatrix);
 
-		mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(
-			transform.position.x,
-			-transform.position.y,
-			transform.position.z,
-		));
+		mat4.translate(modelMatrix, modelMatrix, position);
 
-		mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180 * transform.rotation.x);
-		mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 180 * transform.rotation.y);
-		mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 180 * transform.rotation.z);
+		mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180 * rotation.x);
+		mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 180 * rotation.y);
+		mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 180 * rotation.z);
 
 		mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(
-			transform.scale, transform.scale, transform.scale
+			scale, scale, scale
 		));
 
 		const modelView = mat4.create();

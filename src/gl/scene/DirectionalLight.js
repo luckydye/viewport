@@ -27,7 +27,7 @@ export class DirectionalLight extends Camera {
 
 		mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(
 			camera.position.x,
-			-camera.position.y,
+			camera.position.y,
 			camera.position.z,
 		));
 

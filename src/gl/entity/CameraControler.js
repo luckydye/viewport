@@ -16,10 +16,10 @@ function isMouseButton(e) {
 
 export class CameraControler extends EntityController {
 
-	static get sensivity() { return 300; }
-
 	constructor(entity, viewport) {
 		super(entity);
+
+		this.sensivity = 0.75;
 
 		this.initalSettings = {
 			pos: [ entity.position.x, entity.position.y, entity.position.z ],
@@ -44,12 +44,12 @@ export class CameraControler extends EntityController {
 		const move = e => {
 			if(moving && lastEvent) {
 				if(isMouseButton(e) == 2 || e.touches && e.touches.length > 1) {
-					entity.position.x += (e.x - lastEvent.x) / window.innerWidth * Math.abs(entity.position.z);
-					entity.position.y += (e.y - lastEvent.y) / window.innerWidth * Math.abs(entity.position.z);
+					entity.position.x += (e.x - lastEvent.x) * Math.abs(entity.position.z / 250);
+					entity.position.y += (e.y - lastEvent.y) * -Math.abs(entity.position.z / 250);
 					viewport.style.cursor = "move";
 				} else if(isMouseButton(e) == 1 || e.type == "touchmove") {
-					entity.rotation.y += (e.x - lastEvent.x) / window.innerWidth * this.constructor.sensivity;
-					entity.rotation.x += (e.y - lastEvent.y) / window.innerWidth * this.constructor.sensivity;
+					entity.rotation.y += (e.x - lastEvent.x) * this.sensivity;
+					entity.rotation.x += (e.y - lastEvent.y) * this.sensivity;
 					viewport.style.cursor = "grabbing";
 				}
 				entity.update();

@@ -16,7 +16,7 @@ export class FirstPersonCamera extends Camera {
 		mat4.lookAt(
 			viewMatrix, 
 			vec3.fromValues(0, 0, 0),
-			vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), 
+			camera.lookAt, 
 			vec3.fromValues(0, 1, 0)
 		);
 
@@ -31,7 +31,7 @@ export class FirstPersonCamera extends Camera {
 
 		mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(
 			camera.position.x,
-			-camera.position.y,
+			camera.position.y,
 			camera.position.z,
         ));
 		

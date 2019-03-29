@@ -26,7 +26,7 @@ export class FirstPersonControler extends EntityController {
 		camera.position.x += speed * Math.sin(a);
 		camera.position.z += speed * Math.cos(a);
 		
-		camera.position.y += speed * Math.sin(b);
+		camera.position.y -= speed * Math.sin(b);
 	}
 
 	strafe(dir) {

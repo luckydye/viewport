@@ -134,13 +134,6 @@ export default class Viewport extends HTMLElement {
         });
 
         this.renderer.setScene(this.scene);
-
-        this.scene.add(new Plane({
-            material: Material.WATER,
-            scale: 10000,
-            rotation: new Vec(-90, 0, 0),
-            position: new Vec(0, 10, 0)
-        }));
     }
 
 }

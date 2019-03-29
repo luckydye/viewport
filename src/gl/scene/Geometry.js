@@ -1,4 +1,4 @@
-import { Transform } from "../Math.js";
+import { Transform, Vec } from "../Math.js";
 
 export class Geometry extends Transform {
 

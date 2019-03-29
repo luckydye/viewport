@@ -226,7 +226,7 @@ export class Renderer extends GLContext {
 			if(light.isLight) {
 				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].position"], [
 					light.position.x,
-					-light.position.y,
+					light.position.y,
 					light.position.z,
 				]);
 				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].color"], light.color);
