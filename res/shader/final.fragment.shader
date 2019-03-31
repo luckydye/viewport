@@ -8,6 +8,7 @@ uniform sampler2D diffuseBuffer;
 uniform sampler2D lightBuffer;
 uniform sampler2D reflectionBuffer;
 uniform sampler2D bloomBuffer;
+uniform sampler2D guidesBuffer;
 
 uniform bool fog;
 
@@ -20,6 +21,7 @@ void main(void) {
 	vec4 color = texture(diffuseBuffer, texCoords);
 	vec4 light = texture(lightBuffer, texCoords);
 	vec4 reflection = texture(reflectionBuffer, texCoords);
+	vec4 guides = texture(guidesBuffer, texCoords);
 
 	if(color.a > 0.0) {
 		oFragColor = color;
@@ -39,4 +41,6 @@ void main(void) {
 		vec3 fogValue = vec3(pow(depth, 150.0)) * fogColor;
 		oFragColor += vec4(fogValue, 1.0) * 2.0;
 	}
+
+	oFragColor += guides;
 }

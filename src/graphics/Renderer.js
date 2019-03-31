@@ -54,10 +54,11 @@ export class Renderer extends GLContext {
 		this.setResolution(...Renderer.defaults.resolution);
 
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, 3840, true),
-			new RenderPass(this, 'light', new LightShader(), this.aspectratio, 3840),
+			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, 3840, true),
+			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'guides', new ColorShader(), this.aspectratio, this.width),
 		]
 
 		if(this.bloomEnabled) {
@@ -136,8 +137,16 @@ export class Renderer extends GLContext {
 					break;
 
 				case "bloom":
+					pass.use();
 					this.drawScene(this.scene, this.scene.camera, obj => {
 						return obj.isLight;
+					});
+					break;
+
+				case "guides":
+					pass.use();
+					this.drawScene(this.scene, this.scene.camera, obj => {
+						return obj.type == "LINES";
 					});
 					break;
 			}
