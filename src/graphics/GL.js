@@ -1,5 +1,5 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { Transform, Vec } from "../Math.js";
+import { Vec } from "../Math.js";
 import { GLShader } from "./GLShader.js";
 
 export class GLContext {
@@ -301,9 +301,9 @@ export class GLContext {
 
 		mat4.translate(modelMatrix, modelMatrix, position);
 
-		mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 180 * rotation.x);
-		mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 180 * rotation.y);
-		mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 180 * rotation.z);
+		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
+		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
+		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
 
 		mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(
 			scale, scale, scale

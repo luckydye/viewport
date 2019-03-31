@@ -16,7 +16,11 @@ export class VertexBuffer {
 		this.type = "TRIANGLES";
 		this.vertecies = new Float32Array(vertArray);
 		this.vertArray = vertArray;
-		this.attributes = {};
+		this.attributes = [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" },
+			{ size: 3, attribute: "aNormal" },
+		];
 	}
 
 	clear() {

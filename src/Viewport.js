@@ -9,28 +9,6 @@ import { Logger } from './Logger.js';
 
 const logger = new Logger('Viewport');
 
-const materials = {
-    "HEIGHT": {
-        "receiveShadows": true,
-        "castShadows": true
-    },
-    "LIGHT": {
-        "receiveShadows": true,
-        "castShadows": true
-    },
-    "PRIMITIVE": {
-        "diffuseColor": [1, 1, 1],
-        "receiveShadows": false,
-        "castShadows": false
-    },
-    "WATER": {
-        "diffuseColor": [0.15, 0.15, 0.15],
-        "receiveShadows": true,
-        "castShadows": true,
-        "transparency": 0.125
-    }
-};
-
 let nextFrame = 0, 
     lastFrame = 0, 
     accumulator = 0,
@@ -111,7 +89,20 @@ export default class Viewport extends HTMLElement {
     }
 
     init() {
-        const mats = materials || Resources.get('materials');
+        const mats = {
+            "LIGHT": {
+                "receiveShadows": true,
+                "castShadows": true
+            },
+            "PRIMITIVE": {
+                "diffuseColor": [1, 1, 1],
+                "receiveShadows": false,
+                "castShadows": false
+            }
+        };
+        
+        Object.assign(mats, Resources.get('materials'));
+
         for(let name in mats) {
             Importer.createMatFromJson(name, mats[name]);
         }
@@ -125,8 +116,6 @@ export default class Viewport extends HTMLElement {
         });
 
         new CameraControler(this.camera, this.canvas);
-
-        this.renderer.fogEnabled = true;
 
         this.createScene();
     }

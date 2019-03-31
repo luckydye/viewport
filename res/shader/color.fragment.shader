@@ -16,7 +16,7 @@ out vec4 oFragColor;
 
 void main() {
     vec2 imageSize = vec2(textureSize(colorTexture, 0));
-    vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);
+    vec2 textureCoords = vTexCoords / (imageSize.x / textureScale);
 
     if(textureized) {
         vec4 textureColor = texture(colorTexture, textureCoords);

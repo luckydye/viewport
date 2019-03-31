@@ -1,5 +1,13 @@
 export class Vec {
 
+	static avg(vec1, vec2) {
+		return new Vec(
+			(vec2.x + vec1.x) / 2,
+			(vec2.y + vec1.y) / 2,
+			(vec2.z + vec1.z) / 2,
+		);
+	}
+
 	static add(vec1, vec2) {
 		return new Vec(
 			vec1.x + vec2.x,
@@ -19,6 +27,10 @@ export class Vec {
 	get 0() { return this.x; }
 	get 1() { return this.y; }
 	get 2() { return this.z; }
+
+	set 0(val) { this.x = val; }
+	set 1(val) { this.y = val; }
+	set 2(val) { this.z = val; }
 
 	constructor(x = 0, y = 0, z = 0) {
 		this.x = x;

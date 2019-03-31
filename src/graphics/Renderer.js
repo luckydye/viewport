@@ -7,6 +7,7 @@ import ReflectionShader from '../shader/ReflectionShader.js';
 import { Grid } from '../geo/Grid.js';
 import GridShader from '../shader/GridShader.js';
 import { Logger } from '../Logger.js';
+import Config from '../Config.js';
 
 const logger = new Logger('Renderer');
 
@@ -16,6 +17,18 @@ export class Renderer extends GLContext {
 		return {
 			resolution: [1920, 1080]
 		}
+	}
+
+	get gridEnabled() {
+		return Config.global.getValue('drawGrid', true);
+	}
+
+	get bloomEnabled() {
+		return Config.global.getValue('bloomEnabled', false);
+	}
+
+	get fogEnabled() {
+		return Config.global.getValue('fogEnabled', true);
 	}
 
 	get frameRate() {
@@ -35,9 +48,6 @@ export class Renderer extends GLContext {
 	}
 
     onCreate() {
-		this.fogEnabled = false;
-		this.bloomEnabled = false;
-		this.gridEnabled = true;
 
 		this.renderTarget = new Plane({ material: null });
 
@@ -160,7 +170,7 @@ export class Renderer extends GLContext {
 	}
 
 	compositePasses(passes) {
-		this.gl.clearColor(0.12, 0.12, 0.12, 1.0);
+		this.gl.clearColor(0.08, 0.08, 0.08, 1.0);
 		this.clear();
 
 		this.viewport(this.width, this.height);

@@ -44,12 +44,6 @@ export class Cube extends Geometry {
 		})
 
 		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "TRIANGLES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" },
-			{ size: 3, attribute: "aNormal" },
-		]
 
 		return vertxBuffer;
 	}
