@@ -16,9 +16,19 @@ function isMouseButton(e) {
 
 export class FirstPersonControler extends EntityController {
 
+	up() {
+		const camera = this.entity;
+		camera.position.y -= this.speed;
+	}
+
+	down() {
+		const camera = this.entity;
+		camera.position.y += this.speed;
+	}
+
 	move(dir) {
 		const camera = this.entity;
-		const speed = 10 * dir;
+		const speed = this.speed * dir;
 		
 		const a = -camera.rotation.y;
 		const b = -camera.rotation.x;
@@ -31,7 +41,7 @@ export class FirstPersonControler extends EntityController {
 
 	strafe(dir) {
 		const camera = this.entity;
-		const speed = 10 * dir;
+		const speed = this.speed * dir;
 		
 		const a = camera.rotation.y;
 
@@ -39,18 +49,23 @@ export class FirstPersonControler extends EntityController {
 		camera.position.x += speed * Math.cos(a);
 	}
 
+	checkControls() {
+		if(this.checkKey("w")) this.move(1);
+		if(this.checkKey("s")) this.move(-1);
+
+		if(this.checkKey("a")) this.strafe(1);
+		if(this.checkKey("d")) this.strafe(-1);
+
+		if(this.checkKey("q")) this.up();
+		if(this.checkKey("y")) this.down();
+	}
+
 	constructor(entity, viewport) {
 		super(entity);
 
 		const entityUpdate = entity.update.bind(entity);
 		entity.update = (arg) => {
-
-			if(this.checkKey("w")) this.move(1);
-			if(this.checkKey("s")) this.move(-1);
-
-			if(this.checkKey("a")) this.strafe(1);
-			if(this.checkKey("d")) this.strafe(-1);
-
+			this.checkControls();
 			entityUpdate(arg);
 		}
 		
@@ -60,6 +75,7 @@ export class FirstPersonControler extends EntityController {
 		this.initKeyboard();
 
 		this.sensivity = 0.0033;
+		this.speed = 20;
 	}
 
 	initMouse() {

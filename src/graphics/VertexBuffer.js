@@ -15,7 +15,6 @@ export class VertexBuffer {
 	constructor(vertArray) {
 		this.type = "TRIANGLES";
 		this.vertecies = new Float32Array(vertArray);
-		this.vertArray = vertArray;
 		this.attributes = [
 			{ size: 3, attribute: "aPosition" },
 			{ size: 2, attribute: "aTexCoords" },
@@ -25,7 +24,6 @@ export class VertexBuffer {
 
 	clear() {
 		this.vertecies = new Float32Array([]);
-		this.vertArray = [];
 	}
 
 	static create(...args) {

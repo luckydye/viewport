@@ -1,7 +1,49 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { Vec, Transform } from '../Math.js';
+import { Vec } from '../Math.js';
+import { Geometry } from '../scene/Geometry';
+import { Material } from '../../index.js';
+import { VertexBuffer } from '../graphics/VertexBuffer.js';
 
-export class Camera extends Transform {
+export class Camera extends Geometry {
+
+	createBuffer() {
+		const s = 50 / this.scale;
+		const vertArray = [
+			-s, -s, 0, 	0, 0,
+			s, -s, 0, 	1, 0, 
+			s, s, 0, 	1, 1,
+
+			s, s, 0, 	1, 1,
+			-s, s, 0, 	0, 1, 
+			-s, -s, 0, 	0, 0,
+
+			s, s, 0, 	1, 1,
+			s, s, s * 2, 	1, 1,
+
+			-s, -s, s * 2, 	0, 0,
+			s, -s, s * 2, 	1, 0, 
+			s, s, s * 2, 	1, 1,
+
+			s, s, s * 2, 	1, 1,
+			-s, s, s * 2, 	0, 1, 
+			-s, -s, s * 2, 	0, 0,
+
+			-s/2, -s/2, -s, 	0, 0,
+			s/2, -s/2, -s, 		1, 0, 
+			s/2, s/2, -s, 		1, 1,
+
+			s/2, s/2, -s, 		1, 1,
+			-s/2, s/2, -s, 		0, 1, 
+			-s/2, -s/2, -s, 	0, 0,
+		]
+		const vertxBuffer = VertexBuffer.create(vertArray);
+		vertxBuffer.type = "LINE_STRIP";
+		vertxBuffer.attributes = [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" }
+		]
+		return vertxBuffer;
+	}
 
 	constructor(args = {}) {
 		const {
@@ -13,6 +55,8 @@ export class Camera extends Transform {
 			height = 720,
 		} = args;
 		super(args);
+
+		this.mat = Material.GUIDE;
 		
 		this.scale = scale;
 		this.fov = fov;

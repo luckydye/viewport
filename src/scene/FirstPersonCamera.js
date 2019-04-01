@@ -29,12 +29,7 @@ export class FirstPersonCamera extends Camera {
 			camera.scale,
 		));
 
-		mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(
-			camera.position.x,
-			camera.position.y,
-			camera.position.z,
-        ));
-		
+		mat4.translate(viewMatrix, viewMatrix, camera.position);
 		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 	}
 
