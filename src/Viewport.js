@@ -98,7 +98,18 @@ export default class Viewport extends HTMLElement {
                 "diffuseColor": [1, 1, 1],
                 "receiveShadows": false,
                 "castShadows": false
-            }
+            },
+            "DEFAULT": {
+                "diffuseColor": [1, 1, 1],
+                "receiveShadows": true,
+                "castShadows": true
+            },
+            "TEST": {
+                "diffuseColor": [1, 1, 1],
+                "texture": "texture256",
+                "receiveShadows": true,
+                "castShadows": true
+            },
         };
         
         Object.assign(mats, Resources.get('materials'));
@@ -118,6 +129,8 @@ export default class Viewport extends HTMLElement {
         new CameraControler(this.camera, this.canvas);
 
         this.createScene();
+
+        this.dispatchEvent(new Event('load'));
     }
 
     createScene() {

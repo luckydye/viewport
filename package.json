@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel ./test/index.html --no-source-maps --no-cache"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,8 @@
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
     "gl-matrix": "^3.0.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3"
   }
 }

@@ -310,7 +310,8 @@ export class GLContext {
 		));
 
 		const modelView = mat4.create();
-		mat4.multiply(modelView, this.scene.camera.viewMatrix, modelMatrix);
+		// should not use .scene here !!
+		mat4.multiply(modelView, this.scene.activeCamera.viewMatrix, modelMatrix);
 
 		const worldInverseMatrix = mat4.create();
 		mat4.invert(worldInverseMatrix, modelView);
