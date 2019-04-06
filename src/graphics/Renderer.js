@@ -4,7 +4,6 @@ import FinalShader from '../shader/FinalShader.js';
 import ColorShader from '../shader/ColorShader.js';
 import LightShader from '../shader/LightShader.js';
 import ReflectionShader from '../shader/ReflectionShader.js';
-import { Grid } from '../geo/Grid.js';
 import GridShader from '../shader/GridShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
@@ -156,25 +155,24 @@ export class Renderer extends GLContext {
 	}
 
 	drawGrid() {
+		const grid = this.scene.grid;
 
+		if(!grid) return;
 		if(!this.gridEnabled) return;
 
 		if(!this.gridShader) {
 			this.gridShader = new GridShader();
 			this.prepareShader(this.gridShader);
 		}
-		if(!this.grid) {
-			this.grid = new Grid(160, 16);
-		}
 
-		const camera = this.scene.camera;
+		const camera = this.scene.activeCamera;
 		if(camera) {
 			this.useShader(this.gridShader);
 	
 			this.gl.uniformMatrix4fv(this.gridShader.uniforms.uProjMatrix, false, camera.projMatrix);
 			this.gl.uniformMatrix4fv(this.gridShader.uniforms.uViewMatrix, false, camera.viewMatrix);
 	
-			this.drawGeo(this.grid);
+			this.drawGeo(grid);
 		}
 	}
 
@@ -263,7 +261,6 @@ export class Renderer extends GLContext {
 
 		for(let obj of objects) {
 			if(filter && filter(obj) || !filter) {
-				// TODO: check if obj is in view, dont render it if not
 				if(!obj.hidden) {
 					this.drawMesh(obj);
 				}

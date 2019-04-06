@@ -9,6 +9,10 @@ import { Logger } from './Logger.js';
 
 const logger = new Logger('Viewport');
 
+Resources.add({
+    'texture256': require('../res/textures/placeholder_256.png'),
+}, false);
+
 let nextFrame = 0, 
     lastFrame = 0, 
     accumulator = 0,
@@ -88,7 +92,7 @@ export default class Viewport extends HTMLElement {
         nextFrame = requestAnimationFrame(this.render.bind(this));
     }
 
-    init() {
+    init(canvas) {
         const mats = {
             "LIGHT": {
                 "receiveShadows": true,
@@ -105,8 +109,9 @@ export default class Viewport extends HTMLElement {
                 "castShadows": true
             },
             "TEST": {
-                "diffuseColor": [1, 1, 1],
                 "texture": "texture256",
+                "textureScale": 256,
+                "diffuseColor": [1, 1, 1],
                 "receiveShadows": true,
                 "castShadows": true
             },
@@ -118,7 +123,7 @@ export default class Viewport extends HTMLElement {
             Importer.createMatFromJson(name, mats[name]);
         }
 
-        this.renderer = new Renderer(this.canvas);
+        this.renderer = new Renderer(canvas);
 
         this.camera = new Camera({ 
             fov: 90,
@@ -126,7 +131,7 @@ export default class Viewport extends HTMLElement {
             rotation: new Vec(25, 0, 0),
         });
 
-        new CameraControler(this.camera, this.canvas);
+        new CameraControler(this.camera, canvas);
 
         this.createScene();
 
@@ -134,11 +139,14 @@ export default class Viewport extends HTMLElement {
     }
 
     createScene() {
-        this.scene = new Scene({
+        const scene = new Scene({
             camera: this.camera,
         });
 
-        this.renderer.setScene(this.scene);
+        this.scene = scene;
+        this.renderer.setScene(scene);
+
+        return scene;
     }
 
 }

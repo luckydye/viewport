@@ -1,4 +1,4 @@
-import { EntityController } from "./EntityController.js";
+import { EntityControler } from "./EntityControler.js";
 
 function isMouseButton(e) {
 	let mbutton;
@@ -14,12 +14,12 @@ function isMouseButton(e) {
 	return mbutton;
 }
 
-export class CameraControler extends EntityController {
+export class CameraControler extends EntityControler {
 
 	constructor(entity, viewport) {
 		super(entity);
 
-		this.sensivity = 0.75;
+		this.sensivity = 0.5;
 
 		this.initalSettings = {
 			pos: [ entity.position.x, entity.position.y, entity.position.z ],

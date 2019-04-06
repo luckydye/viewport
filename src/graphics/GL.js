@@ -21,6 +21,7 @@ export class GLContext {
 		this.vertexArrayObjects = new Map();
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
+		this.shaders = new Map();
 
 		// default options set
 		this.options = {
@@ -116,6 +117,7 @@ export class GLContext {
 				shader.initialized = true;
 			}
 
+			this.shaders.set(shader.name, shader);
 			return shader.program;
 		}
 	}
@@ -309,17 +311,6 @@ export class GLContext {
 			scale, scale, scale
 		));
 
-		const modelView = mat4.create();
-		// should not use .scene here !!
-		mat4.multiply(modelView, this.scene.activeCamera.viewMatrix, modelMatrix);
-
-		const worldInverseMatrix = mat4.create();
-		mat4.invert(worldInverseMatrix, modelView);
-
-		const uNormalMatrix = mat4.create();
-		mat4.transpose(uNormalMatrix, worldInverseMatrix);
-		
-		gl.uniformMatrix4fv(uniforms["uNormalMatrix"], false, uNormalMatrix);
 		gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
 	}
 

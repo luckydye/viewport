@@ -7,7 +7,6 @@ layout(location = 2) in vec3 aNormal;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
-uniform mat4 uNormalMatrix;
 
 uniform float uTime;
 
