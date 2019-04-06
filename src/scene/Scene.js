@@ -18,6 +18,7 @@ export class Scene {
 		
 		this.activeCamera = camera || new Camera({
 			fov: 90,
+			position: new Vec(0, 500, 0)
 		});
 
 		this.grid = new Grid(160, 16);
