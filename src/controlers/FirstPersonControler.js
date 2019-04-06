@@ -1,4 +1,4 @@
-import { EntityController } from "./EntityController";
+import { EntityControler } from "./EntityControler";
 
 function isMouseButton(e) {
 	let mbutton;
@@ -14,7 +14,7 @@ function isMouseButton(e) {
 	return mbutton;
 }
 
-export class FirstPersonControler extends EntityController {
+export class FirstPersonControler extends EntityControler {
 
 	up() {
 		const camera = this.entity;
