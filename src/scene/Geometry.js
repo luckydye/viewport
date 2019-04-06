@@ -15,7 +15,8 @@ export class Geometry extends Transform {
 			super(args);
 
 			this.mat = material;
-            this.uv = uv;
+			this.uv = uv;
+			this.hidden = false;
             
 			this.onCreate(args);
     }

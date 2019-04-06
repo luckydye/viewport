@@ -40,11 +40,11 @@ export class Renderer extends GLContext {
 	}
 
 	updateViewport() {
-		this.scene.camera.sensor = {
+		this.scene.activeCamera.sensor = {
 			width: this.width,
 			height: this.height
 		};
-		this.scene.camera.update();
+		this.scene.activeCamera.update();
 	}
 
     onCreate() {
@@ -117,7 +117,7 @@ export class Renderer extends GLContext {
 					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, 
 						false, lightS.projViewMatrix);
 
-					this.drawScene(this.scene, this.scene.camera, obj => {
+					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.mat && obj.mat.receiveShadows;
 					});
 					break;
@@ -125,7 +125,7 @@ export class Renderer extends GLContext {
 				case "reflection":
 					pass.use();
 					this.gl.cullFace(this.gl.FRONT);
-					this.drawScene(this.scene, this.scene.camera);
+					this.drawScene(this.scene, this.scene.activeCamera);
 					this.gl.cullFace(this.gl.BACK);
 					break;
 
@@ -138,14 +138,14 @@ export class Renderer extends GLContext {
 
 				case "bloom":
 					pass.use();
-					this.drawScene(this.scene, this.scene.camera, obj => {
+					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.isLight;
 					});
 					break;
 
 				case "guides":
 					pass.use();
-					this.drawScene(this.scene, this.scene.camera, obj => {
+					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.type == "LINES";
 					});
 					break;
@@ -239,7 +239,7 @@ export class Renderer extends GLContext {
 	}
 
 	drawScene(scene, camera, filter) {
-		camera = camera || scene.camera;
+		camera = camera || scene.activeCamera;
 		const objects = scene.objects;
 		const shader = this.currentShader;
 
@@ -264,7 +264,9 @@ export class Renderer extends GLContext {
 		for(let obj of objects) {
 			if(filter && filter(obj) || !filter) {
 				// TODO: check if obj is in view, dont render it if not
-				this.drawMesh(obj);
+				if(!obj.hidden) {
+					this.drawMesh(obj);
+				}
 			}
 		}
 	}
