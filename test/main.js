@@ -1,14 +1,14 @@
-import Viewport from "../src/Viewport.js";
+import Viewport from "../Viewport.js";
 import { Cube } from "../src/geo/Cube.js";
-import { Material } from "../index.js";
 import { Vec } from "../src/Math.js";
+import TestMaterial from "../src/materials/TestMaterial.js";
 
 const viewport = new Viewport();
 
 viewport.onload = () => {
     const cube = new Cube({
         scale: 40,
-        material: Material.TEST,
+        material: new TestMaterial(),
         origin: new Vec(0, 700, 0)
     });
     

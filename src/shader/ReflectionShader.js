@@ -1,5 +1,5 @@
 import { Resources } from '../Resources.js';
-import { GLShader } from '../graphics/GLShader.js';
+import { GLShader } from './GLShader.js';
 
 Resources.add({
     'reflection.vs': require('../../res/shader/reflection.vertex.shader'),

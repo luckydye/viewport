@@ -1,14 +1,14 @@
-import { Material } from "./graphics/Material.js";
-import { Resources } from "./Resources.js";
-import { Texture } from "./graphics/Texture.js";
-import { Logger } from "./Logger.js";
+import { Material } from "./materials/Material";
+import { Resources } from "./Resources";
+import { Texture } from "./materials/Texture";
+import { Logger } from "./Logger";
 
 const logger = new Logger('Importer');
 
 export class Importer {
 
     static createMatFromJson(name, json) {
-        const mat = Material.create(name);
+        const mat = new Material(name);
 
         Object.assign(mat, json);
 

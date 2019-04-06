@@ -1,5 +1,5 @@
 import { Geometry } from "../scene/Geometry";
-import { VertexBuffer } from "../graphics/VertexBuffer";
+import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Guide extends Geometry {
 

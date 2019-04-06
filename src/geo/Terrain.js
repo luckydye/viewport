@@ -1,5 +1,5 @@
-import { Geometry } from "../scene/Geometry.js";
-import { VertexBuffer } from "../graphics/VertexBuffer.js";
+import { Geometry } from "../scene/Geometry";
+import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Terrain extends Geometry {
 

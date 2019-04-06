@@ -1,5 +1,5 @@
 import { Geometry } from "../scene/Geometry.js";
-import { VertexBuffer } from "../graphics/VertexBuffer.js";
+import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Plane extends Geometry {
 

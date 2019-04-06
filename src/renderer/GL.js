@@ -1,6 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Vec } from "../Math.js";
-import { GLShader } from "./GLShader.js";
+import { GLShader } from "../shader/GLShader";
 
 export class GLContext {
 

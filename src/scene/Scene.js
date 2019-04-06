@@ -1,6 +1,6 @@
-import { Camera } from './Camera.js';
+import { Camera } from '../camera/Camera';
 import { Vec } from '../Math.js';
-import { DirectionalLight } from './DirectionalLight.js';
+import { DirectionalLight } from '../light/DirectionalLight';
 import { Grid } from '../geo/Grid.js';
 
 let lastTick = 0;

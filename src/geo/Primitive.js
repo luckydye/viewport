@@ -1,6 +1,6 @@
-import { VertexBuffer } from "../graphics/VertexBuffer.js";
-import { Geometry } from "../scene/Geometry.js";
-import { Material } from "../graphics/Material.js";
+import { VertexBuffer } from "../scene/VertexBuffer";
+import { Geometry } from "../scene/Geometry";
+import PrimitivetMaterial from "../materials/PrimitiveMaterial";
 
 export class Primitive extends Geometry {
 	
@@ -53,7 +53,7 @@ export class Primitive extends Geometry {
 	}
 
 	onCreate() {
-		this.mat = this.mat || Material.PRIMITIVE;
+		this.mat = this.mat || new PrimitivetMaterial();
 	}
 
 	createBuffer() {

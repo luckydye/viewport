@@ -1,12 +1,12 @@
-import { Plane } from '../geo/Plane.js';
-import { GLContext } from './GL.js';
-import FinalShader from '../shader/FinalShader.js';
-import ColorShader from '../shader/ColorShader.js';
-import LightShader from '../shader/LightShader.js';
-import ReflectionShader from '../shader/ReflectionShader.js';
-import GridShader from '../shader/GridShader.js';
-import { Logger } from '../Logger.js';
-import Config from '../Config.js';
+import { Plane } from '../geo/Plane';
+import { GLContext } from '../renderer/GL';
+import FinalShader from '../shader/FinalShader';
+import ColorShader from '../shader/ColorShader';
+import LightShader from '../shader/LightShader';
+import ReflectionShader from '../shader/ReflectionShader';
+import GridShader from '../shader/GridShader';
+import { Logger } from '../Logger';
+import Config from '../Config';
 
 const logger = new Logger('Renderer');
 
