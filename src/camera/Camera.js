@@ -90,6 +90,11 @@ export class Camera extends Geometry {
 		}
 	}
 
+	setPositionTo(transform) {
+		this.position = transform.position;
+		this.rotation = transform.rotation;
+	}
+
 	zoom(dir) {
 		this.position.z += -100 * Math.sign(dir);
 		this.update();

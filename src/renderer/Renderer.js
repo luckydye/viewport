@@ -4,7 +4,7 @@ import FinalShader from '../shader/FinalShader';
 import ColorShader from '../shader/ColorShader';
 import LightShader from '../shader/LightShader';
 import ReflectionShader from '../shader/ReflectionShader';
-import GridShader from '../shader/GridShader';
+import PrimitiveShader from '../shader/PrimitiveShader';
 import { Logger } from '../Logger';
 import Config from '../Config';
 
@@ -20,10 +20,6 @@ export class Renderer extends GLContext {
 
 	get gridEnabled() {
 		return Config.global.getValue('drawGrid', true);
-	}
-
-	get bloomEnabled() {
-		return Config.global.getValue('bloomEnabled', false);
 	}
 
 	get fogEnabled() {
@@ -53,21 +49,12 @@ export class Renderer extends GLContext {
 		this.setResolution(...Renderer.defaults.resolution);
 
 		this.renderPasses = [
-			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, 3840, true),
+			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, 3840, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'guides', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
 		]
-
-		if(this.bloomEnabled) {
-			const bloomShader = new LightShader();
-			bloomShader.ambient = 0;
-
-			this.renderPasses.push(
-				new RenderPass(this, 'bloom', bloomShader, this.aspectratio, this.width)
-			);
-		}
 
 		this.compShader = new FinalShader();
 		this.prepareShader(this.compShader);
@@ -135,18 +122,14 @@ export class Renderer extends GLContext {
 					this.drawGrid();
 					break;
 
-				case "bloom":
-					pass.use();
-					this.drawScene(this.scene, this.scene.activeCamera, obj => {
-						return obj.isLight;
-					});
-					break;
-
 				case "guides":
 					pass.use();
+					this.disable(this.gl.CULL_FACE);
+					this.drawMesh(this.scene.curosr);
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
-						return obj.type == "LINES";
+						return obj.guide;
 					});
+					this.enable(this.gl.CULL_FACE);
 					break;
 			}
 		}
@@ -161,7 +144,7 @@ export class Renderer extends GLContext {
 		if(!this.gridEnabled) return;
 
 		if(!this.gridShader) {
-			this.gridShader = new GridShader();
+			this.gridShader = new PrimitiveShader();
 			this.prepareShader(this.gridShader);
 		}
 
@@ -230,6 +213,7 @@ export class Renderer extends GLContext {
 			this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 		}
 
+		this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
 		this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
 		this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
 		this.gl.uniform1f(shader.uniforms.reflection, material.reflection);

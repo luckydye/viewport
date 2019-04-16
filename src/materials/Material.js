@@ -16,6 +16,7 @@ export class Material {
         this.textureScale = 1;
         this.receiveShadows = true;
         this.castShadows = true;
+        this.scaleUniform = false;
         
         Material[this.name] = this.constructor;
     }

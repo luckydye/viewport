@@ -1,4 +1,4 @@
-export class Vec {
+export class Vec extends Array {
 
 	static avg(vec1, vec2) {
 		return new Vec(
@@ -24,27 +24,25 @@ export class Vec {
 		);
 	}
 
-	get 0() { return this.x; }
-	get 1() { return this.y; }
-	get 2() { return this.z; }
+	get x() { return this[0]; }
+	get y() { return this[1]; }
+	get z() { return this[2]; }
 
-	set 0(val) { this.x = val; }
-	set 1(val) { this.y = val; }
-	set 2(val) { this.z = val; }
+	set x(val) { this[0] = val; }
+	set y(val) { this[1] = val; }
+	set z(val) { this[2] = val; }
 
 	constructor(x = 0, y = 0, z = 0) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		super();
 
-		if(Array.isArray(x)) {
-			this.x = x[0];
-			this.y = x[1];
-			this.z = x[2];
-		} else if(x.x) {
-			this.x = x.x;
-			this.y = x.y;
-			this.z = x.z;
+		this[0] = x;
+		this[1] = y;
+		this[2] = z;
+
+		if(arguments.length === 1) {
+			this[0] = x[0];
+			this[1] = x[1];
+			this[2] = x[2];
 		}
 	}
 
@@ -64,9 +62,9 @@ export class Transform {
 		origin = new Vec(),
 		scale = 1,
 	} = {}) {
-		this.position = position;
-		this.rotation = rotation;
+		this.position = new Vec(position);
+		this.rotation = new Vec(rotation);
 		this.scale = scale;
-		this.origin = origin;
+		this.origin = new Vec(origin);
 	}
 }

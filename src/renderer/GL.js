@@ -13,6 +13,14 @@ export class GLContext {
 		// on create method
 	}
 
+	enable(constant) {
+		this.gl.enable(constant);
+	}
+
+	disable(constant) {
+		this.gl.disable(constant);
+	}
+
 	constructor(canvas) {
 		if(!canvas) throw "GLContext: Err: no canvas";
 

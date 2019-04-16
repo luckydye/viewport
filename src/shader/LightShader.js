@@ -25,7 +25,7 @@ export default class LightShader extends GLShader {
     constructor() {
         super({ name: "light" });
 
-        this.ambient = [0.6, 0.6, 0.6];
-        this.shadowcolor = 0.25;
+        this.ambient = [0.75, 0.75, 0.75];
+        this.shadowcolor = 0.15;
     }
 }

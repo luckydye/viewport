@@ -1,7 +1,11 @@
 import { Camera } from '../camera/Camera';
-import { Vec } from '../Math.js';
-import { DirectionalLight } from '../light/DirectionalLight';
 import { Grid } from '../geo/Grid.js';
+import { DirectionalLight } from '../light/DirectionalLight';
+import { Vec } from '../Math.js';
+import { Tool } from '../geo/Tool';
+import { Guide } from '../geo/Guide';
+import TestMaterial from '../materials/TestMaterial';
+import PrimitivetMaterial from '../materials/PrimitiveMaterial';
 
 let lastTick = 0;
 
@@ -22,6 +26,10 @@ export class Scene {
 		});
 
 		this.grid = new Grid(160, 16);
+
+		this.curosr = new Tool({
+			origin: new Vec()
+		});
 
 		this.clear();
 	}

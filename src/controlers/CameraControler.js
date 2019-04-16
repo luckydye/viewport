@@ -19,7 +19,7 @@ export class CameraControler extends EntityControler {
 	constructor(entity, viewport) {
 		super(entity);
 
-		this.sensivity = 0.5;
+		this.sensivity = 0.25;
 
 		this.initalSettings = {
 			pos: [ entity.position.x, entity.position.y, entity.position.z ],
@@ -44,8 +44,8 @@ export class CameraControler extends EntityControler {
 		const move = e => {
 			if(moving && lastEvent) {
 				if(isMouseButton(e) == 2 || e.touches && e.touches.length > 1) {
-					entity.position.x += (e.x - lastEvent.x) * Math.abs(entity.position.z / 250);
-					entity.position.y += (e.y - lastEvent.y) * -Math.abs(entity.position.z / 250);
+					entity.position.x += (e.x - lastEvent.x) * Math.abs(entity.position.z / 250) * this.sensivity;
+					entity.position.y += (e.y - lastEvent.y) * -Math.abs(entity.position.z / 250) * this.sensivity;
 					viewport.style.cursor = "move";
 				} else if(isMouseButton(e) == 1 || e.type == "touchmove") {
 					entity.rotation.y += (e.x - lastEvent.x) * this.sensivity;

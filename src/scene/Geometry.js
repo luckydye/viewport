@@ -1,4 +1,7 @@
 import { Transform } from "../Math.js";
+import DefaultMaterial from "../materials/DefaultMaterial.js";
+
+const DEFAULT_MATERIAL = new DefaultMaterial();
 
 export class Geometry extends Transform {
 
@@ -7,21 +10,31 @@ export class Geometry extends Transform {
 		return this._buffer;
 	}
 
+	get mat() {
+		return this.material;
+	}
+
+	set mat(mat) {
+		this.material = mat;
+	}
+
 	constructor(args = {}) {
+		super(args);
+		
+        this.onCreate(args);
+        
 		const {
-			material = null,
+			material = DEFAULT_MATERIAL,
 			uv = [0, 0],
-			hidden = false
+            hidden = false,
+            guide = false,
 		} = args;
 		
-		super(args);
-
-		this.mat = material;
 		this.uv = uv;
-		this.hidden = hidden;
-		
-		this.onCreate(args);
-    }
+		this.material = material;
+        this.hidden = hidden;
+        this.guide = guide;
+	}
 
 	onCreate(args) { }
 
