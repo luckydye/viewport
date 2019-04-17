@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, vec4 } from "gl-matrix";
 
 export class Vec extends Array {
 
@@ -75,8 +75,9 @@ export class Ray extends Vec {
 	cast(projMatrix) {
 		// ec4 ray_eye = inverse(projection_matrix) * ray_clip;
 		// ray_eye = vec4(ray_eye.xy, -1.0, 0.0);
-
-		mat4.invert(projMatrix) * ray_eye;
+		const projInverse = mat4.create();
+		mat4.invert(projInverse, projMatrix);
+		vec4.transformMat4(this, this, projInverse);
 	}
 
 }
