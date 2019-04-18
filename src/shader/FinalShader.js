@@ -11,25 +11,23 @@ export default class FinalShader extends GLShader {
 
                 uniform float aspectRatio;
 
-                out vec2 texCoord;
+                out vec2 texCoords;
                 
                 void main() {
                     gl_Position = vec4(aPosition, 1.0);
-
-                    texCoord = aTexCoords;
+                    texCoords = aTexCoords;
                 }
             `,
 
             `#version 300 es
             precision mediump float;
             
-            in vec2 texCoord;
+            in vec2 texCoords;
             
             uniform sampler2D depthBuffer;
             uniform sampler2D diffuseBuffer;
             uniform sampler2D lightBuffer;
             uniform sampler2D reflectionBuffer;
-            uniform sampler2D bloomBuffer;
             uniform sampler2D guidesBuffer;
             
             uniform bool fog;
@@ -37,8 +35,6 @@ export default class FinalShader extends GLShader {
             out vec4 oFragColor;
             
             void main(void) {
-                vec2 texCoords = texCoord;
-                
                 float depth = texture(depthBuffer, texCoords).r;
                 vec4 color = texture(diffuseBuffer, texCoords);
                 vec4 light = texture(lightBuffer, texCoords);
@@ -64,7 +60,9 @@ export default class FinalShader extends GLShader {
                     oFragColor += vec4(fogValue, 1.0) * 2.0;
                 }
             
-                oFragColor += guides;
+                if(guides.a > 0.0) {
+                    oFragColor = guides / oFragColor * vec4(3.0);
+                }
             }
             `
         ];
