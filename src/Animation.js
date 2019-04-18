@@ -1,16 +1,17 @@
-import { Vec } from "./Math";
-
 export class Animation {
 
-    constructor() {
+    constructor(args = {
+        fps: 60,
+        duration: 3000,
+        loop: true,
+    }) {
         this.keyframes = [];
 
-        this.duration = 2000;
-        this.framerate = 60;
+        this.duration = args.duration;
+        this.framerate = args.fps;
+        this.loop = args.loop;
 
-        this.loop = true;
         this.playing = false;
-
         this.lasttick = 0;
 
         this.reset();

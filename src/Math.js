@@ -113,10 +113,10 @@ export class Raycast extends Vec {
 		this[2] = 1;
 		this[3] = 1;
 
-		this.cast(camera.projMatrix, camera.viewMatrix);
+		this.project(camera.projMatrix, camera.viewMatrix);
 	}
 
-	cast(projMatrix, viewMatrix) {
+	project(projMatrix, viewMatrix) {
 
 		const projInverse = mat4.create();
 		mat4.invert(projInverse, projMatrix);
