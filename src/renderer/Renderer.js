@@ -14,7 +14,10 @@ export class Renderer extends GLContext {
 
 	static get defaults() {
 		return {
-			resolution: [1920, 1080]
+			resolution: [
+				window.innerWidth, 
+				window.innerHeight
+			]
 		}
 	}
 
@@ -69,8 +72,8 @@ export class Renderer extends GLContext {
 
 		// update animated textures
 		for(let geo of this.scene.objects) {
-			if(geo.mat && geo.mat.animated) {
-				this.updateTexture(geo.mat.texture.gltexture, geo.mat.texture.image);
+			if(geo.material && geo.material.animated) {
+				this.updateTexture(geo.material.texture.gltexture, geo.material.texture.image);
 			}
 		}
 
@@ -92,7 +95,7 @@ export class Renderer extends GLContext {
 				case "shadow":
 					pass.use();
 					this.drawScene(this.scene, this.scene.lightSources, obj => {
-						return obj.mat && obj.mat.castShadows;
+						return obj.material && obj.material.castShadows;
 					});
 					break;
 
@@ -104,7 +107,7 @@ export class Renderer extends GLContext {
 						false, lightS.projViewMatrix);
 
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
-						return obj.mat && obj.mat.receiveShadows;
+						return obj.material && obj.material.receiveShadows;
 					});
 					break;
 				
@@ -254,8 +257,8 @@ export class Renderer extends GLContext {
 
 	drawMesh(geo) {
 		const shader = this.currentShader;
-		if(geo.mat) {
-			this.applyMaterial(shader, geo.mat);
+		if(geo.material) {
+			this.applyMaterial(shader, geo.material);
 			this.drawGeo(geo);
 		}
 	}

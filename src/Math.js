@@ -1,4 +1,4 @@
-import { mat4, vec4 } from "gl-matrix";
+import { mat4, vec4, vec3 } from "gl-matrix";
 
 export class Vec extends Array {
 
@@ -16,6 +16,15 @@ export class Vec extends Array {
 			vec1[1] + vec2[1],
 			vec1[2] + vec2[2],
 			vec1[3] + vec2[3]
+		);
+	}
+
+	static subtract(vec1, vec2) {
+		return new Vec(
+			vec1[0] - vec2[0],
+			vec1[1] - vec2[1],
+			vec1[2] - vec2[2],
+			vec1[3] - vec2[3]
 		);
 	}
 
@@ -60,24 +69,57 @@ export class Vec extends Array {
 
 	multiply(vec) {
 		return Vec.multiply(this, vec);
-	} 
+	}
+
+	subtract(vec) {
+		return Vec.subtract(this, vec);
+	}
+
+	dot(vec) {
+		return vec3.dot(this, vec);
+	}
+
+	normalize() {
+		vec3.normalize(this, this);
+		return this;
+	}
 }
 
-export class Ray extends Vec {
+export class RayCast extends Vec {
 
-	setPosition(vx, vy, vwidth, vheight) {
+	constructor(camera, x, y) {
+		super();
+		
+		const width = camera.sensor.width;
+		const height = camera.sensor.height;
+
+		this.normalized(x, y, width, height);
+		this.cast(camera.projMatrix);
+		this.toWorld(camera.viewMatrix);
+	}
+
+	normalized(vx, vy, vwidth, vheight) {
 		this[0] = (2 * vx) / vwidth - 1;
 		this[1] = 1 - (2 * vy) / vheight;
 		this[2] = -1;
 		this[3] = 1;
+
+		return this;
 	}
 
 	cast(projMatrix) {
-		// ec4 ray_eye = inverse(projection_matrix) * ray_clip;
-		// ray_eye = vec4(ray_eye.xy, -1.0, 0.0);
 		const projInverse = mat4.create();
 		mat4.invert(projInverse, projMatrix);
 		vec4.transformMat4(this, this, projInverse);
+		return this;
+	}
+
+	toWorld(viewMatrix) {
+		const viewInverse = mat4.create();
+		mat4.invert(viewInverse, viewMatrix);
+		vec4.transformMat4(this, this, viewInverse);
+		vec4.normalize(this, this);
+		return this;
 	}
 
 }

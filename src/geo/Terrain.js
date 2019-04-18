@@ -1,7 +1,13 @@
 import { Geometry } from "../scene/Geometry";
-import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Terrain extends Geometry {
+
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" }
+		]
+	}
 
 	onCreate({ 
 		// smoothness = 0.01,
@@ -20,17 +26,6 @@ export class Terrain extends Geometry {
 		this.height = height;
 		this.size = parseInt(size);
 		this.seed = seed;
-	}
-
-	createBuffer() {
-		const vertArray = this.generate();
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "TRIANGLES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-		return vertxBuffer;
 	}
 
 	generate() {

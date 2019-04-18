@@ -7,9 +7,17 @@ const DEFAULT_GUIDE_MATERIAL = new PrimitivetMaterial();
 
 export class Guide extends Primitive {
 
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 3, attribute: "aColor" },
+		]
+	}
+
 	onCreate(args) {
 		args.guide = true;
 		args.material = DEFAULT_GUIDE_MATERIAL;
+		args.drawmode = "LINES";
 	}
 
 	get vertecies() {
@@ -24,17 +32,6 @@ export class Guide extends Primitive {
 			x + s, y, z,	1,1,1,
 			x -s, y, z,		1,1,1
 		];
-	}
-    
-	createBuffer() {
-		const vertArray = this.vertecies;
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "LINES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-		return vertxBuffer;
 	}
 
 }

@@ -1,22 +1,9 @@
 import { Geometry } from "../scene/Geometry";
-import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Cube extends Geometry {
 
-	get invisible() {
-		return  !this.visible.TOP && 
-				!this.visible.BOTTOM &&
-				!this.visible.LEFT &&
-				!this.visible.RIGHT &&
-				!this.visible.FRONT &&
-				!this.visible.BACK;
-	}
-
-	constructor(...args) {
-		super(...args);
-
+	onCreate(args) {
 		this.vertsPerFace = 6;
-
 		this.visible = {
 			TOP: true,
 			BOTTOM: true,
@@ -27,7 +14,16 @@ export class Cube extends Geometry {
 		}
 	}
 
-	createBuffer() {
+	get invisible() {
+		return  !this.visible.TOP && 
+				!this.visible.BOTTOM &&
+				!this.visible.LEFT &&
+				!this.visible.RIGHT &&
+				!this.visible.FRONT &&
+				!this.visible.BACK;
+	}
+
+	get vertecies() {
 		let vertArray = [];
 		const faces = this.faces;
 
@@ -43,9 +39,7 @@ export class Cube extends Geometry {
 			vertArray = vertArray.concat(faces[face]);
 		})
 
-		const vertxBuffer = VertexBuffer.create(vertArray);
-
-		return vertxBuffer;
+		return vertArray;
 	}
 
 	get faces() {

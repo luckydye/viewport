@@ -1,9 +1,15 @@
 import { Geometry } from "../scene/Geometry.js";
-import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Plane extends Geometry {
 
-	createBuffer() {
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" }
+		]
+	}
+
+	get vertecies() {
 		const s = 1;
 		const vertArray = [
 			-s, -s, 0, 	0, 0,
@@ -14,13 +20,11 @@ export class Plane extends Geometry {
 			-s, s, 0, 	0, 1, 
 			-s, -s, 0, 	0, 0,
 		]
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "TRIANGLES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-		return vertxBuffer;
+		return vertArray;
+	}
+
+	onCreate(args) {
+		args.drawmoed = "TRIANGLES";
 	}
 	
 }

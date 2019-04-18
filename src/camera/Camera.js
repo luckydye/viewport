@@ -1,12 +1,20 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Vec } from '../Math.js';
 import { Geometry } from '../scene/Geometry';
-import { VertexBuffer } from '../scene/VertexBuffer';
-import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
+import DefaultMaterial from '../materials/DefaultMaterial.js';
+
+const DEFAULT_CAMERA_MATERIAL = new DefaultMaterial();
 
 export class Camera extends Geometry {
 
-	createBuffer() {
+	get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" }
+		]
+	}
+
+	get vertecies() {
 		const s = 50 / this.scale;
 		const vertArray = [
 			-s, -s, 0, 	0, 0,
@@ -36,13 +44,12 @@ export class Camera extends Geometry {
 			-s/2, s/2, -s, 		0, 1, 
 			-s/2, -s/2, -s, 	0, 0,
 		]
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "LINE_STRIP";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-		return vertxBuffer;
+		return vertArray;
+	}
+
+	onCreate(args) {
+		args.drawmode = "LINE_STRIP";
+		args.material = DEFAULT_CAMERA_MATERIAL;
 	}
 
 	constructor(args = {}) {
@@ -56,8 +63,6 @@ export class Camera extends Geometry {
 		} = args;
 		super(args);
 
-		this.mat = new PrimitivetMaterial();
-		
 		this.scale = scale;
 		this.fov = fov;
 		this.farplane = farplane;

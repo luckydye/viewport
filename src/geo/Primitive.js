@@ -15,6 +15,13 @@ export class Primitive extends Geometry {
 			│/_____________│/
 	*/
 
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 3, attribute: "aColor" },
+		]
+	}
+
 	get vertecies() {
 		const s = 1;
 		return [
@@ -51,15 +58,8 @@ export class Primitive extends Geometry {
 		];
 	}
 
-	createBuffer() {
-		const vertArray = this.vertecies;
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "LINES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-		return vertxBuffer;
+	onCreate(args) {
+		args.drawmode = "LINES";
 	}
 
 }

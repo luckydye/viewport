@@ -1,9 +1,14 @@
-import { Geometry } from "../scene/Geometry";
-import { VertexBuffer } from "../scene/VertexBuffer";
 import { Vec } from "../Math";
 import { Guide } from "./Guide";
 
 export class Tool extends Guide {
+
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 3, attribute: "aColor" },
+		]
+	}
 
 	get vertecies() {
 		const s = 10;
@@ -62,17 +67,6 @@ export class Tool extends Guide {
 			// x, y, z + s + w,	1, 1, 1,
 			// x, y - 2, z + w,	1, 1, 1,
 		];
-	}
-
-	createBuffer() {
-		const vertArray = this.vertecies;
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "TRIANGLES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-		return vertxBuffer;
 	}
 
 }

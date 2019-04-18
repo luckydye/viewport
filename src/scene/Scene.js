@@ -35,7 +35,11 @@ export class Scene {
 	}
 
 	add(obj) {
-		this.objects.add(obj);
+		if(Array.isArray(obj)) {
+			obj.forEach(o => this.objects.add(o));
+		} else {
+			this.objects.add(obj);
+		}
 	}
 
 	clear() {

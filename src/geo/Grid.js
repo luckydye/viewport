@@ -1,23 +1,23 @@
 import { Geometry } from "../scene/Geometry.js";
-import { VertexBuffer } from "../scene/VertexBuffer";
 
 export class Grid extends Geometry {
+
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 3, attribute: "aColor" },
+		]
+	}
+
+	get vertecies() {
+		return this.generate(this.size, this.count);
+	}
 
 	constructor(size, count) {
 		super();
 		this.size = size;
 		this.count = count;
-	}
-
-	createBuffer() {
-		const vertArray = this.generate(this.size, this.count);
-		const vertxBuffer = VertexBuffer.create(vertArray);
-		vertxBuffer.type = "LINES";
-		vertxBuffer.attributes = [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-		return vertxBuffer;
+		this.drawmode = "LINES";
 	}
 	
 	generate(w = 100, s = 14) {
