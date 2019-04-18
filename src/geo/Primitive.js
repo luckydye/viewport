@@ -1,4 +1,3 @@
-import { VertexBuffer } from "../scene/VertexBuffer";
 import { Geometry } from "../scene/Geometry";
 
 export class Primitive extends Geometry {

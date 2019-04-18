@@ -1,4 +1,3 @@
-import { VertexBuffer } from "../scene/VertexBuffer";
 import PrimitivetMaterial from "../materials/PrimitiveMaterial";
 import { Vec } from "../Math";
 import { Primitive } from "./Primitive";

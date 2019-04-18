@@ -51,8 +51,10 @@ export class Renderer extends GLContext {
 
 		this.setResolution(...Renderer.defaults.resolution);
 
+		this.shadowMapSize = 4096;
+
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, 3840, true),
+			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),

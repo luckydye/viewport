@@ -1,12 +1,11 @@
 import { FirstPersonCamera } from "./src/camera/FirstPersonCamera";
 import { FirstPersonControler } from "./src/controlers/FirstPersonControler";
-import { Guide } from "./src/geo/Guide";
-import { Importer } from './src/Importer.js';
+import { Loader } from './src/Loader.js';
 import { Logger } from './src/Logger.js';
-import { Raycast, Vec } from "./src/Math.js";
 import { Renderer } from "./src/renderer/Renderer";
 import { Resources } from "./src/Resources.js";
 import { Scene } from "./src/scene/Scene.js";
+import { Vec } from "./src/Math";
 
 const logger = new Logger('Viewport');
 
@@ -91,7 +90,7 @@ export default class Viewport extends HTMLElement {
     init(canvas) {
         const mats = Resources.get('materials');
         for(let name in mats) {
-            Importer.createMatFromJson(name, mats[name]);
+            Loader.createMatFromJson(name, mats[name]);
         }
 
         this.renderer = new Renderer(canvas);
@@ -103,22 +102,6 @@ export default class Viewport extends HTMLElement {
         });
 
         new FirstPersonControler(this.camera, canvas);
-
-        canvas.addEventListener('click', e => {
-            // define ground plane
-            const plane = new Vec(0, 0, 0);
-            const normal = new Vec(0, 1, 0);
-
-            // ray
-            const ray = new Raycast(this.camera, e.x, e.y);
-            const hit = ray.hit(plane, normal);
-
-            if(hit) {
-                this.scene.add(new Guide({
-                    position: hit.position
-                }));
-            }
-        })
 
         this.createScene();
 

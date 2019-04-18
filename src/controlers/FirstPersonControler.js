@@ -1,19 +1,5 @@
 import { EntityControler } from "./EntityControler";
 
-function isMouseButton(e) {
-	let mbutton;
-	if(e.button != null) {
-		if(e.buttons == 4) {
-			mbutton = 2;
-		} else {
-			mbutton = e.buttons;
-		}
-	} else {
-		mbutton = e.which;
-	}
-	return mbutton;
-}
-
 export class FirstPersonControler extends EntityControler {
 
 	up() {

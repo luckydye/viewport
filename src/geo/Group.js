@@ -1,4 +1,4 @@
-import { Geometry } from "./Geometry";
+import { Geometry } from "../scene/Geometry";
 
 export class Group extends Geometry {
 
