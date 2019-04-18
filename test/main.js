@@ -56,21 +56,21 @@ viewport.onload = () => {
         points: anim.keyframes.map(k => k.value)
     }));
 
-    // viewport.addEventListener('click', e => {
-    //     // define ground plane
-    //     const plane = new Vec(0, 0, 0);
-    //     const normal = new Vec(0, 1, 0);
+    viewport.addEventListener('click', e => {
+        // define ground plane
+        const plane = new Vec(0, 0, 0);
+        const normal = new Vec(0, 1, 0);
 
-    //     // ray
-    //     const ray = new Raycast(camera, e.x, e.y);
-    //     const hit = ray.hit(plane, normal);
+        // ray
+        const ray = new Raycast(camera, e.x, e.y);
+        const hit = ray.hit(plane, normal);
 
-    //     if(hit) {
-    //         viewport.scene.add(new Guide({
-    //             position: hit.position
-    //         }));
-    //     }
-    // })
+        if(hit) {
+            viewport.scene.add(new Guide({
+                position: hit.position
+            }));
+        }
+    })
 }
 
 window.addEventListener('DOMContentLoaded', () => {

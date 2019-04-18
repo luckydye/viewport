@@ -68,9 +68,9 @@ export class Animation {
     }
 
     applyAnimation(target, lastKeyframe, nextKeyframe, progress) {
-        target.position.x = this.linearLerp(lastKeyframe.value[0], nextKeyframe.value[0], progress);
-        target.position.y = this.linearLerp(lastKeyframe.value[1], nextKeyframe.value[1], progress);
-        target.position.z =this.linearLerp(lastKeyframe.value[2], nextKeyframe.value[2], progress);
+        for(let i in target.position) {
+            target.position[i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
+        }
     }
 
     linearLerp(value1, value2, progress) {
@@ -84,8 +84,16 @@ export class Animation {
 
 export class Keyframe {
 
+    get value() {
+        let values = [ this.input ];
+        if(Array.isArray(this.input)) {
+            values = this.input;
+        }
+        return values;
+    }
+
     constructor(value) {
-        this.value = value;
+        this.input = value;
     }
 
 }
