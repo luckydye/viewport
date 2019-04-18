@@ -10,10 +10,15 @@ export class Tool extends Guide {
 		]
 	}
 
+	onCreate(args) {
+		super.onCreate(args);
+		args.drawmode = "TRIANGLES";
+	}
+
 	get vertecies() {
-		const s = 10;
-		const w = 30;
-		const l = 1;
+		const s = 20;
+		const w = 40;
+		const l = 2;
 
 		let { x, y, z } = new Vec();
 
@@ -59,13 +64,13 @@ export class Tool extends Guide {
 
 			// // /\
 
-			// x + 2, y, z + w,	1, 1, 1,
+			// x + 4, y, z + w,	1, 1, 1,
 			// x, y, z + s + w,	1, 1, 1,
-			// x - 2, y, z + w,	1, 1, 1,
+			// x - 4, y, z + w,	1, 1, 1,
 
-			// x, y + 2, z + w,	1, 1, 1,
+			// x, y + 4, z + w,	1, 1, 1,
 			// x, y, z + s + w,	1, 1, 1,
-			// x, y - 2, z + w,	1, 1, 1,
+			// x, y - 4, z + w,	1, 1, 1,
 		];
 	}
 

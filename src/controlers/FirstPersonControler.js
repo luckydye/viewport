@@ -82,35 +82,25 @@ export class FirstPersonControler extends EntityControler {
 		const entity = this.entity;
 
 		const down = e => {
-			this.moving = true;
 			this.viewport.requestPointerLock();
 		}
 
-		const up = e => {
-			this.moving = false;
-			this.viewport.style.cursor = "default";
-			document.exitPointerLock();
-		}
-
 		const move = e => {
-			if(this.moving) {
-				if(isMouseButton(e) == 1 || e.type == "touchmove") {
-					entity.rotation.y += e.movementX * this.sensivity;
-					entity.rotation.x += e.movementY * this.sensivity;
+			if(document.pointerLockElement != null) {
+				entity.rotation.y += e.movementX * this.sensivity;
+				entity.rotation.x += e.movementY * this.sensivity;
 
-					entity.rotation.x = entity.rotation.x % (Math.PI * 2);
-					entity.rotation.y = entity.rotation.y % (Math.PI * 2);
-					entity.rotation.z = entity.rotation.z % (Math.PI * 2);
+				entity.rotation.x = entity.rotation.x % (Math.PI * 2);
+				entity.rotation.y = entity.rotation.y % (Math.PI * 2);
+				entity.rotation.z = entity.rotation.z % (Math.PI * 2);
 
-					entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
+				entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
 
-					this.viewport.style.cursor = "grabbing";
-				}
+				this.viewport.style.cursor = "grabbing";
 			}
 		}
 
 		this.viewport.addEventListener("mousedown", down);
-		window.addEventListener("mouseup", up);
 		this.viewport.addEventListener("mousemove", move);
 	}
 

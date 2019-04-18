@@ -42,6 +42,14 @@ export class Scene {
 		}
 	}
 
+	remove(obj) {
+		if(Array.isArray(obj)) {
+			obj.forEach(o => this.objects.delete(o));
+		} else {
+			this.objects.delete(obj);
+		}
+	}
+
 	clear() {
 		this.objects.clear();
 	}

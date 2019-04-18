@@ -18,14 +18,19 @@ export class Vector extends Primitive {
 		args.drawmode = "LINE_STRIP";
 
         args.points = args.points || [];
-        this.points = args.points;
+		this.points = args.points;
+		this.color = [0, 1, 0];
+	}
+
+	update() {
+		this._buffer = null;
 	}
 
 	get vertecies() {
         const vertArray = [];
 		for(let p of this.points) {
             const {x, y, z} = p;
-			vertArray.push(x, y, z,	1, 1, 1);
+			vertArray.push(x, y, z,	...this.color);
         }
 		return vertArray;
 	}

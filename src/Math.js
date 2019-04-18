@@ -10,6 +10,14 @@ export class Vec extends Array {
 		);
 	}
 
+	static divide(vec1, vec2) {
+		return new Vec(
+			(vec1[0] / vec2[0]),
+			(vec1[1] / vec2[1]),
+			(vec1[2] / vec2[2]),
+		);
+	}
+
 	static add(vec1, vec2) {
 		return new Vec(
 			vec1[0] + vec2[0],
@@ -71,6 +79,10 @@ export class Vec extends Array {
 		return Vec.multiply(this, vec);
 	}
 
+	divide(vec) {
+		return Vec.divide(this, vec);
+	}
+
 	subtract(vec) {
 		return Vec.subtract(this, vec);
 	}
@@ -85,43 +97,57 @@ export class Vec extends Array {
 	}
 }
 
-export class RayCast extends Vec {
+export class Raycast extends Vec {
 
 	constructor(camera, x, y) {
 		super();
 		
+		const camPos = camera.worldPosition;
 		const width = camera.sensor.width;
 		const height = camera.sensor.height;
 
-		this.normalized(x, y, width, height);
-		this.cast(camera.projMatrix);
-		this.toWorld(camera.viewMatrix);
-	}
+		this.origin = new Vec(camPos.x, camPos.y, camPos.z);
 
-	normalized(vx, vy, vwidth, vheight) {
-		this[0] = (2 * vx) / vwidth - 1;
-		this[1] = 1 - (2 * vy) / vheight;
-		this[2] = -1;
+		this[0] = (2 * x) / width - 1;
+		this[1] = 1 - (2 * y) / height;
+		this[2] = 1;
 		this[3] = 1;
 
-		return this;
+		this.cast(camera.projMatrix, camera.viewMatrix);
 	}
 
-	cast(projMatrix) {
+	cast(projMatrix, viewMatrix) {
+
 		const projInverse = mat4.create();
 		mat4.invert(projInverse, projMatrix);
 		vec4.transformMat4(this, this, projInverse);
-		return this;
-	}
 
-	toWorld(viewMatrix) {
 		const viewInverse = mat4.create();
 		mat4.invert(viewInverse, viewMatrix);
 		vec4.transformMat4(this, this, viewInverse);
+
 		vec4.normalize(this, this);
-		return this;
 	}
 
+	distnace(plane, normal) {
+		const a = this.origin.add(plane).dot(normal);
+		const b = this.dot(normal);
+		return - (a / b);
+	}
+
+	hit(plane, normal) {
+		const t = this.distnace(plane, normal);
+		const pos = this.origin.add(this.multiply(new Vec(t, t, t)));
+
+		if(t > 0 && t < 10000) {
+			return {
+				distance: t,
+				position: pos,
+			};
+		}
+
+		return null;
+	}
 }
 
 export class Transform {
