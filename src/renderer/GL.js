@@ -4,9 +4,9 @@ import { GLShader } from "../shader/GLShader";
 
 export class GLContext {
 
+	// canvas sizes
 	get width() { return this.gl.canvas.width; }
 	get height() { return this.gl.canvas.height; }
-
 	get aspectratio() { return this.width / this.height; }
 
 	onCreate() {
@@ -50,20 +50,24 @@ export class GLContext {
 		}
 	}
 
+	// set viewport resolution
 	viewport(width, height) {
 		this.gl.viewport(0, 0, width, height);
 	}
 
+	// set canvas and viewport resolution
 	setResolution(width, height) {
 		this.gl.canvas.width = width;
 		this.gl.canvas.height = height;
 		this.viewport(this.width, this.height);
 	}
 
+	// clear framebuffer
 	clear() {
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	}
 
+	// get webgl context from canvas
 	getContext(canvas) {
 		this.canvas = canvas;
 
@@ -77,12 +81,14 @@ export class GLContext {
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 	}
 
+	// use webgl shader
 	useShader(shader) {
 		this.gl.useProgram(shader.program);
 		shader.setUniforms(this.gl);
 		this.currentShader = shader;
 	}
 
+	// use framebuffer
 	useTexture(texture, uniformStr, slot) {
 		if(uniformStr && slot != null) {
 			this.gl.activeTexture(this.gl["TEXTURE" + slot]);
@@ -93,6 +99,7 @@ export class GLContext {
 		}
 	}
 
+	// use framebuffer
 	useFramebuffer(name) {
 		if(this.framebuffers.has(name)) {
 			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(name));
@@ -101,15 +108,18 @@ export class GLContext {
 		}
 	}
 
+	// unbind framebuffer
 	clearFramebuffer() {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 
+	// get framebuffer texture from cache
 	getBufferTexture(name) {
 		return this.bufferTextures.get(name);
 	}
 
+	// initialize webgl shader
 	prepareShader(shader) {
 		const gl = this.gl;
 		if(shader instanceof GLShader) {
@@ -130,6 +140,7 @@ export class GLContext {
 		}
 	}
 
+	// get attributes from shader program
 	getAttributes(program) {
 		const gl = this.gl;
 		const attributes = {};
@@ -143,6 +154,7 @@ export class GLContext {
 		return attributes;
 	}
 
+	// get uniforms from shader program
 	getUniforms(program) {
 		const gl = this.gl;
 		const uniforms = {};
@@ -154,6 +166,7 @@ export class GLContext {
 		return uniforms;
 	}
 
+	// compile glsl shader
 	compileShader(src, type) {
 		const gl = this.gl;
 		const shader = gl.createShader(type);
@@ -168,6 +181,7 @@ export class GLContext {
 		return shader;
 	}
 
+	// use vertex attribute object
 	useVAO(name) {
 		const VAO = this.vertexArrayObjects.get(name);
 		if(VAO) {
@@ -177,12 +191,14 @@ export class GLContext {
 		}
 	}
 
+	// create vertex attribute object
 	createVAO(name) {
 		const VAO = this.gl.createVertexArray();
 		this.vertexArrayObjects.set(name, VAO);
 		this.gl.bindVertexArray(VAO);
 	}
 
+	// create webgl framebuffer objects
 	createFramebuffer(name, width, height) {
 		const gl = this.gl;
 
@@ -220,6 +236,7 @@ export class GLContext {
 		}
 	}
 
+	// create shader program
 	createProgram(vertShader, fragShader) {
 		const gl = this.gl;
 		const program = gl.createProgram();
@@ -234,6 +251,7 @@ export class GLContext {
 		return program;
 	}
 
+	// create framebuffer depth texture
 	createDepthTexture(w, h) {
 		const gl = this.gl;
 
@@ -251,6 +269,7 @@ export class GLContext {
 		return texture;
 	}
 
+	// create framebuffer texture
 	createBufferTexture(w, h) {
 		const gl = this.gl;
 
@@ -268,6 +287,7 @@ export class GLContext {
 		return texture;
 	}
 
+	// update webgl texture
 	updateTexture(texture, image) {
 		const gl = this.gl;
 		gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -275,7 +295,8 @@ export class GLContext {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 
-	createTexture(image, w, h) {
+	// create webgl texture
+	createTexture(image) {
 		const gl = this.gl;
 
 		const texture = gl.createTexture();
@@ -298,8 +319,8 @@ export class GLContext {
 		return texture;
 	}
 
-	setTransformUniforms(uniforms, geo) {
-		const gl = this.gl;
+	// translate / transform geometry
+	setGeoTransformUniforms(uniforms, geo) {
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
 
@@ -319,36 +340,49 @@ export class GLContext {
 			scale, scale, scale
 		));
 
-		gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
+		this.gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
 	}
 
+	// prepare geometry buffers for draw
 	setBuffersAndAttributes(attributes, bufferInfo) {
 		const gl = this.gl;
-		const elements = bufferInfo.elements;
-		const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
+
+		// exit if verts are meptyy
+		if(bufferInfo.vertecies.length < 1) return;
+		
+		// create new buffers
 		let newbuffer = false;
-
-		if(bufferInfo.vertecies.length < 1) {
-			return;
-		}
-
 		if(!('buffer' in bufferInfo)) {
-			bufferInfo.buffer = gl.createBuffer();
 			newbuffer = true;
+
+			bufferInfo.vertexBuffer = gl.createBuffer();
+			bufferInfo.indexBuffer = gl.createBuffer();
 		}
-		const buffer = bufferInfo.buffer;
 	
-		if (!buffer) throw new Error('Failed to create buffer.');
+		// bind indexbuffer
+		const indexBuffer = bufferInfo.indexBuffer;
+		if (!indexBuffer) throw new Error('Failed to create indexbuffer.');
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		if(newbuffer) {
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
+		}
+
+		// bind vertexbuffer
+		const vertexBuffer = bufferInfo.vertexBuffer;
+		if (!vertexBuffer) throw new Error('Failed to create vertexBuffer.');
 	
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		if(newbuffer) {
 			gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.STATIC_DRAW);
 		}
-	
+
+		const elements = bufferInfo.elements;
+		const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
+
 		let lastAttrSize = 0;
 	
 		for(let i = 0; i < bufferInfo.attributes.length; i++) {
-
 			gl.vertexAttribPointer(
 				attributes[bufferInfo.attributes[i].attribute], 
 				bufferInfo.attributes[i].size, 
@@ -361,6 +395,8 @@ export class GLContext {
 	
 			lastAttrSize += bufferInfo.attributes[i].size;
 		}
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
 	}
 	
 }

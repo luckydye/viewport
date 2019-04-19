@@ -1,13 +1,11 @@
-import Viewport from "../Viewport.js";
-import { Cube } from "../src/geo/Cube.js";
-import { Vec, Transform, Raycast } from "../src/Math.js";
-import TestMaterial from "../src/materials/TestMaterial.js";
-import Config from "../src/Config.js";
-import { Guide } from "../src/geo/Guide.js";
-import { Plane } from "../src/geo/Plane.js";
-import DefaultMaterial from "../src/materials/DefaultMaterial.js";
-import { Animation, Keyframe } from "../src/Animation.js";
-import { Vector } from "../src/geo/Vector.js";
+import Viewport from "../../Viewport.js";
+import { Cube } from "../../src/geo/Cube.js";
+import { Vec, Transform, Raycast } from "../../src/Math.js";
+import TestMaterial from "../../src/materials/TestMaterial.js";
+import Config from "../../src/Config.js";
+import { Guide } from "../../src/geo/Guide.js";
+import { Animation, Keyframe } from "../../src/Animation.js";
+import { Vector } from "../../src/geo/Vector.js";
 
 const viewport = new Viewport();
 

@@ -18,6 +18,14 @@ export class Geometry extends Transform {
 		return this._buffer;
 	}
 
+	get vertecies() {
+		return [];
+	}
+
+	get indecies() {
+		return [];
+	}
+
 	constructor(args = {}) {
 		super(args);
 		
@@ -38,11 +46,14 @@ export class Geometry extends Transform {
 		this.drawmode = drawmode;
 	}
 
-	onCreate(args) {}
+	onCreate(args) {
+
+	}
 
 	createBuffer() {
 		return new VertexBuffer(
 			this.vertecies, 
+			this.indecies, 
 			this.constructor.attributes, 
 			this.drawmode
 		);
@@ -63,18 +74,18 @@ class VertexBuffer {
 		return count;
 	}
 
-	constructor(vertArray, attributes, type) {
-		this.type = type || "TRIANGLES";
+	constructor(vertArray, indexArray, attributes, type) {
+
 		this.vertecies = new Float32Array(vertArray);
+		this.indecies = new Uint16Array(indexArray);
+
 		this.attributes = attributes || [
 			{ size: 3, attribute: "aPosition" },
 			{ size: 2, attribute: "aTexCoords" },
 			{ size: 3, attribute: "aNormal" },
 		];
-	}
-
-	clear() {
-		this.vertecies = new Float32Array([]);
+		
+		this.type = type || "TRIANGLES";
 	}
 
 }

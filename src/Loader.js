@@ -2,10 +2,17 @@ import { Material } from "./materials/Material";
 import { Resources } from "./Resources";
 import { Texture } from "./materials/Texture";
 import { Logger } from "./Logger";
+import { Mesh } from "./geo/Mesh";
 
 const logger = new Logger('Loader');
 
 export class Loader {
+
+    static createMeshFromObj(data) {
+        const mesh = new Mesh();
+        
+        return mesh;
+    }
 
     static createMatFromJson(name, json) {
         const mat = new Material(name);

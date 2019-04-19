@@ -129,12 +129,17 @@ export class Renderer extends GLContext {
 
 				case "guides":
 					pass.use();
-					this.disable(this.gl.CULL_FACE);
+					
+					let cullDefault = this.gl.isEnabled(this.gl.CULL_FACE);
+					if(cullDefault) this.disable(this.gl.CULL_FACE);
+
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.guide;
 					});
 					this.drawMesh(this.scene.curosr);
-					this.enable(this.gl.CULL_FACE);
+
+					if(cullDefault) this.enable(this.gl.CULL_FACE);
+
 					break;
 			}
 		}
@@ -267,12 +272,28 @@ export class Renderer extends GLContext {
 
 	drawGeo(geo) {
 		const shader = this.currentShader;
-
-		this.setTransformUniforms(shader.uniforms, geo);
-
 		const buffer = geo.buffer;
+
+		this.setGeoTransformUniforms(shader.uniforms, geo);
 		this.setBuffersAndAttributes(shader.attributes, buffer);
-		this.gl.drawArrays(this.gl[geo.buffer.type], 0, buffer.vertecies.length / buffer.elements);
+
+		if(buffer.indecies.length == 0) {
+			this.drawTriangles(buffer);
+		} else {
+			this.drawFaces(buffer);
+		}
+	}
+
+	drawFaces(buffer) {
+		const gl = this.gl;
+		const vertCount = buffer.indecies.length;
+		gl.drawElements(gl[buffer.type], vertCount, gl.UNSIGNED_SHORT, 0);
+	}
+
+	drawTriangles(buffer) {
+		const gl = this.gl;
+		const vertCount = buffer.vertecies.length / buffer.elements;
+		gl.drawArrays(gl[buffer.type], 0, vertCount);
 	}
 
 }

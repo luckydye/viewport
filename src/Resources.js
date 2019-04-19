@@ -140,6 +140,7 @@ export class Resources {
 			vertecies: [],
 			uvs: [],
 			indecies: [],
+			normals: [],
 		}
 
 		for(let line of lines) {
@@ -168,9 +169,19 @@ export class Resources {
 
 				case "f":
 					coords = data.slice(1);
-					objData.indecies.push([
-						coords[0],
-						coords[1]
+					for(let c in coords) {
+						objData.indecies.push(
+							[...coords[c].split('/').map(x => parseInt(x))]
+						);
+					}
+					break;
+
+				case "vn":
+					coords = data.slice(1);
+					objData.normals.push([
+						+coords[0],
+						+coords[1],
+						+coords[2]
 					]);
 					break;
 			}
