@@ -9,7 +9,7 @@ export class Group extends Geometry {
 	build() {
 		const vertArray = [];
 		for(let obj of this.objects) {
-			vertArray.push(...obj._buffer.vertecies);
+			vertArray.push(...obj.buffer.vertecies);
 		}
 		return vertArray;
 	}
