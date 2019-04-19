@@ -130,10 +130,10 @@ export class Renderer extends GLContext {
 				case "guides":
 					pass.use();
 					this.disable(this.gl.CULL_FACE);
-					this.drawMesh(this.scene.curosr);
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.guide;
 					});
+					this.drawMesh(this.scene.curosr);
 					this.enable(this.gl.CULL_FACE);
 					break;
 			}
