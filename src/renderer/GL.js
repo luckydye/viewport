@@ -344,40 +344,45 @@ export class GLContext {
 
 		// exit if verts are meptyy
 		if(bufferInfo.vertecies.length < 1) return;
+
+		const newbuffer = !bufferInfo.indexBuffer || !bufferInfo.vertexBuffer;
 		
 		// create new buffers
-		if(!bufferInfo.vao) {
-			bufferInfo.vao = this.createVAO();
+		if(newbuffer) {
+			// bufferInfo.vao = this.createVAO();
 
-			if(bufferInfo.indecies.length > 0) {
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
-				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
-			}
+			bufferInfo.indexBuffer = gl.createBuffer();
+			bufferInfo.vertexBuffer = gl.createBuffer();
 
-			gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo.vertexBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.STATIC_DRAW);
-
-			const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
-
-			let lastAttrSize = 0;
-
-			const bufferAttributes = bufferInfo.attributes;
-
-			for(let i = 0; i < bufferInfo.attributes.length; i++) {
-				gl.vertexAttribPointer(
-					attributes[bufferAttributes[i].attribute], 
-					bufferAttributes[i].size,
-					gl.FLOAT, 
-					false, 
-					bufferInfo.elements * bpe, 
-					lastAttrSize * bpe
-				);
-				gl.enableVertexAttribArray(attributes[bufferAttributes[i].attribute]);
+			
+		} else {
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo.vertexBuffer);
+		}
 		
-				lastAttrSize += bufferAttributes[i].size;
-			}
+		const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
 
-			this.useVAO(null);
+		let lastAttrSize = 0;
+
+		const bufferAttributes = bufferInfo.attributes;
+
+		for(let i = 0; i < bufferInfo.attributes.length; i++) {
+			gl.vertexAttribPointer(
+				attributes[bufferAttributes[i].attribute], 
+				bufferAttributes[i].size,
+				gl.FLOAT, 
+				false, 
+				bufferInfo.elements * bpe, 
+				lastAttrSize * bpe
+			);
+			gl.enableVertexAttribArray(attributes[bufferAttributes[i].attribute]);
+	
+			lastAttrSize += bufferAttributes[i].size;
 		}
 	}
 	

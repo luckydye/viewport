@@ -269,8 +269,6 @@ export class Renderer extends GLContext {
 
 		this.setGeoTransformUniforms(geo);
 
-		this.useVAO(buffer.vao);
-
 		const drawmode = gl[buffer.type];
 
 		if(buffer.indecies.length > 0) {
