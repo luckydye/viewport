@@ -91,18 +91,21 @@ export class Renderer extends GLContext {
 	renderMultiPasses(passes) {
 		for(let pass of passes) {
 			const lightS = this.scene.lightSources;
+					
+			const cullDefault = this.gl.isEnabled(this.gl.CULL_FACE);
 			
 			switch(pass.id) {
 				
 				case "shadow":
 					pass.use();
-					this.drawScene(this.scene, this.scene.lightSources, obj => {
+					this.drawScene(this.scene, lightS, obj => {
 						return obj.material && obj.material.castShadows;
 					});
 					break;
 
 				case "light":
 					pass.use();
+
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
 
 					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, 
@@ -111,6 +114,7 @@ export class Renderer extends GLContext {
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.material && obj.material.receiveShadows;
 					});
+
 					break;
 				
 				case "reflection":
@@ -130,7 +134,6 @@ export class Renderer extends GLContext {
 				case "guides":
 					pass.use();
 					
-					let cullDefault = this.gl.isEnabled(this.gl.CULL_FACE);
 					if(cullDefault) this.disable(this.gl.CULL_FACE);
 
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {

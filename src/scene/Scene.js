@@ -13,7 +13,7 @@ export class Scene {
 		
 		this.lightSources = new DirectionalLight({ 
             fov: 90,
-            position: new Vec(0, 0, -10000),
+            position: new Vec(0, 0, -8000),
 			rotation: new Vec(20, 20, 0),
 		});
 		

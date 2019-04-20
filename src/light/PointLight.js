@@ -5,7 +5,7 @@ export class PointLight extends Cube {
 	get isLight() { return true; }
 
 	onCreate({
-		intensity = 5.0,
+		intensity = 2.0,
 		color = [1, 1, 1],
 		size = 10,
 	}) {

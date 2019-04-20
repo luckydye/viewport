@@ -31,7 +31,7 @@ float ShadowCalculation(vec4 fragPosLightSpace) {
     float closestDepth = texture(shadowDepthMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
     
-    float bias = 0.00000065;
+    float bias = 0.0000033;
     float shadow = currentDepth - bias < closestDepth ? 1.0 : 0.0;
 
     return shadow;
@@ -64,7 +64,7 @@ void main () {
     
     // ambient
     vec3 ambientColor = uAmbientColor;
-    oFragColor += vec4(ambientColor, 1.0);
+    oFragColor += vec4(ambientColor, 0.75);
 
     // pointlights
     for(int i = 0; i < POINT_LIGHTS_COUNT; i++) {
