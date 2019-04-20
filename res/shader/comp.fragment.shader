@@ -39,7 +39,5 @@ void main(void) {
         oFragColor += vec4(fogValue, 1.0) * 2.0;
     }
 
-    if(guides.a > 0.0) {
-        oFragColor = guides / oFragColor * vec4(3.0);
-    }
+	oFragColor += guides;
 }

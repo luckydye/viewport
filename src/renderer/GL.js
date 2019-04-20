@@ -314,7 +314,9 @@ export class GLContext {
 	}
 
 	// translate / transform geometry
-	setGeoTransformUniforms(uniforms, geo) {
+	setGeoTransformUniforms(geo) {
+		const uniforms = this.currentShader.uniforms;
+
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
 
@@ -330,16 +332,15 @@ export class GLContext {
 		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
 		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
 
-		mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(
-			scale, scale, scale
-		));
+		mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(scale, scale, scale));
 
 		this.gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
 	}
 
 	// prepare geometry buffers for draw
-	setBuffersAndAttributes(attributes, bufferInfo) {
+	initializeBuffersAndAttributes(bufferInfo) {
 		const gl = this.gl;
+		const attributes = this.currentShader.attributes;
 
 		// exit if verts are meptyy
 		if(bufferInfo.vertecies.length < 1) return;
@@ -348,29 +349,32 @@ export class GLContext {
 		if(!bufferInfo.vao) {
 			bufferInfo.vao = this.createVAO();
 
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
+			if(bufferInfo.indecies.length > 0) {
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
+			}
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 			gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.STATIC_DRAW);
 
+			const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
+
 			let lastAttrSize = 0;
 
-			const elements = bufferInfo.elements;
-			const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
-	
+			const bufferAttributes = bufferInfo.attributes;
+
 			for(let i = 0; i < bufferInfo.attributes.length; i++) {
 				gl.vertexAttribPointer(
-					attributes[bufferInfo.attributes[i].attribute], 
-					bufferInfo.attributes[i].size, 
+					attributes[bufferAttributes[i].attribute], 
+					bufferAttributes[i].size,
 					gl.FLOAT, 
 					false, 
-					elements * bpe, 
+					bufferInfo.elements * bpe, 
 					lastAttrSize * bpe
 				);
-				gl.enableVertexAttribArray(attributes[bufferInfo.attributes[i].attribute]);
+				gl.enableVertexAttribArray(attributes[bufferAttributes[i].attribute]);
 		
-				lastAttrSize += bufferInfo.attributes[i].size;
+				lastAttrSize += bufferAttributes[i].size;
 			}
 
 			this.useVAO(null);

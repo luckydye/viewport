@@ -91,7 +91,6 @@ export class Renderer extends GLContext {
 	renderMultiPasses(passes) {
 		for(let pass of passes) {
 			const lightS = this.scene.lightSources;
-					
 			const cullDefault = this.gl.isEnabled(this.gl.CULL_FACE);
 			
 			switch(pass.id) {
@@ -105,16 +104,11 @@ export class Renderer extends GLContext {
 
 				case "light":
 					pass.use();
-
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
-
-					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, 
-						false, lightS.projViewMatrix);
-
+					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 					this.drawScene(this.scene, this.scene.activeCamera, obj => {
 						return obj.material && obj.material.receiveShadows;
 					});
-
 					break;
 				
 				case "reflection":
@@ -133,16 +127,10 @@ export class Renderer extends GLContext {
 
 				case "guides":
 					pass.use();
-					
 					if(cullDefault) this.disable(this.gl.CULL_FACE);
-
-					this.drawScene(this.scene, this.scene.activeCamera, obj => {
-						return obj.guide;
-					});
+					this.drawScene(this.scene, this.scene.activeCamera, obj => obj.guide);
 					this.drawMesh(this.scene.curosr);
-
 					if(cullDefault) this.enable(this.gl.CULL_FACE);
-
 					break;
 			}
 		}
@@ -275,20 +263,20 @@ export class Renderer extends GLContext {
 
 	drawGeo(geo) {
 		const gl = this.gl;
-		const shader = this.currentShader;
 		const buffer = geo.buffer;
-
-		this.setGeoTransformUniforms(shader.uniforms, geo);
-		this.setBuffersAndAttributes(shader.attributes, buffer);
 		
+		this.initializeBuffersAndAttributes(buffer);
+
+		this.setGeoTransformUniforms(geo);
+
 		this.useVAO(buffer.vao);
 
-		if(buffer.indecies.length == 0) {
-			const vertCount = buffer.vertecies.length / buffer.elements;
-			gl.drawArrays(gl[buffer.type], 0, vertCount);
+		const drawmode = gl[buffer.type];
+
+		if(buffer.indecies.length > 0) {
+			gl.drawElements(drawmode, buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
 		} else {
-			const vertCount = buffer.indecies.length;
-			gl.drawElements(gl[buffer.type], vertCount, gl.UNSIGNED_SHORT, 0);
+			gl.drawArrays(drawmode, 0, buffer.vertecies.length / buffer.elements);
 		}
 	}
 

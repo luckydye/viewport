@@ -1,5 +1,7 @@
 #version 300 es
 
+layout(std140, column_major) uniform;
+
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoords;
 layout(location = 2) in vec3 aNormal;
@@ -21,20 +23,20 @@ out vec3 vertexPos;
 out mat4 vLightProjViewMatrix;
 
 void main() {
-  vec4 pos = uModelMatrix * vec4(aPosition, 1.0);
+	vec4 pos = uModelMatrix * vec4(aPosition, 1.0);
 
-  float bump = texture(displacementMap, aTexCoords).r * 200.0;
+	float bump = texture(displacementMap, aTexCoords).r * 200.0;
 
-  float xbump = bump * aNormal.x;
-  float ybump = bump * (aNormal.y-1.0 * -1.0);
-  float zbump = bump * aNormal.z;
+	float xbump = bump * aNormal.x;
+	float ybump = bump * (aNormal.y-1.0 * -1.0);
+	float zbump = bump * aNormal.z;
 
-  gl_Position = uProjMatrix * uViewMatrix * vec4(pos.x + xbump, pos.y + ybump, pos.z + zbump, 1.0);
-  gl_PointSize = 5.0;
+	gl_Position = uProjMatrix * uViewMatrix * vec4(pos.x + xbump, pos.y + ybump, pos.z + zbump, 1.0);
+	gl_PointSize = 5.0;
 
-  vLightProjViewMatrix = lightProjViewMatrix;
-  vertexPos = aPosition;
-  vWorldPos = pos;
-  vNormal = aNormal;
-  vTexCoords = aTexCoords;
+	vLightProjViewMatrix = lightProjViewMatrix;
+	vertexPos = aPosition;
+	vWorldPos = pos;
+	vNormal = aNormal;
+	vTexCoords = aTexCoords;
 }
