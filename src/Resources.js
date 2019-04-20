@@ -1,3 +1,5 @@
+import OBJFile from "./resources/OBJFile.js";
+
 const global = {};
 
 global.initLoaded = false;
@@ -119,7 +121,7 @@ export class Resources {
 
 			case Resources.Types.GEOMETRY:
 				return fetch(path).then(res => res.text().then(strData => {
-					return Resources.parseOBJFile(strData);
+					return OBJFile.parseFile(strData);
 				}));
 				
 			case Resources.Types.TEXT:
@@ -131,63 +133,6 @@ export class Resources {
 			default:
 				throw `Err: not a valid resource type: "${path}"`;
 		}
-	}
-
-	static parseOBJFile(str) {
-		const lines = str.split(/\n/g);
-
-		const objData = {
-			vertecies: [],
-			uvs: [],
-			indecies: [],
-			normals: [],
-		}
-
-		for(let line of lines) {
-			const data = line.split(" ");
-			const prefix = data[0];
-			let coords = [];
-
-			switch(prefix) {
-
-				case "v":
-					coords = data.slice(1);
-					objData.vertecies.push([
-						+coords[0],
-						+coords[1],
-						+coords[2]
-					]);
-					break;
-
-				case "vt":
-					coords = data.slice(1);
-					objData.uvs.push([
-						+coords[0],
-						+coords[1]
-					]);
-					break;
-
-				case "f":
-					coords = data.slice(1);
-					for(let c in coords) {
-						objData.indecies.push(
-							[...coords[c].split('/').map(x => parseInt(x))]
-						);
-					}
-					break;
-
-				case "vn":
-					coords = data.slice(1);
-					objData.normals.push([
-						+coords[0],
-						+coords[1],
-						+coords[2]
-					]);
-					break;
-			}
-		}
-
-		return objData;
 	}
 
 }

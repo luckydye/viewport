@@ -3,14 +3,38 @@ import { Resources } from "./Resources";
 import { Texture } from "./materials/Texture";
 import { Logger } from "./Logger";
 import { Mesh } from "./geo/Mesh";
+import TestMaterial from "./materials/TestMaterial";
 
 const logger = new Logger('Loader');
 
 export class Loader {
 
-    static createMeshFromObj(data) {
-        const mesh = new Mesh();
+    static createMeshFromObjFile(objFile) {
+        const indecies = [];
+        const uvs = [];
+        const vertecies = [];
+
+        console.log(objFile);
+
+        objFile.faces.forEach((f, i) => {
+            for(let i = 0; i < 3; i++) {
+                indecies.push(f[i][0] - 1);
+                uvs.push(f[i][1] - 1);
+            }
+        });
+
+        objFile.vertecies.forEach((v, i) => {
+            vertecies.push(...v, uvs[i][0], uvs[i][1]);
+        });
         
+        const mesh = new Mesh({
+            drawmode: 'TRIANGLES',
+            material: new TestMaterial(),
+            scale: 100,
+            vertecies: vertecies,
+            indecies: indecies,
+            uvs: uvs
+        });
         return mesh;
     }
 

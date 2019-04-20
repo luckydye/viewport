@@ -26,7 +26,6 @@ export class GLContext {
 
 		this.currentShader = null;
 
-		this.vertexArrayObjects = new Map();
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
@@ -181,21 +180,16 @@ export class GLContext {
 		return shader;
 	}
 
-	// use vertex attribute object
-	useVAO(name) {
-		const VAO = this.vertexArrayObjects.get(name);
-		if(VAO) {
-			this.gl.bindVertexArray(VAO);
-		} else {
-			console.log("Err", "VAO not found");
-		}
+	// use vertex array object
+	useVAO(VAO) {
+		this.gl.bindVertexArray(VAO);
 	}
 
-	// create vertex attribute object
-	createVAO(name) {
+	// create vertex array object
+	createVAO() {
 		const VAO = this.gl.createVertexArray();
-		this.vertexArrayObjects.set(name, VAO);
 		this.gl.bindVertexArray(VAO);
+		return VAO;
 	}
 
 	// create webgl framebuffer objects
@@ -351,52 +345,36 @@ export class GLContext {
 		if(bufferInfo.vertecies.length < 1) return;
 		
 		// create new buffers
-		let newbuffer = false;
-		if(!('buffer' in bufferInfo)) {
-			newbuffer = true;
+		if(!bufferInfo.vao) {
+			bufferInfo.vao = this.createVAO();
 
-			bufferInfo.vertexBuffer = gl.createBuffer();
-			bufferInfo.indexBuffer = gl.createBuffer();
-		}
-	
-		// bind indexbuffer
-		const indexBuffer = bufferInfo.indexBuffer;
-		if (!indexBuffer) throw new Error('Failed to create indexbuffer.');
-
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-		if(newbuffer) {
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
-		}
 
-		// bind vertexbuffer
-		const vertexBuffer = bufferInfo.vertexBuffer;
-		if (!vertexBuffer) throw new Error('Failed to create vertexBuffer.');
-	
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		if(newbuffer) {
+			gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 			gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.STATIC_DRAW);
-		}
 
-		const elements = bufferInfo.elements;
-		const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
+			let lastAttrSize = 0;
 
-		let lastAttrSize = 0;
+			const elements = bufferInfo.elements;
+			const bpe = bufferInfo.vertecies.BYTES_PER_ELEMENT;
 	
-		for(let i = 0; i < bufferInfo.attributes.length; i++) {
-			gl.vertexAttribPointer(
-				attributes[bufferInfo.attributes[i].attribute], 
-				bufferInfo.attributes[i].size, 
-				gl.FLOAT, 
-				false, 
-				elements * bpe, 
-				lastAttrSize * bpe
-			);
-			gl.enableVertexAttribArray(attributes[bufferInfo.attributes[i].attribute]);
-	
-			lastAttrSize += bufferInfo.attributes[i].size;
-		}
+			for(let i = 0; i < bufferInfo.attributes.length; i++) {
+				gl.vertexAttribPointer(
+					attributes[bufferInfo.attributes[i].attribute], 
+					bufferInfo.attributes[i].size, 
+					gl.FLOAT, 
+					false, 
+					elements * bpe, 
+					lastAttrSize * bpe
+				);
+				gl.enableVertexAttribArray(attributes[bufferInfo.attributes[i].attribute]);
+		
+				lastAttrSize += bufferInfo.attributes[i].size;
+			}
 
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
+			this.useVAO(null);
+		}
 	}
 	
 }

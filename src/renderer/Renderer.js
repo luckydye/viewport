@@ -271,29 +271,22 @@ export class Renderer extends GLContext {
 	}
 
 	drawGeo(geo) {
+		const gl = this.gl;
 		const shader = this.currentShader;
 		const buffer = geo.buffer;
 
 		this.setGeoTransformUniforms(shader.uniforms, geo);
 		this.setBuffersAndAttributes(shader.attributes, buffer);
+		
+		this.useVAO(buffer.vao);
 
 		if(buffer.indecies.length == 0) {
-			this.drawTriangles(buffer);
+			const vertCount = buffer.vertecies.length / buffer.elements;
+			gl.drawArrays(gl[buffer.type], 0, vertCount);
 		} else {
-			this.drawFaces(buffer);
+			const vertCount = buffer.indecies.length;
+			gl.drawElements(gl[buffer.type], vertCount, gl.UNSIGNED_SHORT, 0);
 		}
-	}
-
-	drawFaces(buffer) {
-		const gl = this.gl;
-		const vertCount = buffer.indecies.length;
-		gl.drawElements(gl[buffer.type], vertCount, gl.UNSIGNED_SHORT, 0);
-	}
-
-	drawTriangles(buffer) {
-		const gl = this.gl;
-		const vertCount = buffer.vertecies.length / buffer.elements;
-		gl.drawArrays(gl[buffer.type], 0, vertCount);
 	}
 
 }

@@ -22,7 +22,7 @@ export class Scene {
 			position: new Vec(0, 500, 0)
 		});
 
-		this.grid = new Grid(160, 16);
+		this.grid = new Grid(100, 20);
 
 		this.curosr = new Tool({
 			origin: new Vec()

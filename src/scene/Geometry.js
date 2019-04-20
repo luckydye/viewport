@@ -33,16 +33,16 @@ export class Geometry extends Transform {
         
 		const {
 			material = DEFAULT_MATERIAL,
-			uv = [0, 0],
             hidden = false,
 			guide = false,
-			drawmode = "TRIANGLES"
+			drawmode = "TRIANGLES",
+			uv = [0, 0],
 		} = args;
 		
-		this.uv = uv;
 		this.material = material;
         this.hidden = hidden;
 		this.guide = guide;
+		this.uv = uv;
 		this.drawmode = drawmode;
 	}
 
@@ -79,11 +79,7 @@ class VertexBuffer {
 		this.vertecies = new Float32Array(vertArray);
 		this.indecies = new Uint16Array(indexArray);
 
-		this.attributes = attributes || [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" },
-			{ size: 3, attribute: "aNormal" },
-		];
+		this.attributes = attributes;
 		
 		this.type = type || "TRIANGLES";
 	}
