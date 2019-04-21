@@ -27,10 +27,8 @@ export class Scheduler {
 
     run(deltaTime) {
         for(let task of this.queue) {
-            task.execute(deltaTime);
-            if(task.done) {
-                this.removeTask(task);
-            }
+            const done = task.execute(deltaTime);
+            if(done) this.removeTask(task);
         }
     }
 }
@@ -38,13 +36,11 @@ export class Scheduler {
 export class Task {
 
     constructor() {
-        this.done = false;
+        
     }
 
-    execute(ms) {}
-
-    finished() {
-        this.done = true;
+    execute(ms) {
+        return true;
     }
 
 }

@@ -155,7 +155,7 @@ export class Raycast extends Vec {
 		const t = this.distnace(plane, normal);
 		const pos = this.origin.add(this.multiply(new Vec(t, t, t)));
 
-		if(t > 0 && t < 10000) {
+		if(t > 0 && t < 100000) {
 			return {
 				distance: t,
 				position: pos,

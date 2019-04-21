@@ -64,6 +64,8 @@ export class Renderer extends GLContext {
 		this.compShader = new FinalShader();
 		this.prepareShader(this.compShader);
 
+		this.readings = {};
+
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
@@ -89,53 +91,78 @@ export class Renderer extends GLContext {
 	}
 
 	renderMultiPasses(passes) {
+		const gl = this.gl;
+		const camera = this.scene.activeCamera;
+
 		for(let pass of passes) {
 			const lightS = this.scene.lightSources;
-			const cullDefault = this.gl.isEnabled(this.gl.CULL_FACE);
+			const cullDefault = gl.isEnabled(gl.CULL_FACE);
 			
 			switch(pass.id) {
-				
+
 				case "shadow":
 					pass.use();
-					this.drawScene(this.scene, lightS, obj => {
-						return obj.material && obj.material.castShadows;
-					});
+					this.drawScene(this.scene, lightS, obj => obj.material && obj.material.castShadows);
 					break;
 
 				case "light":
 					pass.use();
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
-					this.gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
-					this.drawScene(this.scene, this.scene.activeCamera, obj => {
+					gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
+					this.drawScene(this.scene, camera, obj => {
 						return obj.material && obj.material.receiveShadows;
 					});
 					break;
 				
 				case "reflection":
 					pass.use();
-					this.gl.cullFace(this.gl.FRONT);
-					this.drawScene(this.scene, this.scene.activeCamera);
-					this.gl.cullFace(this.gl.BACK);
+					gl.cullFace(gl.FRONT);
+					this.drawScene(this.scene, camera);
+					gl.cullFace(gl.BACK);
 					break;
 
 				case "diffuse":
 					pass.use();
 					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-					this.drawScene(this.scene);
+					this.drawScene(this.scene, camera, obj => !obj.guide);
 					this.drawGrid();
 					break;
 
 				case "guides":
 					pass.use();
-					if(cullDefault) this.disable(this.gl.CULL_FACE);
-					this.drawScene(this.scene, this.scene.activeCamera, obj => obj.guide);
+					if(cullDefault) this.disable(gl.CULL_FACE);
+					this.drawScene(this.scene, camera, obj => obj.guide);
 					this.drawMesh(this.scene.curosr);
-					if(cullDefault) this.enable(this.gl.CULL_FACE);
+					if(cullDefault) this.enable(gl.CULL_FACE);
 					break;
+			}
+
+			if(pass.id in this.readings) {
+				const read = this.readings[pass.id];
+				read.value = this.readPixels(read.x, read.y, 1, 1);
 			}
 		}
 
 		this.clearFramebuffer();
+	}
+
+	readFromBuffer(x, y, buffer) {
+		if(!this.readings[buffer]) {
+			this.readings[buffer] = {
+				x: 0,
+				y: 0,
+				value: 0
+			};
+		}
+		this.readings[buffer].x = x;
+		this.readings[buffer].y = y;
+	}
+
+	readPixels(x = 0 , y = 0, w = 1, h = 1) {
+		const gl = this.gl;
+		const pixels = new Uint8Array(w * h * 4);
+		gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		return pixels;
 	}
 
 	drawGrid() {
@@ -177,7 +204,7 @@ export class Renderer extends GLContext {
 		this.gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 
 		this.drawGeo(this.renderTarget);
-		
+
 		this.gl.clearColor(0, 0, 0, 0);
 	}
 
@@ -246,22 +273,22 @@ export class Renderer extends GLContext {
 
 		for(let obj of objects) {
 			if(filter && filter(obj) || !filter) {
-				if(!obj.hidden) {
-					this.drawMesh(obj);
-				}
+				this.drawMesh(obj);
 			}
 		}
 	}
 
 	drawMesh(geo) {
 		const shader = this.currentShader;
-		if(geo.material) {
+		if(geo.material && !geo.hidden) {
 			this.applyMaterial(shader, geo.material);
 			this.drawGeo(geo);
 		}
 	}
 
 	drawGeo(geo) {
+		if(geo.hidden) return;
+
 		const gl = this.gl;
 		const buffer = geo.buffer;
 		

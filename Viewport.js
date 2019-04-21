@@ -7,6 +7,7 @@ import { Resources } from "./src/Resources.js";
 import { Scene } from "./src/scene/Scene.js";
 import { Vec } from "./src/Math";
 import { Scheduler } from "./src/Scheduler";
+import { CursorControler } from "./src/controlers/CursorController";
 
 const logger = new Logger('Viewport');
 
@@ -100,16 +101,35 @@ export default class Viewport extends HTMLElement {
         this.renderer = new Renderer(canvas);
 
         this.camera = new FirstPersonCamera({ 
-            fov: 90,
+            fov: 75,
             position: new Vec(0, -400, -2500),
             rotation: new Vec(15, 0, 0),
         });
 
-        new FirstPersonControler(this.camera, canvas);
+        const controler = new FirstPersonControler(this.camera, canvas);
 
         this.createScene();
 
+        const cursorControler = new CursorControler(this.scene.curosr, this);
+        cursorControler.interaction = selected => {
+            if(selected[0] || selected[1] || selected[2]) {
+                controler.lock();
+            } else {
+                controler.unlock();
+            }
+        }
+
         this.dispatchEvent(new Event('load'));
+    }
+
+    setCursor(obj) {
+        if(obj) {
+            this.scene.curosr.hidden = false;
+            this.scene.curosr.position = new Vec(obj.position);
+            obj.position = this.scene.curosr.position;
+        } else {
+            this.scene.curosr.hidden = true;
+        }
     }
 
     createScene() {

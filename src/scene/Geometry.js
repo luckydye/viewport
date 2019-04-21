@@ -19,7 +19,7 @@ export class Geometry extends Transform {
 	}
 
 	get vertecies() {
-		return [];
+		return this.vertArray || [];
 	}
 
 	get indecies() {
@@ -39,11 +39,16 @@ export class Geometry extends Transform {
 			uv = [0, 0],
 		} = args;
 		
+		this.vertArray = args.vertecies;
 		this.material = material;
         this.hidden = hidden;
 		this.guide = guide;
 		this.uv = uv;
 		this.drawmode = drawmode;
+	}
+
+	onSelect(index) {
+		console.log(index);
 	}
 
 	onCreate(args) {

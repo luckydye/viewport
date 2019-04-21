@@ -1,16 +1,9 @@
-import { Primitive } from "./Primitive";
 import DefaultMaterial from "../materials/DefaultMaterial";
+import { Geometry } from "../scene/Geometry";
 
 const DEFAULT_GUIDE_MATERIAL = new DefaultMaterial();
 
-export class Vector extends Primitive {
-
-	static get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-	}
+export class Vector extends Geometry {
 
 	onCreate(args) {
 		args.guide = true;
@@ -19,7 +12,7 @@ export class Vector extends Primitive {
 
         args.points = args.points || [];
 		this.points = args.points;
-		this.color = [0, 1, 0];
+		this.color = [1, 1, 1];
 	}
 
 	update() {
@@ -30,7 +23,7 @@ export class Vector extends Primitive {
         const vertArray = [];
 		for(let p of this.points) {
             const {x, y, z} = p;
-			vertArray.push(x, y, z,	...this.color);
+			vertArray.push(x, y, z,	0,0, ...this.color);
         }
 		return vertArray;
 	}

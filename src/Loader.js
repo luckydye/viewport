@@ -2,14 +2,12 @@ import { Material } from "./materials/Material";
 import { Resources } from "./Resources";
 import { Texture } from "./materials/Texture";
 import { Logger } from "./Logger";
-import { Mesh } from "./geo/Mesh";
-import TestMaterial from "./materials/TestMaterial";
 
 const logger = new Logger('Loader');
 
 export class Loader {
 
-    static createMeshFromObjFile(objFile, meshAttributes) {
+    static loadObjFile(objFile) {
         const vertecies = [];
 
         objFile.faces.forEach((f, i) => {
@@ -38,15 +36,7 @@ export class Loader {
             }
         });
         
-        const mesh = new Mesh(Object.assign(
-            {
-                material: new TestMaterial(),
-                scale: 100,
-                vertecies: vertecies,
-            },
-            meshAttributes
-        ));
-        return mesh;
+        return vertecies;
     }
 
     static createMatFromJson(name, json) {

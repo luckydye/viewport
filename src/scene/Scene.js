@@ -2,7 +2,7 @@ import { Camera } from '../camera/Camera';
 import { Grid } from '../geo/Grid.js';
 import { DirectionalLight } from '../light/DirectionalLight';
 import { Vec } from '../Math.js';
-import { Tool } from '../geo/Tool';
+import { Cursor } from '../geo/Cursor';
 
 export class Scene {
 
@@ -15,16 +15,11 @@ export class Scene {
 			rotation: new Vec(20, 20, 0),
 		});
 		
-		this.activeCamera = camera || new Camera({
-			fov: 90,
-			position: new Vec(0, 500, 0)
-		});
+		this.activeCamera = camera;
 
 		this.grid = new Grid(100, 20);
 
-		this.curosr = new Tool({
-			origin: new Vec()
-		});
+		this.curosr = new Cursor();
 	}
 
 	add(obj) {

@@ -1,17 +1,10 @@
 import PrimitivetMaterial from "../materials/PrimitiveMaterial";
 import { Vec } from "../Math";
-import { Primitive } from "./Primitive";
+import { Geometry } from "../scene/Geometry";
 
 const DEFAULT_GUIDE_MATERIAL = new PrimitivetMaterial();
 
-export class Guide extends Primitive {
-
-	static get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-	}
+export class Guide extends Geometry {
 
 	onCreate(args) {
 		args.guide = true;
@@ -24,12 +17,12 @@ export class Guide extends Primitive {
 		const { x, y, z } = this.origin || new Vec();
 
 		return [
-			x, y, z + s,	1,1,1,
-			x, y, z + -s,	1,1,1,
-			x, y + s, z,	1,1,1,
-			x, y -s, z,		1,1,1,
-			x + s, y, z,	1,1,1,
-			x -s, y, z,		1,1,1
+			x, y, z + s,	0, 1,	1, 1, 1,
+			x, y, z + -s,	0, 1,	1, 1, 1,
+			x, y + s, z,	0, 1,	1, 1, 1,
+			x, y -s, z,		0, 1,	1, 1, 1,
+			x + s, y, z,	0, 1,	1, 1, 1,
+			x -s, y, z,		0, 1,	1, 1, 1
 		];
 	}
 

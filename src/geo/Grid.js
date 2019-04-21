@@ -2,13 +2,6 @@ import { Geometry } from "../scene/Geometry.js";
 
 export class Grid extends Geometry {
 
-	static get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aColor" },
-		]
-	}
-
 	get vertecies() {
 		return this.generate(this.size, this.count);
 	}
@@ -28,8 +21,8 @@ export class Grid extends Geometry {
 			if(x == 0) color = [.15, .15, 1];
 
 			dataArray.push(...[
-				w * x, 0, size, ...color,
-				w * x, 0, -size, ...color
+				w * x, 0, size, 0,0, ...color,
+				w * x, 0, -size, 0,0, ...color
 			])
 		}
 		for(let z = -s/2; z <= s/2; z++) {
@@ -37,8 +30,8 @@ export class Grid extends Geometry {
 			if(z == 0) color = [1, .15, .15];
 
 			dataArray.push(...[
-				size, 0, w * z, ...color,
-				-size, 0, w * z, ...color
+				size, 0, w * z, 0,0, ...color,
+				-size, 0, w * z, 0,0, ...color
 			])
 		}
 		return dataArray;
