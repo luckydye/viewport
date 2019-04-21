@@ -14,6 +14,18 @@ export class Vec extends Array {
 		);
 	}
 
+        static normal(vec1, vec2) {
+                const n1 = new Vec();
+                const n2 = new Vec();
+                vec3.normalize(n1, vec1);
+                vec3.normalize(n2, vec2);
+
+                const vec = new Vec();
+                vec3.cross(vec, n1, n2);
+
+                return vec;
+        }
+
 	static divide(vec1, vec2) {
 		return new Vec(
 			(vec1[0] / vec2[0]),
