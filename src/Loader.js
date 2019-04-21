@@ -9,32 +9,43 @@ const logger = new Logger('Loader');
 
 export class Loader {
 
-    static createMeshFromObjFile(objFile) {
-        const indecies = [];
-        const uvs = [];
+    static createMeshFromObjFile(objFile, meshAttributes) {
         const vertecies = [];
-
-        console.log(objFile);
 
         objFile.faces.forEach((f, i) => {
             for(let i = 0; i < 3; i++) {
-                indecies.push(f[i][0] - 1);
-                uvs.push(f[i][1] - 1);
+                const face = f[i];
+
+                const vertex = objFile.vertecies[face[0]-1];
+                const uv = objFile.uvs[face[1]-1];
+                const normal = objFile.normals[face[2]-1];
+
+                if(vertex && uv && normal) {
+                    vertecies.push(
+                        vertex[0],
+                        vertex[1],
+                        vertex[2],
+
+                        uv[0],
+                        uv[1],
+
+                        normal[0],
+                        normal[1],
+                        normal[2],
+                    );
+                }
+
             }
         });
-
-        objFile.vertecies.forEach((v, i) => {
-            vertecies.push(...v, uvs[i][0], uvs[i][1]);
-        });
         
-        const mesh = new Mesh({
-            drawmode: 'TRIANGLES',
-            material: new TestMaterial(),
-            scale: 100,
-            vertecies: vertecies,
-            indecies: indecies,
-            uvs: uvs
-        });
+        const mesh = new Mesh(Object.assign(
+            {
+                material: new TestMaterial(),
+                scale: 100,
+                vertecies: vertecies,
+            },
+            meshAttributes
+        ));
         return mesh;
     }
 

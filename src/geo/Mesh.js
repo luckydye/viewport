@@ -2,13 +2,6 @@ import { Geometry } from "../scene/Geometry";
 
 export class Mesh extends Geometry {
 
-    static get attributes() {
-        return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" },
-		]
-    }
-
 	get vertecies() {
         return this.meshVertecies;
 	}

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel ./test/model/index.html --no-cache"
+    "start": "parcel ./test/textures/index.html --no-cache"
   },
   "repository": {
     "type": "git",
