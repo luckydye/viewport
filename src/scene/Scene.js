@@ -42,8 +42,14 @@ export class Scene {
 		this.objects.clear();
 	}
 
-	update() {
+	update(ms) {
 		this.activeCamera.update();
+
+		for(let obj of this.objects) {
+			if(obj.update) {
+				obj.update(ms);
+			}
+		}
 	}
 
 }
