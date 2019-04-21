@@ -6,6 +6,7 @@ import { Renderer } from "./src/renderer/Renderer";
 import { Resources } from "./src/Resources.js";
 import { Scene } from "./src/scene/Scene.js";
 import { Vec } from "./src/Math";
+import { Scheduler } from "./src/Scheduler";
 
 const logger = new Logger('Viewport');
 
@@ -77,9 +78,10 @@ export default class Viewport extends HTMLElement {
 
         accumulator += delta;
         if(accumulator >= (1000 / tickrate)) {
-            this.scene.update(delta);
-
             accumulator = 0;
+            
+            this.scheduler.run(delta);
+            this.scene.update(delta);
         }
         this.renderer.draw();
         
@@ -92,6 +94,8 @@ export default class Viewport extends HTMLElement {
         for(let name in mats) {
             Loader.createMatFromJson(name, mats[name]);
         }
+
+        this.scheduler = new Scheduler();
 
         this.renderer = new Renderer(canvas);
 

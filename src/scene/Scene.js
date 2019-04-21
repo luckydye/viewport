@@ -4,8 +4,6 @@ import { DirectionalLight } from '../light/DirectionalLight';
 import { Vec } from '../Math.js';
 import { Tool } from '../geo/Tool';
 
-let lastTick = 0;
-
 export class Scene {
 
 	constructor({ camera } = {}) {
@@ -50,12 +48,7 @@ export class Scene {
 	}
 
 	update() {
-		const time = performance.now();
-		
 		this.activeCamera.update();
-		lastTick = time;
-		
-		this.onupdate && this.onupdate();
 	}
 
 }

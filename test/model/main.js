@@ -14,19 +14,16 @@ Resources.add({
 viewport.onload = () => {
 
     const mesh = Loader.createMeshFromObjFile(Resources.get('box_model'));
-    console.log(mesh);
     
     viewport.scene.add(mesh);
 
     const camera = viewport.camera;
 
-    const anim1 = new Animation();
-    anim1.setKeyframe(new Keyframe(new Vec(400, 800, 400)));
-    anim1.play(camera, 'position');
-
-    const anim2 = new Animation();
+    const anim2 = new Animation(camera, 'position');
     anim2.setKeyframe(new Keyframe(new Vec(400, 800, 400)));
-    anim2.play(camera, 'position');
+    anim2.setKeyframe(new Keyframe(new Vec(400, 1200, 400)));
+    
+    viewport.scheduler.addTask(anim2);
 
     const savedPosition = Config.global.getValue('camera');
     if(savedPosition) {

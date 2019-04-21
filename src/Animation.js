@@ -1,77 +1,64 @@
-export class Animation {
+import { Task } from "./Scheduler";
 
-    constructor(args = {
-        fps: 60,
-        duration: 3000,
+export class Animation extends Task {
+
+    constructor(target, property, args = {
+        duration: 1000,
         loop: true,
     }) {
+        super();
+
         this.keyframes = [];
 
         this.duration = args.duration;
-        this.framerate = args.fps;
         this.loop = args.loop;
 
-        this.playing = false;
-        this.lasttick = 0;
+        this.target = {
+            object: target,
+            property: property
+        };
 
         this.reset();
     }
 
+    execute(ms) {
+        this.animate(ms);
+    }
+
     reset() {
         this.time = 0;
-        this.accumulator = 0;
     }
 
     stop() {
-        this.playing = false;
+        this.finished();
     }
 
-    play(target, property, duration) {
-        this.playing = true;
-        this.duration = duration || this.duration;
-
+    animate(deltaTime) {
         const keyframes = this.keyframes.length;
 
-        const tickAnimation = (ms = 0) => {
-            if(this.playing) {
-                requestAnimationFrame(tickAnimation);
-            }
+        this.time += deltaTime;
 
-            const deltaTime = ms - this.lasttick;
+        if(this.time >= this.duration) {
+            this.reset();
 
-            this.accumulator += deltaTime;
-            this.time += deltaTime;
-            this.lasttick = ms;
-
-            if(this.time >= this.duration) {
-                this.reset();
-
-                if(!this.loop) 
-                    this.stop();
-            }
-
-            if(this.accumulator > 1000 / this.framerate) {
-                this.accumulator = 0;
-
-                const frameTime = Math.floor(this.duration / (keyframes-1));
-                const currentKeyframe = this.time / frameTime;
-
-                const lastKeyframe = this.keyframes[Math.floor(currentKeyframe)];
-                const nextKeyframe = this.keyframes[Math.floor(currentKeyframe)+1];
-
-                const progress = currentKeyframe - Math.floor(currentKeyframe);
-                this.applyAnimation(target, property, lastKeyframe, nextKeyframe, progress);
-            }
+            if(!this.loop) this.stop();
         }
 
-        if(keyframes > 1) {
-            tickAnimation();
-        }
+        const frameTime = Math.floor(this.duration / (keyframes-1));
+        const currentKeyframe = this.time / frameTime;
+        const lastKeyframe = this.keyframes[Math.floor(currentKeyframe)];
+        const nextKeyframe = this.keyframes[Math.floor(currentKeyframe)+1];
+        const progress = currentKeyframe - Math.floor(currentKeyframe);
+
+        this.applyAnimation(lastKeyframe, nextKeyframe, progress);
     }
 
-    applyAnimation(target, property, lastKeyframe, nextKeyframe, progress) {
-        for(let i in target.position) {
-            target[property][i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
+    applyAnimation(lastKeyframe, nextKeyframe, progress) {
+        const object = this.target.object;
+        const property = this.target.property;
+        
+        for(let i in object[property]) {
+            object[property][i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
         }
     }
 
