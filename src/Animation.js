@@ -79,6 +79,15 @@ export class Animation {
         return value1 + progress * (value2 - value1);
     }
 
+    bezierLerp(vale1, value2, value3, value4, progress) {
+        const a = linear(p0, p1, t);
+        const b = Lerp(p1, p2, t);
+        const c = Lerp(p2, p3, t);
+        const d = Lerp(a, b, t);
+        const e = Lerp(b, c, t);
+        const pointOnCurve = Lerp(d, e, t);
+    }
+
     setKeyframe(state) {
         this.keyframes.push(state);
     }
