@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "test.bat",
     "start": "parcel ./test/textures/index.html --no-cache"
   },
   "repository": {

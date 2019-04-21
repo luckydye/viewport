@@ -43,7 +43,7 @@ viewport.onload = () => {
     anim.setKeyframe(new Keyframe(new Vec(1400, 400, 100)));
     anim.setKeyframe(new Keyframe(new Vec(0, 0, -800)));
     anim.setKeyframe(new Keyframe(new Vec(-1500, -200, 600)));
-    anim.play(cube);
+    anim.play(cube, 'position');
 
     for(let p of anim.keyframes) {
         viewport.scene.add(new Guide({
