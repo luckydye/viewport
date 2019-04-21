@@ -101,7 +101,7 @@ export default class Viewport extends HTMLElement {
         this.renderer = new Renderer(canvas);
 
         this.camera = new FirstPersonCamera({ 
-            fov: 75,
+            fov: 90,
             position: new Vec(0, -400, -2500),
             rotation: new Vec(15, 0, 0),
         });
