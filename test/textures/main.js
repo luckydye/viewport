@@ -3,6 +3,7 @@ import { Transform, Vec } from "../../src/Math.js";
 import Config from "../../src/Config.js";
 import { Resources } from "../../src/Resources.js";
 import { Loader } from "../../src/Loader.js";
+import { Animation, Keyframe } from "../../src/Animation.js";
 
 const viewport = new Viewport();
 

@@ -21,16 +21,16 @@ export default class ReflectionShader extends GLShader {
             out vec3 vNormal;
             
             void main() {
-              vec4 pos = uModelMatrix * vec4(aPosition, 1.0);
-              pos.y *= -1.0;
-              pos.y += 42.0;
+                vec4 pos = uModelMatrix * vec4(aPosition, 1.0);
+                pos.y *= -1.0;
+                pos.y += 42.0;
             
-              vWorldPos = pos;
-              vNormal = aNormal;
-              vTexCoords = aTexCoords;
+                vWorldPos = pos;
+                vNormal = aNormal;
+                vTexCoords = aTexCoords;
             
-              gl_Position = uProjMatrix * uViewMatrix * vec4(pos.xyz, 1.0);
-              gl_PointSize = 5.0;
+                gl_Position = uProjMatrix * uViewMatrix * vec4(pos.xyz, 1.0);
+                gl_PointSize = 5.0;
             }
             `,
 

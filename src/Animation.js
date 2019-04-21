@@ -26,8 +26,9 @@ export class Animation {
         this.playing = false;
     }
 
-    play(target) {
+    play(target, property, duration) {
         this.playing = true;
+        this.duration = duration || this.duration;
 
         const keyframes = this.keyframes.length;
 
@@ -59,7 +60,7 @@ export class Animation {
                 const nextKeyframe = this.keyframes[Math.floor(currentKeyframe)+1];
 
                 const progress = currentKeyframe - Math.floor(currentKeyframe);
-                this.applyAnimation(target, lastKeyframe, nextKeyframe, progress);
+                this.applyAnimation(target, property, lastKeyframe, nextKeyframe, progress);
             }
         }
 
@@ -68,9 +69,9 @@ export class Animation {
         }
     }
 
-    applyAnimation(target, lastKeyframe, nextKeyframe, progress) {
+    applyAnimation(target, property, lastKeyframe, nextKeyframe, progress) {
         for(let i in target.position) {
-            target.position[i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
+            target[property][i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
         }
     }
 

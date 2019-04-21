@@ -25,6 +25,14 @@ void main() {
         oFragColor = vec4(diffuseColor, 1.0 - transparency);
     }
 
+    if(vNormal.y > 0.0) {
+        oFragColor += 0.05;
+    }
+
+    if(vNormal.x < 0.0) {
+        oFragColor += 0.05;
+    }
+
     float reflectivenss = texture(reflectionMap, textureCoords).r;
     if(reflectivenss > 0.0 && vNormal.g > 0.99) {
         oFragColor = vec4(0.0, 1.0, 0.0, 0.0);
