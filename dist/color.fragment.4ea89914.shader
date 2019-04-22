@@ -3,6 +3,7 @@ precision mediump float;
 
 in vec2 vTexCoords;
 in vec3 vNormal;
+in float id;
 
 uniform sampler2D colorTexture;
 uniform sampler2D reflectionMap;

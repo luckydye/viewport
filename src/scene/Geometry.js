@@ -28,18 +28,22 @@ export class Geometry extends Transform {
 
 	constructor(args = {}) {
 		super(args);
+
+		this.instanced = false;
+		this.instances = 0;
 		
         this.onCreate(args);
         
 		const {
+			vertecies = null,
 			material = DEFAULT_MATERIAL,
             hidden = false,
 			guide = false,
-			drawmode = "TRIANGLES",
 			uv = [0, 0],
+			drawmode = "TRIANGLES",
 		} = args;
 		
-		this.vertArray = args.vertecies;
+		this.vertArray = vertecies;
 		this.material = material;
         this.hidden = hidden;
 		this.guide = guide;

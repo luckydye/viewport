@@ -21,9 +21,12 @@ out vec4 vWorldPos;
 out vec3 vNormal;
 out vec3 vertexPos;
 out mat4 vLightProjViewMatrix;
+out float id;
 
 void main() {
-	vec4 pos = uModelMatrix * vec4(aPosition, 1.0);
+	float instance = float(gl_InstanceID);
+
+	vec4 pos = uModelMatrix * vec4(aPosition, 1.0) + vec4(aNormal * (instance * 50.0), 1.0);
 
 	float bump = texture(displacementMap, aTexCoords).r * 200.0;
 
@@ -39,4 +42,5 @@ void main() {
 	vWorldPos = pos;
 	vNormal = aNormal;
 	vTexCoords = aTexCoords;
+	id = instance;
 }

@@ -282,8 +282,25 @@ export class Renderer extends GLContext {
 		const shader = this.currentShader;
 		if(geo.material && !geo.hidden) {
 			this.applyMaterial(shader, geo.material);
-			this.drawGeo(geo);
+
+			if(geo.instanced) {
+				this.drawGeoInstanced(geo);
+			} else {
+				this.drawGeo(geo);
+			}
 		}
+	}
+
+	drawGeoInstanced(geo) {
+		const gl = this.gl;
+		const buffer = geo.buffer;
+		const drawmode = gl[buffer.type];
+		const vertCount = buffer.vertecies.length / buffer.elements;
+		
+		this.initializeBuffersAndAttributes(buffer);
+		this.setGeoTransformUniforms(geo);
+
+		gl.drawArraysInstanced(drawmode, 0, vertCount, geo.instances);
 	}
 
 	drawGeo(geo) {

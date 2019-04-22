@@ -36,15 +36,11 @@ export class Particle extends Geometry {
 
         this.base = origin;
 
-        this.age = 0;
         this.position = new Vec(this.base.position);
         this.direction = Vec.normal(Vec.add(
             this.base.rotation, 
             new Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)
         ));
-
-        console.log(this);
-        
     }
 
     kill() {
@@ -62,8 +58,11 @@ export class Emitter extends Geometry {
 	onCreate(args) {
 		args.material = DEFAULT_GUIDE_MATERIAL;
         args.drawmode = "TRIANGLES";
+
+        this.particle = new Particle(this);
         
-        this.particles = [];
+        this.instances = 1;
+        this.instanced = true;
 
         this.rotation = new Vec(0, 0, 0);
 
@@ -73,34 +72,25 @@ export class Emitter extends Geometry {
     update(ms) {
         this.spawn(10);
         
-        for(let p of this.particles) {
-            p.position.x += p.direction.x * ms;
-            p.position.y += p.direction.y * ms;
-            p.position.z += p.direction.z * ms;
+        // for(let p of this.particles) {
+        //     p.position.x += p.direction.x * ms;
+        //     p.position.y += p.direction.y * ms;
+        //     p.position.z += p.direction.z * ms;
 
-            p.age += ms;
+        //     p.age += ms;
 
-            if(p.age > this.maxage * Math.random()) {
-                p.kill();
-            }
-        }
+        //     if(p.age > this.maxage * Math.random()) {
+        //         p.kill();
+        //     }
+        // }
     }
     
     spawn(amount) {
-        for(let i = 0; i < amount; i++) {
-            this.particles.push(new Particle(this));
-        }
+        this.instances += amount;
     }
 
 	get vertecies() {
-        const verts = [];
-        
-        for(let p of this.particles) {
-            const pverts = p.vertecies;
-            verts.push(...pverts);
-        }
-
-		return verts;
+		return this.particle.vertecies;
 	}
 
 }

@@ -8495,20 +8495,24 @@ function (_Transform) {
     _classCallCheck(this, Geometry);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Geometry).call(this, args));
+    _this.instanced = false;
+    _this.instances = 0;
 
     _this.onCreate(args);
 
-    var _args$material = args.material,
+    var _args$vertecies = args.vertecies,
+        vertecies = _args$vertecies === void 0 ? null : _args$vertecies,
+        _args$material = args.material,
         material = _args$material === void 0 ? DEFAULT_MATERIAL : _args$material,
         _args$hidden = args.hidden,
         hidden = _args$hidden === void 0 ? false : _args$hidden,
         _args$guide = args.guide,
         guide = _args$guide === void 0 ? false : _args$guide,
-        _args$drawmode = args.drawmode,
-        drawmode = _args$drawmode === void 0 ? "TRIANGLES" : _args$drawmode,
         _args$uv = args.uv,
-        uv = _args$uv === void 0 ? [0, 0] : _args$uv;
-    _this.vertArray = args.vertecies;
+        uv = _args$uv === void 0 ? [0, 0] : _args$uv,
+        _args$drawmode = args.drawmode,
+        drawmode = _args$drawmode === void 0 ? "TRIANGLES" : _args$drawmode;
+    _this.vertArray = vertecies;
     _this.material = material;
     _this.hidden = hidden;
     _this.guide = guide;
@@ -10920,8 +10924,24 @@ function (_GLContext) {
 
       if (geo.material && !geo.hidden) {
         this.applyMaterial(shader, geo.material);
-        this.drawGeo(geo);
+
+        if (geo.instanced) {
+          this.drawGeoInstanced(geo);
+        } else {
+          this.drawGeo(geo);
+        }
       }
+    }
+  }, {
+    key: "drawGeoInstanced",
+    value: function drawGeoInstanced(geo) {
+      var gl = this.gl;
+      var buffer = geo.buffer;
+      var drawmode = gl[buffer.type];
+      var vertCount = buffer.vertecies.length / buffer.elements;
+      this.initializeBuffersAndAttributes(buffer);
+      this.setGeoTransformUniforms(geo);
+      gl.drawArraysInstanced(drawmode, 0, vertCount, geo.instances);
     }
   }, {
     key: "drawGeo",
@@ -11941,14 +11961,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -11961,9 +11973,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -12002,10 +12014,8 @@ function (_Geometry) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this));
     _this.base = origin;
-    _this.age = 0;
     _this.position = new _Math.Vec(_this.base.position);
     _this.direction = _Math.Vec.normal(_Math.Vec.add(_this.base.rotation, new _Math.Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)));
-    console.log(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -12037,51 +12047,29 @@ function (_Geometry2) {
     value: function onCreate(args) {
       args.material = DEFAULT_GUIDE_MATERIAL;
       args.drawmode = "TRIANGLES";
-      this.particles = [];
+      this.particle = new Particle(this);
+      this.instances = 1;
+      this.instanced = true;
       this.rotation = new _Math.Vec(0, 0, 0);
       this.maxage = 10000;
     }
   }, {
     key: "update",
     value: function update(ms) {
-      this.spawn(10);
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.particles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var p = _step.value;
-          p.position.x += p.direction.x * ms;
-          p.position.y += p.direction.y * ms;
-          p.position.z += p.direction.z * ms;
-          p.age += ms;
-
-          if (p.age > this.maxage * Math.random()) {
-            p.kill();
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
+      this.spawn(10); // for(let p of this.particles) {
+      //     p.position.x += p.direction.x * ms;
+      //     p.position.y += p.direction.y * ms;
+      //     p.position.z += p.direction.z * ms;
+      //     p.age += ms;
+      //     if(p.age > this.maxage * Math.random()) {
+      //         p.kill();
+      //     }
+      // }
     }
   }, {
     key: "spawn",
     value: function spawn(amount) {
-      for (var i = 0; i < amount; i++) {
-        this.particles.push(new Particle(this));
-      }
+      this.instances += amount;
     }
   }, {
     key: "buffer",
@@ -12091,33 +12079,7 @@ function (_Geometry2) {
   }, {
     key: "vertecies",
     get: function get() {
-      var verts = [];
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = this.particles[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var p = _step2.value;
-          var pverts = p.vertecies;
-          verts.push.apply(verts, _toConsumableArray(pverts));
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-
-      return verts;
+      return this.particle.vertecies;
     }
   }]);
 
@@ -12207,7 +12169,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53809" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57871" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
