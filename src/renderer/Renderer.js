@@ -7,6 +7,8 @@ import ReflectionShader from '../shader/ReflectionShader';
 import PrimitiveShader from '../shader/PrimitiveShader';
 import { Logger } from '../Logger';
 import Config from '../Config';
+import { mat4 } from 'gl-matrix';
+import { Vec } from '../Math';
 
 const logger = new Logger('Renderer');
 
@@ -125,7 +127,6 @@ export class Renderer extends GLContext {
 					pass.use();
 					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
 					this.drawScene(this.scene, camera, obj => !obj.guide);
-					this.drawGrid();
 					break;
 
 				case "guides":
@@ -133,6 +134,7 @@ export class Renderer extends GLContext {
 					if(cullDefault) this.disable(gl.CULL_FACE);
 					this.drawScene(this.scene, camera, obj => obj.guide);
 					this.drawMesh(this.scene.curosr);
+					this.drawMesh(this.scene.grid);
 					if(cullDefault) this.enable(gl.CULL_FACE);
 					break;
 			}
@@ -163,28 +165,6 @@ export class Renderer extends GLContext {
 		const pixels = new Uint8Array(w * h * 4);
 		gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 		return pixels;
-	}
-
-	drawGrid() {
-		const grid = this.scene.grid;
-
-		if(!grid) return;
-		if(!this.gridEnabled) return;
-
-		if(!this.gridShader) {
-			this.gridShader = new PrimitiveShader();
-			this.prepareShader(this.gridShader);
-		}
-
-		const camera = this.scene.activeCamera;
-		if(camera) {
-			this.useShader(this.gridShader);
-	
-			this.gl.uniformMatrix4fv(this.gridShader.uniforms.uProjMatrix, false, camera.projMatrix);
-			this.gl.uniformMatrix4fv(this.gridShader.uniforms.uViewMatrix, false, camera.viewMatrix);
-	
-			this.drawGeo(grid);
-		}
 	}
 
 	compositePasses(passes) {
@@ -248,13 +228,39 @@ export class Renderer extends GLContext {
 		this.gl.uniform1f(shader.uniforms.transparency, material.transparency);
 	}
 
+	setupGemoetry(geo) {
+		this.initializeBuffersAndAttributes(geo.buffer);
+
+		geo.modelMatrix = geo.modelMatrix || mat4.create();
+		const modelMatrix = geo.modelMatrix;
+
+		const position = Vec.add(geo.position, geo.origin);
+		const rotation = geo.rotation;
+		const scale = geo.scale;
+
+		mat4.identity(modelMatrix);
+
+		mat4.translate(modelMatrix, modelMatrix, position);
+
+		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
+		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
+		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
+
+		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
+
+		this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
+	}
+
+	setupScene(shader, camera) {
+		this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
+		this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+	}
+
 	drawScene(scene, camera, filter) {
-		camera = camera || scene.activeCamera;
 		const objects = scene.objects;
 		const shader = this.currentShader;
 
-		this.gl.uniformMatrix4fv(shader.uniforms.uProjMatrix, false, camera.projMatrix);
-		this.gl.uniformMatrix4fv(shader.uniforms.uViewMatrix, false, camera.viewMatrix);
+		this.setupScene(shader, camera);
 
 		let lightCount = 0;
 		for(let light of objects) {
@@ -279,11 +285,10 @@ export class Renderer extends GLContext {
 	}
 
 	drawMesh(geo) {
-		const shader = this.currentShader;
-		if(geo.material && !geo.hidden) {
-			this.applyMaterial(shader, geo.material);
+		if(geo.material) {
+			this.applyMaterial(this.currentShader, geo.material);
 
-			if(geo.instanced) {
+			if(geo.instanced && !geo.hidden) {
 				this.drawGeoInstanced(geo);
 			} else {
 				this.drawGeo(geo);
@@ -292,15 +297,15 @@ export class Renderer extends GLContext {
 	}
 
 	drawGeoInstanced(geo) {
+		if(geo.hidden) return;
+
 		const gl = this.gl;
 		const buffer = geo.buffer;
-		const drawmode = gl[buffer.type];
 		const vertCount = buffer.vertecies.length / buffer.elements;
 		
-		this.initializeBuffersAndAttributes(buffer);
-		this.setGeoTransformUniforms(geo);
+		this.setupGemoetry(geo);
 
-		gl.drawArraysInstanced(drawmode, 0, vertCount, geo.instances);
+		gl.drawArraysInstanced(gl[buffer.type], 0, vertCount, geo.instances);
 	}
 
 	drawGeo(geo) {
@@ -309,16 +314,12 @@ export class Renderer extends GLContext {
 		const gl = this.gl;
 		const buffer = geo.buffer;
 		
-		this.initializeBuffersAndAttributes(buffer);
-
-		this.setGeoTransformUniforms(geo);
-
-		const drawmode = gl[buffer.type];
+		this.setupGemoetry(geo);
 
 		if(buffer.indecies.length > 0) {
-			gl.drawElements(drawmode, buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl[buffer.type], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
 		} else {
-			gl.drawArrays(drawmode, 0, buffer.vertecies.length / buffer.elements);
+			gl.drawArrays(gl[buffer.type], 0, buffer.vertecies.length / buffer.elements);
 		}
 	}
 

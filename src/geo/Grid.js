@@ -11,6 +11,7 @@ export class Grid extends Geometry {
 		this.size = size;
 		this.count = count;
 		this.drawmode = "LINES";
+		this.guide = true;
 	}
 	
 	generate(w = 100, s = 14) {

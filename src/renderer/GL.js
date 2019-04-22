@@ -1,5 +1,3 @@
-import { mat4, vec3 } from 'gl-matrix';
-import { Vec } from "../Math.js";
 import { GLShader } from "../shader/GLShader";
 
 export class GLContext {
@@ -311,30 +309,6 @@ export class GLContext {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 
 		return texture;
-	}
-
-	// translate / transform geometry
-	setGeoTransformUniforms(geo) {
-		const uniforms = this.currentShader.uniforms;
-
-		geo.modelMatrix = geo.modelMatrix || mat4.create();
-		const modelMatrix = geo.modelMatrix;
-
-		const position = Vec.add(geo.position, geo.origin);
-		const rotation = geo.rotation;
-		const scale = geo.scale;
-
-		mat4.identity(modelMatrix);
-
-		mat4.translate(modelMatrix, modelMatrix, position);
-
-		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
-		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
-		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
-
-		mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(scale, scale, scale));
-
-		this.gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
 	}
 
 	// prepare geometry buffers for draw

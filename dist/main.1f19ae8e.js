@@ -9602,8 +9602,7 @@ function (_Geometry) {
     key: "vertecies",
     get: function get() {
       var s = 1;
-      var vertArray = [-s, -s, 0, 0, 0, s, -s, 0, 1, 0, s, s, 0, 1, 1, s, s, 0, 1, 1, -s, s, 0, 0, 1, -s, -s, 0, 0, 0];
-      return vertArray;
+      return [-s, -s, 0, 0, 0, s, -s, 0, 1, 0, s, s, 0, 1, 1, s, s, 0, 1, 1, -s, s, 0, 0, 1, -s, -s, 0, 0, 0];
     }
   }], [{
     key: "attributes",
@@ -9718,10 +9717,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.GLContext = void 0;
-
-var _glMatrix = require("gl-matrix");
-
-var _Math = require("../Math.js");
 
 var _GLShader = require("../shader/GLShader");
 
@@ -10063,33 +10058,6 @@ function () {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
       gl.bindTexture(gl.TEXTURE_2D, null);
       return texture;
-    } // translate / transform geometry
-
-  }, {
-    key: "setGeoTransformUniforms",
-    value: function setGeoTransformUniforms(geo) {
-      var uniforms = this.currentShader.uniforms;
-      geo.modelMatrix = geo.modelMatrix || _glMatrix.mat4.create();
-      var modelMatrix = geo.modelMatrix;
-
-      var position = _Math.Vec.add(geo.position, geo.origin);
-
-      var rotation = geo.rotation;
-      var scale = geo.scale;
-
-      _glMatrix.mat4.identity(modelMatrix);
-
-      _glMatrix.mat4.translate(modelMatrix, modelMatrix, position);
-
-      _glMatrix.mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
-
-      _glMatrix.mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
-
-      _glMatrix.mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
-
-      _glMatrix.mat4.scale(modelMatrix, modelMatrix, _glMatrix.vec3.fromValues(scale, scale, scale));
-
-      this.gl.uniformMatrix4fv(uniforms["uModelMatrix"], false, modelMatrix);
     } // prepare geometry buffers for draw
 
   }, {
@@ -10130,7 +10098,7 @@ function () {
 }();
 
 exports.GLContext = GLContext;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math.js":"../../src/Math.js","../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
+},{"../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
 module.exports = "/comp.fragment.ec704667.shader";
 },{}],"../../src/shader/FinalShader.js":[function(require,module,exports) {
 "use strict";
@@ -10363,7 +10331,7 @@ function (_GLShader) {
   _createClass(ReflectionShader, null, [{
     key: "source",
     get: function get() {
-      return ["#version 300 es\n\n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            uniform mat4 uModelMatrix;\n            uniform mat4 uViewMatrix;\n            uniform mat4 uProjMatrix;\n            \n            uniform float uTime;\n            \n            out vec2 vTexCoords;\n            out vec4 vWorldPos;\n            out vec3 vNormal;\n            \n            void main() {\n                vec4 pos = uModelMatrix * vec4(aPosition, 1.0);\n                pos.y *= -1.0;\n                pos.y += 42.0;\n            \n                vWorldPos = pos;\n                vNormal = aNormal;\n                vTexCoords = aTexCoords;\n            \n                gl_Position = uProjMatrix * uViewMatrix * vec4(pos.xyz, 1.0);\n                gl_PointSize = 5.0;\n            }\n            ", "#version 300 es\n            precision mediump float;\n\n            in vec2 vTexCoords;\n            in vec3 vNormal;\n\n            uniform sampler2D colorTexture;\n            uniform sampler2D reflectionMap;\n\n            uniform float textureScale;\n            uniform float transparency;\n            uniform vec3 diffuseColor;\n\n            out vec4 oFragColor;\n\n            void main() {\n                // set diffuse color\n                oFragColor = vec4(diffuseColor, 1.0 - transparency);\n\n                vec2 imageSize = vec2(textureSize(colorTexture, 0));\n                if(imageSize.x > 1.0) {\n                    vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);\n\n                    vec4 textureColor = texture(colorTexture, textureCoords);\n                    oFragColor *= textureColor;\n\n                    float reflectivenss = texture(reflectionMap, textureCoords).r;\n                    if(reflectivenss > 0.0) {\n                        discard;\n                    }\n                }\n            }\n            "];
+      return ["#version 300 es\n\n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            struct SceneProjection {\n                mat4 model;\n                mat4 view;\n                mat4 projection;\n            };\n            \n            uniform SceneProjection scene;\n            \n            out vec2 vTexCoords;\n            out vec4 vWorldPos;\n            out vec3 vNormal;\n            \n            void main() {\n                vec4 pos = scene.model * vec4(aPosition, 1.0);\n                pos.y *= -1.0;\n                pos.y += 42.0;\n            \n                vWorldPos = pos;\n                vNormal = aNormal;\n                vTexCoords = aTexCoords;\n            \n                gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);\n                gl_PointSize = 5.0;\n            }\n            ", "#version 300 es\n            precision mediump float;\n\n            in vec2 vTexCoords;\n            in vec3 vNormal;\n\n            uniform sampler2D colorTexture;\n            uniform sampler2D reflectionMap;\n\n            uniform float textureScale;\n            uniform float transparency;\n            uniform vec3 diffuseColor;\n\n            out vec4 oFragColor;\n\n            void main() {\n                // set diffuse color\n                oFragColor = vec4(diffuseColor, 1.0 - transparency);\n\n                vec2 imageSize = vec2(textureSize(colorTexture, 0));\n                if(imageSize.x > 1.0) {\n                    vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);\n\n                    vec4 textureColor = texture(colorTexture, textureCoords);\n                    oFragColor *= textureColor;\n\n                    float reflectivenss = texture(reflectionMap, textureCoords).r;\n                    if(reflectivenss > 0.0) {\n                        discard;\n                    }\n                }\n            }\n            "];
     }
   }]);
 
@@ -10415,7 +10383,7 @@ function (_GLShader) {
   _createClass(PickingShader, null, [{
     key: "source",
     get: function get() {
-      return ["#version 300 es\n\n            layout(std140, column_major) uniform;\n            \n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            uniform bool scaleUniform;\n            uniform mat4 uModelMatrix;\n            uniform mat4 uViewMatrix;\n            uniform mat4 uProjMatrix;\n            \n            uniform sampler2D displacementMap;\n            \n            out vec3 vColor;\n            \n            void main() {\n                vec4 bump = texture(displacementMap, aTexCoords); // idfk\n\n                float distance = 1.0;\n                if(scaleUniform) {\n                    distance = (uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.0)).z;\n                }\n            \n                gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition * distance, 1.0);\n            \n                vColor = aNormal;\n            }\n            ", "#version 300 es\n            precision mediump float;\n            \n            in vec3 vColor;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                oFragColor = vec4(vColor, .75);\n            }\n            "];
+      return ["#version 300 es\n\n            layout(std140, column_major) uniform;\n            \n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            struct SceneProjection {\n                mat4 model;\n                mat4 view;\n                mat4 projection;\n            };\n            \n            uniform SceneProjection scene;\n            uniform bool scaleUniform;\n            uniform sampler2D displacementMap;\n            \n            out vec3 vColor;\n            \n            void main() {\n                vec4 bump = texture(displacementMap, aTexCoords); // idfk\n\n                float distance = 1.0;\n                if(scaleUniform) {\n                    distance = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;\n                }\n            \n                gl_Position = scene.projection * scene.view * scene.model * vec4(aPosition * distance, 1.0);\n            \n                vColor = aNormal;\n            }\n            ", "#version 300 es\n            precision mediump float;\n            \n            in vec3 vColor;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                oFragColor = vec4(vColor, .75);\n            }\n            "];
     }
   }]);
 
@@ -10549,6 +10517,10 @@ var _PrimitiveShader = _interopRequireDefault(require("../shader/PrimitiveShader
 var _Logger = require("../Logger");
 
 var _Config = _interopRequireDefault(require("../Config"));
+
+var _glMatrix = require("gl-matrix");
+
+var _Math = require("../Math");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10706,7 +10678,6 @@ function (_GLContext) {
               this.drawScene(this.scene, camera, function (obj) {
                 return !obj.guide;
               });
-              this.drawGrid();
               break;
 
             case "guides":
@@ -10716,6 +10687,7 @@ function (_GLContext) {
                 return obj.guide;
               });
               this.drawMesh(this.scene.curosr);
+              this.drawMesh(this.scene.grid);
               if (cullDefault) this.enable(gl.CULL_FACE);
               break;
           }
@@ -10767,27 +10739,6 @@ function (_GLContext) {
       var pixels = new Uint8Array(w * h * 4);
       gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
       return pixels;
-    }
-  }, {
-    key: "drawGrid",
-    value: function drawGrid() {
-      var grid = this.scene.grid;
-      if (!grid) return;
-      if (!this.gridEnabled) return;
-
-      if (!this.gridShader) {
-        this.gridShader = new _PrimitiveShader.default();
-        this.prepareShader(this.gridShader);
-      }
-
-      var camera = this.scene.activeCamera;
-
-      if (camera) {
-        this.useShader(this.gridShader);
-        this.gl.uniformMatrix4fv(this.gridShader.uniforms.uProjMatrix, false, camera.projMatrix);
-        this.gl.uniformMatrix4fv(this.gridShader.uniforms.uViewMatrix, false, camera.viewMatrix);
-        this.drawGeo(grid);
-      }
     }
   }, {
     key: "compositePasses",
@@ -10851,13 +10802,43 @@ function (_GLContext) {
       this.gl.uniform1f(shader.uniforms.transparency, material.transparency);
     }
   }, {
+    key: "setupGemoetry",
+    value: function setupGemoetry(geo) {
+      this.initializeBuffersAndAttributes(geo.buffer);
+      geo.modelMatrix = geo.modelMatrix || _glMatrix.mat4.create();
+      var modelMatrix = geo.modelMatrix;
+
+      var position = _Math.Vec.add(geo.position, geo.origin);
+
+      var rotation = geo.rotation;
+      var scale = geo.scale;
+
+      _glMatrix.mat4.identity(modelMatrix);
+
+      _glMatrix.mat4.translate(modelMatrix, modelMatrix, position);
+
+      _glMatrix.mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
+
+      _glMatrix.mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
+
+      _glMatrix.mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
+
+      _glMatrix.mat4.scale(modelMatrix, modelMatrix, new _Math.Vec(scale, scale, scale));
+
+      this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
+    }
+  }, {
+    key: "setupScene",
+    value: function setupScene(shader, camera) {
+      this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
+      this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+    }
+  }, {
     key: "drawScene",
     value: function drawScene(scene, camera, filter) {
-      camera = camera || scene.activeCamera;
       var objects = scene.objects;
       var shader = this.currentShader;
-      this.gl.uniformMatrix4fv(shader.uniforms.uProjMatrix, false, camera.projMatrix);
-      this.gl.uniformMatrix4fv(shader.uniforms.uViewMatrix, false, camera.viewMatrix);
+      this.setupScene(shader, camera);
       var lightCount = 0;
       var _iteratorNormalCompletion3 = true;
       var _didIteratorError3 = false;
@@ -10920,12 +10901,10 @@ function (_GLContext) {
   }, {
     key: "drawMesh",
     value: function drawMesh(geo) {
-      var shader = this.currentShader;
+      if (geo.material) {
+        this.applyMaterial(this.currentShader, geo.material);
 
-      if (geo.material && !geo.hidden) {
-        this.applyMaterial(shader, geo.material);
-
-        if (geo.instanced) {
+        if (geo.instanced && !geo.hidden) {
           this.drawGeoInstanced(geo);
         } else {
           this.drawGeo(geo);
@@ -10935,13 +10914,12 @@ function (_GLContext) {
   }, {
     key: "drawGeoInstanced",
     value: function drawGeoInstanced(geo) {
+      if (geo.hidden) return;
       var gl = this.gl;
       var buffer = geo.buffer;
-      var drawmode = gl[buffer.type];
       var vertCount = buffer.vertecies.length / buffer.elements;
-      this.initializeBuffersAndAttributes(buffer);
-      this.setGeoTransformUniforms(geo);
-      gl.drawArraysInstanced(drawmode, 0, vertCount, geo.instances);
+      this.setupGemoetry(geo);
+      gl.drawArraysInstanced(gl[buffer.type], 0, vertCount, geo.instances);
     }
   }, {
     key: "drawGeo",
@@ -10949,14 +10927,12 @@ function (_GLContext) {
       if (geo.hidden) return;
       var gl = this.gl;
       var buffer = geo.buffer;
-      this.initializeBuffersAndAttributes(buffer);
-      this.setGeoTransformUniforms(geo);
-      var drawmode = gl[buffer.type];
+      this.setupGemoetry(geo);
 
       if (buffer.indecies.length > 0) {
-        gl.drawElements(drawmode, buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl[buffer.type], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
       } else {
-        gl.drawArrays(drawmode, 0, buffer.vertecies.length / buffer.elements);
+        gl.drawArrays(gl[buffer.type], 0, buffer.vertecies.length / buffer.elements);
       }
     }
   }, {
@@ -11036,7 +11012,7 @@ function () {
 
   return RenderPass;
 }();
-},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
+},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11093,6 +11069,7 @@ function (_Geometry) {
     _this.size = size;
     _this.count = count;
     _this.drawmode = "LINES";
+    _this.guide = true;
     return _this;
   }
 
@@ -12087,7 +12064,168 @@ function (_Geometry2) {
 }(_Geometry3.Geometry);
 
 exports.Emitter = Emitter;
-},{"../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../Math":"../../src/Math.js"}],"../../res/models/test.obj":[function(require,module,exports) {
+},{"../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../Math":"../../src/Math.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cube = void 0;
+
+var _Geometry2 = require("../scene/Geometry");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Cube =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Cube, _Geometry);
+
+  function Cube() {
+    _classCallCheck(this, Cube);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Cube).apply(this, arguments));
+  }
+
+  _createClass(Cube, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      this.vertsPerFace = 6;
+      this.visible = {
+        TOP: true,
+        BOTTOM: true,
+        LEFT: true,
+        RIGHT: true,
+        FRONT: true,
+        BACK: true
+      };
+    }
+  }, {
+    key: "invisible",
+    get: function get() {
+      return !this.visible.TOP && !this.visible.BOTTOM && !this.visible.LEFT && !this.visible.RIGHT && !this.visible.FRONT && !this.visible.BACK;
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var vertArray = [];
+      var faces = this.faces;
+      var visibleFaces = [];
+
+      for (var key in this.visible) {
+        if (this.visible[key]) {
+          visibleFaces.push(key);
+        }
+      }
+
+      visibleFaces.forEach(function (face) {
+        vertArray = vertArray.concat(faces[face]);
+      });
+      return vertArray;
+    }
+  }, {
+    key: "faces",
+    get: function get() {
+      var s = 1;
+      var w = 10;
+      var h = 10;
+      var u = this.uv[0];
+      var v = this.uv[1];
+      var x = 0;
+      var y = 0;
+      var z = 0;
+      return {
+        TOP: [s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0],
+        BOTTOM: [-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0],
+        LEFT: [-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1, -s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 1, -s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1],
+        RIGHT: [s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, -s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, -1],
+        FRONT: [s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0],
+        BACK: [-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, -1, 0, 0]
+      };
+    }
+  }]);
+
+  return Cube;
+}(_Geometry2.Geometry);
+
+exports.Cube = Cube;
+},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
+module.exports = "/placeholder_256.33ec6945.png";
+},{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Resources = require("../Resources");
+
+var _Material2 = require("./Material");
+
+var _Texture = require("./Texture");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+_Resources.Resources.add({
+  'texture256': require('../../res/textures/placeholder_256.png')
+}, false);
+
+var TestMaterial =
+/*#__PURE__*/
+function (_Material) {
+  _inherits(TestMaterial, _Material);
+
+  function TestMaterial() {
+    var _this;
+
+    _classCallCheck(this, TestMaterial);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(TestMaterial).call(this, "TEST"));
+
+    var texImage = _Resources.Resources.get('texture256');
+
+    _this.texture = new _Texture.Texture(texImage);
+    _this.textureScale = 256;
+    _this.diffuseColor = [1, 1, 1];
+    _this.receiveShadows = true;
+    _this.castShadows = true;
+    return _this;
+  }
+
+  return TestMaterial;
+}(_Material2.Material);
+
+exports.default = TestMaterial;
+},{"../Resources":"../../src/Resources.js","./Material":"../../src/materials/Material.js","./Texture":"../../src/materials/Texture.js","../../res/textures/placeholder_256.png":"../../res/textures/placeholder_256.png"}],"../../res/models/test.obj":[function(require,module,exports) {
 module.exports = "/test.e363a0c3.obj";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
@@ -12104,6 +12242,10 @@ var _Scheduler = require("../../src/Scheduler.js");
 
 var _Emitter = require("../../src/geo/Emitter.js");
 
+var _Cube = require("../../src/geo/Cube.js");
+
+var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial.js"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var viewport = new _Viewport.default();
@@ -12118,6 +12260,10 @@ viewport.onload = function () {
   var camera = viewport.camera;
   var emitter = new _Emitter.Emitter();
   scene.add(emitter);
+  scene.add(new _Cube.Cube({
+    material: new _TestMaterial.default(),
+    scale: 10
+  }));
   viewport.setCursor();
 
   var savedPosition = _Config.default.global.getValue('camera');
@@ -12141,7 +12287,7 @@ viewport.onload = function () {
 window.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(viewport);
 });
-},{"../../Viewport.js":"../../Viewport.js","../../src/Math.js":"../../src/Math.js","../../src/Config.js":"../../src/Config.js","../../src/Resources.js":"../../src/Resources.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../src/geo/Emitter.js":"../../src/geo/Emitter.js","../../res/models/test.obj":"../../res/models/test.obj"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../Viewport.js":"../../Viewport.js","../../src/Math.js":"../../src/Math.js","../../src/Config.js":"../../src/Config.js","../../src/Resources.js":"../../src/Resources.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../src/geo/Emitter.js":"../../src/geo/Emitter.js","../../src/geo/Cube.js":"../../src/geo/Cube.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../res/models/test.obj":"../../res/models/test.obj"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -12169,7 +12315,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57871" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59339" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

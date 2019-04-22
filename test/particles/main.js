@@ -4,6 +4,8 @@ import Config from "../../src/Config.js";
 import { Resources } from "../../src/Resources.js";
 import { Task } from "../../src/Scheduler.js";
 import { Emitter } from "../../src/geo/Emitter.js";
+import { Cube } from "../../src/geo/Cube.js";
+import TestMaterial from "../../src/materials/TestMaterial.js";
 
 const viewport = new Viewport();
 
@@ -21,6 +23,11 @@ viewport.onload = () => {
     const emitter = new Emitter();
 
     scene.add(emitter);
+
+    scene.add(new Cube({
+        material: new TestMaterial(),
+        scale: 10,
+    }))
 
     viewport.setCursor();
 

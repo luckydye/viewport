@@ -11,7 +11,7 @@ export class Plane extends Geometry {
 
 	get vertecies() {
 		const s = 1;
-		const vertArray = [
+		return [
 			-s, -s, 0, 	0, 0,
 			s, -s, 0, 	1, 0, 
 			s, s, 0, 	1, 1,
@@ -20,7 +20,6 @@ export class Plane extends Geometry {
 			-s, s, 0, 	0, 1, 
 			-s, -s, 0, 	0, 0,
 		]
-		return vertArray;
 	}
 
 	onCreate(args) {

@@ -12,11 +12,14 @@ export default class PickingShader extends GLShader {
             layout(location = 1) in vec2 aTexCoords;
             layout(location = 2) in vec3 aNormal;
             
-            uniform bool scaleUniform;
-            uniform mat4 uModelMatrix;
-            uniform mat4 uViewMatrix;
-            uniform mat4 uProjMatrix;
+            struct SceneProjection {
+                mat4 model;
+                mat4 view;
+                mat4 projection;
+            };
             
+            uniform SceneProjection scene;
+            uniform bool scaleUniform;
             uniform sampler2D displacementMap;
             
             out vec3 vColor;
@@ -26,10 +29,10 @@ export default class PickingShader extends GLShader {
 
                 float distance = 1.0;
                 if(scaleUniform) {
-                    distance = (uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.0)).z;
+                    distance = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
                 }
             
-                gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition * distance, 1.0);
+                gl_Position = scene.projection * scene.view * scene.model * vec4(aPosition * distance, 1.0);
             
                 vColor = aNormal;
             }
