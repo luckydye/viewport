@@ -39,7 +39,11 @@ viewport.onload = () => {
     const configTask = new Task();
     configTask.execute = (ms) => {
         Config.global.setValue('camera', camera);
-        campos.innerText = camera.position + "  |  " + camera.rotation;
+        campos.innerHTML = `
+            <span>${camera.position}</span>
+            <span>${camera.rotation}</span>
+            <span>${viewport.renderer.frameRate.toFixed(0)}</span>
+        `;
         return false;
     }
     scheduler.addTask(configTask);

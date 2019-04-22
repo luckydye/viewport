@@ -2,8 +2,8 @@ import { mat4, vec4, vec3 } from "gl-matrix";
 
 export class Vec extends Array {
 
-	valueOf() {
-		return `${this[0].toFixed(2)}; ${this[1].toFixed(2)}; ${this[2].toFixed(2)}`;
+	toString() {
+		return `${this[0].toFixed(2)};${this[1].toFixed(2)};${this[2].toFixed(2)}`;
 	}
 
 	static avg(vec1, vec2) {

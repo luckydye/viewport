@@ -1,4 +1,3 @@
-import { Camera } from '../camera/Camera';
 import { Grid } from '../geo/Grid.js';
 import { DirectionalLight } from '../light/DirectionalLight';
 import { Vec } from '../Math.js';
@@ -18,8 +17,9 @@ export class Scene {
 		this.activeCamera = camera;
 
 		this.grid = new Grid(100, 20);
-
 		this.curosr = new Cursor();
+
+		this.clear();
 	}
 
 	add(obj) {
@@ -40,6 +40,8 @@ export class Scene {
 
 	clear() {
 		this.objects.clear();
+		this.add(this.grid);
+		this.add(this.curosr);
 	}
 
 	update(ms) {

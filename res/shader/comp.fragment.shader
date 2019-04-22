@@ -40,7 +40,10 @@ void main(void) {
     }
 
 	if(guides.a != 0.0) {
-        oFragColor *= 0.5;
-        oFragColor += guides;
+        if(color.a > 0.0) {
+            oFragColor += guides * 0.5;
+        } else {
+            oFragColor = guides;
+        }
     }
 }

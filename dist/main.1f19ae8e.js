@@ -8061,9 +8061,9 @@ function (_Array) {
   _inherits(Vec, _Array);
 
   _createClass(Vec, [{
-    key: "valueOf",
-    value: function valueOf() {
-      return "".concat(this[0].toFixed(2), "; ").concat(this[1].toFixed(2), "; ").concat(this[2].toFixed(2));
+    key: "toString",
+    value: function toString() {
+      return "".concat(this[0].toFixed(2), ";").concat(this[1].toFixed(2), ";").concat(this[2].toFixed(2));
     }
   }, {
     key: "x",
@@ -10647,17 +10647,23 @@ function (_GLContext) {
           var pass = _step2.value;
           var lightS = this.scene.lightSources;
           var cullDefault = gl.isEnabled(gl.CULL_FACE);
+          pass.use();
 
           switch (pass.id) {
+            case "diffuse":
+              this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
+              this.drawScene(this.scene, camera, function (obj) {
+                return !obj.guide;
+              });
+              break;
+
             case "shadow":
-              pass.use();
               this.drawScene(this.scene, lightS, function (obj) {
                 return obj.material && obj.material.castShadows;
               });
               break;
 
             case "light":
-              pass.use();
               this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
               gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
               this.drawScene(this.scene, camera, function (obj) {
@@ -10666,28 +10672,16 @@ function (_GLContext) {
               break;
 
             case "reflection":
-              pass.use();
               gl.cullFace(gl.FRONT);
               this.drawScene(this.scene, camera);
               gl.cullFace(gl.BACK);
               break;
 
-            case "diffuse":
-              pass.use();
-              this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-              this.drawScene(this.scene, camera, function (obj) {
-                return !obj.guide;
-              });
-              break;
-
             case "guides":
-              pass.use();
               if (cullDefault) this.disable(gl.CULL_FACE);
               this.drawScene(this.scene, camera, function (obj) {
                 return obj.guide;
               });
-              this.drawMesh(this.scene.curosr);
-              this.drawMesh(this.scene.grid);
               if (cullDefault) this.enable(gl.CULL_FACE);
               break;
           }
@@ -10777,24 +10771,12 @@ function (_GLContext) {
       this.useTexture(null, "reflectionMap", 2);
       this.useTexture(null, "displacementMap", 3);
       this.prepareTexture(colorTexture);
-
-      if (colorTexture.img && colorTexture.gltexture) {
-        this.useTexture(colorTexture.gltexture, "colorTexture", 1);
-      }
-
-      this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
+      this.useTexture(colorTexture.gltexture, "colorTexture", 1);
       this.prepareTexture(reflectionMap);
-
-      if (reflectionMap.img && reflectionMap.gltexture) {
-        this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
-      }
-
+      this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
       this.prepareTexture(displacementMap);
-
-      if (displacementMap.img && displacementMap.gltexture) {
-        this.useTexture(displacementMap.gltexture, "displacementMap", 3);
-      }
-
+      this.useTexture(displacementMap.gltexture, "displacementMap", 3);
+      this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
       this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
       this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
       this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
@@ -11068,12 +11050,16 @@ function (_Geometry) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this));
     _this.size = size;
     _this.count = count;
-    _this.drawmode = "LINES";
-    _this.guide = true;
     return _this;
   }
 
   _createClass(Grid, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.drawmode = "LINES";
+      args.guide = true;
+    }
+  }, {
     key: "generate",
     value: function generate() {
       var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
@@ -11390,8 +11376,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Scene = void 0;
 
-var _Camera = require("../camera/Camera");
-
 var _Grid = require("../geo/Grid.js");
 
 var _DirectionalLight = require("../light/DirectionalLight");
@@ -11424,6 +11408,7 @@ function () {
     this.activeCamera = camera;
     this.grid = new _Grid.Grid(100, 20);
     this.curosr = new _Cursor.Cursor();
+    this.clear();
   }
 
   _createClass(Scene, [{
@@ -11456,6 +11441,8 @@ function () {
     key: "clear",
     value: function clear() {
       this.objects.clear();
+      this.add(this.grid);
+      this.add(this.curosr);
     }
   }, {
     key: "update",
@@ -11494,7 +11481,7 @@ function () {
 }();
 
 exports.Scene = Scene;
-},{"../camera/Camera":"../../src/camera/Camera.js","../geo/Grid.js":"../../src/geo/Grid.js","../light/DirectionalLight":"../../src/light/DirectionalLight.js","../Math.js":"../../src/Math.js","../geo/Cursor":"../../src/geo/Cursor.js"}],"../../src/Scheduler.js":[function(require,module,exports) {
+},{"../geo/Grid.js":"../../src/geo/Grid.js","../light/DirectionalLight":"../../src/light/DirectionalLight.js","../Math.js":"../../src/Math.js","../geo/Cursor":"../../src/geo/Cursor.js"}],"../../src/Scheduler.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12277,7 +12264,7 @@ viewport.onload = function () {
   configTask.execute = function (ms) {
     _Config.default.global.setValue('camera', camera);
 
-    campos.innerText = camera.position + "  |  " + camera.rotation;
+    campos.innerHTML = "\n            <span>".concat(camera.position, "</span>\n            <span>").concat(camera.rotation, "</span>\n            <span>").concat(viewport.renderer.frameRate.toFixed(0), "</span>\n        ");
     return false;
   };
 

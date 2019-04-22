@@ -10,8 +10,11 @@ export class Grid extends Geometry {
 		super();
 		this.size = size;
 		this.count = count;
-		this.drawmode = "LINES";
-		this.guide = true;
+	}
+
+	onCreate(args) {
+		args.drawmode = "LINES";
+		args.guide = true;
 	}
 	
 	generate(w = 100, s = 14) {

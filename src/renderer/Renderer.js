@@ -99,16 +99,21 @@ export class Renderer extends GLContext {
 		for(let pass of passes) {
 			const lightS = this.scene.lightSources;
 			const cullDefault = gl.isEnabled(gl.CULL_FACE);
+
+			pass.use();
 			
 			switch(pass.id) {
 
+				case "diffuse":
+					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
+					this.drawScene(this.scene, camera, obj => !obj.guide);
+					break;
+
 				case "shadow":
-					pass.use();
 					this.drawScene(this.scene, lightS, obj => obj.material && obj.material.castShadows);
 					break;
 
 				case "light":
-					pass.use();
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
 					gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 					this.drawScene(this.scene, camera, obj => {
@@ -117,24 +122,14 @@ export class Renderer extends GLContext {
 					break;
 				
 				case "reflection":
-					pass.use();
 					gl.cullFace(gl.FRONT);
 					this.drawScene(this.scene, camera);
 					gl.cullFace(gl.BACK);
 					break;
 
-				case "diffuse":
-					pass.use();
-					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-					this.drawScene(this.scene, camera, obj => !obj.guide);
-					break;
-
 				case "guides":
-					pass.use();
 					if(cullDefault) this.disable(gl.CULL_FACE);
 					this.drawScene(this.scene, camera, obj => obj.guide);
-					this.drawMesh(this.scene.curosr);
-					this.drawMesh(this.scene.grid);
 					if(cullDefault) this.enable(gl.CULL_FACE);
 					break;
 			}
@@ -206,21 +201,15 @@ export class Renderer extends GLContext {
 		this.useTexture(null, "displacementMap", 3);
 
 		this.prepareTexture(colorTexture);
-		if(colorTexture.img && colorTexture.gltexture) {
-			this.useTexture(colorTexture.gltexture, "colorTexture", 1);
-		}
-		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
+		this.useTexture(colorTexture.gltexture, "colorTexture", 1);
 
 		this.prepareTexture(reflectionMap);
-		if(reflectionMap.img && reflectionMap.gltexture) {
-			this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
-		}
+		this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
 
 		this.prepareTexture(displacementMap);
-		if(displacementMap.img && displacementMap.gltexture) {
-			this.useTexture(displacementMap.gltexture, "displacementMap", 3);
-		}
+		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 
+		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
 		this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
 		this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
 		this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
