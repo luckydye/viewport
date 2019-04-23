@@ -8867,6 +8867,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -8952,6 +8956,13 @@ function (_EntityControler) {
   }
 
   _createClass(FirstPersonControler, [{
+    key: "lock",
+    value: function lock() {
+      _get(_getPrototypeOf(FirstPersonControler.prototype), "lock", this).call(this);
+
+      document.exitPointerLock();
+    }
+  }, {
     key: "initMouse",
     value: function initMouse() {
       var _this2 = this;
@@ -8959,8 +8970,6 @@ function (_EntityControler) {
       var entity = this.entity;
 
       var down = function down(e) {
-        if (_this2.locked) return;
-
         _this2.viewport.requestPointerLock();
       };
 
@@ -8972,10 +8981,6 @@ function (_EntityControler) {
           entity.rotation.y = entity.rotation.y % (Math.PI * 2);
           entity.rotation.z = entity.rotation.z % (Math.PI * 2);
           entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
-        }
-
-        if (_this2.locked) {
-          document.exitPointerLock();
         }
       };
 
@@ -10677,7 +10682,8 @@ function (_GLContext) {
       });
       this.setResolution.apply(this, _toConsumableArray(Renderer.defaults.resolution));
       this.shadowMapSize = 4096;
-      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'reflection', new _ReflectionShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
+      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), // new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
+      new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
       this.compShader = new _FinalShader.default();
       this.prepareShader(this.compShader);
       this.readings = {};
@@ -10790,6 +10796,8 @@ function (_GLContext) {
               break;
 
             case "id":
+              if (cullDefault) _this.disable(gl.CULL_FACE);
+
               _this.drawScene(_this.scene, camera, function (obj) {
                 if (obj.id != null) {
                   _this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / _this.scene.objects.size);
@@ -10800,12 +10808,16 @@ function (_GLContext) {
                 return false;
               });
 
+              if (cullDefault) _this.enable(gl.CULL_FACE);
               break;
           }
 
           if (pass.id in _this.readings) {
             var read = _this.readings[pass.id];
-            read.value = _this.readPixels(read.x, read.y, 1, 1);
+
+            if (!read.value) {
+              read.setValue(_this.readPixels(read.x, read.y, 1, 1));
+            }
           }
         };
 
@@ -10830,18 +10842,21 @@ function (_GLContext) {
       this.clearFramebuffer();
     }
   }, {
-    key: "readFromBuffer",
-    value: function readFromBuffer(x, y, buffer) {
-      if (!this.readings[buffer]) {
-        this.readings[buffer] = {
-          x: 0,
-          y: 0,
-          value: 0
-        };
-      }
+    key: "readPixelFromBuffer",
+    value: function readPixelFromBuffer(x, y, buffer) {
+      var _this2 = this;
 
-      this.readings[buffer].x = x;
-      this.readings[buffer].y = y;
+      return new Promise(function (resolve, reject) {
+        _this2.readings[buffer] = {
+          x: x,
+          y: y,
+          value: null,
+          setValue: function setValue(value) {
+            this.value = value;
+            resolve(value);
+          }
+        };
+      });
     }
   }, {
     key: "readPixels",
@@ -11737,6 +11752,14 @@ var _Math = require("../Math");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -11779,69 +11802,53 @@ function (_EntityControler) {
       var curosr = this.entity;
       var renderer = this.viewport.renderer;
       var camera = this.viewport.camera;
+      var scene = this.viewport.scene;
       var moving = false;
-      var selected = [0, 0, 0];
-      var plane = new _Math.Vec(0, curosr.position.y + 10, 0);
-      var normal = new _Math.Vec(0, 1, 0);
-      var startdelta = [];
-
-      var check = function check() {
-        if (!renderer.readings.guides) return;
-        var v = renderer.readings.guides.value;
-        selected = [0, 0, 0];
-        if (v[0] > 0) selected[0] = 1;
-        if (v[1] > 0) selected[1] = 1;
-        if (v[2] > 0) selected[2] = 1;
-
-        _this2.interaction(selected);
-      };
 
       var down = function down(e) {
-        check();
-        var ray = new _Math.Raycast(camera, e.x, e.y);
-        var hit = ray.hit(plane, normal);
-        startdelta = [hit.position[0] - curosr.position.x, hit.position[1] - curosr.position.y, hit.position[2] - curosr.position.z];
-        moving = true;
+        var x = e.x;
+        var y = _this2.viewport.renderer.height - e.y;
+        renderer.readPixelFromBuffer(x, y, 'id').then(function (value) {
+          var objID = value[0] / 255 * scene.objects.size;
+
+          _this2.interaction(objID);
+
+          moving = true;
+        });
       };
 
       var up = function up(e) {
         moving = false;
       };
 
+      var startdelta = null;
+
       var move = function move(e) {
         if (moving) {
-          var ray = new _Math.Raycast(camera, e.x, e.y);
-          var hit = ray.hit(plane, normal);
-          var x = hit.position[0] - startdelta[0],
-              y = hit.position[1] - startdelta[1],
-              z = hit.position[2] - startdelta[2];
+          var plane = new _Math.Vec(0, curosr.position.y, 0);
+          var normal = new _Math.Vec(0, 1, 0);
+          var hit = new _Math.Raycast(camera, e.x, e.y).hit(plane, normal);
 
           if (hit) {
-            if (selected[0]) curosr.position.x = x;
-            if (selected[1]) curosr.position.y = y;
-            if (selected[2]) curosr.position.z = z;
+            if (!startdelta) {
+              startdelta = new _Math.Vec(hit.position[0] - curosr.position[0], hit.position[1] - curosr.position[1], hit.position[2] - curosr.position[2]);
+            } else {
+              var axis = startdelta.indexOf(Math.max.apply(Math, _toConsumableArray(startdelta)));
+              curosr.position[axis] = hit.position[axis] - startdelta[axis];
+            }
           }
+        } else {
+          startdelta = null;
         }
       };
 
-      this.viewport.addEventListener('click', function (e) {
-        var x = e.x;
-        var y = _this2.viewport.renderer.height - e.y;
-
-        if (!renderer.readings.guides) {
-          renderer.readFromBuffer(x, y, 'guides');
-        } else {
-          renderer.readings.guides.x = x;
-          renderer.readings.guides.y = y;
-        }
-      });
       this.viewport.addEventListener("mousedown", down);
       this.viewport.addEventListener("mouseup", up);
       this.viewport.addEventListener("mousemove", move);
     }
   }, {
     key: "interaction",
-    value: function interaction(selected) {}
+    value: function interaction(objId) {}
   }]);
 
   return CursorControler;
@@ -11991,6 +11998,8 @@ function (_HTMLElement) {
   }, {
     key: "init",
     value: function init(canvas) {
+      var _this3 = this;
+
       var mats = _Resources.Resources.get('materials');
 
       for (var name in mats) {
@@ -12005,14 +12014,16 @@ function (_HTMLElement) {
         rotation: new _Math.Vec(15, 0, 0)
       });
       var controler = new _FirstPersonControler.FirstPersonControler(this.camera, canvas);
-      this.createScene(); // const cursorControler = new CursorControler(this.scene.curosr, this);
-      // cursorControler.interaction = selected => {
-      //     if(selected[0] || selected[1] || selected[2]) {
-      //         controler.lock();
-      //     } else {
-      //         controler.unlock();
-      //     }
-      // }
+      this.createScene();
+      var cursorControler = new _CursorController.CursorControler(this.scene.curosr, this);
+
+      cursorControler.interaction = function (objID) {
+        if (objID == _this3.scene.curosr.id) {
+          controler.lock();
+        } else {
+          controler.unlock();
+        }
+      };
 
       this.dispatchEvent(new Event('load'));
     }
@@ -12227,7 +12238,7 @@ viewport.onload = function () {
 
   var configTask = new _Scheduler.Task();
 
-  var timer = _Scheduler.Scheduler.timer(500, function () {
+  var timer = _Scheduler.Scheduler.timer(250, function () {
     _Config.default.global.setValue('camera', camera);
 
     campos.innerHTML = "\n            <span>".concat(camera.position, "</span>\n            <span>").concat(camera.rotation, "</span>\n            <span>").concat(viewport.renderer.frameRate.toFixed(0), "</span>\n        ");

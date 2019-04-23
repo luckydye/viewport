@@ -110,14 +110,14 @@ export default class Viewport extends HTMLElement {
 
         this.createScene();
 
-        // const cursorControler = new CursorControler(this.scene.curosr, this);
-        // cursorControler.interaction = selected => {
-        //     if(selected[0] || selected[1] || selected[2]) {
-        //         controler.lock();
-        //     } else {
-        //         controler.unlock();
-        //     }
-        // }
+        const cursorControler = new CursorControler(this.scene.curosr, this);
+        cursorControler.interaction = objID => {
+            if(objID == this.scene.curosr.id) {
+                controler.lock();
+            } else {
+                controler.unlock();
+            }
+        }
 
         this.dispatchEvent(new Event('load'));
     }

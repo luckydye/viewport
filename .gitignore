@@ -1,6 +1,6 @@
-// node
+# // node
 node_modules
 
-// parcel
-# dist
+# // parcel
+dist
 .cache

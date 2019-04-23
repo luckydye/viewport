@@ -30,7 +30,7 @@ viewport.onload = () => {
     }
 
     const configTask = new Task();
-    const timer = Scheduler.timer(500, () => {
+    const timer = Scheduler.timer(250, () => {
         Config.global.setValue('camera', camera);
         campos.innerHTML = `
             <span>${camera.position}</span>

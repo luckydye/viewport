@@ -48,4 +48,6 @@ void main(void) {
             oFragColor = guides;
         }
     }
+
+    // oFragColor = id;
 }

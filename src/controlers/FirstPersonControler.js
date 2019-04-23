@@ -64,12 +64,15 @@ export class FirstPersonControler extends EntityControler {
 		this.speed = 20;
 	}
 
+	lock() {
+		super.lock();
+		document.exitPointerLock();
+	}
+
 	initMouse() {
 		const entity = this.entity;
 
 		const down = e => {
-			if(this.locked) return;
-
 			this.viewport.requestPointerLock();
 		}
 
@@ -83,10 +86,6 @@ export class FirstPersonControler extends EntityControler {
 				entity.rotation.z = entity.rotation.z % (Math.PI * 2);
 
 				entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
-			}
-
-			if(this.locked) {
-				document.exitPointerLock();
 			}
 		}
 

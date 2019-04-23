@@ -59,7 +59,7 @@ export class Renderer extends GLContext {
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
+			// new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
@@ -136,6 +136,7 @@ export class Renderer extends GLContext {
 					break;
 				
 				case "id":
+					if(cullDefault) this.disable(gl.CULL_FACE);
 					this.drawScene(this.scene, camera, obj => {
 						if(obj.id != null) {
 							this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / this.scene.objects.size);
@@ -143,28 +144,32 @@ export class Renderer extends GLContext {
 						}
 						return false;
 					});
+					if(cullDefault) this.enable(gl.CULL_FACE);
 					break;
 			}
 
 			if(pass.id in this.readings) {
 				const read = this.readings[pass.id];
-				read.value = this.readPixels(read.x, read.y, 1, 1);
+				if(!read.value) {
+					read.setValue(this.readPixels(read.x, read.y, 1, 1));
+				}
 			}
 		}
 
 		this.clearFramebuffer();
 	}
 
-	readFromBuffer(x, y, buffer) {
-		if(!this.readings[buffer]) {
+	readPixelFromBuffer(x, y, buffer) {
+		return new Promise((resolve, reject) => {
 			this.readings[buffer] = {
-				x: 0,
-				y: 0,
-				value: 0
+				x, y, 
+				value: null, 
+				setValue(value) {
+					this.value = value;
+					resolve(value);
+				}
 			};
-		}
-		this.readings[buffer].x = x;
-		this.readings[buffer].y = y;
+		})
 	}
 
 	readPixels(x = 0 , y = 0, w = 1, h = 1) {
