@@ -11143,174 +11143,7 @@ function () {
 }();
 
 exports.RenderPass = RenderPass;
-},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Grid = void 0;
-
-var _Geometry2 = require("../scene/Geometry.js");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var Grid =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Grid, _Geometry);
-
-  _createClass(Grid, [{
-    key: "vertecies",
-    get: function get() {
-      return this.generate(this.size, this.count);
-    }
-  }]);
-
-  function Grid(size, count) {
-    var _this;
-
-    _classCallCheck(this, Grid);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this));
-    _this.size = size;
-    _this.count = count;
-    return _this;
-  }
-
-  _createClass(Grid, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      args.drawmode = "LINES";
-      args.guide = true;
-    }
-  }, {
-    key: "generate",
-    value: function generate() {
-      var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-      var s = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 14;
-      var dataArray = [];
-      var size = w * s / 2;
-
-      for (var x = -s / 2; x <= s / 2; x++) {
-        var color = [0.5, 0.5, 0.5];
-        if (x == 0) color = [.15, .15, 1];
-        dataArray.push.apply(dataArray, [w * x, 0, size, 0, 0].concat(_toConsumableArray(color), [w * x, 0, -size, 0, 0], _toConsumableArray(color)));
-      }
-
-      for (var z = -s / 2; z <= s / 2; z++) {
-        var _color = [0.5, 0.5, 0.5];
-        if (z == 0) _color = [1, .15, .15];
-        dataArray.push.apply(dataArray, [size, 0, w * z, 0, 0].concat(_toConsumableArray(_color), [-size, 0, w * z, 0, 0], _toConsumableArray(_color)));
-      }
-
-      return dataArray;
-    }
-  }]);
-
-  return Grid;
-}(_Geometry2.Geometry);
-
-exports.Grid = Grid;
-},{"../scene/Geometry.js":"../../src/scene/Geometry.js"}],"../../src/light/DirectionalLight.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DirectionalLight = void 0;
-
-var _glMatrix = require("gl-matrix");
-
-var _Camera2 = require("../camera/Camera");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var DirectionalLight =
-/*#__PURE__*/
-function (_Camera) {
-  _inherits(DirectionalLight, _Camera);
-
-  function DirectionalLight() {
-    _classCallCheck(this, DirectionalLight);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(DirectionalLight).apply(this, arguments));
-  }
-
-  _createClass(DirectionalLight, [{
-    key: "update",
-    value: function update() {
-      var projMatrix = this.projMatrix;
-      var viewMatrix = this.viewMatrix;
-      var camera = this;
-      var ar = this.sensor.width / this.sensor.height;
-
-      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-
-      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), _glMatrix.vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), _glMatrix.vec3.fromValues(0, 1, 0));
-
-      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
-
-      _glMatrix.mat4.translate(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.position.x, camera.position.y, camera.position.z));
-
-      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
-
-      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
-
-      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
-    }
-  }, {
-    key: "isLight",
-    get: function get() {
-      return true;
-    }
-  }]);
-
-  return DirectionalLight;
-}(_Camera2.Camera);
-
-exports.DirectionalLight = DirectionalLight;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
+},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11427,7 +11260,182 @@ function (_Geometry) {
 }(_Geometry2.Geometry);
 
 exports.Guide = Guide;
-},{"../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js","../Math":"../../src/Math.js","../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
+},{"../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js","../Math":"../../src/Math.js","../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Grid = void 0;
+
+var _Guide2 = require("./Guide.js");
+
+var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_GRID_MATERIAL = new _PrimitiveMaterial.default();
+DEFAULT_GRID_MATERIAL.scaleUniform = false;
+
+var Grid =
+/*#__PURE__*/
+function (_Guide) {
+  _inherits(Grid, _Guide);
+
+  _createClass(Grid, [{
+    key: "vertecies",
+    get: function get() {
+      return this.generate(this.size, this.count);
+    }
+  }]);
+
+  function Grid(size, count) {
+    var _this;
+
+    _classCallCheck(this, Grid);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this));
+    _this.size = size;
+    _this.count = count;
+    return _this;
+  }
+
+  _createClass(Grid, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.drawmode = "LINES";
+      args.guide = true;
+      args.material = DEFAULT_GRID_MATERIAL;
+    }
+  }, {
+    key: "generate",
+    value: function generate() {
+      var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
+      var s = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 14;
+      var dataArray = [];
+      var size = w * s / 2;
+
+      for (var x = -s / 2; x <= s / 2; x++) {
+        var color = [0.5, 0.5, 0.5];
+        if (x == 0) color = [.15, .15, 1];
+        dataArray.push.apply(dataArray, [w * x, 0, size, 0, 0].concat(_toConsumableArray(color), [w * x, 0, -size, 0, 0], _toConsumableArray(color)));
+      }
+
+      for (var z = -s / 2; z <= s / 2; z++) {
+        var _color = [0.5, 0.5, 0.5];
+        if (z == 0) _color = [1, .15, .15];
+        dataArray.push.apply(dataArray, [size, 0, w * z, 0, 0].concat(_toConsumableArray(_color), [-size, 0, w * z, 0, 0], _toConsumableArray(_color)));
+      }
+
+      return dataArray;
+    }
+  }]);
+
+  return Grid;
+}(_Guide2.Guide);
+
+exports.Grid = Grid;
+},{"./Guide.js":"../../src/geo/Guide.js","../materials/PrimitiveMaterial.js":"../../src/materials/PrimitiveMaterial.js"}],"../../src/light/DirectionalLight.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DirectionalLight = void 0;
+
+var _glMatrix = require("gl-matrix");
+
+var _Camera2 = require("../camera/Camera");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DirectionalLight =
+/*#__PURE__*/
+function (_Camera) {
+  _inherits(DirectionalLight, _Camera);
+
+  function DirectionalLight() {
+    _classCallCheck(this, DirectionalLight);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(DirectionalLight).apply(this, arguments));
+  }
+
+  _createClass(DirectionalLight, [{
+    key: "update",
+    value: function update() {
+      var projMatrix = this.projMatrix;
+      var viewMatrix = this.viewMatrix;
+      var camera = this;
+      var ar = this.sensor.width / this.sensor.height;
+
+      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+
+      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), _glMatrix.vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), _glMatrix.vec3.fromValues(0, 1, 0));
+
+      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
+
+      _glMatrix.mat4.translate(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.position.x, camera.position.y, camera.position.z));
+
+      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
+
+      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
+
+      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
+    }
+  }, {
+    key: "isLight",
+    get: function get() {
+      return true;
+    }
+  }]);
+
+  return DirectionalLight;
+}(_Camera2.Camera);
+
+exports.DirectionalLight = DirectionalLight;
+},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
 module.exports = "/cursor.021979eb.obj";
 },{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
 "use strict";
@@ -12188,7 +12196,7 @@ function (_Geometry) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this));
     _this.base = origin;
     _this.age = 0;
-    _this.position = new _Math.Vec(_this.base.position);
+    _this.position = new _Math.Vec();
     _this.direction = _Math.Vec.normal(_Math.Vec.add(_this.base.rotation, new _Math.Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)));
     return _this;
   }
@@ -12501,7 +12509,9 @@ viewport.onload = function () {
   var scheduler = viewport.scheduler;
   var scene = viewport.scene;
   var camera = viewport.camera;
-  var emitter = new _Emitter.Emitter();
+  var emitter = new _Emitter.Emitter({
+    id: 40
+  });
   scene.add(emitter);
   scene.add(new _Cube.Cube({
     material: new _TestMaterial.default(),

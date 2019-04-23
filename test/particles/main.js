@@ -21,7 +21,9 @@ viewport.onload = () => {
 
     const camera = viewport.camera;
 
-    const emitter = new Emitter();
+    const emitter = new Emitter({
+        id: 40
+    });
 
     scene.add(emitter);
 

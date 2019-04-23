@@ -36,7 +36,7 @@ export class Particle extends Geometry {
 
         this.base = origin;
         this.age = 0;
-        this.position = new Vec(this.base.position);
+        this.position = new Vec();
         this.direction = Vec.normal(Vec.add(
             this.base.rotation, 
             new Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)

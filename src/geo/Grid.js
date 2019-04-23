@@ -1,6 +1,10 @@
-import { Geometry } from "../scene/Geometry.js";
+import { Guide } from "./Guide.js";
+import PrimitivetMaterial from "../materials/PrimitiveMaterial.js";
 
-export class Grid extends Geometry {
+const DEFAULT_GRID_MATERIAL = new PrimitivetMaterial();
+DEFAULT_GRID_MATERIAL.scaleUniform = false;
+
+export class Grid extends Guide {
 
 	get vertecies() {
 		return this.generate(this.size, this.count);
@@ -15,6 +19,7 @@ export class Grid extends Geometry {
 	onCreate(args) {
 		args.drawmode = "LINES";
 		args.guide = true;
+		args.material = DEFAULT_GRID_MATERIAL;
 	}
 	
 	generate(w = 100, s = 14) {
