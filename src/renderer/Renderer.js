@@ -144,6 +144,11 @@ export class Renderer extends GLContext {
 						}
 						return false;
 					});
+					this.disable(gl.DEPTH_TEST);
+					const curosr = this.scene.curosr;
+					this.gl.uniform1f(pass.shader.uniforms.geoid, curosr.id);
+					this.drawMesh(curosr);
+					this.enable(gl.DEPTH_TEST);
 					if(cullDefault) this.enable(gl.CULL_FACE);
 					break;
 			}

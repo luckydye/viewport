@@ -112,7 +112,7 @@ export default class Viewport extends HTMLElement {
 
         const cursorControler = new CursorControler(this.scene.curosr, this);
         cursorControler.interaction = objID => {
-            if(objID == this.scene.curosr.id) {
+            if(objID != 0) {
                 controler.lock();
             } else {
                 controler.unlock();

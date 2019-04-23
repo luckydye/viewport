@@ -15,6 +15,7 @@ export class CursorControler extends EntityControler {
         const curosr = this.entity;
         const renderer = this.viewport.renderer;
         const camera = this.viewport.camera;
+        const scene = this.viewport.scene;
 
         let moving = false;
         
@@ -26,6 +27,15 @@ export class CursorControler extends EntityControler {
                 const objID = value[0];
                 this.interaction(objID);
                 moving = objID == 1;
+
+                if(!moving) {
+                    for(let obj of scene.objects) {
+                        if(obj.id == objID) {
+                            this.viewport.setCursor(obj);
+                            this.interaction(objID);
+                        }
+                    }
+                }
             })
         }
         
