@@ -11623,6 +11623,21 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Scheduler =
 /*#__PURE__*/
 function () {
+  _createClass(Scheduler, null, [{
+    key: "timer",
+    value: function timer(_timer, callback) {
+      var accumulator = 0;
+      return function (deltaTime) {
+        accumulator += deltaTime;
+
+        if (accumulator >= _timer) {
+          callback(accumulator);
+          accumulator = 0;
+        }
+      };
+    }
+  }]);
+
   function Scheduler() {
     _classCallCheck(this, Scheduler);
 
@@ -12212,10 +12227,14 @@ viewport.onload = function () {
 
   var configTask = new _Scheduler.Task();
 
-  configTask.execute = function (ms) {
+  var timer = _Scheduler.Scheduler.timer(500, function () {
     _Config.default.global.setValue('camera', camera);
 
     campos.innerHTML = "\n            <span>".concat(camera.position, "</span>\n            <span>").concat(camera.rotation, "</span>\n            <span>").concat(viewport.renderer.frameRate.toFixed(0), "</span>\n        ");
+  });
+
+  configTask.execute = function (ms) {
+    timer(ms);
     return false;
   };
 
@@ -12253,7 +12272,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59339" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54694" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

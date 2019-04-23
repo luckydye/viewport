@@ -2,7 +2,7 @@ import Viewport from "../../Viewport.js";
 import { Transform } from "../../src/Math.js";
 import Config from "../../src/Config.js";
 import { Resources } from "../../src/Resources.js";
-import { Task } from "../../src/Scheduler.js";
+import { Task, Scheduler } from "../../src/Scheduler.js";
 import { Emitter } from "../../src/geo/Emitter.js";
 
 const viewport = new Viewport();
@@ -30,13 +30,16 @@ viewport.onload = () => {
     }
 
     const configTask = new Task();
-    configTask.execute = (ms) => {
+    const timer = Scheduler.timer(500, () => {
         Config.global.setValue('camera', camera);
         campos.innerHTML = `
             <span>${camera.position}</span>
             <span>${camera.rotation}</span>
             <span>${viewport.renderer.frameRate.toFixed(0)}</span>
         `;
+    })
+    configTask.execute = (ms) => {
+        timer(ms);
         return false;
     }
     scheduler.addTask(configTask);

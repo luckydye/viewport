@@ -1,5 +1,17 @@
 export class Scheduler {
 
+    static timer(timer, callback) {
+        let accumulator = 0;
+
+        return function(deltaTime) {
+            accumulator += deltaTime;
+            if(accumulator >= timer) {
+                callback(accumulator);
+                accumulator = 0;
+            }
+        }
+    }
+
     constructor() {
         this.queue = [];
     }
