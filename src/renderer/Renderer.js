@@ -139,7 +139,7 @@ export class Renderer extends GLContext {
 					if(cullDefault) this.disable(gl.CULL_FACE);
 					this.drawScene(this.scene, camera, obj => {
 						if(obj.id != null) {
-							this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / this.scene.objects.size);
+							this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id);
 							return true;
 						}
 						return false;

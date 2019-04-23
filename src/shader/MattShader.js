@@ -16,7 +16,8 @@ export default class MattShader extends GLShader {
             out vec4 oFragColor;
             
             void main () {
-                oFragColor = vec4(id, id, id, 1.0);
+                float c = id / 255.0;
+                oFragColor = vec4(c, c, c, 1.0);
             }
         `;
     }

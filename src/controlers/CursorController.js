@@ -15,7 +15,6 @@ export class CursorControler extends EntityControler {
         const curosr = this.entity;
         const renderer = this.viewport.renderer;
         const camera = this.viewport.camera;
-        const scene = this.viewport.scene;
 
         let moving = false;
         
@@ -24,10 +23,9 @@ export class CursorControler extends EntityControler {
             const y = this.viewport.renderer.height - e.y;
 
             renderer.readPixelFromBuffer(x, y, 'id').then(value => {
-                const objID = (value[0] / 255) * scene.objects.size;
+                const objID = value[0];
                 this.interaction(objID);
-    
-                moving = true;
+                moving = objID == 1;
             })
         }
         
@@ -39,23 +37,29 @@ export class CursorControler extends EntityControler {
 
 		const move = e => {
 			if(moving) {
-                const plane = new Vec(0, curosr.position.y, 0);
-                const normal = new Vec(0, 1, 0);
 
-                const hit = new Raycast(camera, e.x, e.y).hit(plane, normal);
+                const pos = Vec.multiply(curosr.position, new Vec(-1, -1, 1));
+                const hitx = new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, 1, 0)) ||
+                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
 
-                if(hit) {
-                    if(!startdelta) {
-                        startdelta = new Vec(
-                            hit.position[0] - curosr.position[0],
-                            hit.position[1] - curosr.position[1],
-                            hit.position[2] - curosr.position[2],
-                        );
+                const hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
+                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
+
+                if(!startdelta) {
+                    startdelta = new Vec(
+                        hitx.position[0] - curosr.position[0],
+                        hity.position[1] - curosr.position[1],
+                        hitx.position[2] - curosr.position[2],
+                    );
+                } else {
+                    const axis = startdelta.indexOf(Math.max(...startdelta));
+                    if(axis == 1) {
+                        curosr.position[axis] = hity.position[axis] - startdelta[axis];
                     } else {
-                        const axis = startdelta.indexOf(Math.max(...startdelta));
-                        curosr.position[axis] = hit.position[axis] - startdelta[axis];
+                        curosr.position[axis] = hitx.position[axis] - startdelta[axis];
                     }
                 }
+                
             } else {
                 startdelta = null;
             }

@@ -120,6 +120,8 @@ export default class Viewport extends HTMLElement {
         }
 
         this.dispatchEvent(new Event('load'));
+
+        this.setCursor([...this.scene.objects][this.scene.objects.size-1]);
     }
 
     setCursor(obj) {

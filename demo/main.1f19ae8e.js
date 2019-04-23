@@ -10571,7 +10571,7 @@ function (_GLShader) {
   }, {
     key: "fragmentSource",
     value: function fragmentSource() {
-      return "#version 300 es\n            precision mediump float;\n            \n            in float id;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                oFragColor = vec4(id, id, id, 1.0);\n            }\n        ";
+      return "#version 300 es\n            precision mediump float;\n            \n            in float id;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                float c = id / 255.0;\n                oFragColor = vec4(c, c, c, 1.0);\n            }\n        ";
     }
   }]);
 
@@ -10800,7 +10800,7 @@ function (_GLContext) {
 
               _this.drawScene(_this.scene, camera, function (obj) {
                 if (obj.id != null) {
-                  _this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / _this.scene.objects.size);
+                  _this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id);
 
                   return true;
                 }
@@ -11802,18 +11802,17 @@ function (_EntityControler) {
       var curosr = this.entity;
       var renderer = this.viewport.renderer;
       var camera = this.viewport.camera;
-      var scene = this.viewport.scene;
       var moving = false;
 
       var down = function down(e) {
         var x = e.x;
         var y = _this2.viewport.renderer.height - e.y;
         renderer.readPixelFromBuffer(x, y, 'id').then(function (value) {
-          var objID = value[0] / 255 * scene.objects.size;
+          var objID = value[0];
 
           _this2.interaction(objID);
 
-          moving = true;
+          moving = objID == 1;
         });
       };
 
@@ -11825,16 +11824,20 @@ function (_EntityControler) {
 
       var move = function move(e) {
         if (moving) {
-          var plane = new _Math.Vec(0, curosr.position.y, 0);
-          var normal = new _Math.Vec(0, 1, 0);
-          var hit = new _Math.Raycast(camera, e.x, e.y).hit(plane, normal);
+          var pos = _Math.Vec.multiply(curosr.position, new _Math.Vec(-1, -1, 1));
 
-          if (hit) {
-            if (!startdelta) {
-              startdelta = new _Math.Vec(hit.position[0] - curosr.position[0], hit.position[1] - curosr.position[1], hit.position[2] - curosr.position[2]);
+          var hitx = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, 1, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, -1, 0));
+          var hity = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(1, 0, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(-1, 0, 0));
+
+          if (!startdelta) {
+            startdelta = new _Math.Vec(hitx.position[0] - curosr.position[0], hity.position[1] - curosr.position[1], hitx.position[2] - curosr.position[2]);
+          } else {
+            var axis = startdelta.indexOf(Math.max.apply(Math, _toConsumableArray(startdelta)));
+
+            if (axis == 1) {
+              curosr.position[axis] = hity.position[axis] - startdelta[axis];
             } else {
-              var axis = startdelta.indexOf(Math.max.apply(Math, _toConsumableArray(startdelta)));
-              curosr.position[axis] = hit.position[axis] - startdelta[axis];
+              curosr.position[axis] = hitx.position[axis] - startdelta[axis];
             }
           }
         } else {
@@ -11884,6 +11887,14 @@ var _Scheduler = require("./src/Scheduler");
 var _CursorController = require("./src/controlers/CursorController");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -12026,6 +12037,7 @@ function (_HTMLElement) {
       };
 
       this.dispatchEvent(new Event('load'));
+      this.setCursor(_toConsumableArray(this.scene.objects)[this.scene.objects.size - 1]);
     }
   }, {
     key: "setCursor",
