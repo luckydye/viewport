@@ -35,7 +35,7 @@ export class Particle extends Geometry {
         super();
 
         this.base = origin;
-
+        this.age = 0;
         this.position = new Vec(this.base.position);
         this.direction = Vec.normal(Vec.add(
             this.base.rotation, 
@@ -43,23 +43,20 @@ export class Particle extends Geometry {
         ));
     }
 
-    kill() {
-        this.base.particles.splice(this.base.particles.indexOf(this), 1);
-    }
-
 }
 
 export class Emitter extends Geometry {
 
-    // get buffer() {
-    //     return this.createBuffer();
-    // }
+    get buffer() {
+        return this.createBuffer();
+    }
 
 	onCreate(args) {
 		args.material = DEFAULT_GUIDE_MATERIAL;
         args.drawmode = "TRIANGLES";
 
         this.particle = new Particle(this);
+        this.particles = [];
         
         this.instances = 1;
         this.instanced = true;
@@ -71,26 +68,35 @@ export class Emitter extends Geometry {
 
     update(ms) {
         this.spawn(10);
-        
-        // for(let p of this.particles) {
-        //     p.position.x += p.direction.x * ms;
-        //     p.position.y += p.direction.y * ms;
-        //     p.position.z += p.direction.z * ms;
 
-        //     p.age += ms;
+        for(let p of this.particles) {
+            p.position.x += p.direction.x * ms;
+            p.position.y += p.direction.y * ms;
+            p.position.z += p.direction.z * ms;
 
-        //     if(p.age > this.maxage * Math.random()) {
-        //         p.kill();
-        //     }
-        // }
+            p.age += ms;
+
+            if(p.age > this.maxage * Math.random()) {
+                this.particles.splice(this.particles.indexOf(p), 1);
+            }
+        }
     }
     
     spawn(amount) {
-        this.instances += amount;
+        for(let i = 0; i < amount; i++) {
+            this.particles.push(new Particle(this));
+        }
     }
 
 	get vertecies() {
-		return this.particle.vertecies;
+        const verts = [];
+
+        for(let p of this.particles) {
+           const pverts = p.vertecies;
+           verts.push(...pverts);
+       }
+
+        return verts;
 	}
 
 }

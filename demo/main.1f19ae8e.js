@@ -12126,6 +12126,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -12179,17 +12187,11 @@ function (_Geometry) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this));
     _this.base = origin;
+    _this.age = 0;
     _this.position = new _Math.Vec(_this.base.position);
     _this.direction = _Math.Vec.normal(_Math.Vec.add(_this.base.rotation, new _Math.Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)));
     return _this;
   }
-
-  _createClass(Particle, [{
-    key: "kill",
-    value: function kill() {
-      this.base.particles.splice(this.base.particles.indexOf(this), 1);
-    }
-  }]);
 
   return Particle;
 }(_Geometry3.Geometry);
@@ -12209,13 +12211,11 @@ function (_Geometry2) {
 
   _createClass(Emitter, [{
     key: "onCreate",
-    // get buffer() {
-    //     return this.createBuffer();
-    // }
     value: function onCreate(args) {
       args.material = DEFAULT_GUIDE_MATERIAL;
       args.drawmode = "TRIANGLES";
       this.particle = new Particle(this);
+      this.particles = [];
       this.instances = 1;
       this.instanced = true;
       this.rotation = new _Math.Vec(0, 0, 0);
@@ -12224,25 +12224,80 @@ function (_Geometry2) {
   }, {
     key: "update",
     value: function update(ms) {
-      this.spawn(10); // for(let p of this.particles) {
-      //     p.position.x += p.direction.x * ms;
-      //     p.position.y += p.direction.y * ms;
-      //     p.position.z += p.direction.z * ms;
-      //     p.age += ms;
-      //     if(p.age > this.maxage * Math.random()) {
-      //         p.kill();
-      //     }
-      // }
+      this.spawn(10);
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.particles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var p = _step.value;
+          p.position.x += p.direction.x * ms;
+          p.position.y += p.direction.y * ms;
+          p.position.z += p.direction.z * ms;
+          p.age += ms;
+
+          if (p.age > this.maxage * Math.random()) {
+            this.particles.splice(this.particles.indexOf(p), 1);
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     }
   }, {
     key: "spawn",
     value: function spawn(amount) {
-      this.instances += amount;
+      for (var i = 0; i < amount; i++) {
+        this.particles.push(new Particle(this));
+      }
+    }
+  }, {
+    key: "buffer",
+    get: function get() {
+      return this.createBuffer();
     }
   }, {
     key: "vertecies",
     get: function get() {
-      return this.particle.vertecies;
+      var verts = [];
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.particles[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var p = _step2.value;
+          var pverts = p.vertecies;
+          verts.push.apply(verts, _toConsumableArray(pverts));
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return verts;
     }
   }]);
 
@@ -12519,7 +12574,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54694" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55865" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

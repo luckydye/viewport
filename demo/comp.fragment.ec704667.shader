@@ -43,11 +43,14 @@ void main(void) {
 
 	if(guides.a != 0.0) {
         if(color.a > 0.0) {
-            oFragColor += guides * 0.5;
+            // inside geometry
+            oFragColor += guides * 0.15;
         } else {
             oFragColor = guides;
         }
+        if(id.r == (1.0 / 255.0)) {
+            // cursor
+            oFragColor = vec4(guides.rgb + 0.33, 1.0);
+        }
     }
-
-    // oFragColor = id;
 }
