@@ -20,8 +20,4 @@ export default class PickingShader extends GLShader {
             oFragColor = vec4(primitiveColor, .75);
         }`;
     }
-    
-    constructor() {
-        super({ name: "primitive" });
-    }
 }

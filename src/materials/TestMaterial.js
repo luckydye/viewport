@@ -8,8 +8,10 @@ Resources.add({
 
 export default class TestMaterial extends Material {
     
+    _name = "TEST";
+
     constructor() {
-        super("TEST");
+        super();
 
         const texImage = Resources.get('texture256');
         this.texture = new Texture(texImage);

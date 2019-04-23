@@ -21,9 +21,5 @@ export default class MattShader extends GLShader {
             }
         `;
     }
-    
-    constructor() {
-        super({ name: "color" });
-    }
 
 }

@@ -27,8 +27,4 @@ export default class FinalShader extends GLShader {
         return Resources.get('comp.fs');
     }
 
-    constructor() {
-        super({ name: "final" });
-    }
-
 }

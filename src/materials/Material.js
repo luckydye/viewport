@@ -2,9 +2,11 @@ import { Texture } from "./Texture";
 
 export class Material {
 
-    constructor(name) {
-        this.name = name;
+    _name = "material";
 
+    get name() { return this._name; }
+
+    constructor() {
         this.texture = new Texture();
         this.reflectionMap = new Texture();
         this.displacementMap = new Texture();

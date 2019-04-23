@@ -15,9 +15,5 @@ export default class ColorShader extends GLShader {
     static fragmentSource() {
         return Resources.get('color.fs');
     }
-    
-    constructor() {
-        super({ name: "color" });
-    }
 
 }

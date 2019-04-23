@@ -2,12 +2,10 @@ import { Geometry } from "../scene/Geometry.js";
 
 export class Plane extends Geometry {
 
-	static get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-	}
+	static attributes = [
+		{ size: 3, attribute: "aPosition" },
+		{ size: 2, attribute: "aTexCoords" }
+	]
 
 	get vertecies() {
 		const s = 1;

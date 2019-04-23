@@ -3,48 +3,36 @@ export class GLShader {
 	static vertexSource() {}
 	static fragmentSource() {}
 
-	get vertexShader() {
-		return this._vertShader;
-	}
+	get vertexShader() { return this._vertShader; }
+	get fragementShader() { return this._fragShader; }
 
-	get fragementShader() {
-		return this._fragShader;
-	}
+	get uniforms() { return this._uniforms; }
+	get attributes() { return this._attributes; }
 
-	get uniforms() {
-		return this._uniforms;
-	}
-
-	get attributes() {
-		return this._attributes;
-	}
-
-	get uniform() {
-		return {};
-	}
-
-	get src() {
+	get source() {
 		return [
 			this.constructor.vertexSource(),
 			this.constructor.fragmentSource()
 		];
 	}
 
-	constructor({ name } = {}) {
-		this.name = name;
-		
-		this.program = null;
-		this.initialized = false;
-	}
+	_vertShader = null;
+	_fragShader = null;
+
+	_uniforms = null;
+	_attributes = null;
+
+	_uniform = {};
+	_initialized = false;
 
 	setUniforms(gl) {
 		const uniforms = this.uniforms;
 		if(uniforms) {
-			for(let opt in this.uniform) {
-				const value = this.uniform[opt];
+			for(let opt in this._uniform) {
+				const value = this._uniform[opt];
 				if(opt === "integer") {
-					for(let opt in this.uniform.integer) {
-						gl.uniform1i(uniforms[opt], this.uniform.integer[opt]);
+					for(let opt in this._uniform.integer) {
+						gl.uniform1i(uniforms[opt], this._uniform.integer[opt]);
 					}
 				}
 				if(Array.isArray(value)) {

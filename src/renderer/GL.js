@@ -121,15 +121,15 @@ export class GLContext {
 		const gl = this.gl;
 		if(shader instanceof GLShader) {
 
-			if(shader.src) {
-				shader._vertShader = this.compileShader(shader.src[0], gl.VERTEX_SHADER);
-				shader._fragShader = this.compileShader(shader.src[1], gl.FRAGMENT_SHADER);
+			if(shader.source) {
+				shader._vertShader = this.compileShader(shader.source[0], gl.VERTEX_SHADER);
+				shader._fragShader = this.compileShader(shader.source[1], gl.FRAGMENT_SHADER);
 				shader.program = this.createProgram(shader._vertShader, shader._fragShader);
 
 				shader._uniforms = this.getUniforms(shader.program);
 				shader._attributes = this.getAttributes(shader.program);
 				
-				shader.initialized = true;
+				shader._initialized = true;
 			}
 
 			this.shaders.set(shader.name, shader);

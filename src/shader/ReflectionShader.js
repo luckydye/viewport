@@ -70,9 +70,5 @@ export default class ReflectionShader extends GLShader {
             }
         }`;
     }
-    
-    constructor() {
-        super({ name: "reflection" });
-    }
 
 }

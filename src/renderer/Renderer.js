@@ -352,7 +352,7 @@ export class RenderPass {
 		this.shader = shader;
 		this.renderer = renderer;
 
-		if(!shader.initialized) {
+		if(!shader._initialized) {
 			this.renderer.prepareShader(shader);
         }
         

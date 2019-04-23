@@ -5,9 +5,11 @@ import { Cursor } from '../geo/Cursor';
 
 export class Scene {
 
+	_objects = new Set();
+
+	get objects() { return this._objects; }
+
 	constructor({ camera } = {}) {
-		this.objects = new Set();
-		
 		this.lightSources = new DirectionalLight({ 
             fov: 90,
             position: new Vec(0, 0, -8000),
@@ -24,22 +26,22 @@ export class Scene {
 
 	add(obj) {
 		if(Array.isArray(obj)) {
-			obj.forEach(o => this.objects.add(o));
+			obj.forEach(o => this._objects.add(o));
 		} else {
-			this.objects.add(obj);
+			this._objects.add(obj);
 		}
 	}
 
 	remove(obj) {
 		if(Array.isArray(obj)) {
-			obj.forEach(o => this.objects.delete(o));
+			obj.forEach(o => this._objects.delete(o));
 		} else {
-			this.objects.delete(obj);
+			this._objects.delete(obj);
 		}
 	}
 
 	clear() {
-		this.objects.clear();
+		this._objects.clear();
 		this.add(this.grid);
 		this.add(this.curosr);
 	}
@@ -47,7 +49,7 @@ export class Scene {
 	update(ms) {
 		this.activeCamera.update();
 
-		for(let obj of this.objects) {
+		for(let obj of this._objects) {
 			if(obj.update) {
 				obj.update(ms);
 			}

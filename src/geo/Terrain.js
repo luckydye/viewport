@@ -2,12 +2,10 @@ import { Geometry } from "../scene/Geometry";
 
 export class Terrain extends Geometry {
 
-	static get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-	}
+	static attributes = [
+		{ size: 3, attribute: "aPosition" },
+		{ size: 2, attribute: "aTexCoords" }
+	]
 
 	onCreate({ 
 		// smoothness = 0.01,
