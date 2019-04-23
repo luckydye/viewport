@@ -8,11 +8,12 @@ Resources.add({
 
 export default class ColorShader extends GLShader {
 
-    static get source() {
-        return [
-            Resources.get('gbuffer.vs'),
-            Resources.get('color.fs'),
-        ]
+    static vertexSource() {
+        return Resources.get('gbuffer.vs');
+    }
+
+    static fragmentSource() {
+        return Resources.get('color.fs');
     }
     
     constructor() {

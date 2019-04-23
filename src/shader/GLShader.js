@@ -1,5 +1,8 @@
 export class GLShader {
 
+	static vertexSource() {}
+	static fragmentSource() {}
+
 	get vertexShader() {
 		return this._vertShader;
 	}
@@ -21,7 +24,10 @@ export class GLShader {
 	}
 
 	get src() {
-		return this.constructor.source;
+		return [
+			this.constructor.vertexSource(),
+			this.constructor.fragmentSource()
+		];
 	}
 
 	constructor({ name } = {}) {

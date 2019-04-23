@@ -8511,22 +8511,20 @@ function (_Transform) {
         _args$uv = args.uv,
         uv = _args$uv === void 0 ? [0, 0] : _args$uv,
         _args$drawmode = args.drawmode,
-        drawmode = _args$drawmode === void 0 ? "TRIANGLES" : _args$drawmode;
+        drawmode = _args$drawmode === void 0 ? "TRIANGLES" : _args$drawmode,
+        _args$id = args.id,
+        id = _args$id === void 0 ? null : _args$id;
     _this.vertArray = vertecies;
     _this.material = material;
     _this.hidden = hidden;
     _this.guide = guide;
     _this.uv = uv;
     _this.drawmode = drawmode;
+    _this.id = id;
     return _this;
   }
 
   _createClass(Geometry, [{
-    key: "onSelect",
-    value: function onSelect(index) {
-      console.log(index);
-    }
-  }, {
     key: "onCreate",
     value: function onCreate(args) {}
   }, {
@@ -9666,8 +9664,14 @@ function () {
   }, {
     key: "src",
     get: function get() {
-      return this.constructor.source;
+      return [this.constructor.vertexSource(), this.constructor.fragmentSource()];
     }
+  }], [{
+    key: "vertexSource",
+    value: function vertexSource() {}
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {}
   }]);
 
   function GLShader() {
@@ -10140,9 +10144,14 @@ function (_GLShader) {
   _inherits(FinalShader, _GLShader);
 
   _createClass(FinalShader, null, [{
-    key: "source",
-    get: function get() {
-      return ["#version 300 es\n\n                layout(location = 0) in vec3 aPosition;\n                layout(location = 1) in vec2 aTexCoords;\n\n                uniform float aspectRatio;\n\n                out vec2 texCoords;\n                \n                void main() {\n                    gl_Position = vec4(aPosition, 1.0);\n                    texCoords = aTexCoords;\n                }\n            ", _Resources.Resources.get('comp.fs')];
+    key: "vertexSource",
+    value: function vertexSource() {
+      return "#version 300 es\n\n        layout(location = 0) in vec3 aPosition;\n        layout(location = 1) in vec2 aTexCoords;\n\n        uniform float aspectRatio;\n\n        out vec2 texCoords;\n        \n        void main() {\n            gl_Position = vec4(aPosition, 1.0);\n            texCoords = aTexCoords;\n        }";
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return _Resources.Resources.get('comp.fs');
     }
   }]);
 
@@ -10203,9 +10212,14 @@ function (_GLShader) {
   _inherits(ColorShader, _GLShader);
 
   _createClass(ColorShader, null, [{
-    key: "source",
-    get: function get() {
-      return [_Resources.Resources.get('gbuffer.vs'), _Resources.Resources.get('color.fs')];
+    key: "vertexSource",
+    value: function vertexSource() {
+      return _Resources.Resources.get('gbuffer.vs');
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return _Resources.Resources.get('color.fs');
     }
   }]);
 
@@ -10272,9 +10286,14 @@ function (_GLShader) {
       };
     }
   }], [{
-    key: "source",
-    get: function get() {
-      return [_Resources.Resources.get('gbuffer.vs'), _Resources.Resources.get('light.fs')];
+    key: "vertexSource",
+    value: function vertexSource() {
+      return _Resources.Resources.get('gbuffer.vs');
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return _Resources.Resources.get('light.fs');
     }
   }]);
 
@@ -10329,9 +10348,14 @@ function (_GLShader) {
   _inherits(ReflectionShader, _GLShader);
 
   _createClass(ReflectionShader, null, [{
-    key: "source",
-    get: function get() {
-      return ["#version 300 es\n\n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            struct SceneProjection {\n                mat4 model;\n                mat4 view;\n                mat4 projection;\n            };\n            \n            uniform SceneProjection scene;\n            \n            out vec2 vTexCoords;\n            out vec4 vWorldPos;\n            out vec3 vNormal;\n            \n            void main() {\n                vec4 pos = scene.model * vec4(aPosition, 1.0);\n                pos.y *= -1.0;\n                pos.y += 42.0;\n            \n                vWorldPos = pos;\n                vNormal = aNormal;\n                vTexCoords = aTexCoords;\n            \n                gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);\n                gl_PointSize = 5.0;\n            }\n            ", "#version 300 es\n            precision mediump float;\n\n            in vec2 vTexCoords;\n            in vec3 vNormal;\n\n            uniform sampler2D colorTexture;\n            uniform sampler2D reflectionMap;\n\n            uniform float textureScale;\n            uniform float transparency;\n            uniform vec3 diffuseColor;\n\n            out vec4 oFragColor;\n\n            void main() {\n                // set diffuse color\n                oFragColor = vec4(diffuseColor, 1.0 - transparency);\n\n                vec2 imageSize = vec2(textureSize(colorTexture, 0));\n                if(imageSize.x > 1.0) {\n                    vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);\n\n                    vec4 textureColor = texture(colorTexture, textureCoords);\n                    oFragColor *= textureColor;\n\n                    float reflectivenss = texture(reflectionMap, textureCoords).r;\n                    if(reflectivenss > 0.0) {\n                        discard;\n                    }\n                }\n            }\n            "];
+    key: "vertexSource",
+    value: function vertexSource() {
+      return "#version 300 es\n\n        layout(location = 0) in vec3 aPosition;\n        layout(location = 1) in vec2 aTexCoords;\n        layout(location = 2) in vec3 aNormal;\n        \n        struct SceneProjection {\n            mat4 model;\n            mat4 view;\n            mat4 projection;\n        };\n        \n        uniform SceneProjection scene;\n        \n        out vec2 vTexCoords;\n        out vec4 vWorldPos;\n        out vec3 vNormal;\n        \n        void main() {\n            vec4 pos = scene.model * vec4(aPosition, 1.0);\n            pos.y *= -1.0;\n            pos.y += 42.0;\n        \n            vWorldPos = pos;\n            vNormal = aNormal;\n            vTexCoords = aTexCoords;\n        \n            gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);\n            gl_PointSize = 5.0;\n        }";
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return "#version 300 es\n\n        precision mediump float;\n\n        in vec2 vTexCoords;\n        in vec3 vNormal;\n\n        uniform sampler2D colorTexture;\n        uniform sampler2D reflectionMap;\n\n        uniform float textureScale;\n        uniform float transparency;\n        uniform vec3 diffuseColor;\n\n        out vec4 oFragColor;\n\n        void main() {\n            // set diffuse color\n            oFragColor = vec4(diffuseColor, 1.0 - transparency);\n\n            vec2 imageSize = vec2(textureSize(colorTexture, 0));\n            if(imageSize.x > 1.0) {\n                vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);\n\n                vec4 textureColor = texture(colorTexture, textureCoords);\n                oFragColor *= textureColor;\n\n                float reflectivenss = texture(reflectionMap, textureCoords).r;\n                if(reflectivenss > 0.0) {\n                    discard;\n                }\n            }\n        }";
     }
   }]);
 
@@ -10357,6 +10381,8 @@ exports.default = void 0;
 
 var _GLShader2 = require("./GLShader.js");
 
+var _Resources = require("../Resources.js");
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -10381,9 +10407,14 @@ function (_GLShader) {
   _inherits(PickingShader, _GLShader);
 
   _createClass(PickingShader, null, [{
-    key: "source",
-    get: function get() {
-      return ["#version 300 es\n\n            layout(std140, column_major) uniform;\n            \n            layout(location = 0) in vec3 aPosition;\n            layout(location = 1) in vec2 aTexCoords;\n            layout(location = 2) in vec3 aNormal;\n            \n            struct SceneProjection {\n                mat4 model;\n                mat4 view;\n                mat4 projection;\n            };\n            \n            uniform SceneProjection scene;\n            uniform bool scaleUniform;\n            uniform sampler2D displacementMap;\n            \n            out vec3 vColor;\n            \n            void main() {\n                vec4 bump = texture(displacementMap, aTexCoords); // idfk\n\n                float distance = 1.0;\n                if(scaleUniform) {\n                    distance = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;\n                }\n            \n                gl_Position = scene.projection * scene.view * scene.model * vec4(aPosition * distance, 1.0);\n            \n                vColor = aNormal;\n            }\n            ", "#version 300 es\n            precision mediump float;\n            \n            in vec3 vColor;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                oFragColor = vec4(vColor, .75);\n            }\n            "];
+    key: "vertexSource",
+    value: function vertexSource() {
+      return _Resources.Resources.get('gbuffer.vs');
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return "#version 300 es\n        \n        precision mediump float;\n        \n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n        }";
     }
   }]);
 
@@ -10399,7 +10430,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = PickingShader;
-},{"./GLShader.js":"../../src/shader/GLShader.js"}],"../../src/Config.js":[function(require,module,exports) {
+},{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js"}],"../../src/Config.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10492,13 +10523,72 @@ var ConfigParameter = function ConfigParameter(name, defaultValue, value) {
 };
 
 var gloalconfig = new Config('viewport-config');
-},{}],"../../src/renderer/Renderer.js":[function(require,module,exports) {
+},{}],"../../src/shader/MattShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Renderer = void 0;
+exports.default = void 0;
+
+var _Resources = require("../Resources.js");
+
+var _GLShader2 = require("./GLShader.js");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var MattShader =
+/*#__PURE__*/
+function (_GLShader) {
+  _inherits(MattShader, _GLShader);
+
+  _createClass(MattShader, null, [{
+    key: "vertexSource",
+    value: function vertexSource() {
+      return _Resources.Resources.get('gbuffer.vs');
+    }
+  }, {
+    key: "fragmentSource",
+    value: function fragmentSource() {
+      return "#version 300 es\n            precision mediump float;\n            \n            in float id;\n            \n            out vec4 oFragColor;\n            \n            void main () {\n                oFragColor = vec4(id, id, id, 1.0);\n            }\n        ";
+    }
+  }]);
+
+  function MattShader() {
+    _classCallCheck(this, MattShader);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(MattShader).call(this, {
+      name: "color"
+    }));
+  }
+
+  return MattShader;
+}(_GLShader2.GLShader);
+
+exports.default = MattShader;
+},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js"}],"../../src/renderer/Renderer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RenderPass = exports.Renderer = void 0;
 
 var _Plane = require("../geo/Plane");
 
@@ -10521,6 +10611,8 @@ var _Config = _interopRequireDefault(require("../Config"));
 var _glMatrix = require("gl-matrix");
 
 var _Math = require("../Math");
+
+var _MattShader = _interopRequireDefault(require("../shader/MattShader"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10585,7 +10677,7 @@ function (_GLContext) {
       });
       this.setResolution.apply(this, _toConsumableArray(Renderer.defaults.resolution));
       this.shadowMapSize = 4096;
-      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'reflection', new _ReflectionShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width)];
+      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'reflection', new _ReflectionShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
       this.compShader = new _FinalShader.default();
       this.prepareShader(this.compShader);
       this.readings = {};
@@ -10636,6 +10728,8 @@ function (_GLContext) {
   }, {
     key: "renderMultiPasses",
     value: function renderMultiPasses(passes) {
+      var _this = this;
+
       var gl = this.gl;
       var camera = this.scene.activeCamera;
       var _iteratorNormalCompletion2 = true;
@@ -10643,53 +10737,80 @@ function (_GLContext) {
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = passes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        var _loop = function _loop() {
           var pass = _step2.value;
-          var lightS = this.scene.lightSources;
+          var lightS = _this.scene.lightSources;
           var cullDefault = gl.isEnabled(gl.CULL_FACE);
           pass.use();
 
           switch (pass.id) {
-            case "diffuse":
-              this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-              this.drawScene(this.scene, camera, function (obj) {
-                return !obj.guide;
-              });
-              break;
-
             case "shadow":
-              this.drawScene(this.scene, lightS, function (obj) {
+              _this.drawScene(_this.scene, lightS, function (obj) {
                 return obj.material && obj.material.castShadows;
               });
+
               break;
 
             case "light":
-              this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
+              _this.useTexture(_this.getBufferTexture('shadow'), "shadowDepthMap", 0);
+
               gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
-              this.drawScene(this.scene, camera, function (obj) {
+
+              _this.drawScene(_this.scene, camera, function (obj) {
                 return obj.material && obj.material.receiveShadows;
               });
+
+              break;
+
+            case "diffuse":
+              _this.useTexture(_this.getBufferTexture('reflection'), "reflectionBuffer", 0);
+
+              _this.drawScene(_this.scene, camera, function (obj) {
+                return !obj.guide;
+              });
+
               break;
 
             case "reflection":
               gl.cullFace(gl.FRONT);
-              this.drawScene(this.scene, camera);
+
+              _this.drawScene(_this.scene, camera);
+
               gl.cullFace(gl.BACK);
               break;
 
             case "guides":
-              if (cullDefault) this.disable(gl.CULL_FACE);
-              this.drawScene(this.scene, camera, function (obj) {
+              if (cullDefault) _this.disable(gl.CULL_FACE);
+
+              _this.drawScene(_this.scene, camera, function (obj) {
                 return obj.guide;
               });
-              if (cullDefault) this.enable(gl.CULL_FACE);
+
+              if (cullDefault) _this.enable(gl.CULL_FACE);
+              break;
+
+            case "id":
+              _this.drawScene(_this.scene, camera, function (obj) {
+                if (obj.id != null) {
+                  _this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / _this.scene.objects.size);
+
+                  return true;
+                }
+
+                return false;
+              });
+
               break;
           }
 
-          if (pass.id in this.readings) {
-            var read = this.readings[pass.id];
-            read.value = this.readPixels(read.x, read.y, 1, 1);
+          if (pass.id in _this.readings) {
+            var read = _this.readings[pass.id];
+            read.value = _this.readPixels(read.x, read.y, 1, 1);
           }
+        };
+
+        for (var _iterator2 = passes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          _loop();
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -10807,7 +10928,8 @@ function (_GLContext) {
 
       _glMatrix.mat4.scale(modelMatrix, modelMatrix, new _Math.Vec(scale, scale, scale));
 
-      this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
+      var shader = this.currentShader;
+      this.gl.uniformMatrix4fv(shader.uniforms["scene.model"], false, modelMatrix);
     }
   }, {
     key: "setupScene",
@@ -10994,7 +11116,9 @@ function () {
 
   return RenderPass;
 }();
-},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
+
+exports.RenderPass = RenderPass;
+},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11347,6 +11471,7 @@ function (_Guide) {
       _get(_getPrototypeOf(Cursor.prototype), "onCreate", this).call(this, args);
 
       args.drawmode = "TRIANGLES";
+      args.id = 1;
       this.scale = 32;
       this.cursorVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('cursor_model'));
     }
@@ -11865,16 +11990,14 @@ function (_HTMLElement) {
         rotation: new _Math.Vec(15, 0, 0)
       });
       var controler = new _FirstPersonControler.FirstPersonControler(this.camera, canvas);
-      this.createScene();
-      var cursorControler = new _CursorController.CursorControler(this.scene.curosr, this);
-
-      cursorControler.interaction = function (selected) {
-        if (selected[0] || selected[1] || selected[2]) {
-          controler.lock();
-        } else {
-          controler.unlock();
-        }
-      };
+      this.createScene(); // const cursorControler = new CursorControler(this.scene.curosr, this);
+      // cursorControler.interaction = selected => {
+      //     if(selected[0] || selected[1] || selected[2]) {
+      //         controler.lock();
+      //     } else {
+      //         controler.unlock();
+      //     }
+      // }
 
       this.dispatchEvent(new Event('load'));
     }
@@ -12008,6 +12131,9 @@ function (_Geometry2) {
 
   _createClass(Emitter, [{
     key: "onCreate",
+    // get buffer() {
+    //     return this.createBuffer();
+    // }
     value: function onCreate(args) {
       args.material = DEFAULT_GUIDE_MATERIAL;
       args.drawmode = "TRIANGLES";
@@ -12036,11 +12162,6 @@ function (_Geometry2) {
       this.instances += amount;
     }
   }, {
-    key: "buffer",
-    get: function get() {
-      return this.createBuffer();
-    }
-  }, {
     key: "vertecies",
     get: function get() {
       return this.particle.vertecies;
@@ -12051,168 +12172,7 @@ function (_Geometry2) {
 }(_Geometry3.Geometry);
 
 exports.Emitter = Emitter;
-},{"../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../Math":"../../src/Math.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Cube = void 0;
-
-var _Geometry2 = require("../scene/Geometry");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var Cube =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Cube, _Geometry);
-
-  function Cube() {
-    _classCallCheck(this, Cube);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Cube).apply(this, arguments));
-  }
-
-  _createClass(Cube, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      this.vertsPerFace = 6;
-      this.visible = {
-        TOP: true,
-        BOTTOM: true,
-        LEFT: true,
-        RIGHT: true,
-        FRONT: true,
-        BACK: true
-      };
-    }
-  }, {
-    key: "invisible",
-    get: function get() {
-      return !this.visible.TOP && !this.visible.BOTTOM && !this.visible.LEFT && !this.visible.RIGHT && !this.visible.FRONT && !this.visible.BACK;
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var vertArray = [];
-      var faces = this.faces;
-      var visibleFaces = [];
-
-      for (var key in this.visible) {
-        if (this.visible[key]) {
-          visibleFaces.push(key);
-        }
-      }
-
-      visibleFaces.forEach(function (face) {
-        vertArray = vertArray.concat(faces[face]);
-      });
-      return vertArray;
-    }
-  }, {
-    key: "faces",
-    get: function get() {
-      var s = 1;
-      var w = 10;
-      var h = 10;
-      var u = this.uv[0];
-      var v = this.uv[1];
-      var x = 0;
-      var y = 0;
-      var z = 0;
-      return {
-        TOP: [s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0],
-        BOTTOM: [-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0],
-        LEFT: [-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1, -s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 1, -s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1],
-        RIGHT: [s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, -s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, -1],
-        FRONT: [s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0],
-        BACK: [-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, -1, 0, 0]
-      };
-    }
-  }]);
-
-  return Cube;
-}(_Geometry2.Geometry);
-
-exports.Cube = Cube;
-},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
-module.exports = "/placeholder_256.33ec6945.png";
-},{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _Resources = require("../Resources");
-
-var _Material2 = require("./Material");
-
-var _Texture = require("./Texture");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-_Resources.Resources.add({
-  'texture256': require('../../res/textures/placeholder_256.png')
-}, false);
-
-var TestMaterial =
-/*#__PURE__*/
-function (_Material) {
-  _inherits(TestMaterial, _Material);
-
-  function TestMaterial() {
-    var _this;
-
-    _classCallCheck(this, TestMaterial);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TestMaterial).call(this, "TEST"));
-
-    var texImage = _Resources.Resources.get('texture256');
-
-    _this.texture = new _Texture.Texture(texImage);
-    _this.textureScale = 256;
-    _this.diffuseColor = [1, 1, 1];
-    _this.receiveShadows = true;
-    _this.castShadows = true;
-    return _this;
-  }
-
-  return TestMaterial;
-}(_Material2.Material);
-
-exports.default = TestMaterial;
-},{"../Resources":"../../src/Resources.js","./Material":"../../src/materials/Material.js","./Texture":"../../src/materials/Texture.js","../../res/textures/placeholder_256.png":"../../res/textures/placeholder_256.png"}],"../../res/models/test.obj":[function(require,module,exports) {
+},{"../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../Math":"../../src/Math.js"}],"../../res/models/test.obj":[function(require,module,exports) {
 module.exports = "/test.e363a0c3.obj";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
@@ -12229,10 +12189,6 @@ var _Scheduler = require("../../src/Scheduler.js");
 
 var _Emitter = require("../../src/geo/Emitter.js");
 
-var _Cube = require("../../src/geo/Cube.js");
-
-var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial.js"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var viewport = new _Viewport.default();
@@ -12246,12 +12202,7 @@ viewport.onload = function () {
   var scene = viewport.scene;
   var camera = viewport.camera;
   var emitter = new _Emitter.Emitter();
-  scene.add(emitter);
-  scene.add(new _Cube.Cube({
-    material: new _TestMaterial.default(),
-    scale: 10
-  }));
-  viewport.setCursor();
+  scene.add(emitter); // viewport.setCursor();
 
   var savedPosition = _Config.default.global.getValue('camera');
 
@@ -12274,7 +12225,7 @@ viewport.onload = function () {
 window.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(viewport);
 });
-},{"../../Viewport.js":"../../Viewport.js","../../src/Math.js":"../../src/Math.js","../../src/Config.js":"../../src/Config.js","../../src/Resources.js":"../../src/Resources.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../src/geo/Emitter.js":"../../src/geo/Emitter.js","../../src/geo/Cube.js":"../../src/geo/Cube.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../res/models/test.obj":"../../res/models/test.obj"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../Viewport.js":"../../Viewport.js","../../src/Math.js":"../../src/Math.js","../../src/Config.js":"../../src/Config.js","../../src/Resources.js":"../../src/Resources.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../src/geo/Emitter.js":"../../src/geo/Emitter.js","../../res/models/test.obj":"../../res/models/test.obj"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

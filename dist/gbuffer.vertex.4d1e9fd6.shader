@@ -17,18 +17,24 @@ struct SceneProjection {
 uniform SceneProjection scene;
 uniform sampler2D displacementMap;
 uniform mat4 lightProjViewMatrix;
+uniform float geoid;
+uniform bool scaleUniform;
 
 out vec2 vTexCoords;
 out vec4 vWorldPos;
 out vec3 vNormal;
 out vec3 vertexPos;
+out vec3 primitiveColor;
 out mat4 vLightProjViewMatrix;
 out float id;
 
 void main() {
-	float instance = float(gl_InstanceID);
+	float uniformSacle = 1.0;
+	if(scaleUniform) {
+		uniformSacle = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
+	}
 
-	vec4 pos = scene.model * vec4(aPosition, 1.0) + vec4(aNormal * (instance * 50.0), 1.0);
+	vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0) + vec4(aNormal * (float(gl_InstanceID) * 50.0), 1.0);
 
 	float bump = texture(displacementMap, aTexCoords).r * 200.0;
 
@@ -44,5 +50,6 @@ void main() {
 	vWorldPos = pos;
 	vNormal = aNormal;
 	vTexCoords = aTexCoords;
-	id = instance;
+	id = geoid;
+	primitiveColor = aNormal;
 }

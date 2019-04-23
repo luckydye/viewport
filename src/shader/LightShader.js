@@ -8,11 +8,12 @@ Resources.add({
 
 export default class LightShader extends GLShader {
 
-    static get source() {
-        return [
-            Resources.get('gbuffer.vs'),
-            Resources.get('light.fs'),
-        ]
+    static vertexSource() {
+        return Resources.get('gbuffer.vs');
+    }
+
+    static fragmentSource() {
+        return Resources.get('light.fs');
     }
 
     get uniform() {

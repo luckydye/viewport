@@ -9,6 +9,7 @@ import { Logger } from '../Logger';
 import Config from '../Config';
 import { mat4 } from 'gl-matrix';
 import { Vec } from '../Math';
+import MattShader from '../shader/MattShader';
 
 const logger = new Logger('Renderer');
 
@@ -61,6 +62,7 @@ export class Renderer extends GLContext {
 			new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
 		]
 
 		this.compShader = new FinalShader();
@@ -104,11 +106,6 @@ export class Renderer extends GLContext {
 			
 			switch(pass.id) {
 
-				case "diffuse":
-					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-					this.drawScene(this.scene, camera, obj => !obj.guide);
-					break;
-
 				case "shadow":
 					this.drawScene(this.scene, lightS, obj => obj.material && obj.material.castShadows);
 					break;
@@ -119,6 +116,11 @@ export class Renderer extends GLContext {
 					this.drawScene(this.scene, camera, obj => {
 						return obj.material && obj.material.receiveShadows;
 					});
+					break;
+
+				case "diffuse":
+					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
+					this.drawScene(this.scene, camera, obj => !obj.guide);
 					break;
 				
 				case "reflection":
@@ -131,6 +133,16 @@ export class Renderer extends GLContext {
 					if(cullDefault) this.disable(gl.CULL_FACE);
 					this.drawScene(this.scene, camera, obj => obj.guide);
 					if(cullDefault) this.enable(gl.CULL_FACE);
+					break;
+				
+				case "id":
+					this.drawScene(this.scene, camera, obj => {
+						if(obj.id != null) {
+							this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id / this.scene.objects.size);
+							return true;
+						}
+						return false;
+					});
 					break;
 			}
 
@@ -219,25 +231,26 @@ export class Renderer extends GLContext {
 
 	setupGemoetry(geo) {
 		this.initializeBuffersAndAttributes(geo.buffer);
-
+		
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
-
+		
 		const position = Vec.add(geo.position, geo.origin);
 		const rotation = geo.rotation;
 		const scale = geo.scale;
-
+		
 		mat4.identity(modelMatrix);
-
+		
 		mat4.translate(modelMatrix, modelMatrix, position);
-
+		
 		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
 		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
 		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
-
+		
 		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
-
-		this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
+		
+		const shader = this.currentShader;
+		this.gl.uniformMatrix4fv(shader.uniforms["scene.model"], false, modelMatrix);
 	}
 
 	setupScene(shader, camera) {
@@ -314,7 +327,7 @@ export class Renderer extends GLContext {
 
 }
 
-class RenderPass {
+export class RenderPass {
 
 	get buffer() {
 		return this.renderer.getBufferTexture(this.id);

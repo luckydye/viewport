@@ -41,6 +41,7 @@ export class Geometry extends Transform {
 			guide = false,
 			uv = [0, 0],
 			drawmode = "TRIANGLES",
+			id = null,
 		} = args;
 		
 		this.vertArray = vertecies;
@@ -49,10 +50,7 @@ export class Geometry extends Transform {
 		this.guide = guide;
 		this.uv = uv;
 		this.drawmode = drawmode;
-	}
-
-	onSelect(index) {
-		console.log(index);
+		this.id = id;
 	}
 
 	onCreate(args) {

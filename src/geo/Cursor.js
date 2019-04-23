@@ -12,6 +12,7 @@ export class Cursor extends Guide {
 	onCreate(args) {
 		super.onCreate(args);
 		args.drawmode = "TRIANGLES";
+		args.id = 1;
 		this.scale = 32;
 
 		this.cursorVerts = Loader.loadObjFile(Resources.get('cursor_model'));

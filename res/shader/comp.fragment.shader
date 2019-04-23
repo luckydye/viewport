@@ -8,6 +8,7 @@ uniform sampler2D diffuseBuffer;
 uniform sampler2D lightBuffer;
 uniform sampler2D reflectionBuffer;
 uniform sampler2D guidesBuffer;
+uniform sampler2D idBuffer;
 
 uniform bool fog;
 
@@ -19,6 +20,7 @@ void main(void) {
     vec4 light = texture(lightBuffer, texCoords);
     vec4 reflection = texture(reflectionBuffer, texCoords);
     vec4 guides = texture(guidesBuffer, texCoords);
+    vec4 id = texture(idBuffer, texCoords);
 
     if(color.a > 0.0) {
         oFragColor = color;

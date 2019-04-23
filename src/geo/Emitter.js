@@ -51,9 +51,9 @@ export class Particle extends Geometry {
 
 export class Emitter extends Geometry {
 
-    get buffer() {
-        return this.createBuffer();
-    }
+    // get buffer() {
+    //     return this.createBuffer();
+    // }
 
 	onCreate(args) {
 		args.material = DEFAULT_GUIDE_MATERIAL;
