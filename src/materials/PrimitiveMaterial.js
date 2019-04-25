@@ -10,6 +10,8 @@ export default class PrimitivetMaterial extends Material {
         this.receiveShadows = false;
         this.castShadows = false;
         this.scaleUniform = true;
+
+        this.selected = true;
     }
 
 }

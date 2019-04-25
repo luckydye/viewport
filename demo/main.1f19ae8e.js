@@ -782,21 +782,14 @@ function () {
     key: "loadObjFile",
     value: function loadObjFile(objFile) {
       var vertecies = [];
-      objFile.faces.forEach(function (f, i) {
-        for (var _i = 0; _i < 3; _i++) {
-          var face = f[_i];
-          var vertex = objFile.vertecies[face[0] - 1];
-          var uv = objFile.uvs[face[1] - 1];
-          var normal = objFile.normals[face[2] - 1];
+      var face = null;
+      var fface = null;
 
-          if (vertex && uv && normal) {
-            vertecies.push(vertex[0], vertex[1], vertex[2], uv[0], uv[1], normal[0], normal[1], normal[2]);
-          }
-        }
-
-        if (objFile.faces[0].length > 3) {
-          [2, 3, 0].forEach(function (i) {
-            var face = f[i];
+      try {
+        objFile.faces.forEach(function (f, i) {
+          for (var _i = 0; _i < 3; _i++) {
+            fface = f;
+            face = f[_i];
             var vertex = objFile.vertecies[face[0] - 1];
             var uv = objFile.uvs[face[1] - 1];
             var normal = objFile.normals[face[2] - 1];
@@ -804,9 +797,26 @@ function () {
             if (vertex && uv && normal) {
               vertecies.push(vertex[0], vertex[1], vertex[2], uv[0], uv[1], normal[0], normal[1], normal[2]);
             }
-          });
-        }
-      });
+          }
+
+          if (f.length > 3) {
+            [2, 3, 0].forEach(function (i) {
+              face = f[i];
+              var vertex = objFile.vertecies[face[0] - 1];
+              var uv = objFile.uvs[face[1] - 1];
+              var normal = objFile.normals[face[2] - 1];
+
+              if (vertex && uv && normal) {
+                vertecies.push(vertex[0], vertex[1], vertex[2], uv[0], uv[1], normal[0], normal[1], normal[2]);
+              }
+            });
+          }
+        });
+      } catch (err) {
+        console.error(face, fface);
+        console.error(err);
+      }
+
       return vertecies;
     }
   }, {
@@ -10760,7 +10770,7 @@ function (_GLShader) {
   }, {
     key: "fragmentSource",
     value: function fragmentSource() {
-      return "#version 300 es\n        \n        precision mediump float;\n        \n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n        }";
+      return "#version 300 es\n        \n        precision mediump float;\n        \n        uniform bool selected;\n\n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n\n            if(selected) {\n                oFragColor = vec4(0.8, 0.75, 0.5, 1.0);\n            }\n        }";
     }
   }]);
 
@@ -11163,6 +11173,7 @@ function (_GLContext) {
       this.prepareTexture(displacementMap);
       this.useTexture(displacementMap.gltexture, "displacementMap", 3);
       this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
+      this.gl.uniform1f(shader.uniforms.selected, material.selected);
       this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
       this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
       this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
@@ -11418,6 +11429,7 @@ function (_Material) {
     _this.receiveShadows = false;
     _this.castShadows = false;
     _this.scaleUniform = true;
+    _this.selected = true;
     return _this;
   }
 
@@ -11899,6 +11911,12 @@ var _EntityControler2 = require("./EntityControler");
 
 var _Math = require("../Math");
 
+var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial"));
+
+var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -11964,16 +11982,14 @@ function (_EntityControler) {
       var camera = this.viewport.camera;
       var scene = this.viewport.scene;
       var moving = false;
+      var hovering = false;
+      var selected = null;
 
       var down = function down(e) {
-        var x = e.x;
-        var y = _this2.viewport.renderer.height - e.y;
-        renderer.readPixelFromBuffer(x, y, 'id').then(function (value) {
-          var objID = value[0];
+        if (hovering) {
+          _this2.interaction(selected);
 
-          _this2.interaction(objID);
-
-          moving = objID == 1;
+          moving = selected == 1;
 
           if (!moving) {
             var _iteratorNormalCompletion = true;
@@ -11984,14 +12000,14 @@ function (_EntityControler) {
               for (var _iterator = scene.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                 var obj = _step.value;
 
-                if (obj.id == objID) {
+                if (obj.id == selected) {
                   _this2.viewport.setCursor(obj);
 
                   _this2.lastAction.target = curosr;
                   _this2.lastAction.property = 'position';
                   _this2.lastAction.state = new _Math.Vec(curosr.position);
 
-                  _this2.interaction(objID);
+                  _this2.interaction(selected);
                 }
               }
             } catch (err) {
@@ -12009,7 +12025,7 @@ function (_EntityControler) {
               }
             }
           }
-        });
+        }
       };
 
       var up = function up(e) {
@@ -12019,6 +12035,8 @@ function (_EntityControler) {
       var startdelta = null;
 
       var move = function move(e) {
+        test(e);
+
         if (moving) {
           var pos = _Math.Vec.multiply(curosr.position, new _Math.Vec(-1, -1, 1));
 
@@ -12038,6 +12056,22 @@ function (_EntityControler) {
           }
         } else {
           startdelta = null;
+        }
+      };
+
+      var test = function test(e) {
+        var x = e.x;
+        var y = _this2.viewport.renderer.height - e.y;
+        hovering = false;
+
+        if (!moving) {
+          renderer.readPixelFromBuffer(x, y, 'id').then(function (value) {
+            selected = value[0];
+            hovering = selected == 1;
+            _this2.entity.material.selected = hovering;
+          });
+        } else {
+          _this2.entity.material.selected = true;
         }
       };
 
@@ -12079,7 +12113,7 @@ function (_EntityControler) {
 }(_EntityControler2.EntityControler);
 
 exports.CursorControler = CursorControler;
-},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../Viewport.js":[function(require,module,exports) {
+},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js"}],"../../Viewport.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12292,8 +12326,8 @@ function (_HTMLElement) {
 exports.default = Viewport;
 customElements.define('gl-viewport', Viewport);
 module.exports = Viewport;
-},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../res/models/map.obj":[function(require,module,exports) {
-module.exports = "/map.e7debce5.obj";
+},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../res/models/dota2.obj":[function(require,module,exports) {
+module.exports = "/dota2.846c001b.obj";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -12318,7 +12352,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var viewport = new _Viewport.default();
 
 _Resources.Resources.add({
-  'box_model': require('../../res/models/map.obj')
+  'box_model': require('../../res/models/dota2.obj')
 }, false);
 
 viewport.onload = function () {
@@ -12356,7 +12390,7 @@ viewport.onload = function () {
 window.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(viewport);
 });
-},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../res/models/map.obj":"../../res/models/map.obj"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../res/models/dota2.obj":"../../res/models/dota2.obj"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

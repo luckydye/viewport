@@ -12,12 +12,18 @@ export default class PickingShader extends GLShader {
         
         precision mediump float;
         
+        uniform bool selected;
+
         in vec3 primitiveColor;
         
         out vec4 oFragColor;
         
         void main () {
             oFragColor = vec4(primitiveColor, .75);
+
+            if(selected) {
+                oFragColor = vec4(0.8, 0.75, 0.5, 1.0);
+            }
         }`;
     }
 }

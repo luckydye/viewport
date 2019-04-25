@@ -226,6 +226,7 @@ export class Renderer extends GLContext {
 		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 
 		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
+		this.gl.uniform1f(shader.uniforms.selected, material.selected);
 		this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
 		this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
 		this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);

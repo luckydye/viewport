@@ -1,5 +1,7 @@
 import { EntityControler } from "./EntityControler";
 import { Vec, Raycast } from "../Math";
+import DefaultMaterial from "../materials/DefaultMaterial";
+import PrimitivetMaterial from "../materials/PrimitiveMaterial";
 
 export class CursorControler extends EntityControler {
 
@@ -16,30 +18,28 @@ export class CursorControler extends EntityControler {
         const scene = this.viewport.scene;
 
         let moving = false;
+        let hovering = false;
+        let selected = null;
         
 		const down = e => {
-            const x = e.x;
-            const y = this.viewport.renderer.height - e.y;
-
-            renderer.readPixelFromBuffer(x, y, 'id').then(value => {
-                const objID = value[0];
-                this.interaction(objID);
-                moving = objID == 1;
+            if(hovering) {
+                this.interaction(selected);
+                moving = selected == 1;
 
                 if(!moving) {
                     for(let obj of scene.objects) {
-                        if(obj.id == objID) {
+                        if(obj.id == selected) {
                             this.viewport.setCursor(obj);
                 
                             this.lastAction.target = curosr;
                             this.lastAction.property = 'position';
                             this.lastAction.state = new Vec(curosr.position);
 
-                            this.interaction(objID);
+                            this.interaction(selected);
                         }
                     }
                 }
-            })
+            }
         }
         
 		const up = e => {
@@ -49,8 +49,9 @@ export class CursorControler extends EntityControler {
         let startdelta = null;
 
 		const move = e => {
-			if(moving) {
+            test(e);
 
+			if(moving) {
                 const pos = Vec.multiply(curosr.position, new Vec(-1, -1, 1));
                 const hitx = new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, 1, 0)) ||
                              new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
@@ -72,9 +73,25 @@ export class CursorControler extends EntityControler {
                         curosr.position[axis] = hitx.position[axis] - startdelta[axis];
                     }
                 }
-                
             } else {
                 startdelta = null;
+            }
+        }
+
+        const test = e => {
+            const x = e.x;
+            const y = this.viewport.renderer.height - e.y;
+
+            hovering = false;
+
+            if(!moving) {
+                renderer.readPixelFromBuffer(x, y, 'id').then(value => {
+                    selected = value[0];
+                    hovering = selected == 1;
+                    this.entity.material.selected = hovering;
+                })
+            } else {
+                this.entity.material.selected = true;
             }
         }
         

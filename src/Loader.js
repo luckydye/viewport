@@ -10,54 +10,65 @@ export class Loader {
     static loadObjFile(objFile) {
         const vertecies = [];
 
-        objFile.faces.forEach((f, i) => {
-            for(let i = 0; i < 3; i++) {
-                const face = f[i];
+        let face = null;
+        let fface = null;
 
-                const vertex = objFile.vertecies[face[0]-1];
-                const uv = objFile.uvs[face[1]-1];
-                const normal = objFile.normals[face[2]-1];
+        try {
+            objFile.faces.forEach((f, i) => {
+                for(let i = 0; i < 3; i++) {
+                    fface = f;
+                    face = f[i];
 
-                if(vertex && uv && normal) {
-                    vertecies.push(
-                        vertex[0],
-                        vertex[1],
-                        vertex[2],
-
-                        uv[0],
-                        uv[1],
-
-                        normal[0],
-                        normal[1],
-                        normal[2],
-                    );
-                }
-            }
-            if(objFile.faces[0].length > 3) {
-                [2, 3, 0].forEach(i => {
-                    const face = f[i];
-    
                     const vertex = objFile.vertecies[face[0]-1];
                     const uv = objFile.uvs[face[1]-1];
                     const normal = objFile.normals[face[2]-1];
-    
+
                     if(vertex && uv && normal) {
                         vertecies.push(
                             vertex[0],
                             vertex[1],
                             vertex[2],
-    
+
                             uv[0],
                             uv[1],
-    
+
                             normal[0],
                             normal[1],
                             normal[2],
                         );
                     }
-                })
-            }
-        });
+                }
+                if(f.length > 3) {
+                    [2, 3, 0].forEach(i => {
+                        face = f[i];
+        
+                        const vertex = objFile.vertecies[face[0]-1];
+                        const uv = objFile.uvs[face[1]-1];
+                        const normal = objFile.normals[face[2]-1];
+        
+                        if(vertex && uv && normal) {
+                            vertecies.push(
+                                vertex[0],
+                                vertex[1],
+                                vertex[2],
+        
+                                uv[0],
+                                uv[1],
+        
+                                normal[0],
+                                normal[1],
+                                normal[2],
+                            );
+                        }
+                    })
+                }
+            });
+
+        } catch(err) {
+            console.error(face, fface);
+            console.error(err);
+        }
+
         
         return vertecies;
     }

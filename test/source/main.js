@@ -10,7 +10,7 @@ import Viewport from "../../Viewport.js";
 const viewport = new Viewport();
 
 Resources.add({
-    'box_model': require('../../res/models/map.obj'),
+    'box_model': require('../../res/models/dota2.obj'),
 }, false);
 
 viewport.onload = () => {
