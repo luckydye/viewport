@@ -2,9 +2,7 @@ import { Texture } from "./Texture";
 
 export class Material {
 
-    _name = "material";
-
-    get name() { return this._name; }
+    name = "material";
 
     constructor() {
         this.texture = new Texture();

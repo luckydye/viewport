@@ -1,9 +1,10 @@
 export class EntityControler {
 
+	locked = false;
+
 	constructor(entity) {
 		if(!entity) throw "No controllable entity";
 
-		this.locked = false;
 		this.entity = entity;
 	}
 

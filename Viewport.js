@@ -18,6 +18,10 @@ let nextFrame = 0,
 
 export default class Viewport extends HTMLElement {
 
+    get frameRate() {
+		return 1000 / this.renderer.frameTime;
+	}
+
     static get template() {
         return `
             <style>

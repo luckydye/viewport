@@ -16,10 +16,10 @@ function isMouseButton(e) {
 
 export class CameraControler extends EntityControler {
 
+	sensivity = 0.25;
+
 	constructor(entity, viewport) {
 		super(entity);
-
-		this.sensivity = 0.25;
 
 		this.initalSettings = {
 			pos: [ entity.position.x, entity.position.y, entity.position.z ],

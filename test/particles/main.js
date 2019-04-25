@@ -7,6 +7,7 @@ import { Emitter } from "../../src/geo/Emitter.js";
 import { Cube } from "../../src/geo/Cube.js";
 import DefaultMaterial from "../../src/materials/DefaultMaterial.js";
 import TestMaterial from "../../src/materials/TestMaterial.js";
+import { Sounds } from "../../src/Audio.js";
 
 const viewport = new Viewport();
 
@@ -15,6 +16,11 @@ Resources.add({
 }, false);
 
 viewport.onload = () => {
+
+    const audioSrc = Sounds.capture();
+    audioSrc.then(src => {
+        Sounds.play(src);
+    })
 
     const scheduler = viewport.scheduler;
     const scene = viewport.scene;
@@ -60,7 +66,7 @@ viewport.onload = () => {
         campos.innerHTML = `
             <span>${camera.position}</span>
             <span>${camera.rotation}</span>
-            <span>${viewport.renderer.frameRate.toFixed(0)}</span>
+            <span>${viewport.frameRate.toFixed(0)}</span>
         `;
     })
     configTask.execute = (ms) => {

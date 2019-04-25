@@ -25,7 +25,8 @@ viewport.onload = () => {
     const mesh = new Geometry({
         vertecies: meshVerts,
         material: new TestMaterial(),
-        scale: 100
+        scale: 100,
+        id: 10,
     });
     scene.add(mesh);
 
@@ -34,12 +35,12 @@ viewport.onload = () => {
     const anim2 = new Animation(camera, 'position', 3000, true);
     anim2.setKeyframe(new Keyframe(new Vec(0, -200, 0)));
     anim2.setKeyframe(new Keyframe(new Vec(0, -1000, 500)));
-    // scheduler.addTask(anim2);
+    scheduler.addTask(anim2);
 
     const anim1 = new Animation(camera, 'rotation', 3000, true);
     anim1.setKeyframe(new Keyframe(new Vec(1.00, -1.5, 0)));
     anim1.setKeyframe(new Keyframe(new Vec(0.14, -2.1, 0)));
-    // scheduler.addTask(anim1);
+    scheduler.addTask(anim1);
 
     scene.add(new Guide({
         position: Vec.multiply(anim2.keyframes[0].input, new Vec(-1, -1, -1))
@@ -56,8 +57,6 @@ viewport.onload = () => {
         ]
     }));
 
-    viewport.setCursor(mesh);
-
     const savedPosition = Config.global.getValue('camera');
     if(savedPosition) {
         camera.setPositionTo(new Transform(savedPosition));
@@ -70,6 +69,10 @@ viewport.onload = () => {
         return false;
     }
     scheduler.addTask(configTask);
+
+    setTimeout(() => {
+        viewport.setCursor();
+    }, 0)
 }
 
 window.addEventListener('DOMContentLoaded', () => {

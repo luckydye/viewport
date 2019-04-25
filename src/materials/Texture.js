@@ -16,13 +16,13 @@ export class Texture {
         return this.image.height;
     }
 
+    gltexture = null; // gets filled in by the renderer
+    animated = false;
+    textureScale = 1;
+
     constructor(image) {
-        this.gltexture = null; // gets filled in by the renderer
         this.image = image || null;
-        this.textureScale = 1;
-        this.animated = false;
-        
-        this.animated = image && image.localName === "video" || false;
+        this.animated = image && image.localName === "video" || this.animated;
     }
 
 }

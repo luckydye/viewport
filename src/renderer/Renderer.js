@@ -15,13 +15,11 @@ const logger = new Logger('Renderer');
 
 export class Renderer extends GLContext {
 
-	static get defaults() {
-		return {
-			resolution: [
-				window.innerWidth, 
-				window.innerHeight
-			]
-		}
+	static defaults = {
+		resolution: [
+			window.innerWidth, 
+			window.innerHeight
+		]
 	}
 
 	get gridEnabled() {
@@ -30,10 +28,6 @@ export class Renderer extends GLContext {
 
 	get fogEnabled() {
 		return Config.global.getValue('fogEnabled', true);
-	}
-
-	get frameRate() {
-		return 1000 / this.frameTime;
 	}
 
 	setScene(scene) {

@@ -8,13 +8,12 @@ Resources.add({
 
 export default class TestMaterial extends Material {
     
-    _name = "TEST";
+    name = "TEST";
 
     constructor() {
         super();
 
-        const texImage = Resources.get('texture256');
-        this.texture = new Texture(texImage);
+        this.texture = new Texture(Resources.get('texture256'));
 
         this.textureScale = 256;
         this.diffuseColor = [1, 1, 1];

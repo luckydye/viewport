@@ -7,12 +7,10 @@ const DEFAULT_CAMERA_MATERIAL = new DefaultMaterial();
 
 export class Camera extends Geometry {
 
-	get attributes() {
-		return [
-			{ size: 3, attribute: "aPosition" },
-			{ size: 2, attribute: "aTexCoords" }
-		]
-	}
+	attributes =  [
+		{ size: 3, attribute: "aPosition" },
+		{ size: 2, attribute: "aTexCoords" }
+	]
 
 	get vertecies() {
 		const s = 50 / this.scale;

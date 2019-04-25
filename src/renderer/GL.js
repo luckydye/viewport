@@ -2,6 +2,17 @@ import { GLShader } from "../shader/GLShader";
 
 export class GLContext {
 
+	currentShader = null;
+	framebuffers = new Map();
+	bufferTextures = new Map();
+	shaders = new Map();
+
+	options = {
+		DEPTH_TEST: true,
+		CULL_FACE: true,
+		BLEND: true,
+	}
+
 	// canvas sizes
 	get width() { return this.gl.canvas.width; }
 	get height() { return this.gl.canvas.height; }
@@ -22,26 +33,16 @@ export class GLContext {
 	constructor(canvas) {
 		if(!canvas) throw "GLContext: Err: no canvas";
 
-		this.currentShader = null;
-
-		this.framebuffers = new Map();
-		this.bufferTextures = new Map();
-		this.shaders = new Map();
-
-		// default options set
-		this.options = {
-			DEPTH_TEST: true,
-			CULL_FACE: true,
-			BLEND: true,
-		}
-
 		this.getContext(canvas);
-
 		this.onCreate();
 
 		// enable gl options
-		for(let opt in this.options) {
-			if(this.options[opt] === true) {
+		this.setOptions(this.options);
+	}
+
+	setOptions(options) {
+		for(let opt in options) {
+			if(options[opt] === true) {
 				this.gl.enable(this.gl[opt]);
 			}
 		}

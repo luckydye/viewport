@@ -2,7 +2,7 @@ import { Material } from "./Material";
 
 export default class PrimitivetMaterial extends Material {
 
-    _name = "PRIMITIVE";
+    name = "PRIMITIVE";
     
     constructor() {
         super();
