@@ -4,7 +4,7 @@ import TestMaterial from "../../src/materials/TestMaterial.js";
 import { Transform } from "../../src/Math.js";
 import { Resources } from "../../src/Resources.js";
 import { Geometry } from "../../src/scene/Geometry.js";
-import { Task } from "../../src/Scheduler.js";
+import { Task, Scheduler } from "../../src/Scheduler.js";
 import Viewport from "../../Viewport.js";
 
 const viewport = new Viewport();
@@ -34,9 +34,16 @@ viewport.onload = () => {
     }
 
     const configTask = new Task();
-    configTask.execute = (ms) => {
+    const timer = Scheduler.timer(120, () => {
         Config.global.setValue('camera', camera);
-        campos.innerText = camera.position + "  |  " + camera.rotation;
+        campos.innerHTML = `
+            <span>${camera.position}</span>
+            <span>${camera.rotation}</span>
+            <span>${viewport.frameRate.toFixed(0)}</span>
+        `;
+    })
+    configTask.execute = (ms) => {
+        timer(ms);
         return false;
     }
     scheduler.addTask(configTask);

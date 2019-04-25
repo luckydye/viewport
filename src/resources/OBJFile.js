@@ -1,4 +1,6 @@
-export default class OBJFile {
+import File from "./File";
+
+export default class OBJFile extends File {
 
 	static parseFile(strData) {
 		const lines = strData.split(/\n/g);
@@ -50,12 +52,4 @@ export default class OBJFile {
 
 		return objData;
 	}
-
-	constructor() {
-		this.vertecies = [];
-		this.uvs = [];
-		this.faces = [];
-		this.normals = [];
-	}
-
 }

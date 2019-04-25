@@ -20,6 +20,7 @@ export class CursorControler extends EntityControler {
         let moving = false;
         let hovering = false;
         let selected = null;
+        let color = [0, 0, 0];
         
 		const down = e => {
             if(hovering) {
@@ -59,6 +60,8 @@ export class CursorControler extends EntityControler {
                 const hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
                              new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
 
+                if(!hitx || !hity) return;
+
                 if(!startdelta) {
                     startdelta = new Vec(
                         hitx.position[0] - curosr.position[0],
@@ -66,7 +69,7 @@ export class CursorControler extends EntityControler {
                         hitx.position[2] - curosr.position[2],
                     );
                 } else {
-                    const axis = startdelta.indexOf(Math.max(...startdelta));
+                    let axis = color.indexOf(Math.max(...color));
                     if(axis == 1) {
                         curosr.position[axis] = hity.position[axis] - startdelta[axis];
                     } else {
@@ -89,6 +92,9 @@ export class CursorControler extends EntityControler {
                     selected = value[0];
                     hovering = selected == 1;
                     this.entity.material.selected = hovering;
+                })
+                renderer.readPixelFromBuffer(x, y, 'guides').then(value => {
+                    color = value;
                 })
             } else {
                 this.entity.material.selected = true;

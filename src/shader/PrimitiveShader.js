@@ -22,7 +22,7 @@ export default class PickingShader extends GLShader {
             oFragColor = vec4(primitiveColor, .75);
 
             if(selected) {
-                oFragColor = vec4(0.8, 0.75, 0.5, 1.0);
+                oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);
             }
         }`;
     }

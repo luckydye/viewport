@@ -299,7 +299,7 @@ var Material = function Material() {
 };
 
 exports.Material = Material;
-},{"./Texture":"../../src/materials/Texture.js"}],"../../src/resources/OBJFile.js":[function(require,module,exports) {
+},{"./Texture":"../../src/materials/Texture.js"}],"../../src/resources/File.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -313,9 +313,76 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var OBJFile =
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var File =
 /*#__PURE__*/
 function () {
+  function File() {
+    _classCallCheck(this, File);
+
+    _defineProperty(this, "vertecies", []);
+
+    _defineProperty(this, "uvs", []);
+
+    _defineProperty(this, "faces", []);
+
+    _defineProperty(this, "normals", []);
+  }
+
+  _createClass(File, null, [{
+    key: "parseFile",
+    value: function parseFile(strData) {
+      var fileData = new File();
+      return fileData;
+    }
+  }]);
+
+  return File;
+}();
+
+exports.default = File;
+},{}],"../../src/resources/OBJFile.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _File2 = _interopRequireDefault(require("./File"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var OBJFile =
+/*#__PURE__*/
+function (_File) {
+  _inherits(OBJFile, _File);
+
+  function OBJFile() {
+    _classCallCheck(this, OBJFile);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(OBJFile).apply(this, arguments));
+  }
+
   _createClass(OBJFile, null, [{
     key: "parseFile",
     value: function parseFile(strData) {
@@ -400,20 +467,11 @@ function () {
     }
   }]);
 
-  function OBJFile() {
-    _classCallCheck(this, OBJFile);
-
-    this.vertecies = [];
-    this.uvs = [];
-    this.faces = [];
-    this.normals = [];
-  }
-
   return OBJFile;
-}();
+}(_File2.default);
 
 exports.default = OBJFile;
-},{}],"../../src/Resources.js":[function(require,module,exports) {
+},{"./File":"../../src/resources/File.js"}],"../../src/Resources.js":[function(require,module,exports) {
 
 "use strict";
 
@@ -10770,7 +10828,7 @@ function (_GLShader) {
   }, {
     key: "fragmentSource",
     value: function fragmentSource() {
-      return "#version 300 es\n        \n        precision mediump float;\n        \n        uniform bool selected;\n\n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n\n            if(selected) {\n                oFragColor = vec4(0.8, 0.75, 0.5, 1.0);\n            }\n        }";
+      return "#version 300 es\n        \n        precision mediump float;\n        \n        uniform bool selected;\n\n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n\n            if(selected) {\n                oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);\n            }\n        }";
     }
   }]);
 
@@ -11426,10 +11484,12 @@ function (_Material) {
 
     _defineProperty(_assertThisInitialized(_this), "name", "PRIMITIVE");
 
+    _this.diffuseColor = [0.5, 0.5, 0.5];
+    _this.transparency = 0.5;
     _this.receiveShadows = false;
     _this.castShadows = false;
     _this.scaleUniform = true;
-    _this.selected = true;
+    _this.selected = false;
     return _this;
   }
 
@@ -11984,6 +12044,7 @@ function (_EntityControler) {
       var moving = false;
       var hovering = false;
       var selected = null;
+      var color = [0, 0, 0];
 
       var down = function down(e) {
         if (hovering) {
@@ -12042,11 +12103,12 @@ function (_EntityControler) {
 
           var hitx = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, 1, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, -1, 0));
           var hity = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(1, 0, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(-1, 0, 0));
+          if (!hitx || !hity) return;
 
           if (!startdelta) {
             startdelta = new _Math.Vec(hitx.position[0] - curosr.position[0], hity.position[1] - curosr.position[1], hitx.position[2] - curosr.position[2]);
           } else {
-            var axis = startdelta.indexOf(Math.max.apply(Math, _toConsumableArray(startdelta)));
+            var axis = color.indexOf(Math.max.apply(Math, _toConsumableArray(color)));
 
             if (axis == 1) {
               curosr.position[axis] = hity.position[axis] - startdelta[axis];
@@ -12069,6 +12131,9 @@ function (_EntityControler) {
             selected = value[0];
             hovering = selected == 1;
             _this2.entity.material.selected = hovering;
+          });
+          renderer.readPixelFromBuffer(x, y, 'guides').then(function (value) {
+            color = value;
           });
         } else {
           _this2.entity.material.selected = true;
@@ -12377,10 +12442,14 @@ viewport.onload = function () {
 
   var configTask = new _Scheduler.Task();
 
-  configTask.execute = function (ms) {
+  var timer = _Scheduler.Scheduler.timer(120, function () {
     _Config.default.global.setValue('camera', camera);
 
-    campos.innerText = camera.position + "  |  " + camera.rotation;
+    campos.innerHTML = "\n            <span>".concat(camera.position, "</span>\n            <span>").concat(camera.rotation, "</span>\n            <span>").concat(viewport.frameRate.toFixed(0), "</span>\n        ");
+  });
+
+  configTask.execute = function (ms) {
+    timer(ms);
     return false;
   };
 
@@ -12418,7 +12487,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54983" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60982" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
