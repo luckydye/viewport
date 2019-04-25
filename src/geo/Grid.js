@@ -18,7 +18,7 @@ export class Grid extends Guide {
 
 	onCreate(args) {
 		args.drawmode = "LINES";
-		args.guide = true;
+		// args.guide = true;
 		args.material = DEFAULT_GRID_MATERIAL;
 	}
 	

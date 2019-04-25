@@ -68,7 +68,9 @@ export class FirstPersonControler extends EntityControler {
 		const entity = this.entity;
 
 		const down = e => {
-			this.viewport.requestPointerLock();
+			if(EntityControler.isMouseButton(e) == 2) {
+				this.viewport.requestPointerLock();
+			}
 		}
 
 		const move = e => {
