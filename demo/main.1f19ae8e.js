@@ -8837,13 +8837,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 var EntityControler =
 /*#__PURE__*/
 function () {
-  function EntityControler(entity) {
+  function EntityControler(entity, viewport) {
     _classCallCheck(this, EntityControler);
 
     _defineProperty(this, "locked", false);
 
     if (!entity) throw "No controllable entity";
     this.entity = entity;
+    this.viewport = viewport;
+    this.initKeyboard();
+    this.initMouse();
   }
 
   _createClass(EntityControler, [{
@@ -8859,6 +8862,29 @@ function () {
     key: "unlock",
     value: function unlock() {
       this.locked = false;
+    }
+  }, {
+    key: "initKeyboard",
+    value: function initKeyboard() {}
+  }, {
+    key: "initMouse",
+    value: function initMouse() {}
+  }], [{
+    key: "isMouseButton",
+    value: function isMouseButton(e) {
+      var mbutton;
+
+      if (e.button != null) {
+        if (e.buttons == 4) {
+          mbutton = 2;
+        } else {
+          mbutton = e.buttons;
+        }
+      } else {
+        mbutton = e.which;
+      }
+
+      return mbutton;
     }
   }]);
 
@@ -8897,6 +8923,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var FirstPersonControler =
 /*#__PURE__*/
@@ -8952,7 +8980,12 @@ function (_EntityControler) {
 
     _classCallCheck(this, FirstPersonControler);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FirstPersonControler).call(this, entity));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FirstPersonControler).call(this, entity, viewport));
+
+    _defineProperty(_assertThisInitialized(_this), "sensivity", 0.0033);
+
+    _defineProperty(_assertThisInitialized(_this), "speed", 20);
+
     var entityUpdate = entity.update.bind(entity);
 
     entity.update = function (arg) {
@@ -8961,14 +8994,6 @@ function (_EntityControler) {
       entityUpdate(arg);
     };
 
-    _this.viewport = viewport;
-
-    _this.initMouse();
-
-    _this.initKeyboard();
-
-    _this.sensivity = 0.0033;
-    _this.speed = 20;
     return _this;
   }
 
@@ -11815,28 +11840,39 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var CursorControler =
 /*#__PURE__*/
 function (_EntityControler) {
   _inherits(CursorControler, _EntityControler);
 
-  function CursorControler(cursor, viewport) {
+  function CursorControler() {
+    var _getPrototypeOf2;
+
     var _this;
 
     _classCallCheck(this, CursorControler);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CursorControler).call(this, cursor));
-    _this.viewport = viewport;
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
 
-    _this.initMouse();
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(CursorControler)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "lastAction", {
+      target: null,
+      state: null,
+      property: null
+    });
 
     return _this;
   }
@@ -11873,6 +11909,10 @@ function (_EntityControler) {
 
                 if (obj.id == objID) {
                   _this2.viewport.setCursor(obj);
+
+                  _this2.lastAction.target = curosr;
+                  _this2.lastAction.property = 'position';
+                  _this2.lastAction.state = new _Math.Vec(curosr.position);
 
                   _this2.interaction(objID);
                 }
@@ -11924,9 +11964,34 @@ function (_EntityControler) {
         }
       };
 
-      this.viewport.addEventListener("mousedown", down);
+      var keydown = function keydown(e) {
+        if (e.ctrlKey) switch (e.key) {
+          case "z":
+            _this2.undo();
+
+            break;
+        }
+      };
+
+      this.viewport.addEventListener("contextmenu", function (e) {
+        return e.preventDefault();
+      });
+      this.viewport.addEventListener("mousedown", function (e) {
+        if (_EntityControler2.EntityControler.isMouseButton(e) == 1) {
+          down(e);
+        }
+      });
       this.viewport.addEventListener("mouseup", up);
       this.viewport.addEventListener("mousemove", move);
+      window.addEventListener("keydown", keydown);
+    }
+  }, {
+    key: "undo",
+    value: function undo() {
+      var action = this.lastAction;
+      action.target[action.property][0] = action.state.x;
+      action.target[action.property][1] = action.state.y;
+      action.target[action.property][2] = action.state.z;
     }
   }, {
     key: "interaction",
@@ -12522,23 +12587,6 @@ viewport.onload = function () {
   });
   scene.add(mesh);
   var camera = viewport.camera;
-  var anim2 = new _Animation.Animation(camera, 'position', 3000, true);
-  anim2.setKeyframe(new _Animation.Keyframe(new _Math.Vec(0, -200, 0)));
-  anim2.setKeyframe(new _Animation.Keyframe(new _Math.Vec(0, -1000, 500)));
-  scheduler.addTask(anim2);
-  var anim1 = new _Animation.Animation(camera, 'rotation', 3000, true);
-  anim1.setKeyframe(new _Animation.Keyframe(new _Math.Vec(1.00, -1.5, 0)));
-  anim1.setKeyframe(new _Animation.Keyframe(new _Math.Vec(0.14, -2.1, 0)));
-  scheduler.addTask(anim1);
-  scene.add(new _Guide.Guide({
-    position: _Math.Vec.multiply(anim2.keyframes[0].input, new _Math.Vec(-1, -1, -1))
-  }));
-  scene.add(new _Guide.Guide({
-    position: _Math.Vec.multiply(anim2.keyframes[1].input, new _Math.Vec(-1, -1, -1))
-  }));
-  scene.add(new _Vector.Vector({
-    points: [_Math.Vec.multiply(anim2.keyframes[0].input, new _Math.Vec(-1, -1, -1)), _Math.Vec.multiply(anim2.keyframes[1].input, new _Math.Vec(-1, -1, -1))]
-  }));
 
   var savedPosition = _Config.default.global.getValue('camera');
 
@@ -12592,7 +12640,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64281" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50525" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

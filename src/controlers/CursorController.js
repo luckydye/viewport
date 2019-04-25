@@ -3,13 +3,11 @@ import { Vec, Raycast } from "../Math";
 
 export class CursorControler extends EntityControler {
 
-	constructor(cursor, viewport) {
-		super(cursor);
-		
-		this.viewport = viewport;
-
-		this.initMouse();
-	}
+    lastAction = {
+        target: null,
+        state: null,
+        property: null
+    }
 
 	initMouse() {
         const curosr = this.entity;
@@ -32,6 +30,11 @@ export class CursorControler extends EntityControler {
                     for(let obj of scene.objects) {
                         if(obj.id == objID) {
                             this.viewport.setCursor(obj);
+                
+                            this.lastAction.target = curosr;
+                            this.lastAction.property = 'position';
+                            this.lastAction.state = new Vec(curosr.position);
+
                             this.interaction(objID);
                         }
                     }
@@ -73,11 +76,36 @@ export class CursorControler extends EntityControler {
             } else {
                 startdelta = null;
             }
-		}
+        }
+        
+        const keydown = (e) => {
+            if(e.ctrlKey)
 
-		this.viewport.addEventListener("mousedown", down);
+            switch(e.key) {
+                case "z":
+                    this.undo();
+                    break;
+            }
+        }
+
+		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
+		this.viewport.addEventListener("mousedown", e => {
+            if(EntityControler.isMouseButton(e) == 1) {
+                down(e);
+            }
+        });
 		this.viewport.addEventListener("mouseup", up);
-		this.viewport.addEventListener("mousemove", move);
+        this.viewport.addEventListener("mousemove", move);
+        
+		window.addEventListener("keydown", keydown);
+    }
+
+    undo() {
+        const action = this.lastAction;
+
+        action.target[action.property][0] = action.state.x;
+        action.target[action.property][1] = action.state.y;
+        action.target[action.property][2] = action.state.z;
     }
     
     interaction(objId) {

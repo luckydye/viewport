@@ -1,25 +1,11 @@
 import { EntityControler } from "./EntityControler";
 
-function isMouseButton(e) {
-	let mbutton;
-	if(e.button != null) {
-		if(e.buttons == 4) {
-			mbutton = 2;
-		} else {
-			mbutton = e.buttons;
-		}
-	} else {
-		mbutton = e.which;
-	}
-	return mbutton;
-}
-
 export class CameraControler extends EntityControler {
 
 	sensivity = 0.25;
 
 	constructor(entity, viewport) {
-		super(entity);
+		super(entity, viewport);
 
 		this.initalSettings = {
 			pos: [ entity.position.x, entity.position.y, entity.position.z ],
@@ -43,11 +29,11 @@ export class CameraControler extends EntityControler {
 
 		const move = e => {
 			if(moving && lastEvent) {
-				if(isMouseButton(e) == 2 || e.touches && e.touches.length > 1) {
+				if(EntityControler.isMouseButton(e) == 2 || e.touches && e.touches.length > 1) {
 					entity.position.x += (e.x - lastEvent.x) * Math.abs(entity.position.z / 250) * this.sensivity;
 					entity.position.y += (e.y - lastEvent.y) * -Math.abs(entity.position.z / 250) * this.sensivity;
 					viewport.style.cursor = "move";
-				} else if(isMouseButton(e) == 1 || e.type == "touchmove") {
+				} else if(EntityControler.isMouseButton(e) == 1 || e.type == "touchmove") {
 					entity.rotation.y += (e.x - lastEvent.x) * this.sensivity;
 					entity.rotation.x += (e.y - lastEvent.y) * this.sensivity;
 					viewport.style.cursor = "grabbing";

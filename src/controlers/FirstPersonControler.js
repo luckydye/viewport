@@ -46,22 +46,17 @@ export class FirstPersonControler extends EntityControler {
 		if(this.checkKey("y")) this.down();
 	}
 
+	sensivity = 0.0033;
+	speed = 20;
+
 	constructor(entity, viewport) {
-		super(entity);
+		super(entity, viewport);
 
 		const entityUpdate = entity.update.bind(entity);
 		entity.update = (arg) => {
 			this.checkControls();
 			entityUpdate(arg);
 		}
-		
-		this.viewport = viewport;
-
-		this.initMouse();
-		this.initKeyboard();
-
-		this.sensivity = 0.0033;
-		this.speed = 20;
 	}
 
 	lock() {
