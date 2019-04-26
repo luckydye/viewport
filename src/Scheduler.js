@@ -47,12 +47,16 @@ export class Scheduler {
 
 export class Task {
 
-    constructor() {
-        
+    taskFunction = () => {
+        return true;
+    };
+
+    constructor(taskFunction) {
+        this.taskFunction = taskFunction;
     }
 
     execute(ms) {
-        return true;
+        return this.taskFunction(ms);
     }
 
 }

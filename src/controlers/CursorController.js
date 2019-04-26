@@ -1,7 +1,5 @@
 import { EntityControler } from "./EntityControler";
 import { Vec, Raycast } from "../Math";
-import DefaultMaterial from "../materials/DefaultMaterial";
-import PrimitivetMaterial from "../materials/PrimitiveMaterial";
 
 export class CursorControler extends EntityControler {
 
@@ -60,7 +58,7 @@ export class CursorControler extends EntityControler {
                 const hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
                              new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
 
-                if(!hitx || !hity) return;
+                if(!hitx && !hity) return;
 
                 if(!startdelta) {
                     startdelta = new Vec(

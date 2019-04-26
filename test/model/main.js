@@ -1,19 +1,21 @@
-import Viewport from "../../Viewport.js";
-import { Transform, Vec, Raycast } from "../../src/Math.js";
 import Config from "../../src/Config.js";
-import { Resources } from "../../src/Resources.js";
 import { Loader } from "../../src/Loader.js";
-import { Keyframe, Animation } from "../../src/Animation.js";
-import { Task } from "../../src/Scheduler.js";
-import { Guide } from "../../src/geo/Guide.js";
-import { Vector } from "../../src/geo/Vector.js";
-import { Geometry } from "../../src/scene/Geometry.js";
 import TestMaterial from "../../src/materials/TestMaterial.js";
+import { Transform, Vec } from "../../src/Math.js";
+import { Resources } from "../../src/Resources.js";
+import { Geometry } from "../../src/scene/Geometry.js";
+import { Task } from "../../src/Scheduler.js";
+import Viewport from "../../Viewport.js";
+import { Texture } from "../../src/materials/Texture.js";
+import { Plane } from "../../src/geo/Plane.js";
+import DefaultMaterial from "../../src/materials/DefaultMaterial.js";
+import { Cube } from "../../src/geo/Cube.js";
 
 const viewport = new Viewport();
 
 Resources.add({
-    'box_model': require('../../res/models/test.obj'),
+    'map_model': require('../../res/models/cs_template.obj'),
+    'map_texture': require('../../res/textures/test.png'),
 }, false);
 
 viewport.onload = () => {
@@ -21,41 +23,37 @@ viewport.onload = () => {
     const scheduler = viewport.scheduler;
     const scene = viewport.scene;
 
-    const meshVerts = Loader.loadObjFile(Resources.get('box_model'));
+    viewport.renderer.clearColor = [0.85, 0.85, 1.0, 1.0];
+
+    const texture = new Texture(Resources.get('map_texture'));
+    const material = new TestMaterial();
+    material.texture = texture;
+
+    scene.add(scene.activeCamera);
+    // scene.activeCamera = scene.lightSources;
+
+    const meshVerts = Loader.loadObjFile(Resources.get('map_model'));
     const mesh = new Geometry({
         vertecies: meshVerts,
-        material: new TestMaterial(),
-        scale: 100,
+        material: material,
+        scale: 2,
         id: 10,
     });
-    scene.add(mesh);
+    // scene.add(mesh);
+
+    scene.add(new Plane({
+        material: new DefaultMaterial(),
+        scale: 10000,
+        rotation: new Vec(-90 / 180 * Math.PI, 0, 0)
+    }));
+
+    scene.add(new Cube({
+        material: new DefaultMaterial(),
+        scale: 50,
+        position: new Vec(400, 800, 0)
+    }));
 
     const camera = viewport.camera;
-
-    const anim2 = new Animation(camera, 'position', 3000, true);
-    anim2.setKeyframe(new Keyframe(new Vec(0, -200, 0)));
-    anim2.setKeyframe(new Keyframe(new Vec(0, -1000, 500)));
-    scheduler.addTask(anim2);
-
-    const anim1 = new Animation(camera, 'rotation', 3000, true);
-    anim1.setKeyframe(new Keyframe(new Vec(1.00, -1.5, 0)));
-    anim1.setKeyframe(new Keyframe(new Vec(0.14, -2.1, 0)));
-    scheduler.addTask(anim1);
-
-    scene.add(new Guide({
-        position: Vec.multiply(anim2.keyframes[0].input, new Vec(-1, -1, -1))
-    }));
-
-    scene.add(new Guide({
-        position: Vec.multiply(anim2.keyframes[1].input, new Vec(-1, -1, -1))
-    }));
-
-    scene.add(new Vector({
-        points: [
-            Vec.multiply(anim2.keyframes[0].input, new Vec(-1, -1, -1)),
-            Vec.multiply(anim2.keyframes[1].input, new Vec(-1, -1, -1))
-        ]
-    }));
 
     const savedPosition = Config.global.getValue('camera');
     if(savedPosition) {
@@ -65,14 +63,14 @@ viewport.onload = () => {
     const configTask = new Task();
     configTask.execute = (ms) => {
         Config.global.setValue('camera', camera);
-        campos.innerText = camera.position + "  |  " + camera.rotation;
+        campos.innerHTML = `
+            <span>${camera.position}</span>
+            <span>${camera.rotation}</span>
+            <span>${viewport.frameRate.toFixed(0)}</span>
+        `;
         return false;
     }
     scheduler.addTask(configTask);
-
-    setTimeout(() => {
-        viewport.setCursor();
-    }, 0)
 }
 
 window.addEventListener('DOMContentLoaded', () => {

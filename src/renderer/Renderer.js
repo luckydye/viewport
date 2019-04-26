@@ -3,7 +3,6 @@ import { GLContext } from '../renderer/GL';
 import FinalShader from '../shader/FinalShader';
 import ColorShader from '../shader/ColorShader';
 import LightShader from '../shader/LightShader';
-import ReflectionShader from '../shader/ReflectionShader';
 import PrimitiveShader from '../shader/PrimitiveShader';
 import { Logger } from '../Logger';
 import Config from '../Config';
@@ -21,6 +20,8 @@ export class Renderer extends GLContext {
 			window.innerHeight
 		]
 	}
+
+	clearColor = [0.08, 0.08, 0.08, 1.0];
 
 	get gridEnabled() {
 		return Config.global.getValue('drawGrid', true);
@@ -53,7 +54,6 @@ export class Renderer extends GLContext {
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
-			// new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
@@ -101,26 +101,21 @@ export class Renderer extends GLContext {
 			switch(pass.id) {
 
 				case "shadow":
-					this.drawScene(this.scene, lightS, obj => obj.material && obj.material.castShadows);
+					this.drawScene(this.scene, lightS, obj => {
+						return obj.material && obj.material.castShadows;
+					});
 					break;
 
 				case "light":
 					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
 					gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 					this.drawScene(this.scene, camera, obj => {
-						return obj.material && obj.material.receiveShadows;
+						return obj.material.receiveShadows;
 					});
 					break;
 
 				case "diffuse":
-					this.useTexture(this.getBufferTexture('reflection'), "reflectionBuffer", 0);
 					this.drawScene(this.scene, camera, obj => !obj.guide);
-					break;
-				
-				case "reflection":
-					gl.cullFace(gl.FRONT);
-					this.drawScene(this.scene, camera);
-					gl.cullFace(gl.BACK);
 					break;
 
 				case "guides":
@@ -179,7 +174,7 @@ export class Renderer extends GLContext {
 	}
 
 	compositePasses(passes) {
-		this.gl.clearColor(0.08, 0.08, 0.08, 1.0);
+		this.gl.clearColor(...this.clearColor);
 		this.clear();
 
 		this.viewport(this.width, this.height);
@@ -212,18 +207,18 @@ export class Renderer extends GLContext {
 		const reflectionMap = material.reflectionMap;
 		const displacementMap = material.displacementMap;
 
-		this.useTexture(null, "colorTexture", 1);
-		this.useTexture(null, "reflectionMap", 2);
-		this.useTexture(null, "displacementMap", 3);
+		this.useTexture(null, "colorTexture", 2);
+		this.useTexture(null, "reflectionMap", 3);
+		this.useTexture(null, "displacementMap", 4);
 
 		this.prepareTexture(colorTexture);
-		this.useTexture(colorTexture.gltexture, "colorTexture", 1);
+		this.useTexture(colorTexture.gltexture, "colorTexture", 2);
 
 		this.prepareTexture(reflectionMap);
-		this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
+		this.useTexture(reflectionMap.gltexture, "reflectionMap", 3);
 
 		this.prepareTexture(displacementMap);
-		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
+		this.useTexture(displacementMap.gltexture, "displacementMap", 4);
 
 		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
 		this.gl.uniform1f(shader.uniforms.selected, material.selected);

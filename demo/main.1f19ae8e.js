@@ -9373,6 +9373,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Task = exports.Scheduler = void 0;
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -9467,14 +9469,20 @@ exports.Scheduler = Scheduler;
 var Task =
 /*#__PURE__*/
 function () {
-  function Task() {
+  function Task(taskFunction) {
     _classCallCheck(this, Task);
+
+    _defineProperty(this, "taskFunction", function () {
+      return true;
+    });
+
+    this.taskFunction = taskFunction;
   }
 
   _createClass(Task, [{
     key: "execute",
     value: function execute(ms) {
-      return true;
+      return this.taskFunction(ms);
     }
   }]);
 
@@ -10381,8 +10389,6 @@ function () {
 
           _this.useTexture(null);
 
-          _this.bufferTextures.set('depth', depthTexture);
-
           _this.bufferTextures.set(name, renderTraget);
 
           _this.framebuffers.set(name, fbo);
@@ -10439,8 +10445,8 @@ function () {
       var gl = this.gl;
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
       gl.bindTexture(gl.TEXTURE_2D, null);
       return texture;
@@ -10461,6 +10467,10 @@ function () {
       var gl = this.gl;
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
       if (image) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -10468,10 +10478,7 @@ function () {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 1, 1, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, new Uint8Array([0]));
       }
 
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.generateMipmap(gl.TEXTURE_2D);
       gl.bindTexture(gl.TEXTURE_2D, null);
       return texture;
     } // prepare geometry buffers for draw
@@ -10724,62 +10731,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = LightShader;
-},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/light.fragment.shader":"../../res/shader/light.fragment.shader"}],"../../src/shader/ReflectionShader.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _GLShader2 = require("./GLShader.js");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var ReflectionShader =
-/*#__PURE__*/
-function (_GLShader) {
-  _inherits(ReflectionShader, _GLShader);
-
-  function ReflectionShader() {
-    _classCallCheck(this, ReflectionShader);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(ReflectionShader).apply(this, arguments));
-  }
-
-  _createClass(ReflectionShader, null, [{
-    key: "vertexSource",
-    value: function vertexSource() {
-      return "#version 300 es\n\n        layout(location = 0) in vec3 aPosition;\n        layout(location = 1) in vec2 aTexCoords;\n        layout(location = 2) in vec3 aNormal;\n        \n        struct SceneProjection {\n            mat4 model;\n            mat4 view;\n            mat4 projection;\n        };\n        \n        uniform SceneProjection scene;\n        \n        out vec2 vTexCoords;\n        out vec4 vWorldPos;\n        out vec3 vNormal;\n        \n        void main() {\n            vec4 pos = scene.model * vec4(aPosition, 1.0);\n            pos.y *= -1.0;\n            pos.y += 42.0;\n        \n            vWorldPos = pos;\n            vNormal = aNormal;\n            vTexCoords = aTexCoords;\n        \n            gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);\n            gl_PointSize = 5.0;\n        }";
-    }
-  }, {
-    key: "fragmentSource",
-    value: function fragmentSource() {
-      return "#version 300 es\n\n        precision mediump float;\n\n        in vec2 vTexCoords;\n        in vec3 vNormal;\n\n        uniform sampler2D colorTexture;\n        uniform sampler2D reflectionMap;\n\n        uniform float textureScale;\n        uniform float transparency;\n        uniform vec3 diffuseColor;\n\n        out vec4 oFragColor;\n\n        void main() {\n            // set diffuse color\n            oFragColor = vec4(diffuseColor, 1.0 - transparency);\n\n            vec2 imageSize = vec2(textureSize(colorTexture, 0));\n            if(imageSize.x > 1.0) {\n                vec2 textureCoords = vec2(vTexCoords) / (imageSize.x / textureScale);\n\n                vec4 textureColor = texture(colorTexture, textureCoords);\n                oFragColor *= textureColor;\n\n                float reflectivenss = texture(reflectionMap, textureCoords).r;\n                if(reflectivenss > 0.0) {\n                    discard;\n                }\n            }\n        }";
-    }
-  }]);
-
-  return ReflectionShader;
-}(_GLShader2.GLShader);
-
-exports.default = ReflectionShader;
-},{"./GLShader.js":"../../src/shader/GLShader.js"}],"../../src/shader/PrimitiveShader.js":[function(require,module,exports) {
+},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/light.fragment.shader":"../../res/shader/light.fragment.shader"}],"../../src/shader/PrimitiveShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10911,8 +10863,6 @@ var _ColorShader = _interopRequireDefault(require("../shader/ColorShader"));
 
 var _LightShader = _interopRequireDefault(require("../shader/LightShader"));
 
-var _ReflectionShader = _interopRequireDefault(require("../shader/ReflectionShader"));
-
 var _PrimitiveShader = _interopRequireDefault(require("../shader/PrimitiveShader"));
 
 var _Logger = require("../Logger");
@@ -10945,9 +10895,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -10963,9 +10913,21 @@ function (_GLContext) {
   _inherits(Renderer, _GLContext);
 
   function Renderer() {
+    var _getPrototypeOf2;
+
+    var _this;
+
     _classCallCheck(this, Renderer);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Renderer).apply(this, arguments));
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Renderer)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "clearColor", [0.08, 0.08, 0.08, 1.0]);
+
+    return _this;
   }
 
   _createClass(Renderer, [{
@@ -10990,8 +10952,7 @@ function (_GLContext) {
       });
       this.setResolution.apply(this, _toConsumableArray(Renderer.defaults.resolution));
       this.shadowMapSize = 4096;
-      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), // new RenderPass(this, 'reflection', new ReflectionShader(), this.aspectratio, this.width),
-      new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
+      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
       this.compShader = new _FinalShader.default();
       this.prepareShader(this.compShader);
       this.readings = {};
@@ -11042,7 +11003,7 @@ function (_GLContext) {
   }, {
     key: "renderMultiPasses",
     value: function renderMultiPasses(passes) {
-      var _this = this;
+      var _this2 = this;
 
       var gl = this.gl;
       var camera = this.scene.activeCamera;
@@ -11053,62 +11014,52 @@ function (_GLContext) {
       try {
         var _loop = function _loop() {
           var pass = _step2.value;
-          var lightS = _this.scene.lightSources;
+          var lightS = _this2.scene.lightSources;
           var cullDefault = gl.isEnabled(gl.CULL_FACE);
           pass.use();
 
           switch (pass.id) {
             case "shadow":
-              _this.drawScene(_this.scene, lightS, function (obj) {
+              _this2.drawScene(_this2.scene, lightS, function (obj) {
                 return obj.material && obj.material.castShadows;
               });
 
               break;
 
             case "light":
-              _this.useTexture(_this.getBufferTexture('shadow'), "shadowDepthMap", 0);
+              _this2.useTexture(_this2.getBufferTexture('shadow'), "shadowDepthMap", 0);
 
               gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 
-              _this.drawScene(_this.scene, camera, function (obj) {
-                return obj.material && obj.material.receiveShadows;
+              _this2.drawScene(_this2.scene, camera, function (obj) {
+                return obj.material.receiveShadows;
               });
 
               break;
 
             case "diffuse":
-              _this.useTexture(_this.getBufferTexture('reflection'), "reflectionBuffer", 0);
-
-              _this.drawScene(_this.scene, camera, function (obj) {
+              _this2.drawScene(_this2.scene, camera, function (obj) {
                 return !obj.guide;
               });
 
               break;
 
-            case "reflection":
-              gl.cullFace(gl.FRONT);
-
-              _this.drawScene(_this.scene, camera);
-
-              gl.cullFace(gl.BACK);
-              break;
-
             case "guides":
-              if (cullDefault) _this.disable(gl.CULL_FACE);
+              if (cullDefault) _this2.disable(gl.CULL_FACE);
 
-              _this.drawScene(_this.scene, camera, function (obj) {
+              _this2.drawScene(_this2.scene, camera, function (obj) {
                 return obj.guide;
               });
 
-              if (cullDefault) _this.enable(gl.CULL_FACE);
+              if (cullDefault) _this2.enable(gl.CULL_FACE);
               break;
 
             case "id":
-              if (cullDefault) _this.disable(gl.CULL_FACE);
+              if (cullDefault) _this2.disable(gl.CULL_FACE);
 
-              _this.drawScene(_this.scene, camera, function (obj) {
+              _this2.drawScene(_this2.scene, camera, function (obj) {
                 if (obj.id != null) {
-                  _this.gl.uniform1f(pass.shader.uniforms.geoid, obj.id);
+                  _this2.gl.uniform1f(pass.shader.uniforms.geoid, obj.id);
 
                   return true;
                 }
@@ -11116,25 +11067,25 @@ function (_GLContext) {
                 return false;
               });
 
-              _this.disable(gl.DEPTH_TEST);
+              _this2.disable(gl.DEPTH_TEST);
 
-              var curosr = _this.scene.curosr;
+              var curosr = _this2.scene.curosr;
 
-              _this.gl.uniform1f(pass.shader.uniforms.geoid, curosr.id);
+              _this2.gl.uniform1f(pass.shader.uniforms.geoid, curosr.id);
 
-              _this.drawMesh(curosr);
+              _this2.drawMesh(curosr);
 
-              _this.enable(gl.DEPTH_TEST);
+              _this2.enable(gl.DEPTH_TEST);
 
-              if (cullDefault) _this.enable(gl.CULL_FACE);
+              if (cullDefault) _this2.enable(gl.CULL_FACE);
               break;
           }
 
-          if (pass.id in _this.readings) {
-            var read = _this.readings[pass.id];
+          if (pass.id in _this2.readings) {
+            var read = _this2.readings[pass.id];
 
             if (!read.value) {
-              read.setValue(_this.readPixels(read.x, read.y, 1, 1));
+              read.setValue(_this2.readPixels(read.x, read.y, 1, 1));
             }
           }
         };
@@ -11162,10 +11113,10 @@ function (_GLContext) {
   }, {
     key: "readPixelFromBuffer",
     value: function readPixelFromBuffer(x, y, buffer) {
-      var _this2 = this;
+      var _this3 = this;
 
       return new Promise(function (resolve, reject) {
-        _this2.readings[buffer] = {
+        _this3.readings[buffer] = {
           x: x,
           y: y,
           value: null,
@@ -11191,7 +11142,10 @@ function (_GLContext) {
   }, {
     key: "compositePasses",
     value: function compositePasses(passes) {
-      this.gl.clearColor(0.08, 0.08, 0.08, 1.0);
+      var _this$gl;
+
+      (_this$gl = this.gl).clearColor.apply(_this$gl, _toConsumableArray(this.clearColor));
+
       this.clear();
       this.viewport(this.width, this.height);
       this.useShader(this.compShader);
@@ -11221,15 +11175,15 @@ function (_GLContext) {
       var colorTexture = material.texture;
       var reflectionMap = material.reflectionMap;
       var displacementMap = material.displacementMap;
-      this.useTexture(null, "colorTexture", 1);
-      this.useTexture(null, "reflectionMap", 2);
-      this.useTexture(null, "displacementMap", 3);
+      this.useTexture(null, "colorTexture", 2);
+      this.useTexture(null, "reflectionMap", 3);
+      this.useTexture(null, "displacementMap", 4);
       this.prepareTexture(colorTexture);
-      this.useTexture(colorTexture.gltexture, "colorTexture", 1);
+      this.useTexture(colorTexture.gltexture, "colorTexture", 2);
       this.prepareTexture(reflectionMap);
-      this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
+      this.useTexture(reflectionMap.gltexture, "reflectionMap", 3);
       this.prepareTexture(displacementMap);
-      this.useTexture(displacementMap.gltexture, "displacementMap", 3);
+      this.useTexture(displacementMap.gltexture, "displacementMap", 4);
       this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
       this.gl.uniform1f(shader.uniforms.selected, material.selected);
       this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
@@ -11444,7 +11398,7 @@ function () {
 }();
 
 exports.RenderPass = RenderPass;
-},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/ReflectionShader":"../../src/shader/ReflectionShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
+},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11971,12 +11925,6 @@ var _EntityControler2 = require("./EntityControler");
 
 var _Math = require("../Math");
 
-var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial"));
-
-var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -12103,7 +12051,7 @@ function (_EntityControler) {
 
           var hitx = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, 1, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(0, -1, 0));
           var hity = new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(1, 0, 0)) || new _Math.Raycast(camera, e.x, e.y).hit(pos, new _Math.Vec(-1, 0, 0));
-          if (!hitx || !hity) return;
+          if (!hitx && !hity) return;
 
           if (!startdelta) {
             startdelta = new _Math.Vec(hitx.position[0] - curosr.position[0], hity.position[1] - curosr.position[1], hitx.position[2] - curosr.position[2]);
@@ -12178,7 +12126,7 @@ function (_EntityControler) {
 }(_EntityControler2.EntityControler);
 
 exports.CursorControler = CursorControler;
-},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js"}],"../../Viewport.js":[function(require,module,exports) {
+},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../Viewport.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12391,8 +12339,111 @@ function (_HTMLElement) {
 exports.default = Viewport;
 customElements.define('gl-viewport', Viewport);
 module.exports = Viewport;
-},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../res/models/dota2.obj":[function(require,module,exports) {
-module.exports = "/dota2.846c001b.obj";
+},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cube = void 0;
+
+var _Geometry2 = require("../scene/Geometry");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Cube =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Cube, _Geometry);
+
+  function Cube() {
+    _classCallCheck(this, Cube);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Cube).apply(this, arguments));
+  }
+
+  _createClass(Cube, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      this.vertsPerFace = 6;
+      this.visible = {
+        TOP: true,
+        BOTTOM: true,
+        LEFT: true,
+        RIGHT: true,
+        FRONT: true,
+        BACK: true
+      };
+    }
+  }, {
+    key: "invisible",
+    get: function get() {
+      return !this.visible.TOP && !this.visible.BOTTOM && !this.visible.LEFT && !this.visible.RIGHT && !this.visible.FRONT && !this.visible.BACK;
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var vertArray = [];
+      var faces = this.faces;
+      var visibleFaces = [];
+
+      for (var key in this.visible) {
+        if (this.visible[key]) {
+          visibleFaces.push(key);
+        }
+      }
+
+      visibleFaces.forEach(function (face) {
+        vertArray = vertArray.concat(faces[face]);
+      });
+      return vertArray;
+    }
+  }, {
+    key: "faces",
+    get: function get() {
+      var s = 1;
+      var w = 10;
+      var h = 10;
+      var u = this.uv[0];
+      var v = this.uv[1];
+      var x = 0;
+      var y = 0;
+      var z = 0;
+      return {
+        TOP: [s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0],
+        BOTTOM: [-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0],
+        LEFT: [-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1, -s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 1, -s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1],
+        RIGHT: [s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, -s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, -1],
+        FRONT: [s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0],
+        BACK: [-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, -1, 0, 0]
+      };
+    }
+  }]);
+
+  return Cube;
+}(_Geometry2.Geometry);
+
+exports.Cube = Cube;
+},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/models/cs_template.obj":[function(require,module,exports) {
+module.exports = "/cs_template.db480945.obj";
+},{}],"../../res/textures/test.png":[function(require,module,exports) {
+module.exports = "/test.867bfcb1.png";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -12412,26 +12463,51 @@ var _Scheduler = require("../../src/Scheduler.js");
 
 var _Viewport = _interopRequireDefault(require("../../Viewport.js"));
 
+var _Texture = require("../../src/materials/Texture.js");
+
+var _Plane = require("../../src/geo/Plane.js");
+
+var _DefaultMaterial = _interopRequireDefault(require("../../src/materials/DefaultMaterial.js"));
+
+var _Cube = require("../../src/geo/Cube.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var viewport = new _Viewport.default();
 
 _Resources.Resources.add({
-  'box_model': require('../../res/models/dota2.obj')
+  'map_model': require('../../res/models/cs_template.obj'),
+  'map_texture': require('../../res/textures/test.png')
 }, false);
 
 viewport.onload = function () {
   var scheduler = viewport.scheduler;
   var scene = viewport.scene;
+  viewport.renderer.clearColor = [0.85, 0.85, 1.0, 1.0];
+  var texture = new _Texture.Texture(_Resources.Resources.get('map_texture'));
+  var material = new _TestMaterial.default();
+  material.texture = texture;
+  scene.add(scene.activeCamera); // scene.activeCamera = scene.lightSources;
 
-  var meshVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('box_model'));
+  var meshVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('map_model'));
 
   var mesh = new _Geometry.Geometry({
     vertecies: meshVerts,
-    material: new _TestMaterial.default(),
+    material: material,
+    scale: 2,
     id: 10
-  });
-  scene.add(mesh);
+  }); // scene.add(mesh);
+
+  scene.add(new _Plane.Plane({
+    material: new _DefaultMaterial.default(),
+    scale: 10000,
+    rotation: new _Math.Vec(-90 / 180 * Math.PI, 0, 0)
+  }));
+  scene.add(new _Cube.Cube({
+    material: new _DefaultMaterial.default(),
+    scale: 50,
+    position: new _Math.Vec(400, 800, 0)
+  }));
   var camera = viewport.camera;
 
   var savedPosition = _Config.default.global.getValue('camera');
@@ -12442,14 +12518,10 @@ viewport.onload = function () {
 
   var configTask = new _Scheduler.Task();
 
-  var timer = _Scheduler.Scheduler.timer(120, function () {
+  configTask.execute = function (ms) {
     _Config.default.global.setValue('camera', camera);
 
     campos.innerHTML = "\n            <span>".concat(camera.position, "</span>\n            <span>").concat(camera.rotation, "</span>\n            <span>").concat(viewport.frameRate.toFixed(0), "</span>\n        ");
-  });
-
-  configTask.execute = function (ms) {
-    timer(ms);
     return false;
   };
 
@@ -12459,7 +12531,7 @@ viewport.onload = function () {
 window.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(viewport);
 });
-},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../res/models/dota2.obj":"../../res/models/dota2.obj"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../src/materials/Texture.js":"../../src/materials/Texture.js","../../src/geo/Plane.js":"../../src/geo/Plane.js","../../src/materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js","../../src/geo/Cube.js":"../../src/geo/Cube.js","../../res/models/cs_template.obj":"../../res/models/cs_template.obj","../../res/textures/test.png":"../../res/textures/test.png"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -12487,7 +12559,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60982" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61483" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
