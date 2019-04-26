@@ -1,15 +1,12 @@
 import Config from "../../src/Config.js";
 import { Loader } from "../../src/Loader.js";
 import TestMaterial from "../../src/materials/TestMaterial.js";
-import { Transform, Vec } from "../../src/Math.js";
+import { Texture } from "../../src/materials/Texture.js";
+import { Transform } from "../../src/Math.js";
 import { Resources } from "../../src/Resources.js";
 import { Geometry } from "../../src/scene/Geometry.js";
 import { Task } from "../../src/Scheduler.js";
 import Viewport from "../../Viewport.js";
-import { Texture } from "../../src/materials/Texture.js";
-import { Plane } from "../../src/geo/Plane.js";
-import DefaultMaterial from "../../src/materials/DefaultMaterial.js";
-import { Cube } from "../../src/geo/Cube.js";
 
 const viewport = new Viewport();
 
@@ -19,41 +16,23 @@ Resources.add({
 }, false);
 
 viewport.onload = () => {
-
     const scheduler = viewport.scheduler;
     const scene = viewport.scene;
+    const camera = viewport.camera;
 
-    viewport.renderer.clearColor = [0.85, 0.85, 1.0, 1.0];
+    viewport.renderer.background = [0.8, 0.9, 1.0, 1.0];
 
-    const texture = new Texture(Resources.get('map_texture'));
     const material = new TestMaterial();
-    material.texture = texture;
-
-    scene.add(scene.activeCamera);
-    // scene.activeCamera = scene.lightSources;
+    material.texture = new Texture(Resources.get('map_texture'));
 
     const meshVerts = Loader.loadObjFile(Resources.get('map_model'));
     const mesh = new Geometry({
         vertecies: meshVerts,
         material: material,
-        scale: 2,
+        scale: 3,
         id: 10,
     });
-    // scene.add(mesh);
-
-    scene.add(new Plane({
-        material: new DefaultMaterial(),
-        scale: 10000,
-        rotation: new Vec(-90 / 180 * Math.PI, 0, 0)
-    }));
-
-    scene.add(new Cube({
-        material: new DefaultMaterial(),
-        scale: 50,
-        position: new Vec(400, 800, 0)
-    }));
-
-    const camera = viewport.camera;
+    scene.add(mesh);
 
     const savedPosition = Config.global.getValue('camera');
     if(savedPosition) {

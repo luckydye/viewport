@@ -21,7 +21,7 @@ export class Renderer extends GLContext {
 		]
 	}
 
-	clearColor = [0.08, 0.08, 0.08, 1.0];
+	background = [0.08, 0.08, 0.08, 1.0];
 
 	get gridEnabled() {
 		return Config.global.getValue('drawGrid', true);
@@ -174,7 +174,7 @@ export class Renderer extends GLContext {
 	}
 
 	compositePasses(passes) {
-		this.gl.clearColor(...this.clearColor);
+		this.gl.clearColor(...this.background);
 		this.clear();
 
 		this.viewport(this.width, this.height);
@@ -207,18 +207,18 @@ export class Renderer extends GLContext {
 		const reflectionMap = material.reflectionMap;
 		const displacementMap = material.displacementMap;
 
-		this.useTexture(null, "colorTexture", 2);
-		this.useTexture(null, "reflectionMap", 3);
-		this.useTexture(null, "displacementMap", 4);
+		this.useTexture(null, "colorTexture", 1);
+		this.useTexture(null, "reflectionMap", 2);
+		this.useTexture(null, "displacementMap", 3);
 
 		this.prepareTexture(colorTexture);
-		this.useTexture(colorTexture.gltexture, "colorTexture", 2);
+		this.useTexture(colorTexture.gltexture, "colorTexture", 1);
 
 		this.prepareTexture(reflectionMap);
-		this.useTexture(reflectionMap.gltexture, "reflectionMap", 3);
+		this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
 
 		this.prepareTexture(displacementMap);
-		this.useTexture(displacementMap.gltexture, "displacementMap", 4);
+		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 
 		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
 		this.gl.uniform1f(shader.uniforms.selected, material.selected);

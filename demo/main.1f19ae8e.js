@@ -925,7 +925,7 @@ function () {
 
 exports.Loader = Loader;
 },{"./materials/Material":"../../src/materials/Material.js","./Resources":"../../src/Resources.js","./materials/Texture":"../../src/materials/Texture.js","./Logger":"../../src/Logger.js"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
-module.exports = "/placeholder_256.33ec6945.png";
+module.exports = "placeholder_256.33ec6945.png";
 },{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
 "use strict";
 
@@ -10389,6 +10389,8 @@ function () {
 
           _this.useTexture(null);
 
+          _this.bufferTextures.set('depth', depthTexture);
+
           _this.bufferTextures.set(name, renderTraget);
 
           _this.framebuffers.set(name, fbo);
@@ -10522,7 +10524,7 @@ function () {
 
 exports.GLContext = GLContext;
 },{"../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
-module.exports = "/comp.fragment.ec704667.shader";
+module.exports = "comp.fragment.ec704667.shader";
 },{}],"../../src/shader/FinalShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10585,9 +10587,9 @@ function (_GLShader) {
 
 exports.default = FinalShader;
 },{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js","../../res/shader/comp.fragment.shader":"../../res/shader/comp.fragment.shader"}],"../../res/shader/gbuffer.vertex.shader":[function(require,module,exports) {
-module.exports = "/gbuffer.vertex.4d1e9fd6.shader";
+module.exports = "gbuffer.vertex.4d1e9fd6.shader";
 },{}],"../../res/shader/color.fragment.shader":[function(require,module,exports) {
-module.exports = "/color.fragment.4ea89914.shader";
+module.exports = "color.fragment.4ea89914.shader";
 },{}],"../../src/shader/ColorShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10651,7 +10653,7 @@ function (_GLShader) {
 
 exports.default = ColorShader;
 },{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/color.fragment.shader":"../../res/shader/color.fragment.shader"}],"../../res/shader/light.fragment.shader":[function(require,module,exports) {
-module.exports = "/light.fragment.7fb90ce8.shader";
+module.exports = "light.fragment.7fb90ce8.shader";
 },{}],"../../src/shader/LightShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10925,7 +10927,7 @@ function (_GLContext) {
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Renderer)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_this), "clearColor", [0.08, 0.08, 0.08, 1.0]);
+    _defineProperty(_assertThisInitialized(_this), "background", [0.08, 0.08, 0.08, 1.0]);
 
     return _this;
   }
@@ -11144,7 +11146,7 @@ function (_GLContext) {
     value: function compositePasses(passes) {
       var _this$gl;
 
-      (_this$gl = this.gl).clearColor.apply(_this$gl, _toConsumableArray(this.clearColor));
+      (_this$gl = this.gl).clearColor.apply(_this$gl, _toConsumableArray(this.background));
 
       this.clear();
       this.viewport(this.width, this.height);
@@ -11175,15 +11177,15 @@ function (_GLContext) {
       var colorTexture = material.texture;
       var reflectionMap = material.reflectionMap;
       var displacementMap = material.displacementMap;
-      this.useTexture(null, "colorTexture", 2);
-      this.useTexture(null, "reflectionMap", 3);
-      this.useTexture(null, "displacementMap", 4);
+      this.useTexture(null, "colorTexture", 1);
+      this.useTexture(null, "reflectionMap", 2);
+      this.useTexture(null, "displacementMap", 3);
       this.prepareTexture(colorTexture);
-      this.useTexture(colorTexture.gltexture, "colorTexture", 2);
+      this.useTexture(colorTexture.gltexture, "colorTexture", 1);
       this.prepareTexture(reflectionMap);
-      this.useTexture(reflectionMap.gltexture, "reflectionMap", 3);
+      this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
       this.prepareTexture(displacementMap);
-      this.useTexture(displacementMap.gltexture, "displacementMap", 4);
+      this.useTexture(displacementMap.gltexture, "displacementMap", 3);
       this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
       this.gl.uniform1f(shader.uniforms.selected, material.selected);
       this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
@@ -11699,7 +11701,7 @@ function (_Camera) {
 
 exports.DirectionalLight = DirectionalLight;
 },{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
-module.exports = "/cursor.021979eb.obj";
+module.exports = "cursor.021979eb.obj";
 },{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
 "use strict";
 
@@ -11833,8 +11835,8 @@ function () {
 
     this.lightSources = new _DirectionalLight.DirectionalLight({
       fov: 90,
-      position: new _Math.Vec(1000, -3000, -10000),
-      rotation: new _Math.Vec(20, 20, 0)
+      position: new _Math.Vec(1000, 0, -10000),
+      rotation: new _Math.Vec(50, 40, 0)
     });
     this.activeCamera = camera;
     this.grid = new _Grid.Grid(100, 20);
@@ -12339,111 +12341,10 @@ function (_HTMLElement) {
 exports.default = Viewport;
 customElements.define('gl-viewport', Viewport);
 module.exports = Viewport;
-},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Cube = void 0;
-
-var _Geometry2 = require("../scene/Geometry");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var Cube =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Cube, _Geometry);
-
-  function Cube() {
-    _classCallCheck(this, Cube);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Cube).apply(this, arguments));
-  }
-
-  _createClass(Cube, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      this.vertsPerFace = 6;
-      this.visible = {
-        TOP: true,
-        BOTTOM: true,
-        LEFT: true,
-        RIGHT: true,
-        FRONT: true,
-        BACK: true
-      };
-    }
-  }, {
-    key: "invisible",
-    get: function get() {
-      return !this.visible.TOP && !this.visible.BOTTOM && !this.visible.LEFT && !this.visible.RIGHT && !this.visible.FRONT && !this.visible.BACK;
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var vertArray = [];
-      var faces = this.faces;
-      var visibleFaces = [];
-
-      for (var key in this.visible) {
-        if (this.visible[key]) {
-          visibleFaces.push(key);
-        }
-      }
-
-      visibleFaces.forEach(function (face) {
-        vertArray = vertArray.concat(faces[face]);
-      });
-      return vertArray;
-    }
-  }, {
-    key: "faces",
-    get: function get() {
-      var s = 1;
-      var w = 10;
-      var h = 10;
-      var u = this.uv[0];
-      var v = this.uv[1];
-      var x = 0;
-      var y = 0;
-      var z = 0;
-      return {
-        TOP: [s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0],
-        BOTTOM: [-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0],
-        LEFT: [-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1, -s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 1, -s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1],
-        RIGHT: [s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, -s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, -1],
-        FRONT: [s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0],
-        BACK: [-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, -1, 0, 0]
-      };
-    }
-  }]);
-
-  return Cube;
-}(_Geometry2.Geometry);
-
-exports.Cube = Cube;
-},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/models/cs_template.obj":[function(require,module,exports) {
-module.exports = "/cs_template.db480945.obj";
+},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../res/models/cs_template.obj":[function(require,module,exports) {
+module.exports = "cs_template.db480945.obj";
 },{}],"../../res/textures/test.png":[function(require,module,exports) {
-module.exports = "/test.867bfcb1.png";
+module.exports = "test.867bfcb1.png";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -12452,6 +12353,8 @@ var _Config = _interopRequireDefault(require("../../src/Config.js"));
 var _Loader = require("../../src/Loader.js");
 
 var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial.js"));
+
+var _Texture = require("../../src/materials/Texture.js");
 
 var _Math = require("../../src/Math.js");
 
@@ -12462,14 +12365,6 @@ var _Geometry = require("../../src/scene/Geometry.js");
 var _Scheduler = require("../../src/Scheduler.js");
 
 var _Viewport = _interopRequireDefault(require("../../Viewport.js"));
-
-var _Texture = require("../../src/materials/Texture.js");
-
-var _Plane = require("../../src/geo/Plane.js");
-
-var _DefaultMaterial = _interopRequireDefault(require("../../src/materials/DefaultMaterial.js"));
-
-var _Cube = require("../../src/geo/Cube.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -12483,32 +12378,20 @@ _Resources.Resources.add({
 viewport.onload = function () {
   var scheduler = viewport.scheduler;
   var scene = viewport.scene;
-  viewport.renderer.clearColor = [0.85, 0.85, 1.0, 1.0];
-  var texture = new _Texture.Texture(_Resources.Resources.get('map_texture'));
+  var camera = viewport.camera;
+  viewport.renderer.background = [0.8, 0.9, 1.0, 1.0];
   var material = new _TestMaterial.default();
-  material.texture = texture;
-  scene.add(scene.activeCamera); // scene.activeCamera = scene.lightSources;
+  material.texture = new _Texture.Texture(_Resources.Resources.get('map_texture'));
 
   var meshVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('map_model'));
 
   var mesh = new _Geometry.Geometry({
     vertecies: meshVerts,
     material: material,
-    scale: 2,
+    scale: 3,
     id: 10
-  }); // scene.add(mesh);
-
-  scene.add(new _Plane.Plane({
-    material: new _DefaultMaterial.default(),
-    scale: 10000,
-    rotation: new _Math.Vec(-90 / 180 * Math.PI, 0, 0)
-  }));
-  scene.add(new _Cube.Cube({
-    material: new _DefaultMaterial.default(),
-    scale: 50,
-    position: new _Math.Vec(400, 800, 0)
-  }));
-  var camera = viewport.camera;
+  });
+  scene.add(mesh);
 
   var savedPosition = _Config.default.global.getValue('camera');
 
@@ -12531,7 +12414,7 @@ viewport.onload = function () {
 window.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(viewport);
 });
-},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../src/materials/Texture.js":"../../src/materials/Texture.js","../../src/geo/Plane.js":"../../src/geo/Plane.js","../../src/materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js","../../src/geo/Cube.js":"../../src/geo/Cube.js","../../res/models/cs_template.obj":"../../res/models/cs_template.obj","../../res/textures/test.png":"../../res/textures/test.png"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/Config.js":"../../src/Config.js","../../src/Loader.js":"../../src/Loader.js","../../src/materials/TestMaterial.js":"../../src/materials/TestMaterial.js","../../src/materials/Texture.js":"../../src/materials/Texture.js","../../src/Math.js":"../../src/Math.js","../../src/Resources.js":"../../src/Resources.js","../../src/scene/Geometry.js":"../../src/scene/Geometry.js","../../src/Scheduler.js":"../../src/Scheduler.js","../../Viewport.js":"../../Viewport.js","../../res/models/cs_template.obj":"../../res/models/cs_template.obj","../../res/textures/test.png":"../../res/textures/test.png"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -12559,7 +12442,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61483" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64085" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -12735,4 +12618,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
-//# sourceMappingURL=/main.1f19ae8e.js.map
+//# sourceMappingURL=main.1f19ae8e.js.map

@@ -34,7 +34,7 @@ void main() {
 		uniformSacle = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
 	}
 
-	vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0) + vec4(aNormal * (float(gl_InstanceID) * 50.0), 1.0);
+	vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
 
 	float bump = texture(displacementMap, aTexCoords).r * 200.0;
 

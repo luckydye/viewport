@@ -211,6 +211,7 @@ export class GLContext {
 				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 				this.useTexture(null);
 
+				this.bufferTextures.set('depth', depthTexture);
 				this.bufferTextures.set(name, renderTraget);
 				this.framebuffers.set(name, fbo);
 			},

@@ -12,8 +12,8 @@ export class Scene {
 	constructor({ camera } = {}) {
 		this.lightSources = new DirectionalLight({ 
             fov: 90,
-            position: new Vec(1000, -3000, -10000),
-			rotation: new Vec(20, 20, 0),
+            position: new Vec(1000, 0, -10000),
+			rotation: new Vec(50, 40, 0),
 		});
 		
 		this.activeCamera = camera;
