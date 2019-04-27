@@ -1,6 +1,9 @@
 #version 300 es
 precision mediump float;
 
+#define POINT_LIGHTS_COUNT 15
+#define SHADOW_BIAS 0.0000033
+
 struct PointLight {
     vec3 position;
     vec3 color;
@@ -19,8 +22,6 @@ uniform sampler2D shadowDepthMap;
 uniform vec3 uAmbientColor;
 uniform float shadowcolor;
 
-#define POINT_LIGHTS_COUNT 4
-
 uniform PointLight pointLights[POINT_LIGHTS_COUNT];
 
 out vec4 oFragColor;
@@ -31,8 +32,7 @@ float ShadowCalculation(vec4 fragPosLightSpace) {
     float closestDepth = texture(shadowDepthMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
     
-    float bias = 0.0000033;
-    float shadow = currentDepth - bias < closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - SHADOW_BIAS < closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }

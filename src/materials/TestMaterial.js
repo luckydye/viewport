@@ -10,16 +10,12 @@ export default class TestMaterial extends Material {
     
     name = "TEST";
 
-    constructor() {
-        super();
+    texture = new Texture(Resources.get('texture256'));
 
-        this.texture = new Texture(Resources.get('texture256'));
-
-        this.textureScale = 256;
-        this.diffuseColor = [1, 1, 1];
-
-        this.receiveShadows = true;
-        this.castShadows = true;
-    }
+    textureScale = 256 * 2;
+    diffuseColor = [1, 1, 1];
+    
+    receiveShadows = true;
+    castShadows = true;
 
 }

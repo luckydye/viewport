@@ -4,17 +4,13 @@ export default class PrimitivetMaterial extends Material {
 
     name = "PRIMITIVE";
     
-    constructor() {
-        super();
+    diffuseColor = [0.5, 0.5, 0.5];
+    transparency = 0.5;
 
-        this.diffuseColor = [0.5, 0.5, 0.5];
-        this.transparency = 0.5;
+    receiveShadows = false;
+    castShadows = false;
+    scaleUniform = true;
 
-        this.receiveShadows = false;
-        this.castShadows = false;
-        this.scaleUniform = true;
-
-        this.selected = false;
-    }
+    selected = false;
 
 }

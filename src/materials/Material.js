@@ -2,23 +2,28 @@ import { Texture } from "./Texture";
 
 export class Material {
 
-    name = "material";
+    static applyAttributes(material, attributes) {
+        return Object.assign(material, attributes);
+    }
 
-    constructor() {
-        this.texture = new Texture();
-        this.reflectionMap = new Texture();
-        this.displacementMap = new Texture();
-        
-        this.diffuseColor = [1, 1, 1];
-        this.transparency = 0;
-        this.reflection = 0;
+    texture = new Texture();
+    reflectionMap = new Texture();
+    displacementMap = new Texture();
+    
+    diffuseColor = [1, 1, 1];
+    transparency = 0;
+    reflection = 0;
+    emission = 0;
 
-        this.textureScale = 1;
-        this.receiveShadows = true;
-        this.castShadows = true;
-        this.scaleUniform = false;
-        
-        Material[this.name] = this.constructor;
+    textureScale = 1;
+    receiveShadows = true;
+    castShadows = true;
+    scaleUniform = false;
+
+    constructor(attributes = {}) {
+        for(let attrb in attributes) {
+            this[attrb] = attributes[attrb];
+        }
     }
 
 }

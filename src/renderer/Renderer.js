@@ -55,6 +55,14 @@ export class Renderer extends GLContext {
 			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
+
+			new RenderPass(this, 'diffuse2', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'diffuse3', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'diffuse4', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'diffuse5', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'diffuse6', new ColorShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'diffuse7', new ColorShader(), this.aspectratio, this.width),
+
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
 		]
@@ -185,7 +193,7 @@ export class Renderer extends GLContext {
 			const pass = passes[i];
 			this.useTexture(pass.buffer, pass.id + "Buffer", i);
 		}
-		this.useTexture(this.getBufferTexture('depth'), 'depthBuffer', passes.length+1);
+		this.useTexture(this.getBufferTexture('diffuse.depth'), 'depthBuffer', passes.length+1);
 
 		this.gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 

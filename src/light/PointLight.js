@@ -1,19 +1,23 @@
-import { Cube } from "../geo/Cube";
+import { Guide } from "../geo/Guide";
 
-export class PointLight extends Cube {
+export class PointLight extends Guide {
 	
-	get isLight() { return true; }
+	get isLight() {
+		return true;
+	}
 
-	onCreate({
-		intensity = 2.0,
-		color = [1, 1, 1],
-		size = 10,
-	}) {
+	onCreate(args) {
+		super.onCreate(args);
+
+		const {
+			intensity = 2.0,
+			color = [1, 1, 1],
+			size = 10,
+		} = args;
+		
 		this.intensity = intensity;
 		this.color = color;
 		this.size = size;
-
-		this.scale = this.size * 0.33;
 	}
 
 }

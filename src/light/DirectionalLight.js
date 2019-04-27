@@ -3,7 +3,9 @@ import { Camera } from "../camera/Camera";
 
 export class DirectionalLight extends Camera {
 	
-	get isLight() { return true; }
+	get isLight() {
+		return true;
+	}
 
 	update() {
 		const projMatrix = this.projMatrix;

@@ -36,6 +36,14 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
+    scheduler = new Scheduler();
+
+    camera = new FirstPersonCamera({ 
+        fov: 90,
+        position: new Vec(0, -400, -2500),
+        rotation: new Vec(15, 0, 0),
+    });
+
     constructor() {
         super();
 
@@ -100,19 +108,12 @@ export default class Viewport extends HTMLElement {
             Loader.createMatFromJson(name, mats[name]);
         }
 
-        this.scheduler = new Scheduler();
+        this.scene = new Scene(this.camera);
 
         this.renderer = new Renderer(canvas);
-
-        this.camera = new FirstPersonCamera({ 
-            fov: 90,
-            position: new Vec(0, -400, -2500),
-            rotation: new Vec(15, 0, 0),
-        });
+        this.renderer.setScene(this.scene);
 
         const controler = new FirstPersonControler(this.camera, canvas);
-
-        this.createScene();
 
         const cursorControler = new CursorControler(this.scene.curosr, this);
         cursorControler.interaction = objID => {
@@ -136,17 +137,6 @@ export default class Viewport extends HTMLElement {
         } else {
             this.scene.curosr.hidden = true;
         }
-    }
-
-    createScene() {
-        const scene = new Scene({
-            camera: this.camera,
-        });
-
-        this.scene = scene;
-        this.renderer.setScene(scene);
-
-        return scene;
     }
 
 }

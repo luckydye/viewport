@@ -15,7 +15,7 @@ uniform bool fog;
 out vec4 oFragColor;
 
 void main(void) {
-    float depth = texture(depthBuffer, texCoords).r;
+    vec4 depth = texture(depthBuffer, texCoords);
     vec4 color = texture(diffuseBuffer, texCoords);
     vec4 light = texture(lightBuffer, texCoords);
     vec4 reflection = texture(reflectionBuffer, texCoords);
@@ -25,22 +25,21 @@ void main(void) {
     if(color.a > 0.0) {
         oFragColor = color;
     }
-    
+
     if(color.a > 0.0 && light.a > 0.0) {
         oFragColor *= light;
     }
+        
+    float fogValue = pow(depth.r, 600.0) * 0.15;
+    oFragColor += vec4(vec3(fogValue), 1.0);
 
+    // reflections
     if(color.a == 0.0) {
         oFragColor = vec4(reflection.rgb * vec3(0.4, 0.4, 0.5) + vec3(0.1, 0.15, 0.8), 1.0);
         oFragColor *= light;
     }
 
-    if(fog && color.a > 0.0) {
-        vec3 fogColor = vec3(0.04);
-        vec3 fogValue = vec3(pow(depth, 150.0)) * fogColor;
-        oFragColor += vec4(fogValue, 1.0) * 2.0;
-    }
-
+    // guides
 	if(guides.a != 0.0) {
         if(color.a > 0.0) {
             // inside geometry
@@ -53,4 +52,6 @@ void main(void) {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
+
+    // oFragColor = light;
 }

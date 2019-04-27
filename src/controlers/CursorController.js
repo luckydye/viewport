@@ -24,18 +24,18 @@ export class CursorControler extends EntityControler {
             if(hovering) {
                 this.interaction(selected);
                 moving = selected == 1;
+            }
 
-                if(!moving) {
-                    for(let obj of scene.objects) {
-                        if(obj.id == selected) {
-                            this.viewport.setCursor(obj);
-                
-                            this.lastAction.target = curosr;
-                            this.lastAction.property = 'position';
-                            this.lastAction.state = new Vec(curosr.position);
+            if(!moving) {
+                for(let obj of scene.objects) {
+                    if(obj.id == selected) {
+                        this.viewport.setCursor(obj);
+            
+                        this.lastAction.target = curosr;
+                        this.lastAction.property = 'position';
+                        this.lastAction.state = new Vec(curosr.position);
 
-                            this.interaction(selected);
-                        }
+                        this.interaction(selected);
                     }
                 }
             }
