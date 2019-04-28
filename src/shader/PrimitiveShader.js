@@ -1,4 +1,4 @@
-import { GLShader } from './GLShader.js';
+import { GLShader } from '../renderer/GLShader';
 import { Resources } from '../Resources.js';
 
 export default class PickingShader extends GLShader {

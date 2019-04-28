@@ -1,4 +1,5 @@
 import { EntityControler } from "./EntityControler";
+import { Vec } from "../Math";
 
 export class FirstPersonControler extends EntityControler {
 
@@ -80,7 +81,6 @@ export class FirstPersonControler extends EntityControler {
 
 				entity.rotation.x = entity.rotation.x % (Math.PI * 2);
 				entity.rotation.y = entity.rotation.y % (Math.PI * 2);
-				entity.rotation.z = entity.rotation.z % (Math.PI * 2);
 
 				entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
 			}

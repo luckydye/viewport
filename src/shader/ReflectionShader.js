@@ -1,4 +1,4 @@
-import { GLShader } from './GLShader.js';
+import { GLShader } from '../renderer/GLShader';
 
 export default class ReflectionShader extends GLShader {
 

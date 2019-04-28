@@ -12,10 +12,6 @@ export class EntityControler {
 		this.initMouse();
 	}
 
-	update() {
-		// interface update method
-	}
-
 	lock() {
 		this.locked = true;
 	}

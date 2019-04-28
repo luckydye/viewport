@@ -44,7 +44,6 @@ export class Renderer extends GLContext {
 	}
 
     onCreate() {
-
 		this.renderTarget = new Plane({ material: null });
 
 		this.setResolution(...Renderer.defaults.resolution);
@@ -72,17 +71,18 @@ export class Renderer extends GLContext {
 
 		const frameTime = performance.now();
 
-		// update animated textures
-		for(let geo of this.scene.objects) {
-			if(geo.material && geo.material.animated) {
-				this.updateTexture(geo.material.texture.gltexture, geo.material.texture.image);
-			}
-		}
-
-		this.renderMultiPasses(this.renderPasses);
-		this.compositePasses(this.renderPasses);
-
 		if(this.lastFrameTime) {
+			
+			// update textures
+			for(let geo of this.scene.objects) {
+				if(geo.material && geo.material.animated) {
+					this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
+				}
+			}
+
+			this.renderMultiPasses(this.renderPasses);
+			this.compositePasses(this.renderPasses);
+
 			this.frameTime = frameTime - this.lastFrameTime;
 		}
 		this.lastFrameTime = frameTime;
@@ -107,7 +107,7 @@ export class Renderer extends GLContext {
 					break;
 
 				case "light":
-					this.useTexture(this.getBufferTexture('shadow'), "shadowDepthMap", 0);
+					this.useTextureBuffer(this.getBufferTexture('shadow'), this.gl.TEXTURE_2D, "shadowDepthMap", 0);
 					gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 					this.drawScene(this.scene, camera, obj => {
 						return obj.material.receiveShadows;
@@ -149,7 +149,7 @@ export class Renderer extends GLContext {
 				}
 			}
 		}
-
+		
 		this.clearFramebuffer();
 	}
 
@@ -183,9 +183,9 @@ export class Renderer extends GLContext {
 			
 		for(let i in passes) {
 			const pass = passes[i];
-			this.useTexture(pass.buffer, pass.id + "Buffer", i);
+			this.useTextureBuffer(pass.buffer, this.gl.TEXTURE_2D, pass.id + "Buffer", i);
 		}
-		this.useTexture(this.getBufferTexture('diffuse.depth'), 'depthBuffer', passes.length+1);
+		this.useTextureBuffer(this.getBufferTexture('diffuse.depth'), this.gl.TEXTURE_2D, 'depthBuffer', passes.length+1);
 
 		this.gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 
@@ -194,11 +194,74 @@ export class Renderer extends GLContext {
 		this.gl.clearColor(0, 0, 0, 0);
 	}
 
+	renderCubemap(cubemap, camera) {
+		const gl = this.gl;
+
+		const initial = new Vec(camera.rotation);
+
+		const shader = new ColorShader();
+		this.prepareShader(shader);
+		this.useShader(shader);
+
+		const texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		for(let f = 0; f < 6; f++) {
+			const target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + f;
+			gl.texImage2D(target, 0, gl.RGBA, cubemap.width, cubemap.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		}
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+		const faces = [
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, rotation: new Vec(0, 180 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_X, rotation: new Vec(0, 0, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, rotation: new Vec(-90 / 180 * Math.PI, 270 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, rotation: new Vec(90 / 180 * Math.PI, 270 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, rotation: new Vec(0, 90 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, rotation: new Vec(0, 270 / 180 * Math.PI, 0) },
+		];
+
+		cubemap.gltexture = texture;
+
+		const fbo = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+		for(let face of faces) {
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, face.target, texture, 0);
+
+			camera.rotation.x = face.rotation.x;
+			camera.rotation.y = face.rotation.y;
+			camera.rotation.z = face.rotation.z;
+			camera.fov = 90;
+
+			this.setResolution(cubemap.width, cubemap.height);
+			this.updateViewport();
+
+			this.clear();
+			this.drawScene(this.scene, camera);
+		}
+
+		camera.rotation.x = initial.x;
+		camera.rotation.y = initial.y;
+		camera.rotation.z = initial.z;
+		camera.fov = 90;
+
+		this.setResolution(window.innerWidth, window.innerHeight);
+		this.updateViewport();
+	}
+
 	// give texture a .gltexture
 	prepareTexture(texture) {
 		if(!texture.gltexture) {
-			texture.gltexture = this.createTexture(texture.image || null);
+			texture.gltexture = this.createTexture(texture.image);
 		}
+	}
+
+	// use a Texture
+	useTexture(texture, uniformStr, slot) {
+		const gltexture = texture ? texture.gltexture : null;
+		const type = texture ? this.gl[texture.type] : null;
+		this.useTextureBuffer(gltexture, type, uniformStr, slot);
 	}
 
 	// give material attributes to shader
@@ -207,18 +270,13 @@ export class Renderer extends GLContext {
 		const reflectionMap = material.reflectionMap;
 		const displacementMap = material.displacementMap;
 
-		this.useTexture(null, "colorTexture", 1);
-		this.useTexture(null, "reflectionMap", 2);
-		this.useTexture(null, "displacementMap", 3);
-
 		this.prepareTexture(colorTexture);
-		this.useTexture(colorTexture.gltexture, "colorTexture", 1);
-
 		this.prepareTexture(reflectionMap);
-		this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
-
 		this.prepareTexture(displacementMap);
-		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
+		
+		this.useTexture(colorTexture, "colorTexture", 1);
+		this.useTexture(reflectionMap, "reflectionMap", 2);
+		this.useTexture(displacementMap, "displacementMap", 3);
 
 		shader.setUniforms(this.gl, material, 'material');
 	}
@@ -256,6 +314,10 @@ export class Renderer extends GLContext {
 			camera.worldPosition.y,
 			camera.worldPosition.z,
 		]);
+
+		if(this.scene.cubemap) {
+			this.useTexture(this.scene.cubemap, 'cubemap', 5);
+		}
 	}
 
 	drawScene(scene, camera, filter) {

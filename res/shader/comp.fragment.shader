@@ -56,4 +56,6 @@ void main(void) {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
+
+    // oFragColor = light;
 }

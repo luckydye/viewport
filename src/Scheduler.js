@@ -2,8 +2,6 @@ export class Scheduler {
 
     static timer(timer, callback) {
         let accumulator = 0;
-        
-        callback(0);
 
         return function(deltaTime) {
             accumulator += deltaTime;

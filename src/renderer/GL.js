@@ -1,4 +1,4 @@
-import { GLShader } from "../shader/GLShader";
+import { GLShader } from "./GLShader";
 
 export class GLContext {
 
@@ -86,23 +86,23 @@ export class GLContext {
 		this.currentShader = shader;
 	}
 
-	// use framebuffer
-	useTexture(texture, uniformStr, slot) {
-		if(uniformStr && slot != null) {
+	// use webgl texture
+	useTextureBuffer(gltexture, type, uniformStr, slot) {
+		if(uniformStr) {
 			this.gl.activeTexture(this.gl["TEXTURE" + slot]);
-			this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+			this.gl.bindTexture(type, gltexture);
 			this.gl.uniform1i(this.currentShader.uniforms[uniformStr], slot);
 		} else {
-			this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+			this.gl.bindTexture(type, gltexture);
 		}
 	}
 
 	// use framebuffer
-	useFramebuffer(name) {
-		if(this.framebuffers.has(name)) {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(name));
+	useFramebuffer(nameOrFBO) {
+		if(this.framebuffers.has(nameOrFBO)) {
+			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(nameOrFBO));
 		} else {
-			console.error("Err:", name, "framebuffer not found");
+			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, nameOrFBO);
 		}
 	}
 
@@ -195,36 +195,55 @@ export class GLContext {
 	createFramebuffer(name, width, height) {
 		const gl = this.gl;
 
-		const fbo = this.gl.createFramebuffer();
+		const fbo = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 		this.framebuffers.set(name, fbo);
 
+		let textures = {
+			color: null,
+			depth: null,
+		}
+
 		return {
+			get colorTexture() {
+				return textures.color;
+			},
+			get depthTexture() {
+				return textures.depth;
+			},
+
 			colorbuffer: () => {
 				const renderTraget = this.createBufferTexture(width, height);
-				this.useTexture(renderTraget);
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTraget, 0);
-				this.bufferTextures.set(name, renderTraget);
 
 				const depthTexture = this.createDepthTexture(width, height);
-				this.useTexture(depthTexture);
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
-				this.bufferTextures.set(name + '.depth', depthTexture);
+
+				textures.color = renderTraget;
+				textures.depth = depthTexture;
+
+				if(name) {
+					this.bufferTextures.set(name + '.depth', textures.depth);
+					this.bufferTextures.set(name, textures.color);
+				}
 				
 				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-				this.useTexture(null);
+
+				return fbo;
 			},
 
 			depthbuffer: () => {
 				const depthTexture = this.createDepthTexture(width, height);
-				this.useTexture(depthTexture);
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
-				
 				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-				this.useTexture(null);
 
-				this.bufferTextures.set(name, depthTexture);
-				this.framebuffers.set(name, fbo);
+				textures.depth = depthTexture;
+
+				if(name) {
+					this.bufferTextures.set(name, textures.depth);
+				}
+
+				return fbo;
 			}
 		}
 	}
@@ -281,7 +300,7 @@ export class GLContext {
 	}
 
 	// update webgl texture
-	updateTexture(texture, image) {
+	updateTextureBuffer(texture, image) {
 		const gl = this.gl;
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);

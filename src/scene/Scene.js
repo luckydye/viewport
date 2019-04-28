@@ -48,7 +48,7 @@ export class Scene {
 	}
 
 	update(ms) {
-		this.activeCamera.update();
+		this.activeCamera.update(ms);
 
 		for(let obj of this._objects) {
 			if(obj.update) {

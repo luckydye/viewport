@@ -1,5 +1,5 @@
 import { Resources } from '../Resources.js';
-import { GLShader } from './GLShader.js';
+import { GLShader } from '../renderer/GLShader';
 
 export default class MattShader extends GLShader {
 

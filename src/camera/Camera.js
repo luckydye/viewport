@@ -127,6 +127,7 @@ export class Camera extends Geometry {
 
 		mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
 		mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
+		mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.z);
 		
 		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 	}

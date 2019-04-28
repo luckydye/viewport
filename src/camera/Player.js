@@ -1,9 +1,12 @@
 import { mat4, vec3 } from "gl-matrix";
-import { Camera } from "./Camera";
+import { FirstPersonCamera } from "./FirstPersonCamera";
+import { Vec } from "../Math";
 
-export class FirstPersonCamera extends Camera {
+export class Player extends FirstPersonCamera {
 
-    update() {
+	velocity = new Vec();
+
+    update(dt = 0) {
 		const projMatrix = this.projMatrix;
 		const viewMatrix = this.viewMatrix;
 		const camera = this;
@@ -11,13 +14,26 @@ export class FirstPersonCamera extends Camera {
 		const ar = this.sensor.width / this.sensor.height;
         mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 		
+		if(this.velocity) {
+			this.velocity.y += dt * 0.25;
+			this.position.y += this.velocity.y;
+		
+			if(this.position.y > -300) {
+				this.position.y = -300;
+				this.velocity.y = 0;
+				this.airborn = false;
+			} else {
+				this.airborn = true;
+			}
+		}
+
 		// view
 
 		mat4.lookAt(
 			viewMatrix, 
 			vec3.fromValues(0, 0, 0),
 			camera.lookAt, 
-			vec3.fromValues(0, 0, 0)
+			vec3.fromValues(0, 1, 0)
 		);
 
 		mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);

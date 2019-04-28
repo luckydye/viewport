@@ -1,4 +1,4 @@
-import { GLShader } from './GLShader.js';
+import { GLShader } from '../renderer/GLShader.js';
 import { Resources } from '../Resources.js';
 
 Resources.add({
