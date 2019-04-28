@@ -10613,7 +10613,7 @@ function () {
 
 exports.GLContext = GLContext;
 },{"../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
-module.exports = "comp.fragment.ec704667.shader";
+module.exports = "/comp.fragment.ec704667.shader";
 },{}],"../../src/shader/FinalShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10676,9 +10676,9 @@ function (_GLShader) {
 
 exports.default = FinalShader;
 },{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js","../../res/shader/comp.fragment.shader":"../../res/shader/comp.fragment.shader"}],"../../res/shader/gbuffer.vertex.shader":[function(require,module,exports) {
-module.exports = "gbuffer.vertex.4d1e9fd6.shader";
+module.exports = "/gbuffer.vertex.4d1e9fd6.shader";
 },{}],"../../res/shader/color.fragment.shader":[function(require,module,exports) {
-module.exports = "color.fragment.4ea89914.shader";
+module.exports = "/color.fragment.4ea89914.shader";
 },{}],"../../src/shader/ColorShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10742,7 +10742,7 @@ function (_GLShader) {
 
 exports.default = ColorShader;
 },{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/color.fragment.shader":"../../res/shader/color.fragment.shader"}],"../../res/shader/light.fragment.shader":[function(require,module,exports) {
-module.exports = "light.fragment.7fb90ce8.shader";
+module.exports = "/light.fragment.7fb90ce8.shader";
 },{}],"../../src/shader/LightShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -11796,7 +11796,7 @@ function (_Camera) {
 
 exports.DirectionalLight = DirectionalLight;
 },{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
-module.exports = "cursor.021979eb.obj";
+module.exports = "/cursor.021979eb.obj";
 },{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
 "use strict";
 
@@ -12607,7 +12607,7 @@ function (_Guide) {
 
 exports.PointLight = PointLight;
 },{"../geo/Guide":"../../src/geo/Guide.js"}],"../../res/models/sphere.obj":[function(require,module,exports) {
-module.exports = "sphere.088f4791.obj";
+module.exports = "/sphere.088f4791.obj";
 },{}],"../../src/geo/Sphere.js":[function(require,module,exports) {
 "use strict";
 
@@ -12667,7 +12667,7 @@ function (_Geometry) {
 
 exports.Sphere = Sphere;
 },{"../scene/Geometry.js":"../../src/scene/Geometry.js","../Resources.js":"../../src/Resources.js","../Loader.js":"../../src/Loader.js","../../res/models/sphere.obj":"../../res/models/sphere.obj"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
-module.exports = "placeholder_256.33ec6945.png";
+module.exports = "/placeholder_256.33ec6945.png";
 },{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
 "use strict";
 
@@ -12911,7 +12911,7 @@ function () {
 
 exports.Keyframe = Keyframe;
 },{"./Scheduler":"../../src/Scheduler.js"}],"../../res/textures/test.png":[function(require,module,exports) {
-module.exports = "test.867bfcb1.png";
+module.exports = "/test.867bfcb1.png";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -13037,7 +13037,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56858" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56969" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -13213,4 +13213,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
-//# sourceMappingURL=main.1f19ae8e.js.map
+//# sourceMappingURL=/main.1f19ae8e.js.map
