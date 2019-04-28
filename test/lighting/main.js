@@ -103,8 +103,10 @@ Test.viewportTest(resources, viewport => {
     scene.add([
 
         new Plane({
+            position: new Vec(0, -0.5, 0),
             material: new DefaultMaterial({ 
-                diffuseColor: [0.25, 0.25, 0.25]
+                diffuseColor: [0.25, 0.25, 0.25],
+                specular: 0
             }),
             rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
             scale: 20000

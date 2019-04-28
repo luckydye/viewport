@@ -1,1 +1,1 @@
-parcel ./test/%1/index.html --no-cache -d demo %2
+parcel ./test/%1/index.html --no-cache -d dist
