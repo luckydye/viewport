@@ -25,7 +25,19 @@ Test.viewportTest(resources, viewport => {
             position: new Vec(380, 1200, -830),
             color: [0, 1, 0],
         }),
+        new PointLight({
+            position: new Vec(-380, 1200, 830),
+            color: [0, 0, 1],
+        }),
     ]
+
+    const anim3 = new Animation(lights[2], 'position', 1000, true);
+    anim3.setKeyframes([
+        new Vec(-1000, 1800, 1030),
+        new Vec(-380, 1000, 600),
+        new Vec(-1000, 1800, 1030),
+    ]);
+    viewport.scheduler.addTask(anim3);
 
     const anim = new Animation(lights[1], 'position', 2000, true);
     anim.setKeyframes([
@@ -48,43 +60,43 @@ Test.viewportTest(resources, viewport => {
             position: new Vec(200, 800, 150),
             material: new DefaultMaterial(),
             scale: 20,
-            id: 20
+            id: 10
         }),
         new Cube({
             position: new Vec(-150, 650, 160),
             material: new DefaultMaterial(),
             scale: 5,
-            id: 50
+            id: 20
         }),
         new Cube({
             position: new Vec(-30, 700, -180),
             material: new DefaultMaterial(),
             scale: 10,
-            id: 50
+            id: 30
         }),
         new Cube({
             position: new Vec(-400, 1080, -180),
             material: new DefaultMaterial(),
             scale: 8,
-            id: 50
+            id: 40
         }),
         new Cube({
             position: new Vec(0, 300, 0),
             material: new DefaultMaterial(),
             scale: 30,
-            id: 10
+            id: 50
         }),
         new Cube({
             position: new Vec(-400, 800, -200),
             material: new DefaultMaterial(),
             scale: 20,
-            id: 30
+            id: 60
         }),
         new Cube({
             position: new Vec(-100, 1150, 0),
             material: new DefaultMaterial(),
             scale: 15,
-            id: 40
+            id: 70
         }),
     ];
 
@@ -102,6 +114,7 @@ Test.viewportTest(resources, viewport => {
             material: new TestMaterial(),
             position: new Vec(200, 700, -200),
             scale: 100,
+            id: 80
         }),
 
         ...lights, 

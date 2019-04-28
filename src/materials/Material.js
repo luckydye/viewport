@@ -13,11 +13,14 @@ export class Material {
     diffuseColor = [1, 1, 1];
     transparency = 0;
     reflection = 0;
-    emission = 0;
+    specular = 0.25;
+    roughness = 32;
 
     textureScale = 1;
+
     receiveShadows = true;
     castShadows = true;
+    
     scaleUniform = false;
 
     constructor(attributes = {}) {

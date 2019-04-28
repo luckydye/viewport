@@ -82,7 +82,7 @@ export class GLContext {
 	// use webgl shader
 	useShader(shader) {
 		this.gl.useProgram(shader.program);
-		shader.setUniforms(this.gl);
+		shader.setUniforms(this.gl, shader.uniform);
 		this.currentShader = shader;
 	}
 
@@ -130,7 +130,7 @@ export class GLContext {
 				shader._uniforms = this.getUniforms(shader.program);
 				shader._attributes = this.getAttributes(shader.program);
 				
-				shader._initialized = true;
+				shader.initialized = true;
 			}
 
 			this.shaders.set(shader.name, shader);
@@ -197,24 +197,24 @@ export class GLContext {
 
 		const fbo = this.gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+		this.framebuffers.set(name, fbo);
 
 		return {
 			colorbuffer: () => {
 				const renderTraget = this.createBufferTexture(width, height);
 				this.useTexture(renderTraget);
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTraget, 0);
+				this.bufferTextures.set(name, renderTraget);
 
 				const depthTexture = this.createDepthTexture(width, height);
 				this.useTexture(depthTexture);
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+				this.bufferTextures.set(name + '.depth', depthTexture);
 				
 				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 				this.useTexture(null);
-
-				this.bufferTextures.set(name + '.depth', depthTexture);
-				this.bufferTextures.set(name, renderTraget);
-				this.framebuffers.set(name, fbo);
 			},
+
 			depthbuffer: () => {
 				const depthTexture = this.createDepthTexture(width, height);
 				this.useTexture(depthTexture);

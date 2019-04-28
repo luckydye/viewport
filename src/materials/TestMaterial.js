@@ -7,8 +7,6 @@ Resources.add({
 }, false);
 
 export default class TestMaterial extends Material {
-    
-    name = "TEST";
 
     texture = new Texture(Resources.get('texture256'));
 

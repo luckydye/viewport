@@ -8390,7 +8390,9 @@ function () {
 
     _defineProperty(this, "reflection", 0);
 
-    _defineProperty(this, "emission", 0);
+    _defineProperty(this, "specular", 0.25);
+
+    _defineProperty(this, "roughness", 32);
 
     _defineProperty(this, "textureScale", 1);
 
@@ -8452,8 +8454,6 @@ function (_Material) {
     }
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(DefaultMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-    _defineProperty(_assertThisInitialized(_this), "name", "DEFAULT");
 
     _defineProperty(_assertThisInitialized(_this), "receiveShadows", true);
 
@@ -10114,6 +10114,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GLShader = void 0;
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -10136,30 +10138,39 @@ function () {
 
     _defineProperty(this, "_attributes", null);
 
-    _defineProperty(this, "_uniform", {});
+    _defineProperty(this, "uniform", {});
 
-    _defineProperty(this, "_initialized", false);
+    _defineProperty(this, "initialized", false);
   }
 
   _createClass(GLShader, [{
     key: "setUniforms",
-    value: function setUniforms(gl) {
-      var uniforms = this.uniforms;
+    value: function setUniforms(gl, attributes, target) {
+      var uniforms = this._uniforms;
 
-      if (uniforms) {
-        for (var opt in this._uniform) {
-          var value = this._uniform[opt];
+      for (var key in attributes) {
+        var opt = key;
 
-          if (opt === "integer") {
-            for (var _opt in this._uniform.integer) {
-              gl.uniform1i(uniforms[_opt], this._uniform.integer[_opt]);
-            }
-          }
+        if (target != null) {
+          opt = target + '.' + key;
+        }
 
-          if (Array.isArray(value)) {
-            gl.uniform3fv(uniforms[opt], value);
-          } else {
-            gl.uniform1f(uniforms[opt], value);
+        var value = attributes[key];
+        var uniform = uniforms[opt];
+
+        if (Array.isArray(value)) {
+          gl.uniform3fv(uniform, value);
+        } else {
+          var type = _typeof(value);
+
+          switch (type) {
+            case 'number':
+              gl.uniform1f(uniform, value);
+              break;
+
+            case 'boolean':
+              gl.uniform1i(uniform, value);
+              break;
           }
         }
       }
@@ -10323,7 +10334,7 @@ function () {
     key: "useShader",
     value: function useShader(shader) {
       this.gl.useProgram(shader.program);
-      shader.setUniforms(this.gl);
+      shader.setUniforms(this.gl, shader.uniform);
       this.currentShader = shader;
     } // use framebuffer
 
@@ -10374,7 +10385,7 @@ function () {
           shader.program = this.createProgram(shader._vertShader, shader._fragShader);
           shader._uniforms = this.getUniforms(shader.program);
           shader._attributes = this.getAttributes(shader.program);
-          shader._initialized = true;
+          shader.initialized = true;
         }
 
         this.shaders.set(shader.name, shader);
@@ -10450,6 +10461,7 @@ function () {
       var gl = this.gl;
       var fbo = this.gl.createFramebuffer();
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+      this.framebuffers.set(name, fbo);
       return {
         colorbuffer: function colorbuffer() {
           var renderTraget = _this.createBufferTexture(width, height);
@@ -10458,20 +10470,19 @@ function () {
 
           gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTraget, 0);
 
+          _this.bufferTextures.set(name, renderTraget);
+
           var depthTexture = _this.createDepthTexture(width, height);
 
           _this.useTexture(depthTexture);
 
           gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
-          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-          _this.useTexture(null);
 
           _this.bufferTextures.set(name + '.depth', depthTexture);
 
-          _this.bufferTextures.set(name, renderTraget);
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-          _this.framebuffers.set(name, fbo);
+          _this.useTexture(null);
         },
         depthbuffer: function depthbuffer() {
           var depthTexture = _this.createDepthTexture(width, height);
@@ -10602,7 +10613,7 @@ function () {
 
 exports.GLContext = GLContext;
 },{"../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
-module.exports = "/comp.fragment.ec704667.shader";
+module.exports = "comp.fragment.ec704667.shader";
 },{}],"../../src/shader/FinalShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10665,9 +10676,9 @@ function (_GLShader) {
 
 exports.default = FinalShader;
 },{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js","../../res/shader/comp.fragment.shader":"../../res/shader/comp.fragment.shader"}],"../../res/shader/gbuffer.vertex.shader":[function(require,module,exports) {
-module.exports = "/gbuffer.vertex.4d1e9fd6.shader";
+module.exports = "gbuffer.vertex.4d1e9fd6.shader";
 },{}],"../../res/shader/color.fragment.shader":[function(require,module,exports) {
-module.exports = "/color.fragment.4ea89914.shader";
+module.exports = "color.fragment.4ea89914.shader";
 },{}],"../../src/shader/ColorShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10731,7 +10742,7 @@ function (_GLShader) {
 
 exports.default = ColorShader;
 },{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/color.fragment.shader":"../../res/shader/color.fragment.shader"}],"../../res/shader/light.fragment.shader":[function(require,module,exports) {
-module.exports = "/light.fragment.7fb90ce8.shader";
+module.exports = "light.fragment.7fb90ce8.shader";
 },{}],"../../src/shader/LightShader.js":[function(require,module,exports) {
 "use strict";
 
@@ -10787,8 +10798,8 @@ function (_GLShader) {
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(LightShader)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_this), "_uniform", {
-      uAmbientColor: [0.75, 0.75, 0.75],
+    _defineProperty(_assertThisInitialized(_this), "uniform", {
+      ambientcolor: [0.5, 0.5, 0.5],
       shadowcolor: 0.15
     });
 
@@ -11032,7 +11043,7 @@ function (_GLContext) {
       });
       this.setResolution.apply(this, _toConsumableArray(Renderer.defaults.resolution));
       this.shadowMapSize = 4096;
-      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse2', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse3', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse4', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse5', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse6', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse7', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
+      this.renderPasses = [new RenderPass(this, 'shadow', new _ColorShader.default(), this.aspectratio, this.shadowMapSize, true), new RenderPass(this, 'light', new _LightShader.default(), this.aspectratio, this.width), new RenderPass(this, 'diffuse', new _ColorShader.default(), this.aspectratio, this.width), new RenderPass(this, 'guides', new _PrimitiveShader.default(), this.aspectratio, this.width), new RenderPass(this, 'id', new _MattShader.default(), this.aspectratio, this.width)];
       this.compShader = new _FinalShader.default();
       this.prepareShader(this.compShader);
       this.readings = {};
@@ -11264,13 +11275,7 @@ function (_GLContext) {
       this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
       this.prepareTexture(displacementMap);
       this.useTexture(displacementMap.gltexture, "displacementMap", 3);
-      this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
-      this.gl.uniform1f(shader.uniforms.selected, material.selected);
-      this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
-      this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
-      this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
-      this.gl.uniform1f(shader.uniforms.reflection, material.reflection);
-      this.gl.uniform1f(shader.uniforms.transparency, material.transparency);
+      shader.setUniforms(this.gl, material, 'material');
     }
   }, {
     key: "setupGemoetry",
@@ -11304,6 +11309,7 @@ function (_GLContext) {
     value: function setupScene(shader, camera) {
       this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
       this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+      this.gl.uniform3fv(shader.uniforms.cameraPosition, [camera.worldPosition.x, camera.worldPosition.y, camera.worldPosition.z]);
     }
   }, {
     key: "drawScene",
@@ -11343,6 +11349,7 @@ function (_GLContext) {
         }
       }
 
+      this.gl.uniform1i(shader.uniforms.lightCount, lightCount);
       var _iteratorNormalCompletion4 = true;
       var _didIteratorError4 = false;
       var _iteratorError4 = undefined;
@@ -11450,7 +11457,7 @@ function () {
     this.shader = shader;
     this.renderer = renderer;
 
-    if (!shader._initialized) {
+    if (!shader.initialized) {
       this.renderer.prepareShader(shader);
     }
 
@@ -11522,17 +11529,15 @@ function (_Material) {
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(PrimitivetMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-    _defineProperty(_assertThisInitialized(_this), "name", "PRIMITIVE");
-
     _defineProperty(_assertThisInitialized(_this), "diffuseColor", [0.5, 0.5, 0.5]);
 
     _defineProperty(_assertThisInitialized(_this), "transparency", 0.5);
 
+    _defineProperty(_assertThisInitialized(_this), "scaleUniform", true);
+
     _defineProperty(_assertThisInitialized(_this), "receiveShadows", false);
 
     _defineProperty(_assertThisInitialized(_this), "castShadows", false);
-
-    _defineProperty(_assertThisInitialized(_this), "scaleUniform", true);
 
     _defineProperty(_assertThisInitialized(_this), "selected", false);
 
@@ -11791,7 +11796,7 @@ function (_Camera) {
 
 exports.DirectionalLight = DirectionalLight;
 },{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
-module.exports = "/cursor.021979eb.obj";
+module.exports = "cursor.021979eb.obj";
 },{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
 "use strict";
 
@@ -11922,7 +11927,7 @@ function () {
 
     this.lightSources = new _DirectionalLight.DirectionalLight({
       fov: 90,
-      position: new _Math.Vec(1000, 0, -10000),
+      position: new _Math.Vec(1000, 0, -8000),
       rotation: new _Math.Vec(50, 40, 0)
     });
     this.activeCamera = camera;
@@ -12602,7 +12607,7 @@ function (_Guide) {
 
 exports.PointLight = PointLight;
 },{"../geo/Guide":"../../src/geo/Guide.js"}],"../../res/models/sphere.obj":[function(require,module,exports) {
-module.exports = "/sphere.088f4791.obj";
+module.exports = "sphere.088f4791.obj";
 },{}],"../../src/geo/Sphere.js":[function(require,module,exports) {
 "use strict";
 
@@ -12662,7 +12667,7 @@ function (_Geometry) {
 
 exports.Sphere = Sphere;
 },{"../scene/Geometry.js":"../../src/scene/Geometry.js","../Resources.js":"../../src/Resources.js","../Loader.js":"../../src/Loader.js","../../res/models/sphere.obj":"../../res/models/sphere.obj"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
-module.exports = "/placeholder_256.33ec6945.png";
+module.exports = "placeholder_256.33ec6945.png";
 },{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
 "use strict";
 
@@ -12714,8 +12719,6 @@ function (_Material) {
     }
 
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TestMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-    _defineProperty(_assertThisInitialized(_this), "name", "TEST");
 
     _defineProperty(_assertThisInitialized(_this), "texture", new _Texture.Texture(_Resources.Resources.get('texture256')));
 
@@ -12908,7 +12911,7 @@ function () {
 
 exports.Keyframe = Keyframe;
 },{"./Scheduler":"../../src/Scheduler.js"}],"../../res/textures/test.png":[function(require,module,exports) {
-module.exports = "/test.867bfcb1.png";
+module.exports = "test.867bfcb1.png";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -12944,7 +12947,13 @@ _Test.default.viewportTest(resources, function (viewport) {
   }), new _PointLight.PointLight({
     position: new _Math.Vec(380, 1200, -830),
     color: [0, 1, 0]
+  }), new _PointLight.PointLight({
+    position: new _Math.Vec(-380, 1200, 830),
+    color: [0, 0, 1]
   })];
+  var anim3 = new _Animation.Animation(lights[2], 'position', 1000, true);
+  anim3.setKeyframes([new _Math.Vec(-1000, 1800, 1030), new _Math.Vec(-380, 1000, 600), new _Math.Vec(-1000, 1800, 1030)]);
+  viewport.scheduler.addTask(anim3);
   var anim = new _Animation.Animation(lights[1], 'position', 2000, true);
   anim.setKeyframes([new _Math.Vec(380, 1200, -830), new _Math.Vec(380, 200, -830), new _Math.Vec(380, 1200, -830)]);
   viewport.scheduler.addTask(anim);
@@ -12955,37 +12964,37 @@ _Test.default.viewportTest(resources, function (viewport) {
     position: new _Math.Vec(200, 800, 150),
     material: new _DefaultMaterial.default(),
     scale: 20,
-    id: 20
+    id: 10
   }), new _Cube.Cube({
     position: new _Math.Vec(-150, 650, 160),
     material: new _DefaultMaterial.default(),
     scale: 5,
-    id: 50
+    id: 20
   }), new _Cube.Cube({
     position: new _Math.Vec(-30, 700, -180),
     material: new _DefaultMaterial.default(),
     scale: 10,
-    id: 50
+    id: 30
   }), new _Cube.Cube({
     position: new _Math.Vec(-400, 1080, -180),
     material: new _DefaultMaterial.default(),
     scale: 8,
-    id: 50
+    id: 40
   }), new _Cube.Cube({
     position: new _Math.Vec(0, 300, 0),
     material: new _DefaultMaterial.default(),
     scale: 30,
-    id: 10
+    id: 50
   }), new _Cube.Cube({
     position: new _Math.Vec(-400, 800, -200),
     material: new _DefaultMaterial.default(),
     scale: 20,
-    id: 30
+    id: 60
   }), new _Cube.Cube({
     position: new _Math.Vec(-100, 1150, 0),
     material: new _DefaultMaterial.default(),
     scale: 15,
-    id: 40
+    id: 70
   })];
   scene.add([new _Plane.Plane({
     material: new _DefaultMaterial.default({
@@ -12996,7 +13005,8 @@ _Test.default.viewportTest(resources, function (viewport) {
   }), new _Sphere.Sphere({
     material: new _TestMaterial.default(),
     position: new _Math.Vec(200, 700, -200),
-    scale: 100
+    scale: 100,
+    id: 80
   })].concat(lights, cubes));
 });
 },{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../res/textures/test.png":"../../res/textures/test.png"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -13027,7 +13037,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62074" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56858" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -13203,4 +13213,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
-//# sourceMappingURL=/main.1f19ae8e.js.map
+//# sourceMappingURL=main.1f19ae8e.js.map

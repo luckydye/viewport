@@ -1,6 +1,8 @@
 #version 300 es
 precision mediump float;
 
+#define FOG true
+
 in vec2 texCoords;
 
 uniform sampler2D depthBuffer;
@@ -29,14 +31,16 @@ void main(void) {
     if(color.a > 0.0 && light.a > 0.0) {
         oFragColor *= light;
     }
-        
-    float fogValue = pow(depth.r, 600.0) * 0.15;
-    oFragColor += vec4(vec3(fogValue), 1.0);
 
     // reflections
     if(color.a == 0.0) {
         oFragColor = vec4(reflection.rgb * vec3(0.4, 0.4, 0.5) + vec3(0.1, 0.15, 0.8), 1.0);
         oFragColor *= light;
+    }
+    
+    if(FOG) {
+        float fogValue = pow(depth.r, 600.0) * 0.15;
+        oFragColor += vec4(vec3(fogValue), 1.0);
     }
 
     // guides
@@ -52,6 +56,4 @@ void main(void) {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
-
-    // oFragColor = light;
 }

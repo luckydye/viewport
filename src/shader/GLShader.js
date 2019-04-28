@@ -22,23 +22,33 @@ export class GLShader {
 	_uniforms = null;
 	_attributes = null;
 
-	_uniform = {};
-	_initialized = false;
+	uniform = {};
+	initialized = false;
 
-	setUniforms(gl) {
-		const uniforms = this.uniforms;
-		if(uniforms) {
-			for(let opt in this._uniform) {
-				const value = this._uniform[opt];
-				if(opt === "integer") {
-					for(let opt in this._uniform.integer) {
-						gl.uniform1i(uniforms[opt], this._uniform.integer[opt]);
-					}
-				}
-				if(Array.isArray(value)) {
-					gl.uniform3fv(uniforms[opt], value);
-				} else {
-					gl.uniform1f(uniforms[opt], value);
+	setUniforms(gl, attributes, target) {
+		const uniforms = this._uniforms;
+
+		for(let key in attributes) {
+			let opt = key;
+
+			if(target != null) {
+				opt = target + '.' + key;
+			}
+
+			const value = attributes[key];
+			const uniform = uniforms[opt];
+
+			if(Array.isArray(value)) {
+				gl.uniform3fv(uniform, value);
+			} else {
+				const type = typeof value;
+				switch(type) {
+					case 'number':
+						gl.uniform1f(uniform, value);
+						break;
+					case 'boolean':
+						gl.uniform1i(uniform, value);
+						break;
 				}
 			}
 		}

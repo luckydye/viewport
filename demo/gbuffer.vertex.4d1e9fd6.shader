@@ -1,4 +1,5 @@
 #version 300 es
+precision mediump float;
 
 #define POINT_SIZE 5.0;
 
@@ -13,12 +14,21 @@ struct SceneProjection {
 	mat4 view;
 	mat4 projection;
 };
-
 uniform SceneProjection scene;
+
+struct Material {
+    vec3 diffuseColor;
+    float specular;
+    float roughness;
+    float transparency;
+    float textureScale;
+    bool scaleUniform;
+};
+uniform Material material;
+
 uniform sampler2D displacementMap;
 uniform mat4 lightProjViewMatrix;
 uniform float geoid;
-uniform bool scaleUniform;
 
 out vec2 vTexCoords;
 out vec4 vWorldPos;
@@ -30,7 +40,7 @@ out float id;
 
 void main() {
 	float uniformSacle = 1.0;
-	if(scaleUniform) {
+	if(material.scaleUniform) {
 		uniformSacle = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
 	}
 

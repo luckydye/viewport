@@ -5,34 +5,37 @@ in vec2 vTexCoords;
 in vec3 vNormal;
 in float id;
 
+struct Material {
+    vec3 diffuseColor;
+    float specular;
+    float roughness;
+    float transparency;
+    float textureScale;
+    bool scaleUniform;
+};
+uniform Material material;
+
 uniform sampler2D colorTexture;
 uniform sampler2D reflectionMap;
-
-uniform bool textureized;
-uniform float textureScale;
-uniform float transparency;
-uniform vec3 diffuseColor;
 
 out vec4 oFragColor;
 
 void main() {
     vec2 imageSize = vec2(textureSize(colorTexture, 0));
-    vec2 textureCoords = vTexCoords / (imageSize.x / textureScale);
+    vec2 textureCoords = vTexCoords / (imageSize.x / material.textureScale);
 
-    if(textureized) {
-        vec4 textureColor = texture(colorTexture, textureCoords);
-        oFragColor = vec4(textureColor.rgb, 1.0 - transparency);
+    vec4 color = vec4(0.0);
+
+    vec4 tcolor = texture(colorTexture, textureCoords);
+    bool emptyTexture = (tcolor.r + tcolor.g + tcolor.b) == 0.0;
+
+    if(emptyTexture) {
+        color += vec4(material.diffuseColor, 1.0 - material.transparency);
     } else {
-        oFragColor = vec4(diffuseColor, 1.0 - transparency);
+        color += tcolor;
     }
 
-    if(vNormal.y > 0.0) {
-        oFragColor += 0.05;
-    }
-
-    if(vNormal.x < 0.0) {
-        oFragColor += 0.05;
-    }
+    oFragColor = vec4(color.rgb, 1.0 - material.transparency);
 
     float reflectivenss = texture(reflectionMap, textureCoords).r;
     if(reflectivenss > 0.0 && vNormal.g > 0.99) {

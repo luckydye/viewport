@@ -55,14 +55,6 @@ export class Renderer extends GLContext {
 			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
-
-			new RenderPass(this, 'diffuse2', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse3', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse4', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse5', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse6', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse7', new ColorShader(), this.aspectratio, this.width),
-
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
 			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
 		]
@@ -105,7 +97,7 @@ export class Renderer extends GLContext {
 			const cullDefault = gl.isEnabled(gl.CULL_FACE);
 
 			pass.use();
-			
+
 			switch(pass.id) {
 
 				case "shadow":
@@ -228,13 +220,7 @@ export class Renderer extends GLContext {
 		this.prepareTexture(displacementMap);
 		this.useTexture(displacementMap.gltexture, "displacementMap", 3);
 
-		this.gl.uniform1f(shader.uniforms.textureized, colorTexture.img ? 1 : 0);
-		this.gl.uniform1f(shader.uniforms.selected, material.selected);
-		this.gl.uniform1f(shader.uniforms.scaleUniform, material.scaleUniform);
-		this.gl.uniform1f(shader.uniforms.textureScale, material.textureScale);
-		this.gl.uniform3fv(shader.uniforms.diffuseColor, material.diffuseColor);
-		this.gl.uniform1f(shader.uniforms.reflection, material.reflection);
-		this.gl.uniform1f(shader.uniforms.transparency, material.transparency);
+		shader.setUniforms(this.gl, material, 'material');
 	}
 
 	setupGemoetry(geo) {
@@ -264,6 +250,12 @@ export class Renderer extends GLContext {
 	setupScene(shader, camera) {
 		this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
 		this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+		
+		this.gl.uniform3fv(shader.uniforms.cameraPosition, [
+			camera.worldPosition.x,
+			camera.worldPosition.y,
+			camera.worldPosition.z,
+		]);
 	}
 
 	drawScene(scene, camera, filter) {
@@ -280,6 +272,7 @@ export class Renderer extends GLContext {
 					light.position.y,
 					light.position.z,
 				]);
+				
 				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].color"], light.color);
 				this.gl.uniform1f(shader.uniforms["pointLights["+lightCount+"].intensity"], light.intensity);
 				this.gl.uniform1f(shader.uniforms["pointLights["+lightCount+"].size"], light.size);
@@ -287,6 +280,8 @@ export class Renderer extends GLContext {
 			}
 		}
 
+		this.gl.uniform1i(shader.uniforms.lightCount, lightCount);
+		
 		for(let obj of objects) {
 			if(filter && filter(obj) || !filter) {
 				this.drawMesh(obj);
@@ -350,7 +345,7 @@ export class RenderPass {
 		this.shader = shader;
 		this.renderer = renderer;
 
-		if(!shader._initialized) {
+		if(!shader.initialized) {
 			this.renderer.prepareShader(shader);
         }
         
