@@ -8309,14 +8309,6 @@ var Texture =
 /*#__PURE__*/
 function () {
   _createClass(Texture, [{
-    key: "image",
-    get: function get() {
-      return this.img;
-    },
-    set: function set(image) {
-      this.img = image;
-    }
-  }, {
     key: "width",
     get: function get() {
       return this.image.width;
@@ -8331,13 +8323,13 @@ function () {
   function Texture(image) {
     _classCallCheck(this, Texture);
 
+    _defineProperty(this, "type", "TEXTURE_2D");
+
     _defineProperty(this, "gltexture", null);
 
     _defineProperty(this, "animated", false);
 
-    _defineProperty(this, "textureScale", 1);
-
-    this.image = image || null;
+    this.image = image;
     this.animated = image && image.localName === "video" || this.animated;
   }
 
@@ -8840,7 +8832,6 @@ function () {
     key: "timer",
     value: function timer(_timer, callback) {
       var accumulator = 0;
-      callback(0);
       return function (deltaTime) {
         accumulator += deltaTime;
 
@@ -9098,6 +9089,8 @@ function (_Geometry) {
 
       _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
 
+      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.z);
+
       _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
     }
   }]);
@@ -9158,7 +9151,7 @@ function (_Camera) {
       _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane); // view
 
 
-      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), camera.lookAt, _glMatrix.vec3.fromValues(0, 1, 0));
+      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), camera.lookAt, _glMatrix.vec3.fromValues(0, 0, 0));
 
       _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
 
@@ -9208,10 +9201,6 @@ function () {
   }
 
   _createClass(EntityControler, [{
-    key: "update",
-    value: function update() {// interface update method
-    }
-  }, {
     key: "lock",
     value: function lock() {
       this.locked = true;
@@ -9259,6 +9248,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.FirstPersonControler = void 0;
 
 var _EntityControler2 = require("./EntityControler");
+
+var _Math = require("../Math");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -9381,7 +9372,6 @@ function (_EntityControler) {
           entity.rotation.x += e.movementY * _this2.sensivity;
           entity.rotation.x = entity.rotation.x % (Math.PI * 2);
           entity.rotation.y = entity.rotation.y % (Math.PI * 2);
-          entity.rotation.z = entity.rotation.z % (Math.PI * 2);
           entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
         }
       };
@@ -9415,7 +9405,7 @@ function (_EntityControler) {
 }(_EntityControler2.EntityControler);
 
 exports.FirstPersonControler = FirstPersonControler;
-},{"./EntityControler":"../../src/controlers/EntityControler.js"}],"../../src/resources/File.js":[function(require,module,exports) {
+},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../src/resources/File.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10106,7 +10096,7 @@ _defineProperty(Plane, "attributes", [{
   size: 2,
   attribute: "aTexCoords"
 }]);
-},{"../scene/Geometry.js":"../../src/scene/Geometry.js"}],"../../src/shader/GLShader.js":[function(require,module,exports) {
+},{"../scene/Geometry.js":"../../src/scene/Geometry.js"}],"../../src/renderer/GLShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10220,7 +10210,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GLContext = void 0;
 
-var _GLShader = require("../shader/GLShader");
+var _GLShader = require("./GLShader");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10336,27 +10326,27 @@ function () {
       this.gl.useProgram(shader.program);
       shader.setUniforms(this.gl, shader.uniform);
       this.currentShader = shader;
-    } // use framebuffer
+    } // use webgl texture
 
   }, {
-    key: "useTexture",
-    value: function useTexture(texture, uniformStr, slot) {
-      if (uniformStr && slot != null) {
+    key: "useTextureBuffer",
+    value: function useTextureBuffer(gltexture, type, uniformStr, slot) {
+      if (uniformStr) {
         this.gl.activeTexture(this.gl["TEXTURE" + slot]);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.bindTexture(type, gltexture);
         this.gl.uniform1i(this.currentShader.uniforms[uniformStr], slot);
       } else {
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.bindTexture(type, gltexture);
       }
     } // use framebuffer
 
   }, {
     key: "useFramebuffer",
-    value: function useFramebuffer(name) {
-      if (this.framebuffers.has(name)) {
-        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(name));
+    value: function useFramebuffer(nameOrFBO) {
+      if (this.framebuffers.has(nameOrFBO)) {
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(nameOrFBO));
       } else {
-        console.error("Err:", name, "framebuffer not found");
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, nameOrFBO);
       }
     } // unbind framebuffer
 
@@ -10459,44 +10449,54 @@ function () {
       var _this = this;
 
       var gl = this.gl;
-      var fbo = this.gl.createFramebuffer();
+      var fbo = gl.createFramebuffer();
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
       this.framebuffers.set(name, fbo);
+      var textures = {
+        color: null,
+        depth: null
+      };
       return {
+        get colorTexture() {
+          return textures.color;
+        },
+
+        get depthTexture() {
+          return textures.depth;
+        },
+
         colorbuffer: function colorbuffer() {
           var renderTraget = _this.createBufferTexture(width, height);
 
-          _this.useTexture(renderTraget);
-
           gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTraget, 0);
-
-          _this.bufferTextures.set(name, renderTraget);
 
           var depthTexture = _this.createDepthTexture(width, height);
 
-          _this.useTexture(depthTexture);
-
           gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+          textures.color = renderTraget;
+          textures.depth = depthTexture;
 
-          _this.bufferTextures.set(name + '.depth', depthTexture);
+          if (name) {
+            _this.bufferTextures.set(name + '.depth', textures.depth);
+
+            _this.bufferTextures.set(name, textures.color);
+          }
 
           gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-          _this.useTexture(null);
+          return fbo;
         },
         depthbuffer: function depthbuffer() {
           var depthTexture = _this.createDepthTexture(width, height);
 
-          _this.useTexture(depthTexture);
-
           gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
           gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          textures.depth = depthTexture;
 
-          _this.useTexture(null);
+          if (name) {
+            _this.bufferTextures.set(name, textures.depth);
+          }
 
-          _this.bufferTextures.set(name, depthTexture);
-
-          _this.framebuffers.set(name, fbo);
+          return fbo;
         }
       };
     } // create shader program
@@ -10544,8 +10544,8 @@ function () {
     } // update webgl texture
 
   }, {
-    key: "updateTexture",
-    value: function updateTexture(texture, image) {
+    key: "updateTextureBuffer",
+    value: function updateTextureBuffer(texture, image) {
       var gl = this.gl;
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -10612,7 +10612,7 @@ function () {
 }();
 
 exports.GLContext = GLContext;
-},{"../shader/GLShader":"../../src/shader/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
+},{"./GLShader":"../../src/renderer/GLShader.js"}],"../../res/shader/comp.fragment.shader":[function(require,module,exports) {
 module.exports = "comp.fragment.ec704667.shader";
 },{}],"../../src/shader/FinalShader.js":[function(require,module,exports) {
 "use strict";
@@ -10622,7 +10622,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _GLShader2 = require("./GLShader.js");
+var _GLShader2 = require("../renderer/GLShader.js");
 
 var _Resources = require("../Resources.js");
 
@@ -10675,7 +10675,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = FinalShader;
-},{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js","../../res/shader/comp.fragment.shader":"../../res/shader/comp.fragment.shader"}],"../../res/shader/gbuffer.vertex.shader":[function(require,module,exports) {
+},{"../renderer/GLShader.js":"../../src/renderer/GLShader.js","../Resources.js":"../../src/Resources.js","../../res/shader/comp.fragment.shader":"../../res/shader/comp.fragment.shader"}],"../../res/shader/gbuffer.vertex.shader":[function(require,module,exports) {
 module.exports = "gbuffer.vertex.4d1e9fd6.shader";
 },{}],"../../res/shader/color.fragment.shader":[function(require,module,exports) {
 module.exports = "color.fragment.4ea89914.shader";
@@ -10689,7 +10689,7 @@ exports.default = void 0;
 
 var _Resources = require("../Resources.js");
 
-var _GLShader2 = require("./GLShader.js");
+var _GLShader2 = require("../renderer/GLShader.js");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -10741,7 +10741,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = ColorShader;
-},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/color.fragment.shader":"../../res/shader/color.fragment.shader"}],"../../res/shader/light.fragment.shader":[function(require,module,exports) {
+},{"../Resources.js":"../../src/Resources.js","../renderer/GLShader.js":"../../src/renderer/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/color.fragment.shader":"../../res/shader/color.fragment.shader"}],"../../res/shader/light.fragment.shader":[function(require,module,exports) {
 module.exports = "light.fragment.7fb90ce8.shader";
 },{}],"../../src/shader/LightShader.js":[function(require,module,exports) {
 "use strict";
@@ -10753,7 +10753,7 @@ exports.default = void 0;
 
 var _Resources = require("../Resources.js");
 
-var _GLShader2 = require("./GLShader.js");
+var _GLShader2 = require("../renderer/GLShader");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -10822,7 +10822,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = LightShader;
-},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/light.fragment.shader":"../../res/shader/light.fragment.shader"}],"../../src/shader/PrimitiveShader.js":[function(require,module,exports) {
+},{"../Resources.js":"../../src/Resources.js","../renderer/GLShader":"../../src/renderer/GLShader.js","../../res/shader/gbuffer.vertex.shader":"../../res/shader/gbuffer.vertex.shader","../../res/shader/light.fragment.shader":"../../res/shader/light.fragment.shader"}],"../../src/shader/PrimitiveShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10830,7 +10830,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _GLShader2 = require("./GLShader.js");
+var _GLShader2 = require("../renderer/GLShader");
 
 var _Resources = require("../Resources.js");
 
@@ -10879,7 +10879,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = PickingShader;
-},{"./GLShader.js":"../../src/shader/GLShader.js","../Resources.js":"../../src/Resources.js"}],"../../src/shader/MattShader.js":[function(require,module,exports) {
+},{"../renderer/GLShader":"../../src/renderer/GLShader.js","../Resources.js":"../../src/Resources.js"}],"../../src/shader/MattShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10889,7 +10889,7 @@ exports.default = void 0;
 
 var _Resources = require("../Resources.js");
 
-var _GLShader2 = require("./GLShader.js");
+var _GLShader2 = require("../renderer/GLShader");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -10936,7 +10936,7 @@ function (_GLShader) {
 }(_GLShader2.GLShader);
 
 exports.default = MattShader;
-},{"../Resources.js":"../../src/Resources.js","./GLShader.js":"../../src/shader/GLShader.js"}],"../../src/renderer/Renderer.js":[function(require,module,exports) {
+},{"../Resources.js":"../../src/Resources.js","../renderer/GLShader":"../../src/renderer/GLShader.js"}],"../../src/renderer/Renderer.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11053,39 +11053,39 @@ function (_GLContext) {
     key: "draw",
     value: function draw() {
       if (!this.scene) return;
-      var frameTime = performance.now(); // update animated textures
-
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.scene.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var geo = _step.value;
-
-          if (geo.material && geo.material.animated) {
-            this.updateTexture(geo.material.texture.gltexture, geo.material.texture.image);
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      this.renderMultiPasses(this.renderPasses);
-      this.compositePasses(this.renderPasses);
+      var frameTime = performance.now();
 
       if (this.lastFrameTime) {
+        // update textures
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = this.scene.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var geo = _step.value;
+
+            if (geo.material && geo.material.animated) {
+              this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
+        this.renderMultiPasses(this.renderPasses);
+        this.compositePasses(this.renderPasses);
         this.frameTime = frameTime - this.lastFrameTime;
       }
 
@@ -11118,7 +11118,7 @@ function (_GLContext) {
               break;
 
             case "light":
-              _this2.useTexture(_this2.getBufferTexture('shadow'), "shadowDepthMap", 0);
+              _this2.useTextureBuffer(_this2.getBufferTexture('shadow'), _this2.gl.TEXTURE_2D, "shadowDepthMap", 0);
 
               gl.uniformMatrix4fv(pass.shader.uniforms.lightProjViewMatrix, false, lightS.projViewMatrix);
 
@@ -11243,21 +11243,90 @@ function (_GLContext) {
 
       for (var i in passes) {
         var pass = passes[i];
-        this.useTexture(pass.buffer, pass.id + "Buffer", i);
+        this.useTextureBuffer(pass.buffer, this.gl.TEXTURE_2D, pass.id + "Buffer", i);
       }
 
-      this.useTexture(this.getBufferTexture('diffuse.depth'), 'depthBuffer', passes.length + 1);
+      this.useTextureBuffer(this.getBufferTexture('diffuse.depth'), this.gl.TEXTURE_2D, 'depthBuffer', passes.length + 1);
       this.gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
       this.drawGeo(this.renderTarget);
       this.gl.clearColor(0, 0, 0, 0);
+    }
+  }, {
+    key: "renderCubemap",
+    value: function renderCubemap(cubemap, camera) {
+      var gl = this.gl;
+      var initial = new _Math.Vec(camera.rotation);
+      var shader = new _ColorShader.default();
+      this.prepareShader(shader);
+      this.useShader(shader);
+      var texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+      for (var f = 0; f < 6; f++) {
+        var target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + f;
+        gl.texImage2D(target, 0, gl.RGBA, cubemap.width, cubemap.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      }
+
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      var faces = [{
+        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+        rotation: new _Math.Vec(0, 180 / 180 * Math.PI, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+        rotation: new _Math.Vec(0, 0, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        rotation: new _Math.Vec(-90 / 180 * Math.PI, 270 / 180 * Math.PI, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+        rotation: new _Math.Vec(90 / 180 * Math.PI, 270 / 180 * Math.PI, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        rotation: new _Math.Vec(0, 90 / 180 * Math.PI, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+        rotation: new _Math.Vec(0, 270 / 180 * Math.PI, 0)
+      }];
+      cubemap.gltexture = texture;
+      var fbo = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+      for (var _i = 0, _faces = faces; _i < _faces.length; _i++) {
+        var face = _faces[_i];
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, face.target, texture, 0);
+        camera.rotation.x = face.rotation.x;
+        camera.rotation.y = face.rotation.y;
+        camera.rotation.z = face.rotation.z;
+        camera.fov = 90;
+        this.setResolution(cubemap.width, cubemap.height);
+        this.updateViewport();
+        this.clear();
+        this.drawScene(this.scene, camera);
+      }
+
+      camera.rotation.x = initial.x;
+      camera.rotation.y = initial.y;
+      camera.rotation.z = initial.z;
+      camera.fov = 90;
+      this.setResolution(window.innerWidth, window.innerHeight);
+      this.updateViewport();
     } // give texture a .gltexture
 
   }, {
     key: "prepareTexture",
     value: function prepareTexture(texture) {
       if (!texture.gltexture) {
-        texture.gltexture = this.createTexture(texture.image || null);
+        texture.gltexture = this.createTexture(texture.image);
       }
+    } // use a Texture
+
+  }, {
+    key: "useTexture",
+    value: function useTexture(texture, uniformStr, slot) {
+      var gltexture = texture ? texture.gltexture : null;
+      var type = texture ? this.gl[texture.type] : null;
+      this.useTextureBuffer(gltexture, type, uniformStr, slot);
     } // give material attributes to shader
 
   }, {
@@ -11266,15 +11335,12 @@ function (_GLContext) {
       var colorTexture = material.texture;
       var reflectionMap = material.reflectionMap;
       var displacementMap = material.displacementMap;
-      this.useTexture(null, "colorTexture", 1);
-      this.useTexture(null, "reflectionMap", 2);
-      this.useTexture(null, "displacementMap", 3);
       this.prepareTexture(colorTexture);
-      this.useTexture(colorTexture.gltexture, "colorTexture", 1);
       this.prepareTexture(reflectionMap);
-      this.useTexture(reflectionMap.gltexture, "reflectionMap", 2);
       this.prepareTexture(displacementMap);
-      this.useTexture(displacementMap.gltexture, "displacementMap", 3);
+      this.useTexture(colorTexture, "colorTexture", 1);
+      this.useTexture(reflectionMap, "reflectionMap", 2);
+      this.useTexture(displacementMap, "displacementMap", 3);
       shader.setUniforms(this.gl, material, 'material');
     }
   }, {
@@ -11310,6 +11376,10 @@ function (_GLContext) {
       this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
       this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
       this.gl.uniform3fv(shader.uniforms.cameraPosition, [camera.worldPosition.x, camera.worldPosition.y, camera.worldPosition.z]);
+
+      if (this.scene.cubemap) {
+        this.useTexture(this.scene.cubemap, 'cubemap', 5);
+      }
     }
   }, {
     key: "drawScene",
@@ -11974,7 +12044,7 @@ function () {
   }, {
     key: "update",
     value: function update(ms) {
-      this.activeCamera.update();
+      this.activeCamera.update(ms);
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
@@ -12911,7 +12981,66 @@ function () {
 }();
 
 exports.Keyframe = Keyframe;
-},{"./Scheduler":"../../src/Scheduler.js"}],"../../res/textures/test.png":[function(require,module,exports) {
+},{"./Scheduler":"../../src/Scheduler.js"}],"../../src/materials/Cubemap.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cubemap = void 0;
+
+var _Texture2 = require("./Texture");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Cubemap =
+/*#__PURE__*/
+function (_Texture) {
+  _inherits(Cubemap, _Texture);
+
+  function Cubemap() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, Cubemap);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Cubemap)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "type", "TEXTURE_CUBE_MAP");
+
+    _defineProperty(_assertThisInitialized(_this), "width", 1920);
+
+    _defineProperty(_assertThisInitialized(_this), "height", 1920);
+
+    _defineProperty(_assertThisInitialized(_this), "image", []);
+
+    return _this;
+  }
+
+  return Cubemap;
+}(_Texture2.Texture);
+
+exports.Cubemap = Cubemap;
+},{"./Texture":"../../src/materials/Texture.js"}],"../../res/textures/test.png":[function(require,module,exports) {
 module.exports = "test.867bfcb1.png";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
@@ -12933,6 +13062,8 @@ var _Sphere = require("../../src/geo/Sphere");
 var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial"));
 
 var _Animation = require("../../src/Animation");
+
+var _Cubemap = require("../../src/materials/Cubemap");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13010,9 +13141,16 @@ _Test.default.viewportTest(resources, function (viewport) {
     position: new _Math.Vec(200, 700, -200),
     scale: 100,
     id: 80
-  })].concat(lights, cubes));
+  })].concat(lights, cubes)); // testing
+
+  setTimeout(function () {
+    var cubemap = new _Cubemap.Cubemap();
+    viewport.renderer.renderCubemap(cubemap, scene.activeCamera);
+    console.log(cubemap);
+    scene.cubemap = cubemap;
+  }, 0);
 });
-},{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../res/textures/test.png":"../../res/textures/test.png"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../src/materials/Cubemap":"../../src/materials/Cubemap.js","../../res/textures/test.png":"../../res/textures/test.png"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -13040,7 +13178,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58238" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57112" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

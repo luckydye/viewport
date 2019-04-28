@@ -8,6 +8,8 @@ in vec4 vWorldPos;
 in vec3 vNormal;
 in mat4 vLightProjViewMatrix;
 
+uniform samplerCube cubemap;
+
 uniform sampler2D shadowDepthMap;
 uniform vec3 ambientcolor;
 uniform float shadowcolor;
@@ -75,6 +77,7 @@ void main () {
     vec3 ambient = ambientcolor;
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
+    vec4 reflection = texture(cubemap, vNormal);
 
     float shadow = Shadow(vLightProjViewMatrix * vWorldPos) * shadowcolor;
     vec3 shadows = vec3(shadow);
@@ -84,5 +87,5 @@ void main () {
         specular += Specular(pointLights[i], vWorldPos.xyz, vNormal);
     }
 
-    oFragColor = vec4(vec3(ambient + diffuse + specular + shadows), 1.0);
+    oFragColor = vec4(vec3(ambient + diffuse + specular + shadows + reflection.rgb), 1.0);
 }
