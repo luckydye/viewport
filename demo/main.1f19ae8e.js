@@ -8063,7 +8063,7 @@ function (_Array) {
   _createClass(Vec, [{
     key: "toString",
     value: function toString() {
-      return "".concat(this[0].toFixed(2), ";").concat(this[1].toFixed(2), ";").concat(this[2].toFixed(2));
+      return "".concat(new Number(this[0]).toFixed(2), ";").concat(new Number(this[1]).toFixed(2), ";").concat(new Number(this[2]).toFixed(2));
     }
   }, {
     key: "x",
@@ -13150,7 +13150,7 @@ _Test.default.viewportTest(resources, function (viewport) {
     scene.cubemap = cubemap;
   }, 0);
 });
-},{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../src/materials/Cubemap":"../../src/materials/Cubemap.js","../../res/textures/test.png":"../../res/textures/test.png"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../src/materials/Cubemap":"../../src/materials/Cubemap.js","../../res/textures/test.png":"../../res/textures/test.png"}],"../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -13178,7 +13178,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57112" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57028" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -13353,5 +13353,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js","main.js"], null)
+},{}]},{},["../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
 //# sourceMappingURL=main.1f19ae8e.js.map
