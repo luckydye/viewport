@@ -2,7 +2,7 @@
 precision mediump float;
 
 #define POINT_LIGHTS_COUNT 123
-#define SHADOW_BIAS 0.000001
+#define SHADOW_BIAS 0.000008
 
 in vec4 vWorldPos;
 in vec3 vNormal;

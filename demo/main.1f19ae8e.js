@@ -117,7 +117,979 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../../node_modules/gl-matrix/esm/common.js":[function(require,module,exports) {
+})({"../../src/resources/File.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var File =
+/*#__PURE__*/
+function () {
+  function File() {
+    _classCallCheck(this, File);
+
+    _defineProperty(this, "vertecies", []);
+
+    _defineProperty(this, "uvs", []);
+
+    _defineProperty(this, "faces", []);
+
+    _defineProperty(this, "normals", []);
+  }
+
+  _createClass(File, null, [{
+    key: "parseFile",
+    value: function parseFile(strData) {
+      var fileData = new File();
+      return fileData;
+    }
+  }]);
+
+  return File;
+}();
+
+exports.default = File;
+},{}],"../../src/resources/OBJFile.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _File2 = _interopRequireDefault(require("./File"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var OBJFile =
+/*#__PURE__*/
+function (_File) {
+  _inherits(OBJFile, _File);
+
+  function OBJFile() {
+    _classCallCheck(this, OBJFile);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(OBJFile).apply(this, arguments));
+  }
+
+  _createClass(OBJFile, null, [{
+    key: "parseFile",
+    value: function parseFile(strData) {
+      var lines = strData.split(/\n/g);
+      var objData = new OBJFile();
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = lines[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var line = _step.value;
+          var data = line.split(" ");
+          var prefix = data[0];
+          var coords = [];
+
+          switch (prefix) {
+            case "v":
+              coords = data.slice(1);
+              objData.vertecies.push([+coords[0], +coords[1], +coords[2]]);
+              break;
+
+            case "vt":
+              coords = data.slice(1);
+              objData.uvs.push([+coords[0], +coords[1]]);
+              break;
+
+            case "vn":
+              coords = data.slice(1);
+              objData.normals.push([+coords[0], +coords[1], +coords[2]]);
+              break;
+
+            case "f":
+              coords = data.slice(1);
+              var face = [];
+              var _iteratorNormalCompletion2 = true;
+              var _didIteratorError2 = false;
+              var _iteratorError2 = undefined;
+
+              try {
+                for (var _iterator2 = coords[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                  var c = _step2.value;
+                  face.push(c.split('/').map(function (i) {
+                    return parseInt(i);
+                  }));
+                }
+              } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                    _iterator2.return();
+                  }
+                } finally {
+                  if (_didIteratorError2) {
+                    throw _iteratorError2;
+                  }
+                }
+              }
+
+              objData.faces.push(face);
+              break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return objData;
+    }
+  }]);
+
+  return OBJFile;
+}(_File2.default);
+
+exports.default = OBJFile;
+},{"./File":"../../src/resources/File.js"}],"../../src/Resources.js":[function(require,module,exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Resources = void 0;
+
+var _OBJFile = _interopRequireDefault(require("./resources/OBJFile.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var global = {};
+global.initLoaded = false;
+global.resourceTypes = {
+  JSON: [".json"],
+  TEXT: [".txt"],
+  IMAGE: [".png", ".jpg"],
+  VIDEO: [".mp4"],
+  SHADER: [".shader", ".fs", ".vs"],
+  GEOMETRY: [".obj"]
+};
+global.queue = new Set();
+global.map = new Map();
+/*
+	Resource.add({ name, path }: arr, startLoading: bool): startLoading ? Promise : null
+		# add resource to queue
+
+	Resource.load(): Promise
+		# initiate loading of queue
+
+	Resource.map(void)
+		# return resource map
+
+	Resource.get(name: str)
+		# return resource data by name
+
+	Resource.finished: bool
+		# returns if queue is finished
+*/
+
+var Resources =
+/*#__PURE__*/
+function () {
+  function Resources() {
+    _classCallCheck(this, Resources);
+  }
+
+  _createClass(Resources, null, [{
+    key: "add",
+    value: function add(obj, startLoad) {
+      for (var key in obj) {
+        global.queue.add({
+          name: key,
+          path: obj[key]
+        });
+      }
+
+      if (startLoad === true) {
+        return Resources.load();
+      }
+    }
+  }, {
+    key: "map",
+    value: function map() {
+      return global.map;
+    }
+  }, {
+    key: "get",
+    value: function get(name) {
+      return global.map.get(name);
+    }
+  }, {
+    key: "load",
+    value: function load() {
+      var loads = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        var _loop = function _loop() {
+          var res = _step.value;
+
+          var loading = Resources._fetch(res.path).then(function (dataObj) {
+            var resource = res;
+            global.map.set(resource.name, dataObj);
+          });
+
+          loads.push(loading);
+        };
+
+        for (var _iterator = global.queue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          _loop();
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return Promise.all(loads).then(function () {
+        global.queue.clear();
+
+        if (!global.initLoaded && Resources.finished) {
+          global.initLoaded = true;
+        }
+      });
+    }
+  }, {
+    key: "_fetch",
+    value: function _fetch(path) {
+      var type = null;
+
+      for (var t in Resources.Types) {
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = Resources.Types[t][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var ending = _step2.value;
+
+            if (path.match(ending)) {
+              type = Resources.Types[t];
+            }
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+      }
+
+      switch (type) {
+        case Resources.Types.JSON:
+          return fetch(path).then(function (res) {
+            return res.json().catch(function (err) {
+              console.error("File failed parsing:", path);
+            });
+          });
+
+        case Resources.Types.IMAGE:
+          return new Promise(function (resolve, reject) {
+            var img = new Image();
+
+            img.onload = function () {
+              resolve(img);
+            };
+
+            img.src = path;
+          });
+
+        case Resources.Types.VIDEO:
+          return new Promise(function (resolve, reject) {
+            var vid = document.createElement('video');
+
+            vid.oncanplay = function () {
+              vid.width = 1024;
+              vid.height = 1024;
+              vid.loop = true;
+              vid.play();
+              resolve(vid);
+            };
+
+            vid.src = path;
+          });
+
+        case Resources.Types.GEOMETRY:
+          return fetch(path).then(function (res) {
+            return res.text().then(function (strData) {
+              return _OBJFile.default.parseFile(strData);
+            });
+          });
+
+        case Resources.Types.TEXT:
+          return fetch(path).then(function (res) {
+            return res.text();
+          });
+
+        case Resources.Types.SHADER:
+          return fetch(path).then(function (res) {
+            return res.text();
+          });
+
+        default:
+          throw "Err: not a valid resource type: \"".concat(path, "\"");
+      }
+    }
+  }, {
+    key: "Types",
+    get: function get() {
+      return global.resourceTypes;
+    }
+  }, {
+    key: "finished",
+    get: function get() {
+      return global.queue.size === 0;
+    }
+  }]);
+
+  return Resources;
+}();
+
+exports.Resources = Resources;
+},{"./resources/OBJFile.js":"../../src/resources/OBJFile.js"}],"../../src/materials/Texture.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Texture = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Texture =
+/*#__PURE__*/
+function () {
+  _createClass(Texture, [{
+    key: "width",
+    get: function get() {
+      return this.image.width;
+    }
+  }, {
+    key: "height",
+    get: function get() {
+      return this.image.height;
+    }
+  }]);
+
+  function Texture(image) {
+    _classCallCheck(this, Texture);
+
+    _defineProperty(this, "type", "TEXTURE_2D");
+
+    _defineProperty(this, "gltexture", null);
+
+    _defineProperty(this, "animated", false);
+
+    this.image = image;
+    this.animated = image && image.localName === "video" || this.animated;
+  }
+
+  return Texture;
+}();
+
+exports.Texture = Texture;
+},{}],"../../src/materials/Material.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Material = void 0;
+
+var _Texture = require("./Texture");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Material =
+/*#__PURE__*/
+function () {
+  _createClass(Material, null, [{
+    key: "applyAttributes",
+    value: function applyAttributes(material, attributes) {
+      return Object.assign(material, attributes);
+    }
+  }]);
+
+  function Material() {
+    var attributes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, Material);
+
+    _defineProperty(this, "texture", new _Texture.Texture());
+
+    _defineProperty(this, "reflectionMap", new _Texture.Texture());
+
+    _defineProperty(this, "displacementMap", new _Texture.Texture());
+
+    _defineProperty(this, "diffuseColor", [1, 1, 1]);
+
+    _defineProperty(this, "transparency", 0);
+
+    _defineProperty(this, "specular", 1);
+
+    _defineProperty(this, "roughness", 1);
+
+    _defineProperty(this, "metallic", 0);
+
+    _defineProperty(this, "textureScale", 1);
+
+    _defineProperty(this, "receiveShadows", true);
+
+    _defineProperty(this, "castShadows", true);
+
+    _defineProperty(this, "scaleUniform", false);
+
+    for (var attrb in attributes) {
+      this[attrb] = attributes[attrb];
+    }
+  }
+
+  return Material;
+}();
+
+exports.Material = Material;
+},{"./Texture":"../../src/materials/Texture.js"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
+module.exports = "placeholder_256.33ec6945.png";
+},{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Resources = require("../Resources");
+
+var _Material2 = require("./Material");
+
+var _Texture = require("./Texture");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+_Resources.Resources.add({
+  'texture256': require('../../res/textures/placeholder_256.png')
+}, false);
+
+var TestMaterial =
+/*#__PURE__*/
+function (_Material) {
+  _inherits(TestMaterial, _Material);
+
+  function TestMaterial() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, TestMaterial);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TestMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "texture", new _Texture.Texture(_Resources.Resources.get('texture256')));
+
+    _defineProperty(_assertThisInitialized(_this), "textureScale", 256 * 2);
+
+    _defineProperty(_assertThisInitialized(_this), "diffuseColor", [1, 1, 1]);
+
+    _defineProperty(_assertThisInitialized(_this), "receiveShadows", true);
+
+    _defineProperty(_assertThisInitialized(_this), "castShadows", true);
+
+    return _this;
+  }
+
+  return TestMaterial;
+}(_Material2.Material);
+
+exports.default = TestMaterial;
+},{"../Resources":"../../src/Resources.js","./Material":"../../src/materials/Material.js","./Texture":"../../src/materials/Texture.js","../../res/textures/placeholder_256.png":"../../res/textures/placeholder_256.png"}],"../../src/Config.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Config =
+/*#__PURE__*/
+function () {
+  _createClass(Config, [{
+    key: "getValue",
+    value: function getValue(name, fallback) {
+      if (!(name in this)) {
+        this.define(name, fallback);
+      }
+
+      this.load();
+      return this[name].value;
+    }
+  }, {
+    key: "setValue",
+    value: function setValue(name, value) {
+      if (!this[name]) this.define(name, value);
+      this[name].value = value;
+      this.save();
+    }
+  }, {
+    key: "define",
+    value: function define(name, defaultValue, value) {
+      this[name] = new ConfigParameter(name, defaultValue, value);
+    }
+  }], [{
+    key: "global",
+    get: function get() {
+      return gloalconfig;
+    }
+  }]);
+
+  function Config(name) {
+    _classCallCheck(this, Config);
+
+    this.name = name;
+  }
+
+  _createClass(Config, [{
+    key: "save",
+    value: function save() {
+      var save = localStorage.getItem(this.name);
+      var data = JSON.parse(save) || {};
+
+      for (var key in this) {
+        var value = this[key].value;
+        if (value != null) data[key] = value;
+      }
+
+      localStorage.setItem(this.name, JSON.stringify(data));
+    }
+  }, {
+    key: "load",
+    value: function load() {
+      var save = localStorage.getItem(this.name);
+      var data = JSON.parse(save);
+
+      for (var key in data) {
+        if (key in this) {
+          this[key].value = data[key];
+        }
+      }
+    }
+  }]);
+
+  return Config;
+}();
+
+exports.default = Config;
+
+var ConfigParameter = function ConfigParameter(name, defaultValue, value) {
+  _classCallCheck(this, ConfigParameter);
+
+  this.name = name;
+  this.default = defaultValue;
+  this.value = value || this.default;
+};
+
+var gloalconfig = new Config('viewport-config');
+},{}],"../../src/Scheduler.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Task = exports.Scheduler = void 0;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Scheduler =
+/*#__PURE__*/
+function () {
+  _createClass(Scheduler, null, [{
+    key: "timer",
+    value: function timer(_timer, callback) {
+      var accumulator = 0;
+      return function (deltaTime) {
+        accumulator += deltaTime;
+
+        if (accumulator >= _timer) {
+          callback(accumulator);
+          accumulator = 0;
+        }
+      };
+    }
+  }]);
+
+  function Scheduler() {
+    _classCallCheck(this, Scheduler);
+
+    this.queue = [];
+  }
+
+  _createClass(Scheduler, [{
+    key: "addTask",
+    value: function addTask(task) {
+      if (task instanceof Task) {
+        this.queue.push(task);
+      }
+    }
+  }, {
+    key: "removeTask",
+    value: function removeTask(task) {
+      var index = this.queue.indexOf(task);
+
+      if (index != -1) {
+        this.queue.splice(index, 1);
+      }
+    }
+  }, {
+    key: "requestTask",
+    value: function requestTask() {
+      if (this.queue.length > 0) {
+        var task = this.queue[0];
+        return task;
+      }
+
+      return null;
+    }
+  }, {
+    key: "run",
+    value: function run(deltaTime) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.queue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var task = _step.value;
+          var done = task.execute(deltaTime);
+          if (done) this.removeTask(task);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+  }]);
+
+  return Scheduler;
+}();
+
+exports.Scheduler = Scheduler;
+
+var Task =
+/*#__PURE__*/
+function () {
+  function Task(taskFunction) {
+    _classCallCheck(this, Task);
+
+    _defineProperty(this, "taskFunction", function () {
+      return true;
+    });
+
+    this.taskFunction = taskFunction;
+  }
+
+  _createClass(Task, [{
+    key: "execute",
+    value: function execute(ms) {
+      return this.taskFunction(ms);
+    }
+  }]);
+
+  return Task;
+}();
+
+exports.Task = Task;
+},{}],"../../src/Logger.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Logger = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var loggerListeners = new Map();
+
+var Logger =
+/*#__PURE__*/
+function () {
+  _createClass(Logger, null, [{
+    key: "listen",
+    value: function listen(name, f) {
+      var listeners = loggerListeners.get(name);
+
+      if (listeners) {
+        listeners.push(f);
+      }
+    }
+  }, {
+    key: "dispatch",
+    value: function dispatch(name, msg) {
+      var listeners = loggerListeners.get(name);
+
+      if (listeners) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = listeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var listener = _step.value;
+            listener(msg);
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      }
+    }
+  }]);
+
+  function Logger(name) {
+    _classCallCheck(this, Logger);
+
+    this.prefix = name;
+    loggerListeners.set(name, []);
+    this.style = {
+      prefix: "\n                background: #1c1c1c;\n                color: rgba(255, 255, 255, 0.65);\n                font-weight: 600;\n                padding: 2px 6px;\n                border-radius: 4px;\n                margin-right: 5px;\n            ",
+      text: "\n                background: #333;\n                color: #eee;\n                padding: 2px 6px;\n            ",
+      attr: "\n                background: #3f3f3f;\n                color: #eee;\n                padding: 2px 6px;\n                font-style: italic;\n            "
+    };
+  }
+
+  _createClass(Logger, [{
+    key: "out",
+    value: function out(type, text, attr) {
+      if (attr) {
+        console[type]("%c".concat(this.prefix, "%c").concat(text, "%c").concat(attr), this.style.prefix, this.style.text, this.style.attr);
+      } else {
+        console[type]("%c".concat(this.prefix, "%c").concat(text), this.style.prefix, this.style.text);
+      }
+
+      Logger.dispatch(this.prefix, {
+        style: this.style,
+        prefix: this.prefix,
+        text: text
+      });
+    }
+  }, {
+    key: "log",
+    value: function log(text, attr) {
+      this.out('info', text, attr);
+    }
+  }, {
+    key: "error",
+    value: function error(text, attr) {
+      this.out('error', text, attr);
+    }
+  }]);
+
+  return Logger;
+}();
+
+exports.Logger = Logger;
+},{}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Material2 = require("./Material");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var PrimitivetMaterial =
+/*#__PURE__*/
+function (_Material) {
+  _inherits(PrimitivetMaterial, _Material);
+
+  function PrimitivetMaterial() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, PrimitivetMaterial);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(PrimitivetMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "diffuseColor", [0.5, 0.5, 0.5]);
+
+    _defineProperty(_assertThisInitialized(_this), "transparency", 0.5);
+
+    _defineProperty(_assertThisInitialized(_this), "scaleUniform", true);
+
+    _defineProperty(_assertThisInitialized(_this), "receiveShadows", false);
+
+    _defineProperty(_assertThisInitialized(_this), "castShadows", false);
+
+    _defineProperty(_assertThisInitialized(_this), "selected", false);
+
+    return _this;
+  }
+
+  return PrimitivetMaterial;
+}(_Material2.Material);
+
+exports.default = PrimitivetMaterial;
+},{"./Material":"../../src/materials/Material.js"}],"../../node_modules/gl-matrix/esm/common.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8289,121 +9261,7 @@ var Transform = function Transform() {
 };
 
 exports.Transform = Transform;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js"}],"../../src/materials/Texture.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Texture = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var Texture =
-/*#__PURE__*/
-function () {
-  _createClass(Texture, [{
-    key: "width",
-    get: function get() {
-      return this.image.width;
-    }
-  }, {
-    key: "height",
-    get: function get() {
-      return this.image.height;
-    }
-  }]);
-
-  function Texture(image) {
-    _classCallCheck(this, Texture);
-
-    _defineProperty(this, "type", "TEXTURE_2D");
-
-    _defineProperty(this, "gltexture", null);
-
-    _defineProperty(this, "animated", false);
-
-    this.image = image;
-    this.animated = image && image.localName === "video" || this.animated;
-  }
-
-  return Texture;
-}();
-
-exports.Texture = Texture;
-},{}],"../../src/materials/Material.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Material = void 0;
-
-var _Texture = require("./Texture");
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var Material =
-/*#__PURE__*/
-function () {
-  _createClass(Material, null, [{
-    key: "applyAttributes",
-    value: function applyAttributes(material, attributes) {
-      return Object.assign(material, attributes);
-    }
-  }]);
-
-  function Material() {
-    var attributes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    _classCallCheck(this, Material);
-
-    _defineProperty(this, "texture", new _Texture.Texture());
-
-    _defineProperty(this, "reflectionMap", new _Texture.Texture());
-
-    _defineProperty(this, "displacementMap", new _Texture.Texture());
-
-    _defineProperty(this, "diffuseColor", [1, 1, 1]);
-
-    _defineProperty(this, "transparency", 0);
-
-    _defineProperty(this, "reflection", 0);
-
-    _defineProperty(this, "specular", 0.25);
-
-    _defineProperty(this, "roughness", 32);
-
-    _defineProperty(this, "textureScale", 1);
-
-    _defineProperty(this, "receiveShadows", true);
-
-    _defineProperty(this, "castShadows", true);
-
-    _defineProperty(this, "scaleUniform", false);
-
-    for (var attrb in attributes) {
-      this[attrb] = attributes[attrb];
-    }
-  }
-
-  return Material;
-}();
-
-exports.Material = Material;
-},{"./Texture":"../../src/materials/Texture.js"}],"../../src/materials/DefaultMaterial.js":[function(require,module,exports) {
+},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js"}],"../../src/materials/DefaultMaterial.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8615,7 +9473,752 @@ function () {
 
   return VertexBuffer;
 }();
-},{"../Math.js":"../../src/Math.js","../materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
+},{"../Math.js":"../../src/Math.js","../materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js"}],"../../src/geo/Guide.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Guide = void 0;
+
+var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial"));
+
+var _Math = require("../Math");
+
+var _Geometry2 = require("../scene/Geometry");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_GUIDE_MATERIAL = new _PrimitiveMaterial.default();
+
+var Guide =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Guide, _Geometry);
+
+  function Guide() {
+    _classCallCheck(this, Guide);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Guide).apply(this, arguments));
+  }
+
+  _createClass(Guide, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.guide = true;
+      args.material = DEFAULT_GUIDE_MATERIAL;
+      args.drawmode = "LINES";
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var s = this.scale * 10 || 10;
+
+      var _ref = this.origin || new _Math.Vec(),
+          x = _ref.x,
+          y = _ref.y,
+          z = _ref.z;
+
+      return [x, y, z + s, 0, 1, 1, 1, 1, x, y, z + -s, 0, 1, 1, 1, 1, x, y + s, z, 0, 1, 1, 1, 1, x, y - s, z, 0, 1, 1, 1, 1, x + s, y, z, 0, 1, 1, 1, 1, x - s, y, z, 0, 1, 1, 1, 1];
+    }
+  }]);
+
+  return Guide;
+}(_Geometry2.Geometry);
+
+exports.Guide = Guide;
+},{"../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js","../Math":"../../src/Math.js","../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Grid = void 0;
+
+var _Guide2 = require("./Guide.js");
+
+var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_GRID_MATERIAL = new _PrimitiveMaterial.default();
+DEFAULT_GRID_MATERIAL.scaleUniform = false;
+DEFAULT_GRID_MATERIAL.transparency = 0.5;
+
+var Grid =
+/*#__PURE__*/
+function (_Guide) {
+  _inherits(Grid, _Guide);
+
+  _createClass(Grid, [{
+    key: "vertecies",
+    get: function get() {
+      return this.generate(this.size, this.count);
+    }
+  }]);
+
+  function Grid(size, count) {
+    var _this;
+
+    _classCallCheck(this, Grid);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this));
+    _this.size = size;
+    _this.count = count;
+    return _this;
+  }
+
+  _createClass(Grid, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.drawmode = "LINES"; // args.guide = true;
+
+      args.material = DEFAULT_GRID_MATERIAL;
+    }
+  }, {
+    key: "generate",
+    value: function generate() {
+      var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
+      var s = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 14;
+      var dataArray = [];
+      var size = w * s / 2;
+
+      for (var x = -s / 2; x <= s / 2; x++) {
+        var color = [0.5, 0.5, 0.5];
+        if (x == 0) color = [.15, .15, 1];
+        dataArray.push.apply(dataArray, [w * x, 0, size, 0, 0].concat(_toConsumableArray(color), [w * x, 0, -size, 0, 0], _toConsumableArray(color)));
+      }
+
+      for (var z = -s / 2; z <= s / 2; z++) {
+        var _color = [0.5, 0.5, 0.5];
+        if (z == 0) _color = [1, .15, .15];
+        dataArray.push.apply(dataArray, [size, 0, w * z, 0, 0].concat(_toConsumableArray(_color), [-size, 0, w * z, 0, 0], _toConsumableArray(_color)));
+      }
+
+      return dataArray;
+    }
+  }]);
+
+  return Grid;
+}(_Guide2.Guide);
+
+exports.Grid = Grid;
+},{"./Guide.js":"../../src/geo/Guide.js","../materials/PrimitiveMaterial.js":"../../src/materials/PrimitiveMaterial.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
+module.exports = "cursor.021979eb.obj";
+},{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cursor = void 0;
+
+var _Math = require("../Math");
+
+var _Guide2 = require("./Guide");
+
+var _Loader = require("../Loader");
+
+var _Resources = require("../Resources");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+_Resources.Resources.add({
+  'cursor_model': require('../../res/models/cursor.obj')
+}, false);
+
+var Cursor =
+/*#__PURE__*/
+function (_Guide) {
+  _inherits(Cursor, _Guide);
+
+  function Cursor() {
+    _classCallCheck(this, Cursor);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Cursor).apply(this, arguments));
+  }
+
+  _createClass(Cursor, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      _get(_getPrototypeOf(Cursor.prototype), "onCreate", this).call(this, args);
+
+      args.drawmode = "TRIANGLES";
+      args.id = 1;
+      this.scale = 32;
+      this.cursorVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('cursor_model'));
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var s = 0.75;
+
+      var _ref = new _Math.Vec(),
+          x = _ref.x,
+          y = _ref.y,
+          z = _ref.z;
+
+      return [x + s, y, z, 0, 0, 0, 0, 1, x, y, z + s, 0, 0, 0, 0, 1, x, y, z, 0, 0, 0, 0, 1, x, y, z + s, 0, 0, 0, 1, 0, x, y + s, z, 0, 0, 0, 1, 0, x, y, z, 0, 0, 0, 1, 0, x, y, z, 0, 0, 1, 0, 0, x, y + s, z, 0, 0, 1, 0, 0, x + s, y, z, 0, 0, 1, 0, 0].concat(_toConsumableArray(this.cursorVerts));
+    }
+  }]);
+
+  return Cursor;
+}(_Guide2.Guide);
+
+exports.Cursor = Cursor;
+},{"../Math":"../../src/Math.js","./Guide":"../../src/geo/Guide.js","../Loader":"../../src/Loader.js","../Resources":"../../src/Resources.js","../../res/models/cursor.obj":"../../res/models/cursor.obj"}],"../../src/scene/Entity.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Entity = void 0;
+
+var _Geometry2 = require("./Geometry");
+
+var _Math = require("../Math");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Entity =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Entity, _Geometry);
+
+  function Entity() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, Entity);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Entity)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "velocity", new _Math.Vec());
+
+    _defineProperty(_assertThisInitialized(_this), "traits", new Set());
+
+    return _this;
+  }
+
+  _createClass(Entity, [{
+    key: "onCreate",
+    value: function onCreate(args) {}
+  }, {
+    key: "update",
+    value: function update(ms) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.traits[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var trait = _step.value;
+          trait(ms);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+  }, {
+    key: "addTrait",
+    value: function addTrait(trait) {
+      this.traits.add(trait);
+    }
+  }, {
+    key: "removeTrait",
+    value: function removeTrait(trait) {
+      this.traits.delete(trait);
+    }
+  }, {
+    key: "setPositionTo",
+    value: function setPositionTo(transform) {
+      this.position = transform.position;
+      this.rotation = transform.rotation;
+    }
+  }]);
+
+  return Entity;
+}(_Geometry2.Geometry);
+
+exports.Entity = Entity;
+},{"./Geometry":"../../src/scene/Geometry.js","../Math":"../../src/Math.js"}],"../../src/scene/Camera.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Camera = void 0;
+
+var _glMatrix = require("gl-matrix");
+
+var _Math = require("../Math.js");
+
+var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial.js"));
+
+var _Entity2 = require("./Entity.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_CAMERA_MATERIAL = new _DefaultMaterial.default();
+
+var Camera =
+/*#__PURE__*/
+function (_Entity) {
+  _inherits(Camera, _Entity);
+
+  _createClass(Camera, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.drawmode = "LINE_STRIP";
+      args.material = DEFAULT_CAMERA_MATERIAL;
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var s = 50 / this.scale;
+      var vertArray = [-s, -s, 0, 0, 0, 0, 0, 0, s, -s, 0, 1, 0, 0, 0, 0, s, s, 0, 1, 1, 0, 0, 0, s, s, 0, 1, 1, 0, 0, 0, -s, s, 0, 0, 1, 0, 0, 0, -s, -s, 0, 0, 0, 0, 0, 0, s, s, 0, 1, 1, 0, 0, 0, s, s, s * 2, 1, 1, 0, 0, 0, -s, -s, s * 2, 0, 0, 0, 0, 0, s, -s, s * 2, 1, 0, 0, 0, 0, s, s, s * 2, 1, 1, 0, 0, 0, s, s, s * 2, 1, 1, 0, 0, 0, -s, s, s * 2, 0, 1, 0, 0, 0, -s, -s, s * 2, 0, 0, 0, 0, 0, -s / 2, -s / 2, -s, 0, 0, 0, 0, 0, s / 2, -s / 2, -s, 1, 0, 0, 0, 0, s / 2, s / 2, -s, 1, 1, 0, 0, 0, s / 2, s / 2, -s, 1, 1, 0, 0, 0, -s / 2, s / 2, -s, 0, 1, 0, 0, 0, -s / 2, -s / 2, -s, 0, 0, 0, 0, 0];
+      return vertArray;
+    }
+  }]);
+
+  function Camera() {
+    var _this;
+
+    var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, Camera);
+
+    var _args$fov = args.fov,
+        fov = _args$fov === void 0 ? 50 : _args$fov,
+        _args$scale = args.scale,
+        scale = _args$scale === void 0 ? 0.004 : _args$scale,
+        _args$farplane = args.farplane,
+        farplane = _args$farplane === void 0 ? 350 : _args$farplane,
+        _args$nearplane = args.nearplane,
+        nearplane = _args$nearplane === void 0 ? 0.025 : _args$nearplane,
+        _args$width = args.width,
+        width = _args$width === void 0 ? 1280 : _args$width,
+        _args$height = args.height,
+        height = _args$height === void 0 ? 720 : _args$height;
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Camera).call(this, args));
+    _this.scale = scale;
+    _this.fov = fov;
+    _this.farplane = farplane;
+    _this.nearplane = nearplane;
+    _this.lookAt = new _Math.Vec(0, 0, 0);
+    _this.projMatrix = _glMatrix.mat4.create();
+    _this.viewMatrix = _glMatrix.mat4.create();
+    _this.projViewMatrix = _glMatrix.mat4.create();
+    _this.sensor = {
+      width: width,
+      height: height
+    };
+
+    var self = _assertThisInitialized(_this);
+
+    _this.worldPosition = {
+      get x() {
+        return -self.position.x;
+      },
+
+      get y() {
+        return -self.position.y;
+      },
+
+      get z() {
+        return -self.position.z;
+      }
+
+    };
+    return _this;
+  }
+
+  _createClass(Camera, [{
+    key: "update",
+    value: function update(ms) {
+      _get(_getPrototypeOf(Camera.prototype), "update", this).call(this, ms);
+
+      var projMatrix = this.projMatrix;
+      var viewMatrix = this.viewMatrix;
+      var camera = this;
+      var ar = this.sensor.width / this.sensor.height;
+
+      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+
+      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), camera.lookAt, _glMatrix.vec3.fromValues(0, 0, 0));
+
+      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
+
+      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
+
+      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
+
+      _glMatrix.mat4.translate(viewMatrix, viewMatrix, camera.position);
+
+      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
+    }
+  }]);
+
+  return Camera;
+}(_Entity2.Entity);
+
+exports.Camera = Camera;
+},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math.js":"../../src/Math.js","../materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js","./Entity.js":"../../src/scene/Entity.js"}],"../../src/light/Spotlight.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Spotlight = void 0;
+
+var _glMatrix = require("gl-matrix");
+
+var _Camera2 = require("../scene/Camera");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Spotlight =
+/*#__PURE__*/
+function (_Camera) {
+  _inherits(Spotlight, _Camera);
+
+  function Spotlight() {
+    _classCallCheck(this, Spotlight);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Spotlight).apply(this, arguments));
+  }
+
+  _createClass(Spotlight, [{
+    key: "update",
+    value: function update(dt) {
+      _get(_getPrototypeOf(Spotlight.prototype), "update", this).call(this, dt); // const ar = this.sensor.width / this.sensor.height;
+      // mat4.perspective(this.projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+      // mat4.lookAt(
+      // 	this.viewMatrix, 
+      // 	vec3.fromValues(0, 0, 0),
+      // 	vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), 
+      // 	vec3.fromValues(0, 1, 0)
+      // );
+      // mat4.scale(this.viewMatrix, this.viewMatrix, vec3.fromValues(
+      // 	camera.scale, 
+      // 	camera.scale, 
+      // 	camera.scale,
+      // ));
+      // mat4.translate(this.viewMatrix, this.viewMatrix, vec3.fromValues(
+      // 	camera.position.x,
+      // 	camera.position.y,
+      // 	camera.position.z,
+      // ));
+      // mat4.rotateX(this.viewMatrix, this.viewMatrix, camera.rotation.x);
+      // mat4.rotateY(this.viewMatrix, this.viewMatrix, camera.rotation.y);
+      // mat4.rotateY(this.viewMatrix, this.viewMatrix, camera.rotation.z);
+
+
+      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
+    }
+  }, {
+    key: "isLight",
+    get: function get() {
+      return true;
+    }
+  }]);
+
+  return Spotlight;
+}(_Camera2.Camera);
+
+exports.Spotlight = Spotlight;
+},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../scene/Camera":"../../src/scene/Camera.js"}],"../../src/scene/Scene.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Scene = void 0;
+
+var _Grid = require("../geo/Grid.js");
+
+var _Math = require("../Math.js");
+
+var _Cursor = require("../geo/Cursor");
+
+var _Spotlight = require("../light/Spotlight.js");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Scene =
+/*#__PURE__*/
+function () {
+  function Scene(camera) {
+    _classCallCheck(this, Scene);
+
+    _defineProperty(this, "objects", new Set());
+
+    this.lightSources = new _Spotlight.Spotlight({
+      fov: 90,
+      position: new _Math.Vec(500, -2500, -1500),
+      rotation: new _Math.Vec(0.8, 0.4, 0)
+    });
+    this.activeCamera = camera;
+    this.grid = new _Grid.Grid(100, 25);
+    this.curosr = new _Cursor.Cursor();
+    this.clear();
+  }
+
+  _createClass(Scene, [{
+    key: "add",
+    value: function add(obj) {
+      var _this = this;
+
+      if (Array.isArray(obj)) {
+        obj.forEach(function (o) {
+          return _this.objects.add(o);
+        });
+      } else {
+        this.objects.add(obj);
+      }
+    }
+  }, {
+    key: "remove",
+    value: function remove(obj) {
+      var _this2 = this;
+
+      if (Array.isArray(obj)) {
+        obj.forEach(function (o) {
+          return _this2.objects.delete(o);
+        });
+      } else {
+        this.objects.delete(obj);
+      }
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this.objects.clear();
+    }
+  }, {
+    key: "update",
+    value: function update(ms) {
+      if (this.activeCamera) {
+        this.activeCamera.update(ms);
+      }
+
+      if (this.lightSources) {
+        this.lightSources.update(ms);
+      }
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var obj = _step.value;
+
+          if (obj.update) {
+            obj.update(ms);
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+  }, {
+    key: "getRenderableObjects",
+    value: function getRenderableObjects() {
+      var arr = _toConsumableArray(this.objects).filter(function (obj) {
+        return !obj.hidden;
+      });
+
+      if (!this.curosr.hidden) {
+        arr.push(this.curosr);
+      }
+
+      if (!this.grid.hidden) {
+        arr.push(this.grid);
+      }
+
+      return arr;
+    }
+  }]);
+
+  return Scene;
+}();
+
+exports.Scene = Scene;
+},{"../geo/Grid.js":"../../src/geo/Grid.js","../Math.js":"../../src/Math.js","../geo/Cursor":"../../src/geo/Cursor.js","../light/Spotlight.js":"../../src/light/Spotlight.js"}],"../../src/geo/Cube.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8716,177 +10319,138 @@ function (_Geometry) {
 }(_Geometry2.Geometry);
 
 exports.Cube = Cube;
-},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/Config.js":[function(require,module,exports) {
+},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Emitter.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.Emitter = exports.Particle = void 0;
+
+var _Geometry3 = require("../scene/Geometry");
+
+var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial"));
+
+var _Math = require("../Math");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Config =
-/*#__PURE__*/
-function () {
-  _createClass(Config, [{
-    key: "getValue",
-    value: function getValue(name, fallback) {
-      if (!(name in this)) {
-        this.define(name, fallback);
-      }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
-      this.load();
-      return this[name].value;
-    }
-  }, {
-    key: "setValue",
-    value: function setValue(name, value) {
-      if (!this[name]) this.define(name, value);
-      this[name].value = value;
-      this.save();
-    }
-  }, {
-    key: "define",
-    value: function define(name, defaultValue, value) {
-      this[name] = new ConfigParameter(name, defaultValue, value);
-    }
-  }], [{
-    key: "global",
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_GUIDE_MATERIAL = new _DefaultMaterial.default();
+
+var Particle =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Particle, _Geometry);
+
+  _createClass(Particle, [{
+    key: "vertecies",
     get: function get() {
-      return gloalconfig;
+      var s = 20;
+
+      var _this$position = _slicedToArray(this.position, 3),
+          x = _this$position[0],
+          y = _this$position[1],
+          z = _this$position[2];
+
+      var d = this.direction;
+      return [x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2], x + -s, y + 0, z + 0, 0, 0, d[0], d[1], d[2], x + -s, y + s, z + 0, 0, 0, d[0], d[1], d[2], x + -s, y + s, z, 0, 0, d[0], d[1], d[2], x + -s, y + 0, z, 0, 0, d[0], d[1], d[2], x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2], x + -s, y + s, z, 0, 0, d[0], d[1], d[2], x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2], x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2], x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2], x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2], x - s, y + 0, z + 0, 0, 0, d[0], d[1], d[2]];
     }
   }]);
 
-  function Config(name) {
-    _classCallCheck(this, Config);
+  function Particle(origin) {
+    var _this;
 
-    this.name = name;
+    _classCallCheck(this, Particle);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this));
+    _this.base = origin;
+    _this.age = 0;
+    _this.position = new _Math.Vec();
+    _this.direction = _Math.Vec.normal(_Math.Vec.add(_this.base.rotation, new _Math.Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)));
+    return _this;
   }
 
-  _createClass(Config, [{
-    key: "save",
-    value: function save() {
-      var save = localStorage.getItem(this.name);
-      var data = JSON.parse(save) || {};
+  return Particle;
+}(_Geometry3.Geometry);
 
-      for (var key in this) {
-        var value = this[key].value;
-        if (value != null) data[key] = value;
-      }
+exports.Particle = Particle;
 
-      localStorage.setItem(this.name, JSON.stringify(data));
-    }
-  }, {
-    key: "load",
-    value: function load() {
-      var save = localStorage.getItem(this.name);
-      var data = JSON.parse(save);
-
-      for (var key in data) {
-        if (key in this) {
-          this[key].value = data[key];
-        }
-      }
-    }
-  }]);
-
-  return Config;
-}();
-
-exports.default = Config;
-
-var ConfigParameter = function ConfigParameter(name, defaultValue, value) {
-  _classCallCheck(this, ConfigParameter);
-
-  this.name = name;
-  this.default = defaultValue;
-  this.value = value || this.default;
-};
-
-var gloalconfig = new Config('viewport-config');
-},{}],"../../src/Scheduler.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Task = exports.Scheduler = void 0;
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var Scheduler =
+var Emitter =
 /*#__PURE__*/
-function () {
-  _createClass(Scheduler, null, [{
-    key: "timer",
-    value: function timer(_timer, callback) {
-      var accumulator = 0;
-      return function (deltaTime) {
-        accumulator += deltaTime;
+function (_Geometry2) {
+  _inherits(Emitter, _Geometry2);
 
-        if (accumulator >= _timer) {
-          callback(accumulator);
-          accumulator = 0;
-        }
-      };
-    }
-  }]);
+  function Emitter() {
+    _classCallCheck(this, Emitter);
 
-  function Scheduler() {
-    _classCallCheck(this, Scheduler);
-
-    this.queue = [];
+    return _possibleConstructorReturn(this, _getPrototypeOf(Emitter).apply(this, arguments));
   }
 
-  _createClass(Scheduler, [{
-    key: "addTask",
-    value: function addTask(task) {
-      if (task instanceof Task) {
-        this.queue.push(task);
-      }
+  _createClass(Emitter, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.material = DEFAULT_GUIDE_MATERIAL;
+      args.drawmode = "TRIANGLES";
+      this.particle = new Particle(this);
+      this.particles = [];
+      this.instances = 1;
+      this.instanced = true;
+      this.rotation = new _Math.Vec(0, 0, 0);
+      this.maxage = 10000;
     }
   }, {
-    key: "removeTask",
-    value: function removeTask(task) {
-      var index = this.queue.indexOf(task);
-
-      if (index != -1) {
-        this.queue.splice(index, 1);
-      }
-    }
-  }, {
-    key: "requestTask",
-    value: function requestTask() {
-      if (this.queue.length > 0) {
-        var task = this.queue[0];
-        return task;
-      }
-
-      return null;
-    }
-  }, {
-    key: "run",
-    value: function run(deltaTime) {
+    key: "update",
+    value: function update(ms) {
+      this.spawn(10);
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = this.queue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var task = _step.value;
-          var done = task.execute(deltaTime);
-          if (done) this.removeTask(task);
+        for (var _iterator = this.particles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var p = _step.value;
+          p.position.x += p.direction.x * ms;
+          p.position.y += p.direction.y * ms;
+          p.position.z += p.direction.z * ms;
+          p.age += ms;
+
+          if (p.age > this.maxage * Math.random()) {
+            this.particles.splice(this.particles.indexOf(p), 1);
+          }
         }
       } catch (err) {
         _didIteratorError = true;
@@ -8903,52 +10467,651 @@ function () {
         }
       }
     }
-  }]);
+  }, {
+    key: "spawn",
+    value: function spawn(amount) {
+      for (var i = 0; i < amount; i++) {
+        this.particles.push(new Particle(this));
+      }
+    }
+  }, {
+    key: "buffer",
+    get: function get() {
+      return this.createBuffer();
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var verts = [];
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
 
-  return Scheduler;
-}();
+      try {
+        for (var _iterator2 = this.particles[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var p = _step2.value;
+          var pverts = p.vertecies;
+          verts.push.apply(verts, _toConsumableArray(pverts));
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
 
-exports.Scheduler = Scheduler;
-
-var Task =
-/*#__PURE__*/
-function () {
-  function Task(taskFunction) {
-    _classCallCheck(this, Task);
-
-    _defineProperty(this, "taskFunction", function () {
-      return true;
-    });
-
-    this.taskFunction = taskFunction;
-  }
-
-  _createClass(Task, [{
-    key: "execute",
-    value: function execute(ms) {
-      return this.taskFunction(ms);
+      return verts;
     }
   }]);
 
-  return Task;
-}();
+  return Emitter;
+}(_Geometry3.Geometry);
 
-exports.Task = Task;
-},{}],"../../src/camera/Camera.js":[function(require,module,exports) {
+exports.Emitter = Emitter;
+},{"../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../Math":"../../src/Math.js"}],"../../src/geo/Group.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Camera = void 0;
-
-var _glMatrix = require("gl-matrix");
-
-var _Math = require("../Math.js");
+exports.Group = void 0;
 
 var _Geometry2 = require("../scene/Geometry");
 
-var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial.js"));
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Group =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Group, _Geometry);
+
+  function Group() {
+    _classCallCheck(this, Group);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Group).apply(this, arguments));
+  }
+
+  _createClass(Group, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.objects = args.objects || [];
+      this.objects = args.objects;
+    }
+  }, {
+    key: "add",
+    value: function add(geo) {
+      this.objects.push(geo);
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var vertArray = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var obj = _step.value;
+          vertArray.push.apply(vertArray, _toConsumableArray(obj.buffer.vertecies));
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return vertArray;
+    }
+  }, {
+    key: "indecies",
+    get: function get() {
+      var indexArray = [];
+      var offset = 0;
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.objects[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var obj = _step2.value;
+          var indecies = obj.buffer.indecies.map(function (i) {
+            return i + offset;
+          });
+          indexArray.push.apply(indexArray, _toConsumableArray(indecies));
+          offset = obj.buffer.vertecies.length / obj.buffer.vertsPerElement;
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return indexArray;
+    }
+  }]);
+
+  return Group;
+}(_Geometry2.Geometry);
+
+exports.Group = Group;
+},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Plane.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Plane = void 0;
+
+var _Geometry2 = require("../scene/Geometry.js");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Plane =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Plane, _Geometry);
+
+  function Plane() {
+    _classCallCheck(this, Plane);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Plane).apply(this, arguments));
+  }
+
+  _createClass(Plane, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.drawmoed = "TRIANGLES";
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var s = 1;
+      return [-s, -s, 0, 0, 0, s, -s, 0, 1, 0, s, s, 0, 1, 1, s, s, 0, 1, 1, -s, s, 0, 0, 1, -s, -s, 0, 0, 0];
+    }
+  }]);
+
+  return Plane;
+}(_Geometry2.Geometry);
+
+exports.Plane = Plane;
+
+_defineProperty(Plane, "attributes", [{
+  size: 3,
+  attribute: "aPosition"
+}, {
+  size: 2,
+  attribute: "aTexCoords"
+}]);
+},{"../scene/Geometry.js":"../../src/scene/Geometry.js"}],"../../src/geo/Terrain.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Terrain = void 0;
+
+var _Geometry2 = require("../scene/Geometry");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Terrain =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Terrain, _Geometry);
+
+  function Terrain() {
+    _classCallCheck(this, Terrain);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Terrain).apply(this, arguments));
+  }
+
+  _createClass(Terrain, [{
+    key: "onCreate",
+    value: function onCreate() {
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref$smoothness = _ref.smoothness,
+          smoothness = _ref$smoothness === void 0 ? 0 : _ref$smoothness,
+          _ref$resolution = _ref.resolution,
+          resolution = _ref$resolution === void 0 ? 25 : _ref$resolution,
+          _ref$height = _ref.height,
+          height = _ref$height === void 0 ? 0 : _ref$height,
+          _ref$size = _ref.size,
+          size = _ref$size === void 0 ? 400 : _ref$size,
+          _ref$seed = _ref.seed,
+          seed = _ref$seed === void 0 ? Math.random() : _ref$seed;
+
+      this.smoothness = smoothness;
+      this.resolution = resolution;
+      this.height = height;
+      this.size = parseInt(size);
+      this.seed = seed;
+    }
+  }, {
+    key: "generate",
+    value: function generate() {
+      var size = this.size;
+      var vertArray = [];
+      var heightmap = this.heightMap(size, size);
+
+      for (var x = 0; x < heightmap.length; x++) {
+        for (var z = 0; z < heightmap[x].length; z++) {
+          try {
+            var res = this.resolution;
+            var s = res / 2;
+            var dz = res * z - res * heightmap.length / 2;
+            var dx = res * x - res * heightmap[x].length / 2;
+            var topl = heightmap[x - 1][z - 1];
+            var topr = heightmap[x][z - 1];
+            var botr = heightmap[x][z];
+            var botl = heightmap[x - 1][z];
+            var verts = [s + dx, botr, s + dz, 1 / size * x, 1 / size * z, s + dx, topr, -s + dz, 1 / size * x, 1 / size * z, -s + dx, topl, -s + dz, 1 / size * x, 1 / size * z, -s + dx, topl, -s + dz, 1 / size * x, 1 / size * z, -s + dx, botl, s + dz, 1 / size * x, 1 / size * z, s + dx, botr, s + dz, 1 / size * x, 1 / size * z];
+            vertArray.push.apply(vertArray, verts);
+          } catch (err) {}
+        }
+      }
+
+      return vertArray;
+    }
+  }, {
+    key: "heightMap",
+    value: function heightMap(width, height) {
+      var verts = new Array(width);
+
+      for (var x = 0; x < width; x++) {
+        if (!verts[x]) {
+          verts[x] = new Array(height);
+        }
+
+        for (var y = 0; y < height; y++) {
+          var noiseValue = 0;
+          verts[x][y] = -noiseValue;
+        }
+      }
+
+      return verts;
+    }
+  }]);
+
+  return Terrain;
+}(_Geometry2.Geometry);
+
+exports.Terrain = Terrain;
+
+_defineProperty(Terrain, "attributes", [{
+  size: 3,
+  attribute: "aPosition"
+}, {
+  size: 2,
+  attribute: "aTexCoords"
+}]);
+},{"../scene/Geometry":"../../src/scene/Geometry.js"}],"../../res/models/sphere.obj":[function(require,module,exports) {
+module.exports = "sphere.088f4791.obj";
+},{}],"../../src/geo/Sphere.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Sphere = void 0;
+
+var _Geometry2 = require("../scene/Geometry.js");
+
+var _Resources = require("../Resources.js");
+
+var _Loader = require("../Loader.js");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+_Resources.Resources.add({
+  'sphere_model': require('../../res/models/sphere.obj')
+}, false);
+
+var Sphere =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Sphere, _Geometry);
+
+  function Sphere() {
+    _classCallCheck(this, Sphere);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Sphere).apply(this, arguments));
+  }
+
+  _createClass(Sphere, [{
+    key: "vertecies",
+    get: function get() {
+      return _Loader.Loader.loadObjFile(_Resources.Resources.get('sphere_model'));
+    }
+  }]);
+
+  return Sphere;
+}(_Geometry2.Geometry);
+
+exports.Sphere = Sphere;
+},{"../scene/Geometry.js":"../../src/scene/Geometry.js","../Resources.js":"../../src/Resources.js","../Loader.js":"../../src/Loader.js","../../res/models/sphere.obj":"../../res/models/sphere.obj"}],"../../src/geo/Vector.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Vector = void 0;
+
+var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial"));
+
+var _Geometry2 = require("../scene/Geometry");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var DEFAULT_GUIDE_MATERIAL = new _DefaultMaterial.default();
+
+var Vector =
+/*#__PURE__*/
+function (_Geometry) {
+  _inherits(Vector, _Geometry);
+
+  function Vector() {
+    _classCallCheck(this, Vector);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Vector).apply(this, arguments));
+  }
+
+  _createClass(Vector, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      args.guide = true;
+      args.material = DEFAULT_GUIDE_MATERIAL;
+      args.drawmode = "LINE_STRIP";
+      args.points = args.points || [];
+      this.points = args.points;
+      this.color = [1, 1, 1];
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this._buffer = null;
+    }
+  }, {
+    key: "vertecies",
+    get: function get() {
+      var vertArray = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.points[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var p = _step.value;
+          var x = p.x,
+              y = p.y,
+              z = p.z;
+          vertArray.push.apply(vertArray, [x, y, z, 0, 0].concat(_toConsumableArray(this.color)));
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return vertArray;
+    }
+  }]);
+
+  return Vector;
+}(_Geometry2.Geometry);
+
+exports.Vector = Vector;
+},{"../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Voxel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Voxel = void 0;
+
+var _Cube2 = require("./Cube.js");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Voxel =
+/*#__PURE__*/
+function (_Cube) {
+  _inherits(Voxel, _Cube);
+
+  function Voxel() {
+    _classCallCheck(this, Voxel);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Voxel).apply(this, arguments));
+  }
+
+  _createClass(Voxel, [{
+    key: "faces",
+    get: function get() {
+      var s = this.scale;
+      var w = 10;
+      var h = 10;
+      var u = this.uv[0];
+      var v = this.uv[1];
+      var x = this.position.x;
+      var y = -this.position.y;
+      var z = this.position.z;
+      return {
+        TOP: [s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, -s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, -s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0],
+        BOTTOM: [-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0],
+        LEFT: [-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1, -s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 1, -s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 1, s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 1],
+        RIGHT: [s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, -1, -s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, -1, -s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, -1],
+        FRONT: [s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 1, 0, 0, s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 1, 0, 0, s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 1, 0, 0],
+        BACK: [-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, -1, 0, 0, -s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, -1, 0, 0, -s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, -1, 0, 0]
+      };
+    }
+  }]);
+
+  return Voxel;
+}(_Cube2.Cube);
+
+exports.Voxel = Voxel;
+},{"./Cube.js":"../../src/geo/Cube.js"}],"../../src/geo/*.*":[function(require,module,exports) {
+module.exports = {
+  "Cube": {
+    "js": require("./Cube.js")
+  },
+  "Cursor": {
+    "js": require("./Cursor.js")
+  },
+  "Emitter": {
+    "js": require("./Emitter.js")
+  },
+  "Grid": {
+    "js": require("./Grid.js")
+  },
+  "Group": {
+    "js": require("./Group.js")
+  },
+  "Guide": {
+    "js": require("./Guide.js")
+  },
+  "Plane": {
+    "js": require("./Plane.js")
+  },
+  "Terrain": {
+    "js": require("./Terrain.js")
+  },
+  "Sphere": {
+    "js": require("./Sphere.js")
+  },
+  "Vector": {
+    "js": require("./Vector.js")
+  },
+  "Voxel": {
+    "js": require("./Voxel.js")
+  }
+};
+},{"./Cube.js":"../../src/geo/Cube.js","./Cursor.js":"../../src/geo/Cursor.js","./Emitter.js":"../../src/geo/Emitter.js","./Grid.js":"../../src/geo/Grid.js","./Group.js":"../../src/geo/Group.js","./Guide.js":"../../src/geo/Guide.js","./Plane.js":"../../src/geo/Plane.js","./Terrain.js":"../../src/geo/Terrain.js","./Sphere.js":"../../src/geo/Sphere.js","./Vector.js":"../../src/geo/Vector.js","./Voxel.js":"../../src/geo/Voxel.js"}],"../../src/camera/*.*":[function(require,module,exports) {
+module.exports = {};
+},{}],"../../src/light/Pointlight.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Pointlight = void 0;
+
+var _DefaultMaterial = _interopRequireDefault(require("../materials/DefaultMaterial"));
+
+var _Sphere2 = require("../geo/Sphere");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8956,304 +11119,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var DEFAULT_CAMERA_MATERIAL = new _DefaultMaterial.default();
-
-var Camera =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Camera, _Geometry);
-
-  _createClass(Camera, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      args.drawmode = "LINE_STRIP";
-      args.material = DEFAULT_CAMERA_MATERIAL;
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var s = 50 / this.scale;
-      var vertArray = [-s, -s, 0, 0, 0, s, -s, 0, 1, 0, s, s, 0, 1, 1, s, s, 0, 1, 1, -s, s, 0, 0, 1, -s, -s, 0, 0, 0, s, s, 0, 1, 1, s, s, s * 2, 1, 1, -s, -s, s * 2, 0, 0, s, -s, s * 2, 1, 0, s, s, s * 2, 1, 1, s, s, s * 2, 1, 1, -s, s, s * 2, 0, 1, -s, -s, s * 2, 0, 0, -s / 2, -s / 2, -s, 0, 0, s / 2, -s / 2, -s, 1, 0, s / 2, s / 2, -s, 1, 1, s / 2, s / 2, -s, 1, 1, -s / 2, s / 2, -s, 0, 1, -s / 2, -s / 2, -s, 0, 0];
-      return vertArray;
-    }
-  }]);
-
-  function Camera() {
-    var _this;
-
-    var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    _classCallCheck(this, Camera);
-
-    var _args$fov = args.fov,
-        fov = _args$fov === void 0 ? 50 : _args$fov,
-        _args$scale = args.scale,
-        scale = _args$scale === void 0 ? 0.004 : _args$scale,
-        _args$farplane = args.farplane,
-        farplane = _args$farplane === void 0 ? 350 : _args$farplane,
-        _args$nearplane = args.nearplane,
-        nearplane = _args$nearplane === void 0 ? 0.025 : _args$nearplane,
-        _args$width = args.width,
-        width = _args$width === void 0 ? 1280 : _args$width,
-        _args$height = args.height,
-        height = _args$height === void 0 ? 720 : _args$height;
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Camera).call(this, args));
-
-    _defineProperty(_assertThisInitialized(_this), "attributes", [{
-      size: 3,
-      attribute: "aPosition"
-    }, {
-      size: 2,
-      attribute: "aTexCoords"
-    }]);
-
-    _this.scale = scale;
-    _this.fov = fov;
-    _this.farplane = farplane;
-    _this.nearplane = nearplane;
-    _this.lookAt = new _Math.Vec(0, 0, 0);
-    _this.projMatrix = _glMatrix.mat4.create();
-    _this.viewMatrix = _glMatrix.mat4.create();
-    _this.projViewMatrix = _glMatrix.mat4.create();
-    _this.sensor = {
-      width: width,
-      height: height
-    };
-
-    _this.update();
-
-    var self = _assertThisInitialized(_this);
-
-    _this.worldPosition = {
-      get x() {
-        return -self.position.x;
-      },
-
-      get y() {
-        return -self.position.y;
-      },
-
-      get z() {
-        return -self.position.z;
-      }
-
-    };
-    return _this;
-  }
-
-  _createClass(Camera, [{
-    key: "setPositionTo",
-    value: function setPositionTo(transform) {
-      this.position = transform.position;
-      this.rotation = transform.rotation;
-    }
-  }, {
-    key: "zoom",
-    value: function zoom(dir) {
-      this.position.z += -100 * Math.sign(dir);
-      this.update();
-    }
-  }, {
-    key: "update",
-    value: function update() {
-      var projMatrix = this.projMatrix;
-      var viewMatrix = this.viewMatrix;
-      var camera = this;
-      var ar = this.sensor.width / this.sensor.height;
-
-      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-
-      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), _glMatrix.vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), _glMatrix.vec3.fromValues(0, 1, 0));
-
-      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
-
-      _glMatrix.mat4.translate(viewMatrix, viewMatrix, camera.position);
-
-      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
-
-      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
-
-      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.z);
-
-      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
-    }
-  }]);
-
-  return Camera;
-}(_Geometry2.Geometry);
-
-exports.Camera = Camera;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math.js":"../../src/Math.js","../scene/Geometry":"../../src/scene/Geometry.js","../materials/DefaultMaterial.js":"../../src/materials/DefaultMaterial.js"}],"../../src/camera/FirstPersonCamera.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FirstPersonCamera = void 0;
-
-var _glMatrix = require("gl-matrix");
-
-var _Camera2 = require("./Camera");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var FirstPersonCamera =
-/*#__PURE__*/
-function (_Camera) {
-  _inherits(FirstPersonCamera, _Camera);
-
-  function FirstPersonCamera() {
-    _classCallCheck(this, FirstPersonCamera);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(FirstPersonCamera).apply(this, arguments));
-  }
-
-  _createClass(FirstPersonCamera, [{
-    key: "update",
-    value: function update() {
-      var projMatrix = this.projMatrix;
-      var viewMatrix = this.viewMatrix;
-      var camera = this;
-      var ar = this.sensor.width / this.sensor.height;
-
-      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane); // view
-
-
-      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), camera.lookAt, _glMatrix.vec3.fromValues(0, 0, 0));
-
-      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-
-      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-
-      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
-
-      _glMatrix.mat4.translate(viewMatrix, viewMatrix, camera.position);
-
-      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
-    }
-  }]);
-
-  return FirstPersonCamera;
-}(_Camera2.Camera);
-
-exports.FirstPersonCamera = FirstPersonCamera;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","./Camera":"../../src/camera/Camera.js"}],"../../src/controlers/EntityControler.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.EntityControler = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var EntityControler =
-/*#__PURE__*/
-function () {
-  function EntityControler(entity, viewport) {
-    _classCallCheck(this, EntityControler);
-
-    _defineProperty(this, "locked", false);
-
-    if (!entity) throw "No controllable entity";
-    this.entity = entity;
-    this.viewport = viewport;
-    this.initKeyboard();
-    this.initMouse();
-  }
-
-  _createClass(EntityControler, [{
-    key: "lock",
-    value: function lock() {
-      this.locked = true;
-    }
-  }, {
-    key: "unlock",
-    value: function unlock() {
-      this.locked = false;
-    }
-  }, {
-    key: "initKeyboard",
-    value: function initKeyboard() {}
-  }, {
-    key: "initMouse",
-    value: function initMouse() {}
-  }], [{
-    key: "isMouseButton",
-    value: function isMouseButton(e) {
-      var mbutton;
-
-      if (e.button != null) {
-        if (e.buttons == 4) {
-          mbutton = 2;
-        } else {
-          mbutton = e.buttons;
-        }
-      } else {
-        mbutton = e.which;
-      }
-
-      return mbutton;
-    }
-  }]);
-
-  return EntityControler;
-}();
-
-exports.EntityControler = EntityControler;
-},{}],"../../src/controlers/FirstPersonControler.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FirstPersonControler = void 0;
-
-var _EntityControler2 = require("./EntityControler");
-
-var _Math = require("../Math");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
@@ -9265,653 +11133,62 @@ function _superPropBase(object, property) { while (!Object.prototype.hasOwnPrope
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var FirstPersonControler =
+var Pointlight =
 /*#__PURE__*/
-function (_EntityControler) {
-  _inherits(FirstPersonControler, _EntityControler);
+function (_Sphere) {
+  _inherits(Pointlight, _Sphere);
 
-  _createClass(FirstPersonControler, [{
-    key: "up",
-    value: function up() {
-      var camera = this.entity;
-      camera.position.y -= this.speed;
-    }
-  }, {
-    key: "down",
-    value: function down() {
-      var camera = this.entity;
-      camera.position.y += this.speed;
-    }
-  }, {
-    key: "move",
-    value: function move(dir) {
-      var camera = this.entity;
-      var speed = this.speed * dir;
-      var a = -camera.rotation.y;
-      var b = -camera.rotation.x;
-      camera.position.x += speed * Math.sin(a);
-      camera.position.z += speed * Math.cos(a);
-      camera.position.y -= speed * Math.sin(b);
-    }
-  }, {
-    key: "strafe",
-    value: function strafe(dir) {
-      var camera = this.entity;
-      var speed = this.speed * dir;
-      var a = camera.rotation.y;
-      camera.position.z += speed * Math.sin(a);
-      camera.position.x += speed * Math.cos(a);
-    }
-  }, {
-    key: "checkControls",
-    value: function checkControls() {
-      if (this.checkKey("w")) this.move(1);
-      if (this.checkKey("s")) this.move(-1);
-      if (this.checkKey("a")) this.strafe(1);
-      if (this.checkKey("d")) this.strafe(-1);
-      if (this.checkKey("q")) this.up();
-      if (this.checkKey("y")) this.down();
-    }
-  }]);
+  function Pointlight() {
+    _classCallCheck(this, Pointlight);
 
-  function FirstPersonControler(entity, viewport) {
-    var _this;
-
-    _classCallCheck(this, FirstPersonControler);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FirstPersonControler).call(this, entity, viewport));
-
-    _defineProperty(_assertThisInitialized(_this), "sensivity", 0.0033);
-
-    _defineProperty(_assertThisInitialized(_this), "speed", 20);
-
-    var entityUpdate = entity.update.bind(entity);
-
-    entity.update = function (arg) {
-      _this.checkControls();
-
-      entityUpdate(arg);
-    };
-
-    return _this;
+    return _possibleConstructorReturn(this, _getPrototypeOf(Pointlight).apply(this, arguments));
   }
 
-  _createClass(FirstPersonControler, [{
-    key: "lock",
-    value: function lock() {
-      _get(_getPrototypeOf(FirstPersonControler.prototype), "lock", this).call(this);
+  _createClass(Pointlight, [{
+    key: "onCreate",
+    value: function onCreate(args) {
+      _get(_getPrototypeOf(Pointlight.prototype), "onCreate", this).call(this, args);
 
-      document.exitPointerLock();
+      var _args$intensity = args.intensity,
+          intensity = _args$intensity === void 0 ? 0.5 : _args$intensity,
+          _args$color = args.color,
+          color = _args$color === void 0 ? [1, 1, 1] : _args$color,
+          _args$size = args.size,
+          size = _args$size === void 0 ? 8 : _args$size;
+      this.intensity = intensity;
+      this.color = color;
+      this.size = size;
+      this.scale = 20;
+      args.material = new _DefaultMaterial.default();
+      args.material.diffuseColor = this.color;
+      args.material.specular = 0;
+      args.material.receiveShadows = false;
     }
   }, {
-    key: "initMouse",
-    value: function initMouse() {
-      var _this2 = this;
-
-      var entity = this.entity;
-
-      var down = function down(e) {
-        if (_EntityControler2.EntityControler.isMouseButton(e) == 2) {
-          _this2.viewport.requestPointerLock();
-        }
-      };
-
-      var move = function move(e) {
-        if (document.pointerLockElement != null) {
-          entity.rotation.y += e.movementX * _this2.sensivity;
-          entity.rotation.x += e.movementY * _this2.sensivity;
-          entity.rotation.x = entity.rotation.x % (Math.PI * 2);
-          entity.rotation.y = entity.rotation.y % (Math.PI * 2);
-          entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
-        }
-      };
-
-      this.viewport.addEventListener("mousedown", down);
-      this.viewport.addEventListener("mousemove", move);
-    }
-  }, {
-    key: "initKeyboard",
-    value: function initKeyboard() {
-      var _this3 = this;
-
-      this.keyMap = new Map();
-      window.addEventListener('keydown', function (e) {
-        if (document.pointerLockElement != null) {
-          _this3.keyMap.set(e.key, true);
-        }
-      });
-      window.addEventListener('keyup', function (e) {
-        _this3.keyMap.delete(e.key);
-      });
-    }
-  }, {
-    key: "checkKey",
-    value: function checkKey(key) {
-      return this.keyMap.has(key);
+    key: "isLight",
+    get: function get() {
+      return true;
     }
   }]);
 
-  return FirstPersonControler;
-}(_EntityControler2.EntityControler);
+  return Pointlight;
+}(_Sphere2.Sphere);
 
-exports.FirstPersonControler = FirstPersonControler;
-},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../src/resources/File.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var File =
-/*#__PURE__*/
-function () {
-  function File() {
-    _classCallCheck(this, File);
-
-    _defineProperty(this, "vertecies", []);
-
-    _defineProperty(this, "uvs", []);
-
-    _defineProperty(this, "faces", []);
-
-    _defineProperty(this, "normals", []);
+exports.Pointlight = Pointlight;
+},{"../materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../geo/Sphere":"../../src/geo/Sphere.js"}],"../../src/light/*.*":[function(require,module,exports) {
+module.exports = {
+  "Spotlight": {
+    "js": require("./Spotlight.js")
+  },
+  "Pointlight": {
+    "js": require("./Pointlight.js")
   }
-
-  _createClass(File, null, [{
-    key: "parseFile",
-    value: function parseFile(strData) {
-      var fileData = new File();
-      return fileData;
-    }
-  }]);
-
-  return File;
-}();
-
-exports.default = File;
-},{}],"../../src/resources/OBJFile.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _File2 = _interopRequireDefault(require("./File"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var OBJFile =
-/*#__PURE__*/
-function (_File) {
-  _inherits(OBJFile, _File);
-
-  function OBJFile() {
-    _classCallCheck(this, OBJFile);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(OBJFile).apply(this, arguments));
-  }
-
-  _createClass(OBJFile, null, [{
-    key: "parseFile",
-    value: function parseFile(strData) {
-      var lines = strData.split(/\n/g);
-      var objData = new OBJFile();
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = lines[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var line = _step.value;
-          var data = line.split(" ");
-          var prefix = data[0];
-          var coords = [];
-
-          switch (prefix) {
-            case "v":
-              coords = data.slice(1);
-              objData.vertecies.push([+coords[0], +coords[1], +coords[2]]);
-              break;
-
-            case "vt":
-              coords = data.slice(1);
-              objData.uvs.push([+coords[0], +coords[1]]);
-              break;
-
-            case "vn":
-              coords = data.slice(1);
-              objData.normals.push([+coords[0], +coords[1], +coords[2]]);
-              break;
-
-            case "f":
-              coords = data.slice(1);
-              var face = [];
-              var _iteratorNormalCompletion2 = true;
-              var _didIteratorError2 = false;
-              var _iteratorError2 = undefined;
-
-              try {
-                for (var _iterator2 = coords[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                  var c = _step2.value;
-                  face.push(c.split('/').map(function (i) {
-                    return parseInt(i);
-                  }));
-                }
-              } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-              } finally {
-                try {
-                  if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-                    _iterator2.return();
-                  }
-                } finally {
-                  if (_didIteratorError2) {
-                    throw _iteratorError2;
-                  }
-                }
-              }
-
-              objData.faces.push(face);
-              break;
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return objData;
-    }
-  }]);
-
-  return OBJFile;
-}(_File2.default);
-
-exports.default = OBJFile;
-},{"./File":"../../src/resources/File.js"}],"../../src/Resources.js":[function(require,module,exports) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Resources = void 0;
-
-var _OBJFile = _interopRequireDefault(require("./resources/OBJFile.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var global = {};
-global.initLoaded = false;
-global.resourceTypes = {
-  JSON: [".json"],
-  TEXT: [".txt"],
-  IMAGE: [".png", ".jpg"],
-  VIDEO: [".mp4"],
-  SHADER: [".shader", ".fs", ".vs"],
-  GEOMETRY: [".obj"]
 };
-global.queue = new Set();
-global.map = new Map();
-/*
-	Resource.add({ name, path }: arr, startLoading: bool): startLoading ? Promise : null
-		# add resource to queue
-
-	Resource.load(): Promise
-		# initiate loading of queue
-
-	Resource.map(void)
-		# return resource map
-
-	Resource.get(name: str)
-		# return resource data by name
-
-	Resource.finished: bool
-		# returns if queue is finished
-*/
-
-var Resources =
-/*#__PURE__*/
-function () {
-  function Resources() {
-    _classCallCheck(this, Resources);
-  }
-
-  _createClass(Resources, null, [{
-    key: "add",
-    value: function add(obj, startLoad) {
-      for (var key in obj) {
-        global.queue.add({
-          name: key,
-          path: obj[key]
-        });
-      }
-
-      if (startLoad === true) {
-        return Resources.load();
-      }
-    }
-  }, {
-    key: "map",
-    value: function map() {
-      return global.map;
-    }
-  }, {
-    key: "get",
-    value: function get(name) {
-      return global.map.get(name);
-    }
-  }, {
-    key: "load",
-    value: function load() {
-      var loads = [];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        var _loop = function _loop() {
-          var res = _step.value;
-
-          var loading = Resources._fetch(res.path).then(function (dataObj) {
-            var resource = res;
-            global.map.set(resource.name, dataObj);
-          });
-
-          loads.push(loading);
-        };
-
-        for (var _iterator = global.queue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          _loop();
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return Promise.all(loads).then(function () {
-        global.queue.clear();
-
-        if (!global.initLoaded && Resources.finished) {
-          global.initLoaded = true;
-        }
-      });
-    }
-  }, {
-    key: "_fetch",
-    value: function _fetch(path) {
-      var type = null;
-
-      for (var t in Resources.Types) {
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-          for (var _iterator2 = Resources.Types[t][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var ending = _step2.value;
-
-            if (path.match(ending)) {
-              type = Resources.Types[t];
-            }
-          }
-        } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-              _iterator2.return();
-            }
-          } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
-            }
-          }
-        }
-      }
-
-      switch (type) {
-        case Resources.Types.JSON:
-          return fetch(path).then(function (res) {
-            return res.json().catch(function (err) {
-              console.error("File failed parsing:", path);
-            });
-          });
-
-        case Resources.Types.IMAGE:
-          return new Promise(function (resolve, reject) {
-            var img = new Image();
-
-            img.onload = function () {
-              resolve(img);
-            };
-
-            img.src = path;
-          });
-
-        case Resources.Types.VIDEO:
-          return new Promise(function (resolve, reject) {
-            var vid = document.createElement('video');
-
-            vid.oncanplay = function () {
-              vid.width = 1024;
-              vid.height = 1024;
-              vid.loop = true;
-              vid.play();
-              resolve(vid);
-            };
-
-            vid.src = path;
-          });
-
-        case Resources.Types.GEOMETRY:
-          return fetch(path).then(function (res) {
-            return res.text().then(function (strData) {
-              return _OBJFile.default.parseFile(strData);
-            });
-          });
-
-        case Resources.Types.TEXT:
-          return fetch(path).then(function (res) {
-            return res.text();
-          });
-
-        case Resources.Types.SHADER:
-          return fetch(path).then(function (res) {
-            return res.text();
-          });
-
-        default:
-          throw "Err: not a valid resource type: \"".concat(path, "\"");
-      }
-    }
-  }, {
-    key: "Types",
-    get: function get() {
-      return global.resourceTypes;
-    }
-  }, {
-    key: "finished",
-    get: function get() {
-      return global.queue.size === 0;
-    }
-  }]);
-
-  return Resources;
-}();
-
-exports.Resources = Resources;
-},{"./resources/OBJFile.js":"../../src/resources/OBJFile.js"}],"../../src/Logger.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Logger = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var loggerListeners = new Map();
-
-var Logger =
-/*#__PURE__*/
-function () {
-  _createClass(Logger, null, [{
-    key: "listen",
-    value: function listen(name, f) {
-      var listeners = loggerListeners.get(name);
-
-      if (listeners) {
-        listeners.push(f);
-      }
-    }
-  }, {
-    key: "dispatch",
-    value: function dispatch(name, msg) {
-      var listeners = loggerListeners.get(name);
-
-      if (listeners) {
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = listeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var listener = _step.value;
-            listener(msg);
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return != null) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      }
-    }
-  }]);
-
-  function Logger(name) {
-    _classCallCheck(this, Logger);
-
-    this.prefix = name;
-    loggerListeners.set(name, []);
-    this.style = {
-      prefix: "\n                background: #1c1c1c;\n                color: rgba(255, 255, 255, 0.65);\n                font-weight: 600;\n                padding: 2px 6px;\n                border-radius: 4px;\n                margin-right: 5px;\n            ",
-      text: "\n                background: #333;\n                color: #eee;\n                padding: 2px 6px;\n            ",
-      attr: "\n                background: #3f3f3f;\n                color: #eee;\n                padding: 2px 6px;\n                font-style: italic;\n            "
-    };
-  }
-
-  _createClass(Logger, [{
-    key: "out",
-    value: function out(type, text, attr) {
-      if (attr) {
-        console[type]("%c".concat(this.prefix, "%c").concat(text, "%c").concat(attr), this.style.prefix, this.style.text, this.style.attr);
-      } else {
-        console[type]("%c".concat(this.prefix, "%c").concat(text), this.style.prefix, this.style.text);
-      }
-
-      Logger.dispatch(this.prefix, {
-        style: this.style,
-        prefix: this.prefix,
-        text: text
-      });
-    }
-  }, {
-    key: "log",
-    value: function log(text, attr) {
-      this.out('info', text, attr);
-    }
-  }, {
-    key: "error",
-    value: function error(text, attr) {
-      this.out('error', text, attr);
-    }
-  }]);
-
-  return Logger;
-}();
-
-exports.Logger = Logger;
-},{}],"../../src/Loader.js":[function(require,module,exports) {
+},{"./Spotlight.js":"../../src/light/Spotlight.js","./Pointlight.js":"../../src/light/Pointlight.js"}],"../../src/Loader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9926,6 +11203,24 @@ var _Resources = require("./Resources");
 var _Texture = require("./materials/Texture");
 
 var _Logger = require("./Logger");
+
+var _Scene = require("./scene/Scene");
+
+var Geometry = _interopRequireWildcard(require("./geo/*.*"));
+
+var Camera = _interopRequireWildcard(require("./camera/*.*"));
+
+var Light = _interopRequireWildcard(require("./light/*.*"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9943,6 +11238,75 @@ function () {
   }
 
   _createClass(Loader, null, [{
+    key: "loadScene",
+    value: function loadScene(json, camera) {
+      var objects = [].concat(_toConsumableArray(json.objects), _toConsumableArray(json.cameras));
+      var scene = new _Scene.Scene(camera);
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var obj = _step.value;
+          var Category = Geometry;
+          if (obj.type in Geometry) Category = Geometry;
+          if (obj.type in Light) Category = Light;
+          if (obj.type in Camera) Category = Camera;
+          if (obj.type == 'Cursor' || obj.type == 'Grid') continue;
+          var geo = new Category[obj.type].js[obj.type]();
+          geo = Object.assign(geo, obj);
+          scene.add(geo);
+
+          if (obj.type in Camera) {
+            scene.activeCamera = geo;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return scene;
+    }
+  }, {
+    key: "saveScene",
+    value: function saveScene(scene) {
+      var objects = _toConsumableArray(scene.objects);
+
+      var camera = scene.activeCamera;
+      var json = {
+        cameras: [{
+          type: camera.constructor.name,
+          position: camera.position,
+          rotation: camera.rotation,
+          fov: camera.fov,
+          scale: camera.scale
+        }],
+        objects: _toConsumableArray(objects.map(function (obj) {
+          return {
+            type: obj.constructor.name,
+            position: obj.position,
+            rotation: obj.rotation,
+            scale: obj.scale,
+            id: obj.id
+          };
+        })),
+        animation: []
+      };
+      return json;
+    }
+  }, {
     key: "loadObjFile",
     value: function loadObjFile(objFile) {
       var vertecies = [];
@@ -10030,73 +11394,7 @@ function () {
 }();
 
 exports.Loader = Loader;
-},{"./materials/Material":"../../src/materials/Material.js","./Resources":"../../src/Resources.js","./materials/Texture":"../../src/materials/Texture.js","./Logger":"../../src/Logger.js"}],"../../src/geo/Plane.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Plane = void 0;
-
-var _Geometry2 = require("../scene/Geometry.js");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var Plane =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Plane, _Geometry);
-
-  function Plane() {
-    _classCallCheck(this, Plane);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Plane).apply(this, arguments));
-  }
-
-  _createClass(Plane, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      args.drawmoed = "TRIANGLES";
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var s = 1;
-      return [-s, -s, 0, 0, 0, s, -s, 0, 1, 0, s, s, 0, 1, 1, s, s, 0, 1, 1, -s, s, 0, 0, 1, -s, -s, 0, 0, 0];
-    }
-  }]);
-
-  return Plane;
-}(_Geometry2.Geometry);
-
-exports.Plane = Plane;
-
-_defineProperty(Plane, "attributes", [{
-  size: 3,
-  attribute: "aPosition"
-}, {
-  size: 2,
-  attribute: "aTexCoords"
-}]);
-},{"../scene/Geometry.js":"../../src/scene/Geometry.js"}],"../../src/renderer/GLShader.js":[function(require,module,exports) {
+},{"./materials/Material":"../../src/materials/Material.js","./Resources":"../../src/Resources.js","./materials/Texture":"../../src/materials/Texture.js","./Logger":"../../src/Logger.js","./scene/Scene":"../../src/scene/Scene.js","./geo/*.*":"../../src/geo/*.*","./camera/*.*":"../../src/camera/*.*","./light/*.*":"../../src/light/*.*"}],"../../src/renderer/GLShader.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10871,7 +12169,7 @@ function (_GLShader) {
   }, {
     key: "fragmentSource",
     value: function fragmentSource() {
-      return "#version 300 es\n        \n        precision mediump float;\n        \n        uniform bool selected;\n\n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n\n            if(selected) {\n                oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);\n            }\n        }";
+      return "#version 300 es\n        \n        precision mediump float;\n        \n        struct Material {\n            vec3 diffuseColor;\n            float specular;\n            float roughness;\n            float metallic;\n            float transparency;\n            float textureScale;\n            bool scaleUniform;\n            bool selected;\n        };\n        uniform Material material;\n\n        in vec3 primitiveColor;\n        \n        out vec4 oFragColor;\n        \n        void main () {\n            oFragColor = vec4(primitiveColor, .75);\n\n            if(material.selected) {\n                oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);\n            }\n        }";
     }
   }]);
 
@@ -10966,6 +12264,8 @@ var _Math = require("../Math");
 
 var _MattShader = _interopRequireDefault(require("../shader/MattShader"));
 
+var _Pointlight = require("../light/Pointlight");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -11033,7 +12333,6 @@ function (_GLContext) {
         width: this.width,
         height: this.height
       };
-      this.scene.activeCamera.update();
     }
   }, {
     key: "onCreate",
@@ -11105,15 +12404,17 @@ function (_GLContext) {
       try {
         var _loop = function _loop() {
           var pass = _step2.value;
-          var lightS = _this2.scene.lightSources;
           var cullDefault = gl.isEnabled(gl.CULL_FACE);
+          var lightS = _this2.scene.lightSources;
           pass.use();
 
           switch (pass.id) {
             case "shadow":
-              _this2.drawScene(_this2.scene, lightS, function (obj) {
-                return obj.material && obj.material.castShadows;
-              });
+              if (lightS) {
+                _this2.drawScene(_this2.scene, lightS, function (obj) {
+                  return obj.material.castShadows;
+                });
+              }
 
               break;
 
@@ -11255,7 +12556,10 @@ function (_GLContext) {
     key: "renderCubemap",
     value: function renderCubemap(cubemap, camera) {
       var gl = this.gl;
-      var initial = new _Math.Vec(camera.rotation);
+      var initial = {
+        rotation: new _Math.Vec(camera.rotation),
+        position: new _Math.Vec(camera.position)
+      };
       var shader = new _ColorShader.default();
       this.prepareShader(shader);
       this.useShader(shader);
@@ -11271,22 +12575,22 @@ function (_GLContext) {
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       var faces = [{
         target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-        rotation: new _Math.Vec(0, 180 / 180 * Math.PI, 0)
+        rotation: new _Math.Vec(0, -90 / 180 * Math.PI, 0)
       }, {
         target: gl.TEXTURE_CUBE_MAP_POSITIVE_X,
-        rotation: new _Math.Vec(0, 0, 0)
-      }, {
-        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        rotation: new _Math.Vec(-90 / 180 * Math.PI, 270 / 180 * Math.PI, 0)
-      }, {
-        target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
-        rotation: new _Math.Vec(90 / 180 * Math.PI, 270 / 180 * Math.PI, 0)
-      }, {
-        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
         rotation: new _Math.Vec(0, 90 / 180 * Math.PI, 0)
       }, {
+        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        rotation: new _Math.Vec(-90 / 180 * Math.PI, 0, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+        rotation: new _Math.Vec(90 / 180 * Math.PI, 0, 0)
+      }, {
+        target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        rotation: new _Math.Vec(0, 180 / 180 * Math.PI, 0)
+      }, {
         target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-        rotation: new _Math.Vec(0, 270 / 180 * Math.PI, 0)
+        rotation: new _Math.Vec(0, 0, 0)
       }];
       cubemap.gltexture = texture;
       var fbo = gl.createFramebuffer();
@@ -11295,19 +12599,26 @@ function (_GLContext) {
       for (var _i = 0, _faces = faces; _i < _faces.length; _i++) {
         var face = _faces[_i];
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, face.target, texture, 0);
+        camera.position.x = 0;
+        camera.position.y = -650;
+        camera.position.z = 0;
         camera.rotation.x = face.rotation.x;
         camera.rotation.y = face.rotation.y;
         camera.rotation.z = face.rotation.z;
-        camera.fov = 90;
+        camera.fov = 75;
+        camera.update();
         this.setResolution(cubemap.width, cubemap.height);
         this.updateViewport();
         this.clear();
         this.drawScene(this.scene, camera);
       }
 
-      camera.rotation.x = initial.x;
-      camera.rotation.y = initial.y;
-      camera.rotation.z = initial.z;
+      camera.position.x = initial.position.x;
+      camera.position.y = initial.position.y;
+      camera.position.z = initial.position.z;
+      camera.rotation.x = initial.rotation.x;
+      camera.rotation.y = initial.rotation.y;
+      camera.rotation.z = initial.rotation.z;
       camera.fov = 90;
       this.setResolution(window.innerWidth, window.innerHeight);
       this.updateViewport();
@@ -11384,7 +12695,7 @@ function (_GLContext) {
   }, {
     key: "drawScene",
     value: function drawScene(scene, camera, filter) {
-      var objects = scene.objects;
+      var objects = scene.getRenderableObjects();
       var shader = this.currentShader;
       this.setupScene(shader, camera);
       var lightCount = 0;
@@ -11396,7 +12707,7 @@ function (_GLContext) {
         for (var _iterator3 = objects[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
           var light = _step3.value;
 
-          if (light.isLight) {
+          if (light instanceof _Pointlight.Pointlight) {
             this.gl.uniform3fv(shader.uniforms["pointLights[" + lightCount + "].position"], [light.position.x, light.position.y, light.position.z]);
             this.gl.uniform3fv(shader.uniforms["pointLights[" + lightCount + "].color"], light.color);
             this.gl.uniform1f(shader.uniforms["pointLights[" + lightCount + "].intensity"], light.intensity);
@@ -11453,7 +12764,7 @@ function (_GLContext) {
       if (geo.material) {
         this.applyMaterial(this.currentShader, geo.material);
 
-        if (geo.instanced && !geo.hidden) {
+        if (geo.instanced) {
           this.drawGeoInstanced(geo);
         } else {
           this.drawGeo(geo);
@@ -11463,7 +12774,6 @@ function (_GLContext) {
   }, {
     key: "drawGeoInstanced",
     value: function drawGeoInstanced(geo) {
-      if (geo.hidden) return;
       var gl = this.gl;
       var buffer = geo.buffer;
       var vertCount = buffer.vertecies.length / buffer.elements;
@@ -11473,7 +12783,6 @@ function (_GLContext) {
   }, {
     key: "drawGeo",
     value: function drawGeo(geo) {
-      if (geo.hidden) return;
       var gl = this.gl;
       var buffer = geo.buffer;
       this.setupGemoetry(geo);
@@ -11555,423 +12864,15 @@ function () {
 }();
 
 exports.RenderPass = RenderPass;
-},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js"}],"../../src/materials/PrimitiveMaterial.js":[function(require,module,exports) {
+},{"../geo/Plane":"../../src/geo/Plane.js","../renderer/GL":"../../src/renderer/GL.js","../shader/FinalShader":"../../src/shader/FinalShader.js","../shader/ColorShader":"../../src/shader/ColorShader.js","../shader/LightShader":"../../src/shader/LightShader.js","../shader/PrimitiveShader":"../../src/shader/PrimitiveShader.js","../Logger":"../../src/Logger.js","../Config":"../../src/Config.js","gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../Math":"../../src/Math.js","../shader/MattShader":"../../src/shader/MattShader.js","../light/Pointlight":"../../src/light/Pointlight.js"}],"../../src/controlers/EntityControler.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.EntityControler = void 0;
 
-var _Material2 = require("./Material");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var PrimitivetMaterial =
-/*#__PURE__*/
-function (_Material) {
-  _inherits(PrimitivetMaterial, _Material);
-
-  function PrimitivetMaterial() {
-    var _getPrototypeOf2;
-
-    var _this;
-
-    _classCallCheck(this, PrimitivetMaterial);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(PrimitivetMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-    _defineProperty(_assertThisInitialized(_this), "diffuseColor", [0.5, 0.5, 0.5]);
-
-    _defineProperty(_assertThisInitialized(_this), "transparency", 0.5);
-
-    _defineProperty(_assertThisInitialized(_this), "scaleUniform", true);
-
-    _defineProperty(_assertThisInitialized(_this), "receiveShadows", false);
-
-    _defineProperty(_assertThisInitialized(_this), "castShadows", false);
-
-    _defineProperty(_assertThisInitialized(_this), "selected", false);
-
-    return _this;
-  }
-
-  return PrimitivetMaterial;
-}(_Material2.Material);
-
-exports.default = PrimitivetMaterial;
-},{"./Material":"../../src/materials/Material.js"}],"../../src/geo/Guide.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Guide = void 0;
-
-var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial"));
-
-var _Math = require("../Math");
-
-var _Geometry2 = require("../scene/Geometry");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var DEFAULT_GUIDE_MATERIAL = new _PrimitiveMaterial.default();
-
-var Guide =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Guide, _Geometry);
-
-  function Guide() {
-    _classCallCheck(this, Guide);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Guide).apply(this, arguments));
-  }
-
-  _createClass(Guide, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      args.guide = true;
-      args.material = DEFAULT_GUIDE_MATERIAL;
-      args.drawmode = "LINES";
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var s = this.scale * 10 || 10;
-
-      var _ref = this.origin || new _Math.Vec(),
-          x = _ref.x,
-          y = _ref.y,
-          z = _ref.z;
-
-      return [x, y, z + s, 0, 1, 1, 1, 1, x, y, z + -s, 0, 1, 1, 1, 1, x, y + s, z, 0, 1, 1, 1, 1, x, y - s, z, 0, 1, 1, 1, 1, x + s, y, z, 0, 1, 1, 1, 1, x - s, y, z, 0, 1, 1, 1, 1];
-    }
-  }]);
-
-  return Guide;
-}(_Geometry2.Geometry);
-
-exports.Guide = Guide;
-},{"../materials/PrimitiveMaterial":"../../src/materials/PrimitiveMaterial.js","../Math":"../../src/Math.js","../scene/Geometry":"../../src/scene/Geometry.js"}],"../../src/geo/Grid.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Grid = void 0;
-
-var _Guide2 = require("./Guide.js");
-
-var _PrimitiveMaterial = _interopRequireDefault(require("../materials/PrimitiveMaterial.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var DEFAULT_GRID_MATERIAL = new _PrimitiveMaterial.default();
-DEFAULT_GRID_MATERIAL.scaleUniform = false;
-DEFAULT_GRID_MATERIAL.transparency = 0.1;
-
-var Grid =
-/*#__PURE__*/
-function (_Guide) {
-  _inherits(Grid, _Guide);
-
-  _createClass(Grid, [{
-    key: "vertecies",
-    get: function get() {
-      return this.generate(this.size, this.count);
-    }
-  }]);
-
-  function Grid(size, count) {
-    var _this;
-
-    _classCallCheck(this, Grid);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this));
-    _this.size = size;
-    _this.count = count;
-    return _this;
-  }
-
-  _createClass(Grid, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      args.drawmode = "LINES"; // args.guide = true;
-
-      args.material = DEFAULT_GRID_MATERIAL;
-    }
-  }, {
-    key: "generate",
-    value: function generate() {
-      var w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-      var s = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 14;
-      var dataArray = [];
-      var size = w * s / 2;
-
-      for (var x = -s / 2; x <= s / 2; x++) {
-        var color = [0.5, 0.5, 0.5];
-        if (x == 0) color = [.15, .15, 1];
-        dataArray.push.apply(dataArray, [w * x, 0, size, 0, 0].concat(_toConsumableArray(color), [w * x, 0, -size, 0, 0], _toConsumableArray(color)));
-      }
-
-      for (var z = -s / 2; z <= s / 2; z++) {
-        var _color = [0.5, 0.5, 0.5];
-        if (z == 0) _color = [1, .15, .15];
-        dataArray.push.apply(dataArray, [size, 0, w * z, 0, 0].concat(_toConsumableArray(_color), [-size, 0, w * z, 0, 0], _toConsumableArray(_color)));
-      }
-
-      return dataArray;
-    }
-  }]);
-
-  return Grid;
-}(_Guide2.Guide);
-
-exports.Grid = Grid;
-},{"./Guide.js":"../../src/geo/Guide.js","../materials/PrimitiveMaterial.js":"../../src/materials/PrimitiveMaterial.js"}],"../../src/light/DirectionalLight.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DirectionalLight = void 0;
-
-var _glMatrix = require("gl-matrix");
-
-var _Camera2 = require("../camera/Camera");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var DirectionalLight =
-/*#__PURE__*/
-function (_Camera) {
-  _inherits(DirectionalLight, _Camera);
-
-  function DirectionalLight() {
-    _classCallCheck(this, DirectionalLight);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(DirectionalLight).apply(this, arguments));
-  }
-
-  _createClass(DirectionalLight, [{
-    key: "update",
-    value: function update() {
-      var projMatrix = this.projMatrix;
-      var viewMatrix = this.viewMatrix;
-      var camera = this;
-      var ar = this.sensor.width / this.sensor.height;
-
-      _glMatrix.mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-
-      _glMatrix.mat4.lookAt(viewMatrix, _glMatrix.vec3.fromValues(0, 0, 0), _glMatrix.vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), _glMatrix.vec3.fromValues(0, 1, 0));
-
-      _glMatrix.mat4.scale(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.scale, camera.scale, camera.scale));
-
-      _glMatrix.mat4.translate(viewMatrix, viewMatrix, _glMatrix.vec3.fromValues(camera.position.x, camera.position.y, camera.position.z));
-
-      _glMatrix.mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
-
-      _glMatrix.mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
-
-      _glMatrix.mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
-    }
-  }, {
-    key: "isLight",
-    get: function get() {
-      return true;
-    }
-  }]);
-
-  return DirectionalLight;
-}(_Camera2.Camera);
-
-exports.DirectionalLight = DirectionalLight;
-},{"gl-matrix":"../../node_modules/gl-matrix/esm/index.js","../camera/Camera":"../../src/camera/Camera.js"}],"../../res/models/cursor.obj":[function(require,module,exports) {
-module.exports = "cursor.021979eb.obj";
-},{}],"../../src/geo/Cursor.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Cursor = void 0;
-
-var _Math = require("../Math");
-
-var _Guide2 = require("./Guide");
-
-var _Loader = require("../Loader");
-
-var _Resources = require("../Resources");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-_Resources.Resources.add({
-  'cursor_model': require('../../res/models/cursor.obj')
-}, false);
-
-var Cursor =
-/*#__PURE__*/
-function (_Guide) {
-  _inherits(Cursor, _Guide);
-
-  function Cursor() {
-    _classCallCheck(this, Cursor);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Cursor).apply(this, arguments));
-  }
-
-  _createClass(Cursor, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      _get(_getPrototypeOf(Cursor.prototype), "onCreate", this).call(this, args);
-
-      args.drawmode = "TRIANGLES";
-      args.id = 1;
-      this.scale = 32;
-      this.cursorVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('cursor_model'));
-    }
-  }, {
-    key: "vertecies",
-    get: function get() {
-      var s = 0.75;
-
-      var _ref = new _Math.Vec(),
-          x = _ref.x,
-          y = _ref.y,
-          z = _ref.z;
-
-      return [x + s, y, z, 0, 0, 0, 0, 1, x, y, z + s, 0, 0, 0, 0, 1, x, y, z, 0, 0, 0, 0, 1, x, y, z + s, 0, 0, 0, 1, 0, x, y + s, z, 0, 0, 0, 1, 0, x, y, z, 0, 0, 0, 1, 0, x, y, z, 0, 0, 1, 0, 0, x, y + s, z, 0, 0, 1, 0, 0, x + s, y, z, 0, 0, 1, 0, 0].concat(_toConsumableArray(this.cursorVerts));
-    }
-  }]);
-
-  return Cursor;
-}(_Guide2.Guide);
-
-exports.Cursor = Cursor;
-},{"../Math":"../../src/Math.js","./Guide":"../../src/geo/Guide.js","../Loader":"../../src/Loader.js","../Resources":"../../src/Resources.js","../../res/models/cursor.obj":"../../res/models/cursor.obj"}],"../../src/scene/Scene.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Scene = void 0;
-
-var _Grid = require("../geo/Grid.js");
-
-var _DirectionalLight = require("../light/DirectionalLight");
-
-var _Math = require("../Math.js");
-
-var _Cursor = require("../geo/Cursor");
+var _Entity = require("../scene/Entity");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -11981,104 +12882,98 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Scene =
+var EntityControler =
 /*#__PURE__*/
 function () {
-  _createClass(Scene, [{
-    key: "objects",
-    get: function get() {
-      return this._objects;
+  _createClass(EntityControler, null, [{
+    key: "isMouseButton",
+    value: function isMouseButton(e) {
+      var mbutton;
+
+      if (e.button != null) {
+        if (e.buttons == 4) {
+          mbutton = 2;
+        } else {
+          mbutton = e.buttons;
+        }
+      } else {
+        mbutton = e.which;
+      }
+
+      return mbutton;
     }
   }]);
 
-  function Scene(camera) {
-    _classCallCheck(this, Scene);
+  function EntityControler(entity, viewport) {
+    _classCallCheck(this, EntityControler);
 
-    _defineProperty(this, "_objects", new Set());
+    _defineProperty(this, "locked", false);
 
-    this.lightSources = new _DirectionalLight.DirectionalLight({
-      fov: 90,
-      position: new _Math.Vec(1000, 0, -8000),
-      rotation: new _Math.Vec(50, 40, 0)
-    });
-    this.activeCamera = camera;
-    this.grid = new _Grid.Grid(100, 20);
-    this.curosr = new _Cursor.Cursor();
-    this.clear();
+    if (!entity) throw "No entity";
+
+    if (entity instanceof _Entity.Entity) {
+      entity.addTrait(this.update.bind(this));
+    }
+
+    this.entity = entity;
+    this.viewport = viewport;
+    this.initKeyboard();
+    this.initMouse();
   }
 
-  _createClass(Scene, [{
-    key: "add",
-    value: function add(obj) {
+  _createClass(EntityControler, [{
+    key: "update",
+    value: function update(ms) {}
+  }, {
+    key: "lock",
+    value: function lock() {
+      this.locked = true;
+    }
+  }, {
+    key: "unlock",
+    value: function unlock() {
+      this.locked = false;
+    }
+  }, {
+    key: "initKeyboard",
+    value: function initKeyboard() {
       var _this = this;
 
-      if (Array.isArray(obj)) {
-        obj.forEach(function (o) {
-          return _this._objects.add(o);
-        });
-      } else {
-        this._objects.add(obj);
-      }
-    }
-  }, {
-    key: "remove",
-    value: function remove(obj) {
-      var _this2 = this;
+      this.keyMap = new Map();
+      window.addEventListener('keydown', function (e) {
+        if (document.pointerLockElement != null) {
+          e.preventDefault();
 
-      if (Array.isArray(obj)) {
-        obj.forEach(function (o) {
-          return _this2._objects.delete(o);
-        });
-      } else {
-        this._objects.delete(obj);
-      }
-    }
-  }, {
-    key: "clear",
-    value: function clear() {
-      this._objects.clear();
-
-      this.add(this.grid);
-      this.add(this.curosr);
-    }
-  }, {
-    key: "update",
-    value: function update(ms) {
-      this.activeCamera.update(ms);
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this._objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var obj = _step.value;
-
-          if (obj.update) {
-            obj.update(ms);
-          }
+          _this.keyMap.set(e.key, true);
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
+      });
+      window.addEventListener('keyup', function (e) {
+        if (document.pointerLockElement != null) {
+          e.preventDefault();
         }
-      }
+
+        _this.keyMap.delete(e.key);
+      });
     }
+  }, {
+    key: "checkKey",
+    value: function checkKey(key) {
+      if (!this.locked) {
+        return this.keyMap.has(key);
+      }
+
+      return false;
+    }
+  }, {
+    key: "initMouse",
+    value: function initMouse() {}
   }]);
 
-  return Scene;
+  return EntityControler;
 }();
 
-exports.Scene = Scene;
-},{"../geo/Grid.js":"../../src/geo/Grid.js","../light/DirectionalLight":"../../src/light/DirectionalLight.js","../Math.js":"../../src/Math.js","../geo/Cursor":"../../src/geo/Cursor.js"}],"../../src/controlers/CursorController.js":[function(require,module,exports) {
+exports.EntityControler = EntityControler;
+},{"../scene/Entity":"../../src/scene/Entity.js"}],"../../src/controlers/CursorController.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12160,42 +13055,42 @@ function (_EntityControler) {
       var color = [0, 0, 0];
 
       var down = function down(e) {
-        if (hovering) {
+        if (_EntityControler2.EntityControler.isMouseButton(e) == 1) {
           _this2.interaction(selected);
 
-          moving = selected == 1;
-        }
+          if (hovering) {
+            moving = selected == 1;
+          }
 
-        if (!moving) {
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          if (!moving) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
 
-          try {
-            for (var _iterator = scene.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var obj = _step.value;
-
-              if (obj.id == selected) {
-                _this2.viewport.setCursor(obj);
-
-                _this2.lastAction.target = curosr;
-                _this2.lastAction.property = 'position';
-                _this2.lastAction.state = new _Math.Vec(curosr.position);
-
-                _this2.interaction(selected);
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
             try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
+              for (var _iterator = scene.objects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var obj = _step.value;
+
+                if (obj.id == selected) {
+                  _this2.viewport.setCursor(obj);
+
+                  _this2.lastAction.target = curosr;
+                  _this2.lastAction.property = 'position';
+                  _this2.lastAction.state = new _Math.Vec(curosr.position);
+                }
               }
+            } catch (err) {
+              _didIteratorError = true;
+              _iteratorError = err;
             } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
+              try {
+                if (!_iteratorNormalCompletion && _iterator.return != null) {
+                  _iterator.return();
+                }
+              } finally {
+                if (_didIteratorError) {
+                  throw _iteratorError;
+                }
               }
             }
           }
@@ -12237,7 +13132,6 @@ function (_EntityControler) {
       var test = function test(e) {
         var x = e.x;
         var y = _this2.viewport.renderer.height - e.y;
-        hovering = false;
 
         if (!moving) {
           renderer.readPixelFromBuffer(x, y, 'id').then(function (value) {
@@ -12248,8 +13142,6 @@ function (_EntityControler) {
           renderer.readPixelFromBuffer(x, y, 'guides').then(function (value) {
             color = value;
           });
-        } else {
-          _this2.entity.material.selected = true;
         }
       };
 
@@ -12266,9 +13158,7 @@ function (_EntityControler) {
         return e.preventDefault();
       });
       this.viewport.addEventListener("mousedown", function (e) {
-        if (_EntityControler2.EntityControler.isMouseButton(e) == 1) {
-          down(e);
-        }
+        down(e);
       });
       this.viewport.addEventListener("mouseup", up);
       this.viewport.addEventListener("mousemove", move);
@@ -12291,17 +13181,214 @@ function (_EntityControler) {
 }(_EntityControler2.EntityControler);
 
 exports.CursorControler = CursorControler;
-},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../Viewport.js":[function(require,module,exports) {
+},{"./EntityControler":"../../src/controlers/EntityControler.js","../Math":"../../src/Math.js"}],"../../src/controlers/CameraControler.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CameraControler = void 0;
+
+var _EntityControler2 = require("./EntityControler");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var CameraControler =
+/*#__PURE__*/
+function (_EntityControler) {
+  _inherits(CameraControler, _EntityControler);
+
+  function CameraControler() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, CameraControler);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(CameraControler)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "sensivity", 0.0033);
+
+    _defineProperty(_assertThisInitialized(_this), "speed", 20);
+
+    return _this;
+  }
+
+  _createClass(CameraControler, [{
+    key: "initMouse",
+    value: function initMouse() {
+      var _this2 = this;
+
+      var entity = this.entity;
+
+      var down = function down(e) {
+        if (_EntityControler2.EntityControler.isMouseButton(e) == 2) {
+          _this2.unlock();
+
+          _this2.viewport.requestPointerLock();
+        }
+      };
+
+      var move = function move(e) {
+        if (document.pointerLockElement != null) {
+          entity.rotation.y += e.movementX * _this2.sensivity;
+          entity.rotation.x += e.movementY * _this2.sensivity;
+          entity.rotation.x = entity.rotation.x % (Math.PI * 2);
+          entity.rotation.y = entity.rotation.y % (Math.PI * 2);
+          entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
+        }
+      };
+
+      this.viewport.addEventListener("mousedown", down);
+      this.viewport.addEventListener("mousemove", move);
+    }
+  }, {
+    key: "up",
+    value: function up() {
+      var camera = this.entity;
+      camera.position.y -= this.speed;
+    }
+  }, {
+    key: "down",
+    value: function down() {
+      var camera = this.entity;
+      camera.position.y += this.speed;
+    }
+  }, {
+    key: "move",
+    value: function move(dir) {
+      var camera = this.entity;
+      var speed = this.speed * dir;
+      var a = -camera.rotation.y;
+      var b = -camera.rotation.x;
+      camera.position.x += speed * Math.sin(a);
+      camera.position.z += speed * Math.cos(a);
+      camera.position.y -= speed * Math.sin(b);
+    }
+  }, {
+    key: "strafe",
+    value: function strafe(dir) {
+      var camera = this.entity;
+      var speed = this.speed * dir;
+      var a = camera.rotation.y;
+      camera.position.z += speed * Math.sin(a);
+      camera.position.x += speed * Math.cos(a);
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      if (this.checkKey("w")) this.move(1);
+      if (this.checkKey("s")) this.move(-1);
+      if (this.checkKey("a")) this.strafe(1);
+      if (this.checkKey("d")) this.strafe(-1);
+      if (this.checkKey("q")) this.up();
+      if (this.checkKey("y")) this.down();
+    }
+  }, {
+    key: "lock",
+    value: function lock() {
+      _get(_getPrototypeOf(CameraControler.prototype), "lock", this).call(this);
+
+      document.exitPointerLock();
+    }
+  }]);
+
+  return CameraControler;
+}(_EntityControler2.EntityControler);
+
+exports.CameraControler = CameraControler;
+},{"./EntityControler":"../../src/controlers/EntityControler.js"}],"../../src/materials/Cubemap.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cubemap = void 0;
+
+var _Texture2 = require("./Texture");
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Cubemap =
+/*#__PURE__*/
+function (_Texture) {
+  _inherits(Cubemap, _Texture);
+
+  function Cubemap() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    _classCallCheck(this, Cubemap);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Cubemap)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "type", "TEXTURE_CUBE_MAP");
+
+    _defineProperty(_assertThisInitialized(_this), "width", 1920);
+
+    _defineProperty(_assertThisInitialized(_this), "height", 1920);
+
+    _defineProperty(_assertThisInitialized(_this), "image", []);
+
+    return _this;
+  }
+
+  return Cubemap;
+}(_Texture2.Texture);
+
+exports.Cubemap = Cubemap;
+},{"./Texture":"../../src/materials/Texture.js"}],"../../Viewport.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-
-var _FirstPersonCamera = require("./src/camera/FirstPersonCamera");
-
-var _FirstPersonControler = require("./src/controlers/FirstPersonControler");
 
 var _Loader = require("./src/Loader.js");
 
@@ -12318,6 +13405,12 @@ var _Math = require("./src/Math");
 var _Scheduler = require("./src/Scheduler");
 
 var _CursorController = require("./src/controlers/CursorController");
+
+var _CameraControler = require("./src/controlers/CameraControler");
+
+var _Camera = require("./src/scene/Camera.js");
+
+var _Cubemap = require("./src/materials/Cubemap.js");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -12387,12 +13480,6 @@ function (_HTMLElement) {
 
     _defineProperty(_assertThisInitialized(_this), "scheduler", new _Scheduler.Scheduler());
 
-    _defineProperty(_assertThisInitialized(_this), "camera", new _FirstPersonCamera.FirstPersonCamera({
-      fov: 90,
-      position: new _Math.Vec(0, -400, -2500),
-      rotation: new _Math.Vec(15, 0, 0)
-    }));
-
     _this.attachShadow({
       mode: 'open'
     });
@@ -12457,16 +13544,23 @@ function (_HTMLElement) {
   }, {
     key: "init",
     value: function init(canvas) {
+      var _this3 = this;
+
       var mats = _Resources.Resources.get('materials');
 
       for (var name in mats) {
         _Loader.Loader.createMatFromJson(name, mats[name]);
       }
 
+      this.camera = new _Camera.Camera({
+        fov: 90,
+        position: new _Math.Vec(0, -400, -2500),
+        rotation: new _Math.Vec(15, 0, 0)
+      });
       this.scene = new _Scene.Scene(this.camera);
       this.renderer = new _Renderer.Renderer(canvas);
       this.renderer.setScene(this.scene);
-      var controler = new _FirstPersonControler.FirstPersonControler(this.camera, canvas);
+      var controler = new _CameraControler.CameraControler(this.scene.activeCamera, canvas);
       var cursorControler = new _CursorController.CursorControler(this.scene.curosr, this);
 
       cursorControler.interaction = function (objID) {
@@ -12478,17 +13572,22 @@ function (_HTMLElement) {
       };
 
       this.dispatchEvent(new Event('load'));
-      this.setCursor(_toConsumableArray(this.scene.objects)[this.scene.objects.size - 1]);
+      this.setCursor(_toConsumableArray(this.scene.objects)[this.scene.objects.size - 1]); // testing
+
+      setTimeout(function () {
+        var cubemap = new _Cubemap.Cubemap();
+
+        _this3.renderer.renderCubemap(cubemap, _this3.scene.activeCamera);
+
+        _this3.scene.cubemap = cubemap;
+      }, 0);
     }
   }, {
     key: "setCursor",
     value: function setCursor(obj) {
       if (obj) {
-        this.scene.curosr.hidden = false;
         this.scene.curosr.position = new _Math.Vec(obj.position);
         obj.position = this.scene.curosr.position;
-      } else {
-        this.scene.curosr.hidden = true;
       }
     }
   }]);
@@ -12499,7 +13598,7 @@ function (_HTMLElement) {
 exports.default = Viewport;
 customElements.define('gl-viewport', Viewport);
 module.exports = Viewport;
-},{"./src/camera/FirstPersonCamera":"../../src/camera/FirstPersonCamera.js","./src/controlers/FirstPersonControler":"../../src/controlers/FirstPersonControler.js","./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js"}],"../../src/Test.js":[function(require,module,exports) {
+},{"./src/Loader.js":"../../src/Loader.js","./src/Logger.js":"../../src/Logger.js","./src/renderer/Renderer":"../../src/renderer/Renderer.js","./src/Resources.js":"../../src/Resources.js","./src/scene/Scene.js":"../../src/scene/Scene.js","./src/Math":"../../src/Math.js","./src/Scheduler":"../../src/Scheduler.js","./src/controlers/CursorController":"../../src/controlers/CursorController.js","./src/controlers/CameraControler":"../../src/controlers/CameraControler.js","./src/scene/Camera.js":"../../src/scene/Camera.js","./src/materials/Cubemap.js":"../../src/materials/Cubemap.js"}],"../../src/Test.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12608,207 +13707,7 @@ function () {
 }();
 
 exports.default = Test;
-},{"./Config":"../../src/Config.js","./Scheduler":"../../src/Scheduler.js","../Viewport":"../../Viewport.js","./Resources":"../../src/Resources.js","./Math":"../../src/Math.js"}],"../../src/light/PointLight.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.PointLight = void 0;
-
-var _Guide2 = require("../geo/Guide");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var PointLight =
-/*#__PURE__*/
-function (_Guide) {
-  _inherits(PointLight, _Guide);
-
-  function PointLight() {
-    _classCallCheck(this, PointLight);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(PointLight).apply(this, arguments));
-  }
-
-  _createClass(PointLight, [{
-    key: "onCreate",
-    value: function onCreate(args) {
-      _get(_getPrototypeOf(PointLight.prototype), "onCreate", this).call(this, args);
-
-      var _args$intensity = args.intensity,
-          intensity = _args$intensity === void 0 ? 2.0 : _args$intensity,
-          _args$color = args.color,
-          color = _args$color === void 0 ? [1, 1, 1] : _args$color,
-          _args$size = args.size,
-          size = _args$size === void 0 ? 10 : _args$size;
-      this.intensity = intensity;
-      this.color = color;
-      this.size = size;
-    }
-  }, {
-    key: "isLight",
-    get: function get() {
-      return true;
-    }
-  }]);
-
-  return PointLight;
-}(_Guide2.Guide);
-
-exports.PointLight = PointLight;
-},{"../geo/Guide":"../../src/geo/Guide.js"}],"../../res/models/sphere.obj":[function(require,module,exports) {
-module.exports = "sphere.088f4791.obj";
-},{}],"../../src/geo/Sphere.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Sphere = void 0;
-
-var _Geometry2 = require("../scene/Geometry.js");
-
-var _Resources = require("../Resources.js");
-
-var _Loader = require("../Loader.js");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-_Resources.Resources.add({
-  'sphere_model': require('../../res/models/sphere.obj')
-}, false);
-
-var Sphere =
-/*#__PURE__*/
-function (_Geometry) {
-  _inherits(Sphere, _Geometry);
-
-  function Sphere() {
-    _classCallCheck(this, Sphere);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Sphere).apply(this, arguments));
-  }
-
-  _createClass(Sphere, [{
-    key: "vertecies",
-    get: function get() {
-      return _Loader.Loader.loadObjFile(_Resources.Resources.get('sphere_model'));
-    }
-  }]);
-
-  return Sphere;
-}(_Geometry2.Geometry);
-
-exports.Sphere = Sphere;
-},{"../scene/Geometry.js":"../../src/scene/Geometry.js","../Resources.js":"../../src/Resources.js","../Loader.js":"../../src/Loader.js","../../res/models/sphere.obj":"../../res/models/sphere.obj"}],"../../res/textures/placeholder_256.png":[function(require,module,exports) {
-module.exports = "placeholder_256.33ec6945.png";
-},{}],"../../src/materials/TestMaterial.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _Resources = require("../Resources");
-
-var _Material2 = require("./Material");
-
-var _Texture = require("./Texture");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-_Resources.Resources.add({
-  'texture256': require('../../res/textures/placeholder_256.png')
-}, false);
-
-var TestMaterial =
-/*#__PURE__*/
-function (_Material) {
-  _inherits(TestMaterial, _Material);
-
-  function TestMaterial() {
-    var _getPrototypeOf2;
-
-    var _this;
-
-    _classCallCheck(this, TestMaterial);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TestMaterial)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-    _defineProperty(_assertThisInitialized(_this), "texture", new _Texture.Texture(_Resources.Resources.get('texture256')));
-
-    _defineProperty(_assertThisInitialized(_this), "textureScale", 256 * 2);
-
-    _defineProperty(_assertThisInitialized(_this), "diffuseColor", [1, 1, 1]);
-
-    _defineProperty(_assertThisInitialized(_this), "receiveShadows", true);
-
-    _defineProperty(_assertThisInitialized(_this), "castShadows", true);
-
-    return _this;
-  }
-
-  return TestMaterial;
-}(_Material2.Material);
-
-exports.default = TestMaterial;
-},{"../Resources":"../../src/Resources.js","./Material":"../../src/materials/Material.js","./Texture":"../../src/materials/Texture.js","../../res/textures/placeholder_256.png":"../../res/textures/placeholder_256.png"}],"../../src/Animation.js":[function(require,module,exports) {
+},{"./Config":"../../src/Config.js","./Scheduler":"../../src/Scheduler.js","../Viewport":"../../Viewport.js","./Resources":"../../src/Resources.js","./Math":"../../src/Math.js"}],"../../src/Animation.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12981,176 +13880,85 @@ function () {
 }();
 
 exports.Keyframe = Keyframe;
-},{"./Scheduler":"../../src/Scheduler.js"}],"../../src/materials/Cubemap.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Cubemap = void 0;
-
-var _Texture2 = require("./Texture");
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var Cubemap =
-/*#__PURE__*/
-function (_Texture) {
-  _inherits(Cubemap, _Texture);
-
-  function Cubemap() {
-    var _getPrototypeOf2;
-
-    var _this;
-
-    _classCallCheck(this, Cubemap);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Cubemap)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-    _defineProperty(_assertThisInitialized(_this), "type", "TEXTURE_CUBE_MAP");
-
-    _defineProperty(_assertThisInitialized(_this), "width", 1920);
-
-    _defineProperty(_assertThisInitialized(_this), "height", 1920);
-
-    _defineProperty(_assertThisInitialized(_this), "image", []);
-
-    return _this;
-  }
-
-  return Cubemap;
-}(_Texture2.Texture);
-
-exports.Cubemap = Cubemap;
-},{"./Texture":"../../src/materials/Texture.js"}],"../../res/textures/test.png":[function(require,module,exports) {
-module.exports = "test.867bfcb1.png";
+},{"./Scheduler":"../../src/Scheduler.js"}],"../../res/models/desk_exploded.obj":[function(require,module,exports) {
+module.exports = "desk_exploded.4522909d.obj";
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
-var _Cube = require("../../src/geo/Cube");
+var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial"));
 
 var _Test = _interopRequireDefault(require("../../src/Test"));
 
-var _Math = require("../../src/Math");
+var _Geometry = require("../../src/scene/Geometry");
 
-var _Plane = require("../../src/geo/Plane");
+var _Resources = require("../../src/Resources");
 
-var _PointLight = require("../../src/light/PointLight");
-
-var _DefaultMaterial = _interopRequireDefault(require("../../src/materials/DefaultMaterial"));
-
-var _Sphere = require("../../src/geo/Sphere");
-
-var _TestMaterial = _interopRequireDefault(require("../../src/materials/TestMaterial"));
+var _Loader = require("../../src/Loader");
 
 var _Animation = require("../../src/Animation");
 
-var _Cubemap = require("../../src/materials/Cubemap");
+var _Pointlight = require("../../src/light/Pointlight");
+
+var _Math = require("../../src/Math");
+
+var _DefaultMaterial = _interopRequireDefault(require("../../src/materials/DefaultMaterial"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var resources = {
-  'test_texture': require('../../res/textures/test.png')
+  'desk': require('../../res/models/desk_exploded.obj')
 };
 
 _Test.default.viewportTest(resources, function (viewport) {
   var scene = viewport.scene;
-  var lights = [new _PointLight.PointLight({
-    position: new _Math.Vec(960, 900, 0),
-    color: [1, 0, 0]
-  }), new _PointLight.PointLight({
-    position: new _Math.Vec(380, 1200, -830),
-    color: [0, 1, 0]
-  }), new _PointLight.PointLight({
-    position: new _Math.Vec(-380, 1200, 830),
-    color: [0, 0, 1]
-  })];
-  var anim3 = new _Animation.Animation(lights[2], 'position', 1000, true);
-  anim3.setKeyframes([new _Math.Vec(-1000, 1800, 1030), new _Math.Vec(-380, 1000, 600), new _Math.Vec(-1000, 1800, 1030)]);
-  viewport.scheduler.addTask(anim3);
-  var anim = new _Animation.Animation(lights[1], 'position', 2000, true);
-  anim.setKeyframes([new _Math.Vec(380, 1200, -830), new _Math.Vec(380, 200, -830), new _Math.Vec(380, 1200, -830)]);
-  viewport.scheduler.addTask(anim);
-  var anim2 = new _Animation.Animation(lights[0], 'position', 1000, true);
-  anim2.setKeyframes([new _Math.Vec(960, 900, -300), new _Math.Vec(960, 900, 1000), new _Math.Vec(960, 900, -300)]);
-  viewport.scheduler.addTask(anim2);
-  var cubes = [new _Cube.Cube({
-    position: new _Math.Vec(200, 800, 150),
-    material: new _DefaultMaterial.default(),
-    scale: 20,
-    id: 10
-  }), new _Cube.Cube({
-    position: new _Math.Vec(-150, 650, 160),
-    material: new _DefaultMaterial.default(),
-    scale: 5,
-    id: 20
-  }), new _Cube.Cube({
-    position: new _Math.Vec(-30, 700, -180),
-    material: new _DefaultMaterial.default(),
-    scale: 10,
-    id: 30
-  }), new _Cube.Cube({
-    position: new _Math.Vec(-400, 1080, -180),
-    material: new _DefaultMaterial.default(),
-    scale: 8,
-    id: 40
-  }), new _Cube.Cube({
-    position: new _Math.Vec(0, 300, 0),
-    material: new _DefaultMaterial.default(),
-    scale: 30,
-    id: 50
-  }), new _Cube.Cube({
-    position: new _Math.Vec(-400, 800, -200),
-    material: new _DefaultMaterial.default(),
-    scale: 20,
-    id: 60
-  }), new _Cube.Cube({
-    position: new _Math.Vec(-100, 1150, 0),
-    material: new _DefaultMaterial.default(),
-    scale: 15,
-    id: 70
-  })];
-  scene.add([new _Plane.Plane({
-    position: new _Math.Vec(0, -0.5, 0),
-    material: new _DefaultMaterial.default({
-      diffuseColor: [0.25, 0.25, 0.25],
-      specular: 0
-    }),
-    rotation: new _Math.Vec(-90 / 180 * Math.PI, 0, 0),
-    scale: 20000
-  }), new _Sphere.Sphere({
-    material: new _TestMaterial.default(),
-    position: new _Math.Vec(200, 700, -200),
-    scale: 100,
-    id: 80
-  })].concat(lights, cubes)); // testing
+  viewport.renderer.background = [0.8, 0.9, 1.0, 1.0];
 
-  setTimeout(function () {
-    var cubemap = new _Cubemap.Cubemap();
-    viewport.renderer.renderCubemap(cubemap, scene.activeCamera);
-    console.log(cubemap);
-    scene.cubemap = cubemap;
-  }, 0);
+  var meshVerts = _Loader.Loader.loadObjFile(_Resources.Resources.get('desk'));
+
+  var mesh = new _Geometry.Geometry({
+    vertecies: meshVerts,
+    material: new _DefaultMaterial.default(),
+    scale: 50,
+    id: 10
+  });
+  scene.add(mesh);
+  var lights = [new _Pointlight.Pointlight({
+    color: [0, 0.4, 1],
+    id: 10
+  }), new _Pointlight.Pointlight({
+    color: [1, 0, 0],
+    id: 20
+  })];
+  {
+    var _anim = new _Animation.Animation(lights[1], 'position', 10000, true);
+
+    _anim.setKeyframes([new _Math.Vec(550, 903, 197), new _Math.Vec(450, 903 + 25, 197), new _Math.Vec(550, 903, 197)]);
+
+    viewport.scheduler.addTask(_anim);
+  }
+  {
+    var _anim2 = new _Animation.Animation(lights[0], 'position', 10000, true);
+
+    _anim2.setKeyframes([new _Math.Vec(100, 830, -430), new _Math.Vec(0, 700, -600), new _Math.Vec(100, 830, -430)]);
+
+    viewport.scheduler.addTask(_anim2);
+  }
+  var anim = new _Animation.Animation(mesh, 'position', 10000, true);
+  anim.setKeyframes([new _Math.Vec(0, 0, 0), new _Math.Vec(0, 50, 0), new _Math.Vec(0, 0, 0)]);
+  viewport.scheduler.addTask(anim);
+  var anim2 = new _Animation.Animation(mesh, 'rotation', 10000, true);
+  anim2.setKeyframes([new _Math.Vec(0, 0, 0), new _Math.Vec(0, 0.15, 0), new _Math.Vec(0, 0, 0)]);
+  viewport.scheduler.addTask(anim2);
+  scene.add(lights);
+  scene.curosr.hidden = true;
+  var camAnim = new _Animation.Animation(scene.activeCamera, 'position', 10000, true);
+  camAnim.setKeyframes([new _Math.Vec(-660, -440, 580), new _Math.Vec(-628, -787, 663), new _Math.Vec(-660, -440, 580)]);
+  viewport.scheduler.addTask(camAnim);
+  var camAnim2 = new _Animation.Animation(scene.activeCamera, 'rotation', 10000, true);
+  camAnim2.setKeyframes([new _Math.Vec(0, -2.46, 0), new _Math.Vec(0.18, -2.42, 0), new _Math.Vec(0, -2.46, 0)]);
+  viewport.scheduler.addTask(camAnim2);
 });
-},{"../../src/geo/Cube":"../../src/geo/Cube.js","../../src/Test":"../../src/Test.js","../../src/Math":"../../src/Math.js","../../src/geo/Plane":"../../src/geo/Plane.js","../../src/light/PointLight":"../../src/light/PointLight.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../src/geo/Sphere":"../../src/geo/Sphere.js","../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Animation":"../../src/Animation.js","../../src/materials/Cubemap":"../../src/materials/Cubemap.js","../../res/textures/test.png":"../../res/textures/test.png"}],"../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../src/materials/TestMaterial":"../../src/materials/TestMaterial.js","../../src/Test":"../../src/Test.js","../../src/scene/Geometry":"../../src/scene/Geometry.js","../../src/Resources":"../../src/Resources.js","../../src/Loader":"../../src/Loader.js","../../src/Animation":"../../src/Animation.js","../../src/light/Pointlight":"../../src/light/Pointlight.js","../../src/Math":"../../src/Math.js","../../src/materials/DefaultMaterial":"../../src/materials/DefaultMaterial.js","../../res/models/desk_exploded.obj":"../../res/models/desk_exploded.obj"}],"C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -13178,7 +13986,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57028" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52689" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -13353,5 +14161,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
+},{}]},{},["C:/Users/tim/AppData/Roaming/npm/node_modules/parcel/src/builtins/hmr-runtime.js","main.js"], null)
 //# sourceMappingURL=main.1f19ae8e.js.map

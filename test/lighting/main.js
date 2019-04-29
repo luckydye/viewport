@@ -7,7 +7,6 @@ import DefaultMaterial from "../../src/materials/DefaultMaterial";
 import { Sphere } from "../../src/geo/Sphere";
 import TestMaterial from "../../src/materials/TestMaterial";
 import { Animation } from "../../src/Animation";
-import { Cubemap } from "../../src/materials/Cubemap";
 
 const resources = {
     'test_texture': require('../../res/textures/test.png'),
@@ -105,14 +104,5 @@ Test.viewportTest(resources, viewport => {
 
         ...cubes,
     ]);
-
-    // testing
-    setTimeout(() => {
-        const cubemap = new Cubemap();
-        viewport.renderer.renderCubemap(cubemap, scene.activeCamera);
-        console.log(cubemap);
-
-        scene.cubemap = cubemap;
-    }, 0)
 
 });

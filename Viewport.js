@@ -8,6 +8,7 @@ import { Scheduler } from "./src/Scheduler";
 import { CursorControler } from "./src/controlers/CursorController";
 import { CameraControler } from "./src/controlers/CameraControler";
 import { Camera } from './src/scene/Camera.js';
+import { Cubemap } from './src/materials/Cubemap.js';
 
 const logger = new Logger('Viewport');
 
@@ -127,15 +128,19 @@ export default class Viewport extends HTMLElement {
         this.dispatchEvent(new Event('load'));
 
         this.setCursor([...this.scene.objects][this.scene.objects.size-1]);
+
+        // testing
+        setTimeout(() => {
+            const cubemap = new Cubemap();
+            this.renderer.renderCubemap(cubemap, this.scene.activeCamera);
+            this.scene.cubemap = cubemap;
+        }, 0)
     }
 
     setCursor(obj) {
         if(obj) {
-            this.scene.curosr.hidden = false;
             this.scene.curosr.position = new Vec(obj.position);
             obj.position = this.scene.curosr.position;
-        } else {
-            this.scene.curosr.hidden = true;
         }
     }
 

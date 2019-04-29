@@ -11,13 +11,13 @@ export class Scene {
 
 		this.lightSources = new Spotlight({ 
             fov: 90,
-            position: new Vec(2000, -5000, -5000),
-			rotation: new Vec(0.5, 0.3, 0),
+            position: new Vec(500, -2500, -1500),
+			rotation: new Vec(0.8, 0.4, 0),
 		});
 
 		this.activeCamera = camera;
 
-		this.grid = new Grid(100, 20);
+		this.grid = new Grid(100, 25);
 		this.curosr = new Cursor();
 
 		this.clear();
@@ -62,12 +62,12 @@ export class Scene {
 		let arr = [...this.objects].filter(obj => {
 			return !obj.hidden;
 		});
-		arr.push(
-			this.grid,
-			this.curosr,
-			this.lightSources,
-			this.activeCamera
-		);
+		if(!this.curosr.hidden) {
+			arr.push(this.curosr);
+		}
+		if(!this.grid.hidden) {
+			arr.push(this.grid);
+		}
 		return arr;
 	}
 

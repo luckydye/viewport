@@ -3,7 +3,7 @@ import PrimitivetMaterial from "../materials/PrimitiveMaterial.js";
 
 const DEFAULT_GRID_MATERIAL = new PrimitivetMaterial();
 DEFAULT_GRID_MATERIAL.scaleUniform = false;
-DEFAULT_GRID_MATERIAL.transparency = 0.1;
+DEFAULT_GRID_MATERIAL.transparency = 0.5;
 
 export class Grid extends Guide {
 

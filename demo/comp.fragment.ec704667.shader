@@ -5,6 +5,7 @@ precision mediump float;
 
 in vec2 texCoords;
 
+uniform sampler2D shadowBuffer;
 uniform sampler2D depthBuffer;
 uniform sampler2D diffuseBuffer;
 uniform sampler2D lightBuffer;
@@ -17,6 +18,7 @@ uniform bool fog;
 out vec4 oFragColor;
 
 void main(void) {
+    vec4 shadow = texture(shadowBuffer, texCoords);
     vec4 depth = texture(depthBuffer, texCoords);
     vec4 color = texture(diffuseBuffer, texCoords);
     vec4 light = texture(lightBuffer, texCoords);
@@ -56,6 +58,4 @@ void main(void) {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
-
-    // oFragColor = light;
 }

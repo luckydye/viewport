@@ -11,9 +11,9 @@ export class Pointlight extends Sphere {
 		super.onCreate(args);
 
 		const {
-			intensity = 2.0,
+			intensity = 0.5,
 			color = [1, 1, 1],
-			size = 10,
+			size = 8,
 		} = args;
 		
 		this.intensity = intensity;
@@ -24,6 +24,7 @@ export class Pointlight extends Sphere {
 		args.material = new DefaultMaterial();
 		args.material.diffuseColor = this.color;
 		args.material.specular = 0;
+		args.material.receiveShadows = false;
 	}
 
 }
