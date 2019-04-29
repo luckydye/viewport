@@ -21,21 +21,22 @@ export class CursorControler extends EntityControler {
         let color = [0, 0, 0];
         
 		const down = e => {
-            if(hovering) {
+            if(EntityControler.isMouseButton(e) == 1) {
                 this.interaction(selected);
-                moving = selected == 1;
-            }
 
-            if(!moving) {
-                for(let obj of scene.objects) {
-                    if(obj.id == selected) {
-                        this.viewport.setCursor(obj);
-            
-                        this.lastAction.target = curosr;
-                        this.lastAction.property = 'position';
-                        this.lastAction.state = new Vec(curosr.position);
-
-                        this.interaction(selected);
+                if(hovering) {
+                    moving = selected == 1;
+                }
+    
+                if(!moving) {
+                    for(let obj of scene.objects) {
+                        if(obj.id == selected) {
+                            this.viewport.setCursor(obj);
+                
+                            this.lastAction.target = curosr;
+                            this.lastAction.property = 'position';
+                            this.lastAction.state = new Vec(curosr.position);
+                        }
                     }
                 }
             }
@@ -83,8 +84,6 @@ export class CursorControler extends EntityControler {
             const x = e.x;
             const y = this.viewport.renderer.height - e.y;
 
-            hovering = false;
-
             if(!moving) {
                 renderer.readPixelFromBuffer(x, y, 'id').then(value => {
                     selected = value[0];
@@ -94,8 +93,6 @@ export class CursorControler extends EntityControler {
                 renderer.readPixelFromBuffer(x, y, 'guides').then(value => {
                     color = value;
                 })
-            } else {
-                this.entity.material.selected = true;
             }
         }
         
@@ -111,9 +108,7 @@ export class CursorControler extends EntityControler {
 
 		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
 		this.viewport.addEventListener("mousedown", e => {
-            if(EntityControler.isMouseButton(e) == 1) {
-                down(e);
-            }
+            down(e);
         });
 		this.viewport.addEventListener("mouseup", up);
         this.viewport.addEventListener("mousemove", move);

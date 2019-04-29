@@ -53,9 +53,7 @@ export class Geometry extends Transform {
 		this.id = id;
 	}
 
-	onCreate(args) {
-
-	}
+	onCreate(args) {}
 
 	createBuffer() {
 		return new VertexBuffer(

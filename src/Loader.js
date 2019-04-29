@@ -2,10 +2,76 @@ import { Material } from "./materials/Material";
 import { Resources } from "./Resources";
 import { Texture } from "./materials/Texture";
 import { Logger } from "./Logger";
+import { Scene } from "./scene/Scene";
+
+import * as Geometry from './geo/*.*';
+import * as Camera from './camera/*.*';
+import * as Light from './light/*.*';
 
 const logger = new Logger('Loader');
 
 export class Loader {
+
+    static loadScene(json, camera) {
+        const objects = [
+            ...json.objects,
+            ...json.cameras,
+        ];
+        const scene = new Scene(camera);
+
+        for(let obj of objects) {
+
+            let Category = Geometry;
+
+            if(obj.type in Geometry) Category = Geometry;
+            if(obj.type in Light) Category = Light;
+            if(obj.type in Camera) Category = Camera;
+
+            if(obj.type == 'Cursor' || obj.type == 'Grid') continue;
+
+            let geo = new Category[obj.type].js[obj.type];
+            geo = Object.assign(geo, obj);
+            scene.add(geo);
+
+            if(obj.type in Camera) {
+                scene.activeCamera = geo;
+            }
+        }
+        return scene;
+    }
+
+    static saveScene(scene) {
+        const objects = [...scene.objects];
+        const camera = scene.activeCamera;
+
+        const json = {
+            cameras: [
+                {
+                    type: camera.constructor.name,
+                    position: camera.position,
+                    rotation: camera.rotation,
+                    fov: camera.fov,
+                    scale: camera.scale,
+                }
+            ],
+            objects: [
+                ...objects.map(obj => {
+                    return {
+                        type: obj.constructor.name,
+                        position: obj.position,
+                        rotation: obj.rotation,
+                        scale: obj.scale,
+                        id: obj.id,
+                    }
+                })
+            ],
+            animation: [
+
+            ]
+        };
+
+        return json;
+    }
 
     static loadObjFile(objFile) {
         const vertecies = [];

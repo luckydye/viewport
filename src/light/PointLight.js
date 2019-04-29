@@ -1,6 +1,6 @@
 import { Guide } from "../geo/Guide";
 
-export class PointLight extends Guide {
+export class Pointlight extends Guide {
 	
 	get isLight() {
 		return true;

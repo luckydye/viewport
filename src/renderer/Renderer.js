@@ -9,6 +9,7 @@ import Config from '../Config';
 import { mat4 } from 'gl-matrix';
 import { Vec } from '../Math';
 import MattShader from '../shader/MattShader';
+import { Pointlight } from '../light/Pointlight';
 
 const logger = new Logger('Renderer');
 
@@ -40,7 +41,6 @@ export class Renderer extends GLContext {
 			width: this.width,
 			height: this.height
 		};
-		this.scene.activeCamera.update();
 	}
 
     onCreate() {
@@ -93,17 +93,20 @@ export class Renderer extends GLContext {
 		const camera = this.scene.activeCamera;
 
 		for(let pass of passes) {
-			const lightS = this.scene.lightSources;
 			const cullDefault = gl.isEnabled(gl.CULL_FACE);
+			
+			const lightS = this.scene.lightSources;
 
 			pass.use();
 
 			switch(pass.id) {
 
 				case "shadow":
-					this.drawScene(this.scene, lightS, obj => {
-						return obj.material && obj.material.castShadows;
-					});
+					if(lightS) {
+						this.drawScene(this.scene, lightS, obj => {
+							return obj.material.castShadows;
+						});
+					}
 					break;
 
 				case "light":
@@ -321,14 +324,14 @@ export class Renderer extends GLContext {
 	}
 
 	drawScene(scene, camera, filter) {
-		const objects = scene.objects;
+		const objects = scene.getRenderableObjects();
 		const shader = this.currentShader;
 
 		this.setupScene(shader, camera);
 
 		let lightCount = 0;
 		for(let light of objects) {
-			if(light.isLight) {
+			if(light instanceof Pointlight) {
 				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].position"], [
 					light.position.x,
 					light.position.y,
@@ -355,7 +358,7 @@ export class Renderer extends GLContext {
 		if(geo.material) {
 			this.applyMaterial(this.currentShader, geo.material);
 
-			if(geo.instanced && !geo.hidden) {
+			if(geo.instanced) {
 				this.drawGeoInstanced(geo);
 			} else {
 				this.drawGeo(geo);
@@ -364,8 +367,6 @@ export class Renderer extends GLContext {
 	}
 
 	drawGeoInstanced(geo) {
-		if(geo.hidden) return;
-
 		const gl = this.gl;
 		const buffer = geo.buffer;
 		const vertCount = buffer.vertecies.length / buffer.elements;
@@ -376,8 +377,6 @@ export class Renderer extends GLContext {
 	}
 
 	drawGeo(geo) {
-		if(geo.hidden) return;
-
 		const gl = this.gl;
 		const buffer = geo.buffer;
 		

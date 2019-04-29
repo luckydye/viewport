@@ -23,6 +23,7 @@ struct Material {
     float transparency;
     float textureScale;
     bool scaleUniform;
+    bool selected;
 };
 uniform Material material;
 

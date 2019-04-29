@@ -1,5 +1,3 @@
-import { FirstPersonCamera } from "./src/camera/FirstPersonCamera";
-import { FirstPersonControler } from "./src/controlers/FirstPersonControler";
 import { Loader } from './src/Loader.js';
 import { Logger } from './src/Logger.js';
 import { Renderer } from "./src/renderer/Renderer";
@@ -8,6 +6,8 @@ import { Scene } from "./src/scene/Scene.js";
 import { Vec } from "./src/Math";
 import { Scheduler } from "./src/Scheduler";
 import { CursorControler } from "./src/controlers/CursorController";
+import { CameraControler } from "./src/controlers/CameraControler";
+import { Camera } from './src/scene/Camera.js';
 
 const logger = new Logger('Viewport');
 
@@ -37,12 +37,6 @@ export default class Viewport extends HTMLElement {
     }
 
     scheduler = new Scheduler();
-
-    camera = new FirstPersonCamera({ 
-        fov: 90,
-        position: new Vec(0, -400, -2500),
-        rotation: new Vec(15, 0, 0),
-    });
 
     constructor() {
         super();
@@ -108,15 +102,23 @@ export default class Viewport extends HTMLElement {
             Loader.createMatFromJson(name, mats[name]);
         }
 
+        this.camera = new Camera({ 
+            fov: 90,
+            position: new Vec(0, -400, -2500),
+            rotation: new Vec(15, 0, 0),
+        })
+
         this.scene = new Scene(this.camera);
 
         this.renderer = new Renderer(canvas);
         this.renderer.setScene(this.scene);
 
-        const controler = new FirstPersonControler(this.camera, canvas);
-
+        const controler = new CameraControler(this.scene.activeCamera, canvas);
         const cursorControler = new CursorControler(this.scene.curosr, this);
+
         cursorControler.interaction = objID => {
+            console.log(objID);
+            
             if(objID != 0) {
                 controler.lock();
             } else {

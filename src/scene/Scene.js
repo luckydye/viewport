@@ -1,22 +1,20 @@
 import { Grid } from '../geo/Grid.js';
-import { DirectionalLight } from '../light/DirectionalLight';
 import { Vec } from '../Math.js';
 import { Cursor } from '../geo/Cursor';
+import { Spotlight } from '../light/Spotlight.js';
 
 export class Scene {
 
-	_objects = new Set();
-
-	get objects() { return this._objects; }
+	objects = new Set();
 
 	constructor(camera) {
 
-		this.lightSources = new DirectionalLight({ 
+		this.lightSources = new Spotlight({ 
             fov: 90,
-            position: new Vec(1000, 0, -8000),
-			rotation: new Vec(50, 40, 0),
+            position: new Vec(2000, -5000, -5000),
+			rotation: new Vec(0.5, 0.3, 0),
 		});
-		
+
 		this.activeCamera = camera;
 
 		this.grid = new Grid(100, 20);
@@ -27,34 +25,50 @@ export class Scene {
 
 	add(obj) {
 		if(Array.isArray(obj)) {
-			obj.forEach(o => this._objects.add(o));
+			obj.forEach(o => this.objects.add(o));
 		} else {
-			this._objects.add(obj);
+			this.objects.add(obj);
 		}
 	}
 
 	remove(obj) {
 		if(Array.isArray(obj)) {
-			obj.forEach(o => this._objects.delete(o));
+			obj.forEach(o => this.objects.delete(o));
 		} else {
-			this._objects.delete(obj);
+			this.objects.delete(obj);
 		}
 	}
 
 	clear() {
-		this._objects.clear();
-		this.add(this.grid);
-		this.add(this.curosr);
+		this.objects.clear();
 	}
 
 	update(ms) {
-		this.activeCamera.update(ms);
+		if(this.activeCamera) {
+			this.activeCamera.update(ms);
+		}
+		if(this.lightSources) {
+			this.lightSources.update(ms);
+		}
 
-		for(let obj of this._objects) {
+		for(let obj of this.objects) {
 			if(obj.update) {
 				obj.update(ms);
 			}
 		}
+	}
+
+	getRenderableObjects() {
+		let arr = [...this.objects].filter(obj => {
+			return !obj.hidden;
+		});
+		arr.push(
+			this.grid,
+			this.curosr,
+			this.lightSources,
+			this.activeCamera
+		);
+		return arr;
 	}
 
 }

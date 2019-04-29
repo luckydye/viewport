@@ -12,7 +12,16 @@ export default class PickingShader extends GLShader {
         
         precision mediump float;
         
-        uniform bool selected;
+        struct Material {
+            vec3 diffuseColor;
+            float specular;
+            float roughness;
+            float transparency;
+            float textureScale;
+            bool scaleUniform;
+            bool selected;
+        };
+        uniform Material material;
 
         in vec3 primitiveColor;
         
@@ -21,7 +30,7 @@ export default class PickingShader extends GLShader {
         void main () {
             oFragColor = vec4(primitiveColor, .75);
 
-            if(selected) {
+            if(material.selected) {
                 oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);
             }
         }`;

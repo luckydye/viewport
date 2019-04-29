@@ -1,32 +1,6 @@
+import { Entity } from "../scene/Entity";
+
 export class EntityControler {
-
-	locked = false;
-
-	constructor(entity, viewport) {
-		if(!entity) throw "No controllable entity";
-
-		this.entity = entity;
-		this.viewport = viewport;
-
-		this.initKeyboard();
-		this.initMouse();
-	}
-
-	lock() {
-		this.locked = true;
-	}
-
-	unlock() {
-		this.locked = false;
-	}
-
-	initKeyboard() {
-
-	}
-
-	initMouse() {
-
-	}
 	
 	static isMouseButton(e) {
 		let mbutton;
@@ -40,6 +14,58 @@ export class EntityControler {
 			mbutton = e.which;
 		}
 		return mbutton;
+	}
+
+	locked = false;
+
+	constructor(entity, viewport) {
+		if(!entity) throw "No entity";
+
+		if(entity instanceof Entity) {
+			entity.addTrait(this.update.bind(this));
+		}
+
+		this.entity = entity;
+		this.viewport = viewport;
+
+		this.initKeyboard();
+		this.initMouse();
+	}
+
+	update(ms) {
+		
+	}
+
+	lock() { this.locked = true; }
+	unlock() { this.locked = false; }
+
+	initKeyboard() {
+		this.keyMap = new Map();
+
+		window.addEventListener('keydown', e => {
+			if(document.pointerLockElement != null) {
+				e.preventDefault();
+				this.keyMap.set(e.key, true);
+			}
+		})
+		
+		window.addEventListener('keyup', e => {
+			if(document.pointerLockElement != null) {
+				e.preventDefault();
+			}
+			this.keyMap.delete(e.key);
+		})
+	}
+
+	checkKey(key) {
+		if(!this.locked) {
+			return this.keyMap.has(key);
+		}
+		return false;
+	}
+
+	initMouse() {
+		
 	}
 
 }

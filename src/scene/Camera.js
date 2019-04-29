@@ -1,46 +1,41 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Vec } from '../Math.js';
-import { Geometry } from '../scene/Geometry';
 import DefaultMaterial from '../materials/DefaultMaterial.js';
+import { Entity } from './Entity.js';
 
 const DEFAULT_CAMERA_MATERIAL = new DefaultMaterial();
 
-export class Camera extends Geometry {
-
-	attributes =  [
-		{ size: 3, attribute: "aPosition" },
-		{ size: 2, attribute: "aTexCoords" }
-	]
+export class Camera extends Entity {
 
 	get vertecies() {
 		const s = 50 / this.scale;
 		const vertArray = [
-			-s, -s, 0, 	0, 0,
-			s, -s, 0, 	1, 0, 
-			s, s, 0, 	1, 1,
+			-s, -s, 0, 	0, 0,	0,0,0,
+			s, -s, 0, 	1, 0, 	0,0,0,
+			s, s, 0, 	1, 1,	0,0,0,
 
-			s, s, 0, 	1, 1,
-			-s, s, 0, 	0, 1, 
-			-s, -s, 0, 	0, 0,
+			s, s, 0, 	1, 1,	0,0,0,
+			-s, s, 0, 	0, 1, 	0,0,0,
+			-s, -s, 0, 	0, 0,	0,0,0,
 
-			s, s, 0, 	1, 1,
-			s, s, s * 2, 	1, 1,
+			s, s, 0, 	1, 1,	0,0,0,
+			s, s, s * 2, 	1, 1,	0,0,0,
 
-			-s, -s, s * 2, 	0, 0,
-			s, -s, s * 2, 	1, 0, 
-			s, s, s * 2, 	1, 1,
+			-s, -s, s * 2, 	0, 0,	0,0,0,
+			s, -s, s * 2, 	1, 0, 	0,0,0,
+			s, s, s * 2, 	1, 1,	0,0,0,
 
-			s, s, s * 2, 	1, 1,
-			-s, s, s * 2, 	0, 1, 
-			-s, -s, s * 2, 	0, 0,
+			s, s, s * 2, 	1, 1,	0,0,0,
+			-s, s, s * 2, 	0, 1, 	0,0,0,
+			-s, -s, s * 2, 	0, 0,	0,0,0,
 
-			-s/2, -s/2, -s, 	0, 0,
-			s/2, -s/2, -s, 		1, 0, 
-			s/2, s/2, -s, 		1, 1,
+			-s/2, -s/2, -s, 	0, 0,	0,0,0,
+			s/2, -s/2, -s, 		1, 0, 	0,0,0,
+			s/2, s/2, -s, 		1, 1,	0,0,0,
 
-			s/2, s/2, -s, 		1, 1,
-			-s/2, s/2, -s, 		0, 1, 
-			-s/2, -s/2, -s, 	0, 0,
+			s/2, s/2, -s, 		1, 1,	0,0,0,
+			-s/2, s/2, -s, 		0, 1, 	0,0,0,
+			-s/2, -s/2, -s, 	0, 0,	0,0,0,
 		]
 		return vertArray;
 	}
@@ -76,8 +71,6 @@ export class Camera extends Geometry {
 			height: height
 		}
 
-		this.update();
-
 		const self = this;
 
 		this.worldPosition = {
@@ -93,29 +86,25 @@ export class Camera extends Geometry {
 		}
 	}
 
-	setPositionTo(transform) {
-		this.position = transform.position;
-		this.rotation = transform.rotation;
-	}
+	update(ms) {
+		super.update(ms);
 
-	zoom(dir) {
-		this.position.z += -100 * Math.sign(dir);
-		this.update();
-	}
-
-	update() {
 		const projMatrix = this.projMatrix;
 		const viewMatrix = this.viewMatrix;
 		const camera = this;
-
+        
 		const ar = this.sensor.width / this.sensor.height;
-		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+        mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+		
 		mat4.lookAt(
 			viewMatrix, 
 			vec3.fromValues(0, 0, 0),
-			vec3.fromValues(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z), 
-			vec3.fromValues(0, 1, 0)
+			camera.lookAt, 
+			vec3.fromValues(0, 0, 0)
 		);
+
+		mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
+		mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
 
 		mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
 			camera.scale, 
@@ -124,11 +113,7 @@ export class Camera extends Geometry {
 		));
 
 		mat4.translate(viewMatrix, viewMatrix, camera.position);
-
-		mat4.rotateX(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.x);
-		mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.y);
-		mat4.rotateY(viewMatrix, viewMatrix, Math.PI / 180 * camera.rotation.z);
-		
 		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 	}
+
 }

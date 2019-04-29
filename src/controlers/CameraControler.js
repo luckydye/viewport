@@ -2,81 +2,82 @@ import { EntityControler } from "./EntityControler";
 
 export class CameraControler extends EntityControler {
 
-	sensivity = 0.25;
+	sensivity = 0.0033;
+	speed = 20;
 
-	constructor(entity, viewport) {
-		super(entity, viewport);
-
-		this.initalSettings = {
-			pos: [ entity.position.x, entity.position.y, entity.position.z ],
-			rot: [ entity.rotation.x, entity.rotation.y, entity.rotation.z ],
-		}
-
-		let moving = false;
-		let lastEvent = null;
+	initMouse() {
+		const entity = this.entity;
 
 		const down = e => {
-			moving = true;
-			entity.update();
-		}
-
-		const up = e => {
-			moving = false;
-			viewport.style.cursor = "default";
-			lastEvent = null;
-			entity.update();
+			if(EntityControler.isMouseButton(e) == 2) {
+				this.unlock();
+				this.viewport.requestPointerLock();
+			}
 		}
 
 		const move = e => {
-			if(moving && lastEvent) {
-				if(EntityControler.isMouseButton(e) == 2 || e.touches && e.touches.length > 1) {
-					entity.position.x += (e.x - lastEvent.x) * Math.abs(entity.position.z / 250) * this.sensivity;
-					entity.position.y += (e.y - lastEvent.y) * -Math.abs(entity.position.z / 250) * this.sensivity;
-					viewport.style.cursor = "move";
-				} else if(EntityControler.isMouseButton(e) == 1 || e.type == "touchmove") {
-					entity.rotation.y += (e.x - lastEvent.x) * this.sensivity;
-					entity.rotation.x += (e.y - lastEvent.y) * this.sensivity;
-					viewport.style.cursor = "grabbing";
-				}
-				entity.update();
+			if(document.pointerLockElement != null) {
+				entity.rotation.y += e.movementX * this.sensivity;
+				entity.rotation.x += e.movementY * this.sensivity;
+
+				entity.rotation.x = entity.rotation.x % (Math.PI * 2);
+				entity.rotation.y = entity.rotation.y % (Math.PI * 2);
+
+				entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
 			}
-			lastEvent = e;
 		}
 
-        viewport.addEventListener('contextmenu', e => e.preventDefault());
-		viewport.addEventListener("mousedown", down);
-		window.addEventListener("mouseup", up);
-		window.addEventListener("mousemove", move);
-
-		window.addEventListener("keydown", e => {
-			if(e.key == "f") {
-				entity.position.x = this.initalSettings.pos[0];
-				entity.position.y = this.initalSettings.pos[1];
-				entity.position.z = this.initalSettings.pos[2];
-				
-				entity.rotation.x = this.initalSettings.rot[0];
-				entity.rotation.y = this.initalSettings.rot[1];
-				entity.rotation.z = this.initalSettings.rot[2];
-			}
-		});
-
-		viewport.addEventListener("touchstart", down);
-		window.addEventListener("touchend", up);
-		window.addEventListener("touchmove", e => {
-			e.x = e.touches[0].clientX;
-			e.y = e.touches[0].clientY;
-			move(e);
-		});
-
-		viewport.addEventListener("wheel", e => {
-			this.zoom(e.deltaY);
-			entity.update();
-		})
+		this.viewport.addEventListener("mousedown", down);
+		this.viewport.addEventListener("mousemove", move);
+	}
+	
+	up() {
+		const camera = this.entity;
+		camera.position.y -= this.speed;
 	}
 
-	zoom(dir) {
+	down() {
 		const camera = this.entity;
-		camera.position.z += -200 * Math.sign(dir);
+		camera.position.y += this.speed;
+	}
+
+	move(dir) {
+		const camera = this.entity;
+		const speed = this.speed * dir;
+		
+		const a = -camera.rotation.y;
+		const b = -camera.rotation.x;
+
+		camera.position.x += speed * Math.sin(a);
+		camera.position.z += speed * Math.cos(a);
+		
+		camera.position.y -= speed * Math.sin(b);
+	}
+
+	strafe(dir) {
+		const camera = this.entity;
+		const speed = this.speed * dir;
+		
+		const a = camera.rotation.y;
+
+		camera.position.z += speed * Math.sin(a);
+		camera.position.x += speed * Math.cos(a);
+	}
+
+	update() {
+		if(this.checkKey("w")) this.move(1);
+		if(this.checkKey("s")) this.move(-1);
+
+		if(this.checkKey("a")) this.strafe(1);
+		if(this.checkKey("d")) this.strafe(-1);
+
+		if(this.checkKey("q")) this.up();
+		if(this.checkKey("y")) this.down();
+	}
+
+	lock() {
+		super.lock();
+		document.exitPointerLock();
 	}
 
 }

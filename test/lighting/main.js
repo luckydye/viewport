@@ -2,11 +2,11 @@ import { Cube } from "../../src/geo/Cube";
 import Test from "../../src/Test";
 import { Vec } from "../../src/Math";
 import { Plane } from "../../src/geo/Plane";
-import { PointLight } from "../../src/light/PointLight";
+import { Pointlight } from "../../src/light/Pointlight";
 import DefaultMaterial from "../../src/materials/DefaultMaterial";
 import { Sphere } from "../../src/geo/Sphere";
 import TestMaterial from "../../src/materials/TestMaterial";
-import { Animation, Keyframe } from "../../src/Animation";
+import { Animation } from "../../src/Animation";
 import { Cubemap } from "../../src/materials/Cubemap";
 
 const resources = {
@@ -18,35 +18,19 @@ Test.viewportTest(resources, viewport => {
     const scene = viewport.scene;
 
     const lights = [
-        new PointLight({
+        new Pointlight({
             position: new Vec(960, 900, 0),
             color: [1, 0, 0],
         }),
-        new PointLight({
+        new Pointlight({
             position: new Vec(380, 1200, -830),
             color: [0, 1, 0],
         }),
-        new PointLight({
-            position: new Vec(-380, 1200, 830),
+        new Pointlight({
+            position: new Vec(0, 100, 0),
             color: [0, 0, 1],
         }),
     ]
-
-    const anim3 = new Animation(lights[2], 'position', 1000, true);
-    anim3.setKeyframes([
-        new Vec(-1000, 1800, 1030),
-        new Vec(-380, 1000, 600),
-        new Vec(-1000, 1800, 1030),
-    ]);
-    viewport.scheduler.addTask(anim3);
-
-    const anim = new Animation(lights[1], 'position', 2000, true);
-    anim.setKeyframes([
-        new Vec(380, 1200, -830),
-        new Vec(380, 200, -830),
-        new Vec(380, 1200, -830),
-    ]);
-    viewport.scheduler.addTask(anim);
 
     const anim2 = new Animation(lights[0], 'position', 1000, true);
     anim2.setKeyframes([
@@ -56,48 +40,49 @@ Test.viewportTest(resources, viewport => {
     ]);
     viewport.scheduler.addTask(anim2);
 
+    const anim = new Animation(lights[1], 'position', 2000, true);
+    anim.setKeyframes([
+        new Vec(380, 1200, -830),
+        new Vec(380, 200, -830),
+        new Vec(380, 1200, -830),
+    ]);
+    viewport.scheduler.addTask(anim);
+
     const cubes = [
         new Cube({
-            position: new Vec(200, 800, 150),
-            material: new DefaultMaterial(),
+            position: new Vec(83, 800, -1610),
             scale: 20,
-            id: 10
+            id: 10,
         }),
         new Cube({
-            position: new Vec(-150, 650, 160),
-            material: new DefaultMaterial(),
+            position: new Vec(-1440, 450, 1300),
             scale: 5,
-            id: 20
+            id: 20,
         }),
         new Cube({
-            position: new Vec(-30, 700, -180),
-            material: new DefaultMaterial(),
+            position: new Vec(1820, 90, 391),
             scale: 10,
-            id: 30
+            id: 30,
         }),
         new Cube({
-            position: new Vec(-400, 1080, -180),
-            material: new DefaultMaterial(),
+            position: new Vec(1080, 76, 1640),
             scale: 8,
-            id: 40
+            id: 40,
         }),
         new Cube({
-            position: new Vec(0, 300, 0),
-            material: new DefaultMaterial(),
+            position: new Vec(0, 300, -1580),
             scale: 30,
-            id: 50
+            id: 50,
         }),
         new Cube({
-            position: new Vec(-400, 800, -200),
-            material: new DefaultMaterial(),
+            position: new Vec(-1530, 200, 1270),
             scale: 20,
-            id: 60
+            id: 60,
         }),
         new Cube({
-            position: new Vec(-100, 1150, 0),
-            material: new DefaultMaterial(),
+            position: new Vec(-100, 134, 2400),
             scale: 15,
-            id: 70
+            id: 70,
         }),
     ];
 
@@ -115,8 +100,8 @@ Test.viewportTest(resources, viewport => {
 
         new Sphere({
             material: new TestMaterial(),
-            position: new Vec(200, 700, -200),
-            scale: 100,
+            position: new Vec(0, 650, 0),
+            scale: 200,
             id: 80
         }),
 
@@ -125,7 +110,6 @@ Test.viewportTest(resources, viewport => {
         ...cubes,
     ]);
 
-    
     // testing
     setTimeout(() => {
         const cubemap = new Cubemap();

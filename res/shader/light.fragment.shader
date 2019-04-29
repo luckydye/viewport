@@ -22,6 +22,7 @@ struct Material {
     float transparency;
     float textureScale;
     bool scaleUniform;
+    bool selected;
 };
 uniform Material material;
 
@@ -78,9 +79,10 @@ void main () {
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
     vec4 reflection = texture(cubemap, vNormal);
+    vec3 shadows = vec3(0.0);
 
     float shadow = Shadow(vLightProjViewMatrix * vWorldPos) * shadowcolor;
-    vec3 shadows = vec3(shadow);
+    shadows = vec3(shadow);
 
     for(int i = 0; i < lightCount; i++) {
         diffuse += Diffuse(pointLights[i], vWorldPos.xyz, vNormal);
