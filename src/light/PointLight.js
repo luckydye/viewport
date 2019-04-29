@@ -1,6 +1,7 @@
-import { Guide } from "../geo/Guide";
+import DefaultMaterial from "../materials/DefaultMaterial";
+import { Sphere } from "../geo/Sphere";
 
-export class Pointlight extends Guide {
+export class Pointlight extends Sphere {
 	
 	get isLight() {
 		return true;
@@ -18,6 +19,11 @@ export class Pointlight extends Guide {
 		this.intensity = intensity;
 		this.color = color;
 		this.size = size;
+		this.scale = 20;
+
+		args.material = new DefaultMaterial();
+		args.material.diffuseColor = this.color;
+		args.material.specular = 0;
 	}
 
 }

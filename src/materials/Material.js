@@ -12,9 +12,9 @@ export class Material {
     
     diffuseColor = [1, 1, 1];
     transparency = 0;
-    reflection = 0;
-    specular = 0.25;
-    roughness = 32;
+    specular = 1;
+    roughness = 1;
+    metallic = 0;
 
     textureScale = 1;
 

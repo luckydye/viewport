@@ -20,15 +20,11 @@ Test.viewportTest(resources, viewport => {
     const lights = [
         new Pointlight({
             position: new Vec(960, 900, 0),
-            color: [1, 0, 0],
+            color: [0, 1, 1],
         }),
         new Pointlight({
             position: new Vec(380, 1200, -830),
-            color: [0, 1, 0],
-        }),
-        new Pointlight({
-            position: new Vec(0, 100, 0),
-            color: [0, 0, 1],
+            color: [1, 0, 0],
         }),
     ]
 

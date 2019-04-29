@@ -200,7 +200,10 @@ export class Renderer extends GLContext {
 	renderCubemap(cubemap, camera) {
 		const gl = this.gl;
 
-		const initial = new Vec(camera.rotation);
+		const initial = {
+			rotation: new Vec(camera.rotation),
+			position: new Vec(camera.position),
+		};
 
 		const shader = new ColorShader();
 		this.prepareShader(shader);
@@ -216,12 +219,14 @@ export class Renderer extends GLContext {
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 		const faces = [
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, rotation: new Vec(0, 180 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_X, rotation: new Vec(0, 0, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, rotation: new Vec(-90 / 180 * Math.PI, 270 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, rotation: new Vec(90 / 180 * Math.PI, 270 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, rotation: new Vec(0, 90 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, rotation: new Vec(0, 270 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, rotation: new Vec(0, -90 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_X, rotation: new Vec(0, 90 / 180 * Math.PI, 0) },
+
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, rotation: new Vec(-90 / 180 * Math.PI, 0, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, rotation: new Vec(90 / 180 * Math.PI, 0, 0) },
+
+			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, rotation: new Vec(0, 180 / 180 * Math.PI, 0) },
+			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, rotation: new Vec(0, 0, 0) },
 		];
 
 		cubemap.gltexture = texture;
@@ -232,10 +237,17 @@ export class Renderer extends GLContext {
 		for(let face of faces) {
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, face.target, texture, 0);
 
+			camera.position.x = 0;
+			camera.position.y = -650;
+			camera.position.z = 0;
+
 			camera.rotation.x = face.rotation.x;
 			camera.rotation.y = face.rotation.y;
 			camera.rotation.z = face.rotation.z;
-			camera.fov = 90;
+
+			camera.fov = 75;
+
+			camera.update();
 
 			this.setResolution(cubemap.width, cubemap.height);
 			this.updateViewport();
@@ -244,9 +256,14 @@ export class Renderer extends GLContext {
 			this.drawScene(this.scene, camera);
 		}
 
-		camera.rotation.x = initial.x;
-		camera.rotation.y = initial.y;
-		camera.rotation.z = initial.z;
+		camera.position.x = initial.position.x;
+		camera.position.y = initial.position.y;
+		camera.position.z = initial.position.z;
+
+		camera.rotation.x = initial.rotation.x;
+		camera.rotation.y = initial.rotation.y;
+		camera.rotation.z = initial.rotation.z;
+
 		camera.fov = 90;
 
 		this.setResolution(window.innerWidth, window.innerHeight);

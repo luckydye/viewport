@@ -15,10 +15,18 @@ uniform vec3 ambientcolor;
 uniform float shadowcolor;
 uniform vec3 cameraPosition;
 
+struct SceneProjection {
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+};
+uniform SceneProjection scene;
+
 struct Material {
     vec3 diffuseColor;
     float specular;
     float roughness;
+    float metallic;
     float transparency;
     float textureScale;
     bool scaleUniform;
@@ -52,9 +60,10 @@ vec3 Specular(PointLight light, vec3 vertPos, vec3 normal) {
     vec3 viewDir = normalize(cameraPosition - vertPos);
     vec3 lightDir = normalize(light.position - vertPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.roughness);
+    float roughness = 100.0 / material.roughness;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), roughness);
 
-    return light.color * (spec * material.specular);
+    return light.color * spec * material.specular;
 }
 
 vec3 Diffuse(PointLight light, vec3 vertPos, vec3 normal) {
@@ -78,7 +87,7 @@ void main () {
     vec3 ambient = ambientcolor;
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
-    vec4 reflection = texture(cubemap, vNormal);
+
     vec3 shadows = vec3(0.0);
 
     float shadow = Shadow(vLightProjViewMatrix * vWorldPos) * shadowcolor;
@@ -89,5 +98,10 @@ void main () {
         specular += Specular(pointLights[i], vWorldPos.xyz, vNormal);
     }
 
-    oFragColor = vec4(vec3(ambient + diffuse + specular + shadows + reflection.rgb), 1.0);
+    vec4 reflectNormal = vec4(vNormal.x, -vNormal.y, -vNormal.z, 1.0) * scene.model;
+    vec3 reflection = texture(cubemap, reflectNormal.xyz).rgb;
+
+    reflection *= material.metallic;
+
+    oFragColor = vec4(vec3(ambient + diffuse + specular + shadows + reflection), 1.0);
 }

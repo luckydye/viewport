@@ -9,6 +9,7 @@ struct Material {
     vec3 diffuseColor;
     float specular;
     float roughness;
+    float metallic;
     float transparency;
     float textureScale;
     bool scaleUniform;
