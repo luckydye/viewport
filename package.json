@@ -7,8 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "test.bat",
-    "start": "parcel ./test/textures/index.html --no-cache"
+    "start": "test.bat",
+    "build": "build.bat"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "minami": "^1.2.3",
     "parcel-bundler": "^1.12.3"
   }
 }

@@ -1,1 +1,0 @@
-parcel ./test/%1/index.html --no-cache --public-url . -d demo 
