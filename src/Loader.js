@@ -154,13 +154,13 @@ export class Loader {
             }
         }
 
-        if(json.reflectionMap) {
-            const reflectionImage = Resources.get(json.reflectionMap);
+        if(json.specularMap) {
+            const reflectionImage = Resources.get(json.specularMap);
             const reflectionTexture = new Texture(reflectionImage);
-            mat.reflectionMap = reflectionTexture;
+            mat.specularMap = reflectionTexture;
 
             if(!reflectionImage) {
-                logger.error('could not find reflectionMap on Material', name);
+                logger.error('could not find specularMap on Material', name);
             }
         }
 

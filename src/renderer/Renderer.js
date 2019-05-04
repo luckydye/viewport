@@ -50,16 +50,17 @@ export class Renderer extends GLContext {
 
 		this.shadowMapSize = 4096;
 
+		const renderRes = this.width;
+
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
-			new RenderPass(this, 'light', new LightShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, this.width),
-			new RenderPass(this, 'id', new MattShader(), this.aspectratio, this.width),
+			new RenderPass(this, 'light', new LightShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'diffuse', new ColorShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'id', new MattShader(), this.aspectratio, renderRes),
 		]
 
 		this.compShader = new FinalShader();
-		this.prepareShader(this.compShader);
 
 		this.readings = {};
 
@@ -98,6 +99,8 @@ export class Renderer extends GLContext {
 			const lightS = this.scene.lightSources;
 
 			pass.use();
+
+			this.useShader(pass.shader);
 
 			switch(pass.id) {
 
@@ -206,7 +209,6 @@ export class Renderer extends GLContext {
 		};
 
 		const shader = new ColorShader();
-		this.prepareShader(shader);
 		this.useShader(shader);
 
 		const texture = gl.createTexture();
@@ -287,16 +289,19 @@ export class Renderer extends GLContext {
 	// give material attributes to shader
 	applyMaterial(shader, material) {
 		const colorTexture = material.texture;
-		const reflectionMap = material.reflectionMap;
+		const specularMap = material.specularMap;
 		const displacementMap = material.displacementMap;
+		const normalMap = material.normalMap;
 
 		this.prepareTexture(colorTexture);
-		this.prepareTexture(reflectionMap);
+		this.prepareTexture(specularMap);
 		this.prepareTexture(displacementMap);
+		this.prepareTexture(normalMap);
 		
 		this.useTexture(colorTexture, "colorTexture", 1);
-		this.useTexture(reflectionMap, "reflectionMap", 2);
+		this.useTexture(specularMap, "specularMap", 2);
 		this.useTexture(displacementMap, "displacementMap", 3);
+		this.useTexture(normalMap, "normalMap", 4);
 
 		shader.setUniforms(this.gl, material, 'material');
 	}
@@ -422,10 +427,6 @@ export class RenderPass {
 		this.id = id;
 		this.shader = shader;
 		this.renderer = renderer;
-
-		if(!shader.initialized) {
-			this.renderer.prepareShader(shader);
-        }
         
 		this.width = resolution;
 		this.height = resolution / ar;
@@ -441,6 +442,5 @@ export class RenderPass {
 		this.renderer.useFramebuffer(this.id);
 		this.renderer.clear();
 		this.renderer.viewport(this.width, this.height);
-		this.renderer.useShader(this.shader);
 	}
 }

@@ -7,10 +7,13 @@ precision mediump float;
 in vec4 vWorldPos;
 in vec3 vNormal;
 in mat4 vLightProjViewMatrix;
+in vec2 vTexCoords;
 
 uniform samplerCube cubemap;
 
 uniform sampler2D shadowDepthMap;
+uniform sampler2D specularMap;
+uniform sampler2D normalMap;
 uniform vec3 ambientcolor;
 uniform float shadowcolor;
 uniform vec3 cameraPosition;
@@ -57,13 +60,13 @@ float Shadow(vec4 fragPosLightSpace) {
 }
 
 vec3 Specular(PointLight light, vec3 vertPos, vec3 normal) {
+    float dist = distance(cameraPosition, vertPos);
     vec3 viewDir = normalize(cameraPosition - vertPos);
     vec3 lightDir = normalize(light.position - vertPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float roughness = 100.0 / material.roughness;
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), roughness);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), dist);
 
-    return light.color * spec * material.specular;
+    return light.color * spec;
 }
 
 vec3 Diffuse(PointLight light, vec3 vertPos, vec3 normal) {
@@ -84,24 +87,34 @@ vec3 Diffuse(PointLight light, vec3 vertPos, vec3 normal) {
 }
 
 void main () {
+    vec4 specMap = texture(specularMap, vTexCoords);
+    vec4 normMap = texture(normalMap, vTexCoords);
+
     vec3 ambient = ambientcolor;
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
-
     vec3 shadows = vec3(0.0);
+    vec3 normal = vNormal;
 
-    float shadow = Shadow(vLightProjViewMatrix * vWorldPos) * shadowcolor;
-    shadows = vec3(shadow);
+    // if(normMap.r > 0.0) {
+    //     normal *= normMap.rgb;
+    // }
+
+    vec4 shadow = Shadow(vLightProjViewMatrix * vWorldPos) * vec4(shadowcolor);
+    shadows = shadow.rgb;
 
     for(int i = 0; i < lightCount; i++) {
-        diffuse += Diffuse(pointLights[i], vWorldPos.xyz, vNormal);
-        specular += Specular(pointLights[i], vWorldPos.xyz, vNormal);
+        diffuse += Diffuse(pointLights[i], vWorldPos.xyz, normal);
+        specular += Specular(pointLights[i], vWorldPos.xyz, normal);
     }
 
-    vec4 reflectNormal = vec4(vNormal.x, -vNormal.y, -vNormal.z, 1.0) * scene.model;
+    diffuse *= specMap.rgb + 0.5;
+
+    vec4 reflectNormal = vec4(normal.x, -normal.y, -normal.z, 1.0) * scene.model;
     vec3 reflection = texture(cubemap, reflectNormal.xyz).rgb;
 
-    reflection *= material.metallic;
+    reflection *= material.metallic * specMap.rgb;
+    specular *= material.specular * specMap.rgb;
 
     oFragColor = vec4(vec3(ambient + diffuse + specular + shadows + reflection), 1.0);
 }

@@ -3,12 +3,14 @@ import { Logger } from './src/Logger.js';
 import { Renderer } from "./src/renderer/Renderer";
 import { Resources } from "./src/Resources.js";
 import { Scene } from "./src/scene/Scene.js";
-import { Vec } from "./src/Math";
+import { Vec, Raycast } from "./src/Math";
 import { Scheduler } from "./src/Scheduler";
 import { CursorControler } from "./src/controlers/CursorController";
 import { CameraControler } from "./src/controlers/CameraControler";
 import { Camera } from './src/scene/Camera.js';
 import { Cubemap } from './src/materials/Cubemap.js';
+
+import * as geometry from './src/geo/*.*';
 
 const logger = new Logger('Viewport');
 
@@ -33,7 +35,57 @@ export default class Viewport extends HTMLElement {
                     width: 100%;
                     height: 100%;
                 }
+                .explorer {
+                    user-select: none;
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    left: 20px;
+                    height: 200px;
+                    background: rgba(0,0,0,0.5);
+                    border-radius: 10px;
+                    border: 1.33px solid black;
+                    padding: 10px;
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+                .item {
+                    width: 50px;
+                    height: 50px;
+                    background: grey;
+                    border-radius: 20%;
+                    position: relative;
+                    color: white;
+                    font-family: sans-serif;
+                    font-size: 14px;
+                    margin: 0 15px 25px 0;
+                }
+                .item::after {
+                    content: attr(geo);
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    margin-top: 5px;
+                    transform: translateX(-50%);
+                    opacity: 0.75;
+                }
+                .item:hover:before {
+                    content: "";
+                    position: absolute;
+                    top: -5px;
+                    left: -5px;
+                    right: -5px;
+                    bottom: -25px;
+                    background: white;
+                    opacity: 0.125;
+                }
             </style>
+            <div class="explorer">
+                <div class="item" geo="Cube" preset='{ "scale": 20 }'></div>
+                <div class="item" geo="Guide"></div>
+                <div class="item" geo="Plane" preset='{ "scale": 2000 }'></div>
+                <div class="item" geo="Sphere" preset='{ "scale": 200 }'></div>
+            </div>
         `;
     }
 
@@ -60,6 +112,73 @@ export default class Viewport extends HTMLElement {
 
             logger.log("resources initialized");
             this.render();
+        });
+
+        const explorer = this.root.querySelector('.explorer');
+
+        let draging = false;
+        let currentTarget = null;
+        let currentObject = null;
+
+        const drag = (e) => {
+            const hit = new Raycast(this.camera, e.x, e.y).hit(new Vec(), new Vec(0, 1, 0));
+            if(hit && currentObject) {
+                currentObject.position = new Vec(hit.position).add(new Vec(200, 200, 200));
+            }
+        }
+
+        const enter = (e) => {
+            const hit = new Raycast(this.camera, e.x, e.y).hit(new Vec(), new Vec(0, 1, 0));
+            const geo = currentTarget.getAttribute('geo');
+            const preset = currentTarget.getAttribute('preset');
+            if(hit) {
+                let json = {};
+                if(preset) {
+                    json = JSON.parse(preset);
+                }
+                currentObject = new geometry[geo].js[geo]({
+                    id: this.scene.objects.size * 10,
+                    ...json
+                });
+                currentObject.position = new Vec(hit.position);
+                this.scene.add(currentObject);
+            }
+        }
+
+        const leave = (e) => {
+            this.scene.remove(currentObject);
+            currentObject = null;
+        }
+
+        explorer.addEventListener('mousedown', (e) => {
+            if(e.target.className == "item") {
+                currentTarget = e.target;
+                draging = true;
+            }
+        });
+
+        explorer.addEventListener('mouseleave', (e) => {
+            if(draging) {
+                enter(e);
+            }
+        });
+
+        explorer.addEventListener('mouseenter', (e) => {
+            if(draging) {
+                leave(e);
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if(draging) {
+                drag(e);
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            draging = false;
+            currentObject = null;
+            currentTarget = null;
         });
     }
 

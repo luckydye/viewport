@@ -58,4 +58,14 @@ void main(void) {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
+
+    vec2 offset = vec2(0.002, 0.001);
+
+    vec4 rcolor = texture(diffuseBuffer, vec2(texCoords.x + offset.x, texCoords.y + offset.y));
+    rcolor *= vec4(1.0, 0.0, 0.0, 0.5);
+    oFragColor += rcolor;
+
+    vec4 gcolor = texture(diffuseBuffer, vec2(texCoords.x - offset.x, texCoords.y - offset.y));
+    gcolor *= vec4(0.0, 1.0, 0.0, 0.5);
+    oFragColor += gcolor;
 }

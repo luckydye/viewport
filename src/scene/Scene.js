@@ -17,7 +17,7 @@ export class Scene {
 
 		this.activeCamera = camera;
 
-		this.grid = new Grid(100, 25);
+		this.grid = new Grid(100, 12);
 		this.curosr = new Cursor();
 
 		this.clear();

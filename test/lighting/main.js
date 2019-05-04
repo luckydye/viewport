@@ -45,6 +45,7 @@ Test.viewportTest(resources, viewport => {
 
     const cubes = [
         new Cube({
+            material: new TestMaterial(),
             position: new Vec(83, 800, -1610),
             scale: 20,
             id: 10,
@@ -55,6 +56,7 @@ Test.viewportTest(resources, viewport => {
             id: 20,
         }),
         new Cube({
+            material: new TestMaterial(),
             position: new Vec(1820, 90, 391),
             scale: 10,
             id: 30,
@@ -65,6 +67,7 @@ Test.viewportTest(resources, viewport => {
             id: 40,
         }),
         new Cube({
+            material: new TestMaterial(),
             position: new Vec(0, 300, -1580),
             scale: 30,
             id: 50,
@@ -75,6 +78,7 @@ Test.viewportTest(resources, viewport => {
             id: 60,
         }),
         new Cube({
+            material: new TestMaterial(),
             position: new Vec(-100, 134, 2400),
             scale: 15,
             id: 70,
@@ -87,10 +91,9 @@ Test.viewportTest(resources, viewport => {
             position: new Vec(0, -0.5, 0),
             material: new DefaultMaterial({ 
                 diffuseColor: [0.25, 0.25, 0.25],
-                specular: 0
             }),
             rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
-            scale: 20000
+            scale: 2000
         }),
 
         new Sphere({

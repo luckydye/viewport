@@ -7,8 +7,9 @@ export class Material {
     }
 
     texture = new Texture();
-    reflectionMap = new Texture();
+    specularMap = new Texture();
     displacementMap = new Texture();
+    normalMap = new Texture();
     
     diffuseColor = [1, 1, 1];
     transparency = 0;

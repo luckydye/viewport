@@ -18,7 +18,6 @@ struct Material {
 uniform Material material;
 
 uniform sampler2D colorTexture;
-uniform sampler2D reflectionMap;
 
 out vec4 oFragColor;
 
@@ -38,9 +37,4 @@ void main() {
     }
 
     oFragColor = vec4(color.rgb, 1.0 - material.transparency);
-
-    float reflectivenss = texture(reflectionMap, textureCoords).r;
-    if(reflectivenss > 0.0 && vNormal.g > 0.99) {
-        oFragColor = vec4(0.0, 1.0, 0.0, 0.0);
-    }
 }

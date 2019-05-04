@@ -81,6 +81,9 @@ export class GLContext {
 
 	// use webgl shader
 	useShader(shader) {
+		if(!shader.initialized) {
+			this.prepareShader(shader);
+		}
 		this.gl.useProgram(shader.program);
 		shader.setUniforms(this.gl, shader.uniform);
 		this.currentShader = shader;
