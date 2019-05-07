@@ -1,3 +1,5 @@
+import { Texture } from "../materials/Texture";
+
 export class GLShader {
 
 	static vertexSource() {}
@@ -25,8 +27,12 @@ export class GLShader {
 	uniform = {};
 	initialized = false;
 
-	setUniforms(gl, attributes, target) {
+	setUniforms(renderer, attributes, target) {
 		const uniforms = this._uniforms;
+		const gl = renderer.gl;
+
+		let textureSlots = 1;
+		let textures = [];
 
 		for(let key in attributes) {
 			let opt = key;
@@ -39,7 +45,15 @@ export class GLShader {
 			const uniform = uniforms[opt];
 
 			if(Array.isArray(value)) {
+
 				gl.uniform3fv(uniform, value);
+
+			} else if(value instanceof Texture) {
+				renderer.prepareTexture(value);
+				textures.push({
+					texture: value,
+					uniformloc: opt
+				});
 			} else {
 				const type = typeof value;
 				switch(type) {
@@ -51,6 +65,11 @@ export class GLShader {
 						break;
 				}
 			}
+		}
+
+		for(let tex of textures) {
+			renderer.useTexture(tex.texture, tex.uniformloc, textureSlots);
+			textureSlots++;
 		}
 	}
 }

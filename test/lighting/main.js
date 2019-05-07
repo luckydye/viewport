@@ -27,7 +27,7 @@ Test.viewportTest(resources, viewport => {
         }),
     ]
 
-    const anim2 = new Animation(lights[0], 'position', 1000, true);
+    const anim2 = new Animation(lights[0], 'position', 5000, true);
     anim2.setKeyframes([
         new Vec(960, 900, -300),
         new Vec(960, 900, 1000),
@@ -35,7 +35,7 @@ Test.viewportTest(resources, viewport => {
     ]);
     viewport.scheduler.addTask(anim2);
 
-    const anim = new Animation(lights[1], 'position', 2000, true);
+    const anim = new Animation(lights[1], 'position', 6000, true);
     anim.setKeyframes([
         new Vec(380, 1200, -830),
         new Vec(380, 200, -830),
@@ -85,16 +85,25 @@ Test.viewportTest(resources, viewport => {
         }),
     ];
 
+    const ground = new Plane({
+        position: new Vec(0, -0.5, 0),
+        material: new DefaultMaterial({ 
+            diffuseColor: [0.25, 0.25, 0.25],
+        }),
+        rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
+        scale: 2000
+    });
+
+    // const anim3 = new Animation(ground, 'rotation', 10000, true);
+    // anim3.setKeyframes([
+    //     new Vec(0 / 180 * Math.PI, 0, 0),
+    //     new Vec(-360 / 180 * Math.PI, 0, 0),
+    // ]);
+    // viewport.scheduler.addTask(anim3);
+
     scene.add([
 
-        new Plane({
-            position: new Vec(0, -0.5, 0),
-            material: new DefaultMaterial({ 
-                diffuseColor: [0.25, 0.25, 0.25],
-            }),
-            rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
-            scale: 2000
-        }),
+        ground,
 
         new Sphere({
             material: new TestMaterial(),

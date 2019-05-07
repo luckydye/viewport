@@ -11,6 +11,7 @@ import { Camera } from './src/scene/Camera.js';
 import { Cubemap } from './src/materials/Cubemap.js';
 
 import * as geometry from './src/geo/*.*';
+import * as lights from './src/light/*.*';
 
 const logger = new Logger('Viewport');
 
@@ -41,7 +42,7 @@ export default class Viewport extends HTMLElement {
                     bottom: 20px;
                     right: 20px;
                     left: 20px;
-                    height: 200px;
+                    height: 70px;
                     background: rgba(0,0,0,0.5);
                     border-radius: 10px;
                     border: 1.33px solid black;
@@ -58,6 +59,12 @@ export default class Viewport extends HTMLElement {
                     color: white;
                     font-family: sans-serif;
                     font-size: 14px;
+                    margin: 0 15px 25px 0;
+                }
+                .spacer {
+                    width: 1px;
+                    height: 50px;
+                    background: grey;
                     margin: 0 15px 25px 0;
                 }
                 .item::after {
@@ -85,6 +92,8 @@ export default class Viewport extends HTMLElement {
                 <div class="item" geo="Guide"></div>
                 <div class="item" geo="Plane" preset='{ "scale": 2000 }'></div>
                 <div class="item" geo="Sphere" preset='{ "scale": 200 }'></div>
+                <div class="spacer"></div>
+                <div class="item" geo="Pointlight"></div>
             </div>
         `;
     }
@@ -136,12 +145,21 @@ export default class Viewport extends HTMLElement {
                 if(preset) {
                     json = JSON.parse(preset);
                 }
-                currentObject = new geometry[geo].js[geo]({
-                    id: this.scene.objects.size * 10,
-                    ...json
-                });
-                currentObject.position = new Vec(hit.position);
-                this.scene.add(currentObject);
+                let category;
+                if(geo in geometry) {
+                    category = geometry;
+                }
+                if(geo in lights) {
+                    category = lights;
+                }
+                if(category) {
+                    currentObject = new category[geo].js[geo]({
+                        id: this.scene.objects.size * 10,
+                        ...json
+                    });
+                    currentObject.position = new Vec(hit.position);
+                    this.scene.add(currentObject);
+                }
             }
         }
 
@@ -249,11 +267,11 @@ export default class Viewport extends HTMLElement {
         this.setCursor([...this.scene.objects][this.scene.objects.size-1]);
 
         // testing
-        setTimeout(() => {
-            const cubemap = new Cubemap();
-            this.renderer.renderCubemap(cubemap, this.scene.activeCamera);
-            this.scene.cubemap = cubemap;
-        }, 0)
+        // setTimeout(() => {
+        //     const cubemap = new Cubemap();
+        //     this.renderer.renderCubemap(cubemap, this.scene.activeCamera);
+        //     this.scene.cubemap = cubemap;
+        // }, 0)
     }
 
     setCursor(obj) {

@@ -3,7 +3,6 @@ import { GLShader } from '../renderer/GLShader.js';
 
 Resources.add({
     'gbuffer.vs': require('../../res/shader/gbuffer.vertex.shader'),
-    'color.fs': require('../../res/shader/color.fragment.shader'),
 }, false);
 
 export default class ColorShader extends GLShader {
@@ -13,7 +12,49 @@ export default class ColorShader extends GLShader {
     }
 
     static fragmentSource() {
-        return Resources.get('color.fs');
+        return `#version 300 es
+            precision mediump float;
+            
+            in vec2 vTexCoords;
+            in vec3 vNormal;
+            in float id;
+            
+            struct Material {
+                sampler2D texture;
+                sampler2D specularMap;
+                sampler2D normalMap;
+                sampler2D displacementMap;
+                vec3 diffuseColor;
+                float specular;
+                float roughness;
+                float metallic;
+                float transparency;
+                float textureScale;
+                bool scaleUniform;
+                bool selected;
+            };
+            uniform Material material;
+            
+            out vec4 oFragColor;
+            
+            void main() {
+                vec2 imageSize = vec2(textureSize(material.texture, 0));
+                vec2 textureCoords = vTexCoords / (imageSize.x / material.textureScale);
+            
+                vec4 color = vec4(0.0);
+            
+                vec4 tcolor = texture(material.texture, textureCoords);
+                bool emptyTexture = (tcolor.r + tcolor.g + tcolor.b) == 0.0;
+            
+                if(emptyTexture) {
+                    color += vec4(material.diffuseColor, 1.0 - material.transparency);
+                } else {
+                    color += tcolor;
+                }
+            
+                oFragColor = vec4(color.rgb, 1.0 - material.transparency);
+            }
+        `;
     }
 
 }

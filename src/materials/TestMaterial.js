@@ -9,9 +9,8 @@ Resources.add({
 export default class TestMaterial extends Material {
 
     texture = new Texture(Resources.get('texture256'));
-    textureScale = 256 * 2;
-
-    specular = 3.33;
-    
     specularMap = new Texture(Resources.get('spec_map'));
+
+    textureScale = 256 * 2;
+    specular = 3.33;
 }

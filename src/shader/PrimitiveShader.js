@@ -13,6 +13,10 @@ export default class PickingShader extends GLShader {
         precision mediump float;
         
         struct Material {
+            sampler2D texture;
+            sampler2D specularMap;
+            sampler2D normalMap;
+            sampler2D displacementMap;
             vec3 diffuseColor;
             float specular;
             float roughness;

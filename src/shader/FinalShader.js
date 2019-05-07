@@ -15,11 +15,11 @@ export default class FinalShader extends GLShader {
 
         uniform float aspectRatio;
 
-        out vec2 texCoords;
+        out vec2 vTexCoords;
         
         void main() {
             gl_Position = vec4(aPosition, 1.0);
-            texCoords = aTexCoords;
+            vTexCoords = aTexCoords;
         }`;
     }
 

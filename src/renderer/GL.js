@@ -70,7 +70,9 @@ export class GLContext {
 		this.canvas = canvas;
 
 		const ctxtOpts = { 
-			// alpha: false
+			alpha: false,
+			desynchronized: true,
+			preserveDrawingBuffer: true
 		};
 		this.gl = canvas.getContext("webgl2", ctxtOpts) || 
 				  canvas.getContext("webgl", ctxtOpts);
@@ -85,7 +87,7 @@ export class GLContext {
 			this.prepareShader(shader);
 		}
 		this.gl.useProgram(shader.program);
-		shader.setUniforms(this.gl, shader.uniform);
+		shader.setUniforms(this, shader.uniform);
 		this.currentShader = shader;
 	}
 
@@ -311,7 +313,7 @@ export class GLContext {
 	}
 
 	// create webgl texture
-	createTexture(image) {
+	createTexture(image, noMipmap) {
 		const gl = this.gl;
 
 		const texture = gl.createTexture();
@@ -329,7 +331,9 @@ export class GLContext {
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 1, 1, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, new Uint8Array([ 0 ]));
 		}
 
-		gl.generateMipmap(gl.TEXTURE_2D);
+		if(!noMipmap) {
+			gl.generateMipmap(gl.TEXTURE_2D);
+		}
 
 		gl.bindTexture(gl.TEXTURE_2D, null);
 

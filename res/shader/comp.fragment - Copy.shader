@@ -90,23 +90,23 @@ vec3 lighting() {
     vec3 specular = vec3(0.0);
     vec3 shadows = vec3(0.0);
 
-    // vec3 shadow = (Shadow(lightProjViewMatrix * worldPos, shadowBuffer) * vec4(0.15)).rgb;
+    vec3 shadow = (Shadow(lightProjViewMatrix * worldPos, shadowBuffer) * vec4(0.15)).rgb;
+    return worldPos.xyz;
 
-    // for(int i = 0; i < lightCount; i++) {
-        // diffuse += Diffuse(pointLights[i], worldPos.xyz, normal);
-    //     specular += Specular(pointLights[i], worldPos.xyz, normal);
-    // }
+    for(int i = 0; i < lightCount; i++) {
+        diffuse += Diffuse(pointLights[i], worldPos.xyz, normal);
+        specular += Specular(pointLights[i], worldPos.xyz, normal);
+    }
 
-    // diffuse += specMap * 0.33;
+    diffuse += specMap * 0.33;
 
-    // vec4 reflectNormal = vec4(normal.x, -normal.y, -normal.z, 1.0) * scene.model;
-    // vec3 reflection = texture(cubemap, reflectNormal.xyz).rgb;
+    vec4 reflectNormal = vec4(normal.x, -normal.y, -normal.z, 1.0) * scene.model;
+    vec3 reflection = texture(cubemap, reflectNormal.xyz).rgb;
 
-    // reflection *= specMap;
-    // specular *= specMap;
+    reflection *= specMap;
+    specular *= specMap;
 
-    // return diffuse + specular + shadow + reflection;
-    return vec3(1.0);
+    return diffuse + specular + shadow + reflection;
 }
 
 void main() {
@@ -119,6 +119,10 @@ void main() {
     vec4 guides = texture(guidesBuffer, vTexCoords);
     vec4 id = texture(idBuffer, vTexCoords);
     vec4 light = vec4(lighting(), 1.0);
+
+    float power = 1000.0;
+    oFragColor = vec4(pow(shadow.r, power), pow(shadow.g, power), pow(shadow.b, power), 1.0);
+    return;
 
     if(color.a > 0.0) {
         oFragColor = color;
@@ -146,4 +150,6 @@ void main() {
             oFragColor = vec4(guides.rgb + 0.33, 1.0);
         }
     }
+
+    oFragColor = vec4(1.0);
 }
