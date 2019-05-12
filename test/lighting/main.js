@@ -43,78 +43,167 @@ Test.viewportTest(resources, viewport => {
     ]);
     viewport.scheduler.addTask(anim);
 
-    const cubes = [
-        new Cube({
-            material: new TestMaterial(),
-            position: new Vec(83, 800, -1610),
-            scale: 20,
-            id: 10,
-        }),
-        new Cube({
-            position: new Vec(-1440, 450, 1300),
-            scale: 5,
-            id: 20,
-        }),
-        new Cube({
-            material: new TestMaterial(),
-            position: new Vec(1820, 90, 391),
-            scale: 10,
-            id: 30,
-        }),
-        new Cube({
-            position: new Vec(1080, 76, 1640),
-            scale: 8,
-            id: 40,
-        }),
-        new Cube({
-            material: new TestMaterial(),
-            position: new Vec(0, 300, -1580),
-            scale: 30,
-            id: 50,
-        }),
-        new Cube({
-            position: new Vec(-1530, 200, 1270),
-            scale: 20,
-            id: 60,
-        }),
-        new Cube({
-            material: new TestMaterial(),
-            position: new Vec(-100, 134, 2400),
-            scale: 15,
-            id: 70,
-        }),
-    ];
-
-    const ground = new Plane({
-        position: new Vec(0, -0.5, 0),
-        material: new DefaultMaterial({ 
-            diffuseColor: [0.25, 0.25, 0.25],
-        }),
-        rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
-        scale: 2000
-    });
-
-    // const anim3 = new Animation(ground, 'rotation', 10000, true);
-    // anim3.setKeyframes([
-    //     new Vec(0 / 180 * Math.PI, 0, 0),
-    //     new Vec(-360 / 180 * Math.PI, 0, 0),
-    // ]);
-    // viewport.scheduler.addTask(anim3);
+    const palneMat = new TestMaterial();
+    palneMat.textureScale = 256 * 6;
 
     scene.add([
 
-        ground,
+        ...lights,
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(-90 / 180 * Math.PI, 0, 0),
+        }),
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(90 / 180 * Math.PI, 0, 0),
+            position: new Vec(0, 1200 * 2, 0),
+        }),
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(0 / 180 * Math.PI, 0, 0),
+            position: new Vec(0, 1200, -1200),
+        }),
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(180 / 180 * Math.PI, 0, 0),
+            position: new Vec(0, 1200, 1200),
+        }),
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(0, -90 / 180 * Math.PI, 0),
+            position: new Vec(1200, 1200, 0),
+        }),
+
+        new Plane({
+            material: palneMat,
+            scale: 1200,
+            rotation: new Vec(0, 90 / 180 * Math.PI, 0),
+            position: new Vec(-1200, 1200, 0),
+        }),
+
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(200, 200, 200),
+            scale: 200
+        }),
+
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(1000, 200, 200),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(1000, 600, 600),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(1000, 1000, 1000),
+            scale: 200
+        }),
+        
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-600, 200, -1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-1000, 200, -1000),
+            scale: 200
+        }),
+        
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 200, -1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 600, -1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1000, -1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, -1000),
+            scale: 200
+        }),
+
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 200, 1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 600, 1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1000, 1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, 1000),
+            scale: 200
+        }),
+
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-600, 1400, 1000),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-1000, 1400, 1000),
+            scale: 200
+        }),
+
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, 600),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, 200),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, -200),
+            scale: 200
+        }),
+        new Cube({
+            material: new TestMaterial(),
+            position: new Vec(-200, 1400, -600),
+            scale: 200
+        }),
 
         new Sphere({
             material: new TestMaterial(),
-            position: new Vec(0, 650, 0),
+            position: new Vec(-600, 650, -200),
             scale: 200,
             id: 80
         }),
-
-        ...lights, 
-
-        ...cubes,
     ]);
 
 });

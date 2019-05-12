@@ -11,6 +11,6 @@ export default class TestMaterial extends Material {
     texture = new Texture(Resources.get('texture256'));
     specularMap = new Texture(Resources.get('spec_map'));
 
-    textureScale = 256 * 2;
+    textureScale = 256 * 1;
     specular = 3.33;
 }
