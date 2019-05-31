@@ -1,9 +1,9 @@
 import { Guide } from "./Guide.js";
-import PrimitivetMaterial from "../materials/PrimitiveMaterial.js";
+import DefaultMaterial from './../materials/DefaultMaterial';
 
-const DEFAULT_GRID_MATERIAL = new PrimitivetMaterial();
-DEFAULT_GRID_MATERIAL.scaleUniform = false;
-DEFAULT_GRID_MATERIAL.transparency = 0.5;
+const DEFAULT_GRID_MATERIAL = new DefaultMaterial();
+DEFAULT_GRID_MATERIAL.castShadows = false;
+DEFAULT_GRID_MATERIAL.receiveShadows = false;
 
 export class Grid extends Guide {
 

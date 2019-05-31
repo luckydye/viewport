@@ -3,7 +3,6 @@ import Test from "../../src/Test";
 import { Vec } from "../../src/Math";
 import { Plane } from "../../src/geo/Plane";
 import { Pointlight } from "../../src/light/Pointlight";
-import DefaultMaterial from "../../src/materials/DefaultMaterial";
 import { Sphere } from "../../src/geo/Sphere";
 import TestMaterial from "../../src/materials/TestMaterial";
 import { Animation } from "../../src/Animation";
@@ -19,11 +18,7 @@ Test.viewportTest(resources, viewport => {
     const lights = [
         new Pointlight({
             position: new Vec(960, 900, 0),
-            color: [0, 1, 1],
-        }),
-        new Pointlight({
-            position: new Vec(380, 1200, -830),
-            color: [1, 0, 0],
+            color: [1, 1, 1],
         }),
     ]
 
@@ -34,14 +29,6 @@ Test.viewportTest(resources, viewport => {
         new Vec(960, 900, -300),
     ]);
     viewport.scheduler.addTask(anim2);
-
-    const anim = new Animation(lights[1], 'position', 6000, true);
-    anim.setKeyframes([
-        new Vec(380, 1200, -830),
-        new Vec(380, 200, -830),
-        new Vec(380, 1200, -830),
-    ]);
-    viewport.scheduler.addTask(anim);
 
     const palneMat = new TestMaterial();
     palneMat.textureScale = 256 * 6;

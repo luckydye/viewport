@@ -4,7 +4,7 @@ import ColorShader from '../shader/ColorShader';
 import PrimitiveShader from '../shader/PrimitiveShader';
 import { Logger } from '../Logger';
 import Config from '../Config';
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 import { Vec } from '../Math';
 import MattShader from '../shader/MattShader';
 import { Pointlight } from '../light/Pointlight';
@@ -68,7 +68,7 @@ export class Renderer extends GLContext {
 
 		this.setResolution(...Renderer.defaults.resolution);
 
-		this.shadowMapSize = 4096;
+		this.shadowMapSize = 3096;
 
 		const renderRes = this.width;
 
@@ -213,7 +213,24 @@ export class Renderer extends GLContext {
 		gl.uniformMatrix4fv(this.compShader.uniforms.lightProjViewMatrix, false, this.scene.lightSources.projViewMatrix);
 		gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 
-		this.uploadLights();
+		let lightCount = 0;
+		for(let light of this.scene.objects) {
+			if(light instanceof Pointlight) {
+
+				this.gl.uniform3fv(this.compShader.uniforms["lights["+lightCount+"].position"], [
+					light.position.x,
+					light.position.y,
+					light.position.z,
+				]);
+				
+				this.gl.uniform3fv(this.compShader.uniforms["lights["+lightCount+"].color"], light.color);
+				this.gl.uniform1f(this.compShader.uniforms["lights["+lightCount+"].intensity"], light.intensity);
+				this.gl.uniform1f(this.compShader.uniforms["lights["+lightCount+"].size"], light.size);
+				lightCount++;
+			}
+		}
+
+		this.gl.uniform1i(this.compShader.uniforms.lightCount, lightCount);
 
 		this.setupScene(this.compShader, this.scene.activeCamera);
 
@@ -273,28 +290,6 @@ export class Renderer extends GLContext {
 			camera.worldPosition.y,
 			camera.worldPosition.z,
 		]);
-	}
-
-	uploadLights() {
-		const shader = this.currentShader;
-
-		let lightCount = 0;
-		for(let light of this.scene.objects) {
-			if(light instanceof Pointlight) {
-				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].position"], [
-					light.position.x,
-					light.position.y,
-					light.position.z,
-				]);
-				
-				this.gl.uniform3fv(shader.uniforms["pointLights["+lightCount+"].color"], light.color);
-				this.gl.uniform1f(shader.uniforms["pointLights["+lightCount+"].intensity"], light.intensity);
-				this.gl.uniform1f(shader.uniforms["pointLights["+lightCount+"].size"], light.size);
-				lightCount++;
-			}
-		}
-
-		this.gl.uniform1i(shader.uniforms.lightCount, lightCount);
 	}
 
 	drawScene(scene, camera, filter) {

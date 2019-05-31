@@ -10,9 +10,6 @@ import { CameraControler } from "./src/controlers/CameraControler";
 import { Camera } from './src/scene/Camera.js';
 import { Cubemap } from './src/materials/Cubemap.js';
 
-import * as geometry from './src/geo/*.*';
-import * as lights from './src/light/*.*';
-
 const logger = new Logger('Viewport');
 
 let nextFrame = 0, 
@@ -35,20 +32,6 @@ export default class Viewport extends HTMLElement {
                 canvas {
                     width: 100%;
                     height: 100%;
-                }
-                .explorer {
-                    user-select: none;
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    left: 20px;
-                    height: 70px;
-                    background: rgba(0,0,0,0.5);
-                    border-radius: 10px;
-                    border: 1.33px solid black;
-                    padding: 10px;
-                    display: flex;
-                    flex-wrap: wrap;
                 }
                 .item {
                     width: 50px;
@@ -87,14 +70,6 @@ export default class Viewport extends HTMLElement {
                     opacity: 0.125;
                 }
             </style>
-            <div class="explorer">
-                <div class="item" geo="Cube" preset='{ "scale": 20 }'></div>
-                <div class="item" geo="Guide"></div>
-                <div class="item" geo="Plane" preset='{ "scale": 2000 }'></div>
-                <div class="item" geo="Sphere" preset='{ "scale": 200 }'></div>
-                <div class="spacer"></div>
-                <div class="item" geo="Pointlight"></div>
-            </div>
         `;
     }
 
@@ -121,82 +96,6 @@ export default class Viewport extends HTMLElement {
 
             logger.log("resources initialized");
             this.render();
-        });
-
-        const explorer = this.root.querySelector('.explorer');
-
-        let draging = false;
-        let currentTarget = null;
-        let currentObject = null;
-
-        const drag = (e) => {
-            const hit = new Raycast(this.camera, e.x, e.y).hit(new Vec(), new Vec(0, 1, 0));
-            if(hit && currentObject) {
-                currentObject.position = new Vec(hit.position).add(new Vec(200, 200, 200));
-            }
-        }
-
-        const enter = (e) => {
-            const hit = new Raycast(this.camera, e.x, e.y).hit(new Vec(), new Vec(0, 1, 0));
-            const geo = currentTarget.getAttribute('geo');
-            const preset = currentTarget.getAttribute('preset');
-            if(hit) {
-                let json = {};
-                if(preset) {
-                    json = JSON.parse(preset);
-                }
-                let category;
-                if(geo in geometry) {
-                    category = geometry;
-                }
-                if(geo in lights) {
-                    category = lights;
-                }
-                if(category) {
-                    currentObject = new category[geo].js[geo]({
-                        id: this.scene.objects.size * 10,
-                        ...json
-                    });
-                    currentObject.position = new Vec(hit.position);
-                    this.scene.add(currentObject);
-                }
-            }
-        }
-
-        const leave = (e) => {
-            this.scene.remove(currentObject);
-            currentObject = null;
-        }
-
-        explorer.addEventListener('mousedown', (e) => {
-            if(e.target.className == "item") {
-                currentTarget = e.target;
-                draging = true;
-            }
-        });
-
-        explorer.addEventListener('mouseleave', (e) => {
-            if(draging) {
-                enter(e);
-            }
-        });
-
-        explorer.addEventListener('mouseenter', (e) => {
-            if(draging) {
-                leave(e);
-            }
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if(draging) {
-                drag(e);
-            }
-        });
-
-        window.addEventListener('mouseup', (e) => {
-            draging = false;
-            currentObject = null;
-            currentTarget = null;
         });
     }
 
@@ -272,6 +171,10 @@ export default class Viewport extends HTMLElement {
         //     this.renderer.renderCubemap(cubemap, this.scene.activeCamera);
         //     this.scene.cubemap = cubemap;
         // }, 0)
+    }
+
+    onselect(objID) {
+        
     }
 
     setCursor(obj) {

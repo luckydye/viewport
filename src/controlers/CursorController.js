@@ -32,6 +32,7 @@ export class CursorControler extends EntityControler {
                     for(let obj of scene.objects) {
                         if(obj.id == selected) {
                             this.viewport.setCursor(obj);
+                            this.viewport.onselect(obj);
                 
                             this.lastAction.target = curosr;
                             this.lastAction.property = 'position';

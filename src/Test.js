@@ -33,11 +33,13 @@ export default class Test {
                 margin-right: 10px;
                 opacity: 0.75;
                 border-radius: 4px;
+                min-width: 28px;
+                text-align: center;
             }
             #details {
                 display: flex;
                 position: fixed;
-                top: 10px;
+                bottom: 10px;
                 left: 10px;
                 font-size: 14px;
                 font-family: sans-serif;
@@ -84,7 +86,7 @@ export default class Test {
             camera.setPositionTo(new Transform(savedPosition));
         }
 
-        const configTask = new Task(Scheduler.timer(24, (dt) => {
+        const configTask = new Task(Scheduler.timer(100, (dt) => {
             Config.global.setValue('camera', camera);
             details.innerHTML = `
                 <span>${camera.position}</span>

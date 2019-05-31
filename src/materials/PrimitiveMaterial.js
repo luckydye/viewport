@@ -2,7 +2,7 @@ import { Material } from "./Material";
 
 export default class PrimitivetMaterial extends Material {
 
-    diffuseColor = [0.5, 0.5, 0.5];
+    diffuseColor = [1, 1, 1];
     transparency = 0.5;
     
     scaleUniform = true;

@@ -3,7 +3,7 @@ precision mediump float;
 
 #define FOG true
 
-#define POINT_LIGHTS_COUNT 123
+#define POINT_LIGHTS_COUNT 10
 #define SHADOW_BIAS 0.000008
 
 in vec2 vTexCoords;
@@ -22,7 +22,7 @@ struct PointLight {
     float size;
 };
 uniform int lightCount;
-uniform PointLight pointLights[POINT_LIGHTS_COUNT];
+uniform PointLight lights[POINT_LIGHTS_COUNT];
 
 uniform mat4 lightProjViewMatrix;
 
@@ -64,49 +64,22 @@ vec3 Specular(PointLight light, vec3 vertPos, vec3 normal) {
     return light.color * spec;
 }
 
-vec3 Diffuse(PointLight light, vec3 vertPos, vec3 normal) {
-    vec3 lightDir = normalize(light.position - vertPos);
-    float diff = max(dot(normal, lightDir), 0.0);
+float Dither(vec2 fragPos, float value) {
+    float x = mod(fragPos.x * 1004.0, 2.0);
+    float y = mod(fragPos.y * 768.0, 2.0);
 
-    float dist = length(light.position - vertPos) / (light.size * 50.0);
-    float attenuation = 1.0 / pow(dist, light.intensity);
-
-    vec3 diffuse = light.color * diff;
-    diffuse *= attenuation;
-
-    if(dist < 0.115) {
-        diffuse = light.color;
+    if(y == 0.0 && x == 0.0 && value > 64.0) {
+        return value;
     }
-    
-    return diffuse;
-}
-
-vec3 lighting() {
-    vec3 specMap = texture(specBuffer, vTexCoords).rgb;
-    vec3 normal = texture(normalBuffer, vTexCoords).rgb;
-    vec4 worldPos = texture(worldBuffer, vTexCoords);
-
-    vec3 diffuse = vec3(0.0);
-    vec3 specular = vec3(0.0);
-    vec3 shadows = vec3(0.0);
-
-    // vec3 shadow = (Shadow(lightProjViewMatrix * worldPos, shadowBuffer) * vec4(0.15)).rgb;
-
-    // for(int i = 0; i < lightCount; i++) {
-        // diffuse += Diffuse(pointLights[i], worldPos.xyz, normal);
-    //     specular += Specular(pointLights[i], worldPos.xyz, normal);
-    // }
-
-    // diffuse += specMap * 0.33;
-
-    // vec4 reflectNormal = vec4(normal.x, -normal.y, -normal.z, 1.0) * scene.model;
-    // vec3 reflection = texture(cubemap, reflectNormal.xyz).rgb;
-
-    // reflection *= specMap;
-    // specular *= specMap;
-
-    // return diffuse + specular + shadow + reflection;
-    return vec3(1.0);
+    if(y == 0.0 && x == 1.0 && value > 128.0) {
+        return value;
+    }
+    if(y == 1.0 && x == 0.0 && value > 192.0) {
+        return value;
+    }
+    if(y == 1.0 && x == 1.0 && value > 0.0) {
+        return value;
+    }
 }
 
 void main() {
@@ -118,18 +91,28 @@ void main() {
     vec4 color = texture(colorBuffer, vTexCoords);
     vec4 guides = texture(guidesBuffer, vTexCoords);
     vec4 id = texture(idBuffer, vTexCoords);
-    vec4 light = vec4(lighting(), 1.0);
+    
+    vec3 specMap = texture(specBuffer, vTexCoords).rgb;
+    vec3 position = texture(worldBuffer, vTexCoords).rgb;
+
+    vec4 lighting = color * 0.1;
+
+    for(int i = 0; i < lightCount; i++) {
+        vec3 lightDir = normalize(lights[i].position - position);
+        vec3 diffuse = max(dot(normal.rgb, lightDir), 0.0) * color.rgb * lights[i].color;
+        lighting += vec4(diffuse, 1.0);
+    }
 
     if(color.a > 0.0) {
         oFragColor = color;
     }
 
-    if(color.a > 0.0 && light.a > 0.0) {
-        oFragColor *= light;
+    if(color.a > 0.0 && lighting.a > 0.0) {
+        oFragColor *= lighting;
     }
     
     if(FOG) {
-        float fogValue = pow(depth.r, 600.0) * 0.15;
+        float fogValue = pow(depth.r, 100.0) * 0.1;
         oFragColor += vec4(vec3(fogValue), 1.0);
     }
 
