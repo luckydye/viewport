@@ -8,6 +8,7 @@ import { UIWindow } from '@uncut/viewport-gui/components/UIWindow';
 import DefaultMaterial from './materials/DefaultMaterial';
 import * as geometry from './geo/*.*';
 import * as lights from './light/*.*';
+import Editor from '@uncut/node-editor';
 
 function css(strings) {
     const styles = document.createElement('style');
@@ -83,6 +84,20 @@ export default class Test {
     }
 
     static initUI(viewport) {
+        const nodewindow = new UIWindow({ uid: "nodewindow", title: "Node Editor" });
+        nodewindow.style.width = "700px";
+        nodewindow.style.height = "300px";
+        nodewindow.style.background = "#1c1c1c";
+        nodewindow.innerHTML = `
+            <style>
+                node-editor {
+                    position: relative;
+                    outline: none;
+                }
+            </style>
+        `;
+        nodewindow.appendChild(new Editor());
+
         const objwindow = new UIWindow({ uid: "objwindow", title: "Object Viewer" });
 
         objwindow.innerHTML = `
@@ -166,6 +181,12 @@ export default class Test {
             name: "Properties",
             onclick() {
                 objwindow.toggle();
+            }
+        });
+        menu.createItem({
+            name: "Node Editor",
+            onclick() {
+                nodewindow.toggle();
             }
         });
     }
