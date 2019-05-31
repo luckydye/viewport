@@ -9,6 +9,7 @@ import DefaultMaterial from './materials/DefaultMaterial';
 import * as geometry from './geo/*.*';
 import * as lights from './light/*.*';
 import Editor from '@uncut/node-editor';
+import { THConsole } from '@uncut/console';
 
 function css(strings) {
     const styles = document.createElement('style');
@@ -45,14 +46,14 @@ export default class Test {
             #details {
                 display: flex;
                 position: fixed;
-                bottom: 10px;
-                left: 10px;
+                top: 10px;
+                left: 50%;
+                transform: translate(-50%, 0);
                 font-size: 14px;
                 font-family: sans-serif;
                 color: white;
                 z-index: 1000;
                 user-select: none;
-                width: 100%;
             }
         `;
     }
@@ -74,8 +75,8 @@ export default class Test {
             const viewport = new Viewport();
     
             viewport.onload = () => {
-                Test.initHelperTasks(viewport);
                 Test.initUI(viewport);
+                Test.initHelperTasks(viewport);
                 callback(viewport);
             }
 
@@ -99,10 +100,18 @@ export default class Test {
         nodewindow.appendChild(new Editor());
 
         const objwindow = new UIWindow({ uid: "objwindow", title: "Object Viewer" });
-
         objwindow.innerHTML = `
             <div class="geo-name"></div>
         `;
+
+        const consolewindow = new UIWindow({ uid: "consolewindow", title: "Console" });
+        const thconsole = new THConsole();
+        const log = console.log;
+        console.log = (...args) => {
+            thconsole.log(...args);
+            log(...args);
+        }
+        consolewindow.appendChild(thconsole);
 
         const createwin = new UIWindow({ uid: "createwin", title: "Create" });
 
@@ -187,6 +196,12 @@ export default class Test {
             name: "Node Editor",
             onclick() {
                 nodewindow.toggle();
+            }
+        });
+        menu.createItem({
+            name: "Console",
+            onclick() {
+                consolewindow.toggle();
             }
         });
     }
