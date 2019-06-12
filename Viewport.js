@@ -141,8 +141,8 @@ export default class Viewport extends HTMLElement {
 
         this.camera = new Camera({ 
             fov: 90,
-            position: new Vec(0, -400, -2500),
-            rotation: new Vec(15, 0, 0),
+            position: new Vec(0, -500, -1000),
+            rotation: new Vec(0.31, 0, 0),
         })
 
         this.scene = new Scene(this.camera);
