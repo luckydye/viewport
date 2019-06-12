@@ -1,9 +1,11 @@
 export default class File {
 
-    vertecies = [];
-    uvs = [];
-    faces = [];
-    normals = [];
+    constructor() {
+        this.vertecies = [];
+        this.uvs = [];
+        this.faces = [];
+        this.normals = [];
+    }
 
 	static parseFile(strData) {
 		const fileData = new File();

@@ -5,9 +5,8 @@ import { Spotlight } from '../light/Spotlight.js';
 
 export class Scene {
 
-	objects = new Set();
-
 	constructor(camera) {
+		this.objects = new Set();
 
 		this.lightSources = new Spotlight({ 
             fov: 90,

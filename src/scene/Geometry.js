@@ -5,13 +5,13 @@ const DEFAULT_MATERIAL = new DefaultMaterial();
 
 export class Geometry extends Transform {
 
-	_buffer = null;
-
-	static attributes = [
-		{ size: 3, attribute: "aPosition" },
-		{ size: 2, attribute: "aTexCoords" },
-		{ size: 3, attribute: "aNormal" },
-	]
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" },
+			{ size: 3, attribute: "aNormal" },
+		]
+	}
 
 	get buffer() {
 		this._buffer = this._buffer || this.createBuffer();
@@ -28,6 +28,8 @@ export class Geometry extends Transform {
 
 	constructor(args = {}) {
 		super(args);
+
+		this._buffer = null;
 
 		this.instanced = false;
 		this.instances = 0;

@@ -2,10 +2,11 @@ import { EntityControler } from "./EntityControler";
 
 export class CameraControler extends EntityControler {
 
-	sensivity = 0.0033;
-	speed = 20;
-
 	initMouse() {
+
+		this.sensivity = 0.0033;
+		this.speed = 20;
+
 		const entity = this.entity;
 
 		const down = e => {

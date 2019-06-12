@@ -17,10 +17,14 @@ import SpecularShader from './../shader/SpecularShader ';
 const logger = new Logger('Renderer');
 
 class Screen extends Geometry {
-	static attributes = [
-		{ size: 3, attribute: "aPosition" },
-		{ size: 2, attribute: "aTexCoords" },
-	]
+
+	static get attributes() {
+		return [
+			{ size: 3, attribute: "aPosition" },
+			{ size: 2, attribute: "aTexCoords" },
+		]
+	}
+
 	get vertecies() {
 		return [
 			-1, -1, 0, 	0, 0,
@@ -35,13 +39,13 @@ class Screen extends Geometry {
 
 export class Renderer extends GLContext {
 
-	background = [0.08, 0.08, 0.08, 1.0];
-
-	static defaults = {
-		resolution: [
-			window.innerWidth, 
-			window.innerHeight
-		]
+	static get defaults() {
+		return {
+			resolution: [
+				window.innerWidth, 
+				window.innerHeight
+			]
+		}
 	}
 
 	get gridEnabled() {
@@ -64,6 +68,8 @@ export class Renderer extends GLContext {
 	}
 
     onCreate() {
+
+		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.renderTarget = new Screen();
 
 		this.setResolution(...Renderer.defaults.resolution);

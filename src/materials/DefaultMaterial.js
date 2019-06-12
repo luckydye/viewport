@@ -8,12 +8,17 @@ Resources.add({
 }, false);
 
 export default class DefaultMaterial extends Material {
-    
-    specularMap = new Texture(Resources.get('spec_map'));
-    normalMap = new Texture(Resources.get('norm_map'));
 
-    specular = 3.33;
+    constructor(attributes) {
+        super(attributes);
 
-    receiveShadows = true;
-    castShadows = true;
+        this.specularMap = new Texture(Resources.get('spec_map'));
+        this.normalMap = new Texture(Resources.get('norm_map'));
+
+        this.specular = 3.33;
+
+        this.receiveShadows = true;
+        this.castShadows = true;
+    }
+
 }

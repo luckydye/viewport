@@ -3,13 +3,14 @@ import { Vec, Raycast } from "../Math";
 
 export class CursorControler extends EntityControler {
 
-    lastAction = {
-        target: null,
-        state: null,
-        property: null
-    }
-
 	initMouse() {
+
+        this.lastAction = {
+            target: null,
+            state: null,
+            property: null
+        }
+
         const curosr = this.entity;
         const renderer = this.viewport.renderer;
         const camera = this.viewport.camera;

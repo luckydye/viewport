@@ -2,11 +2,13 @@ import { Texture } from "./Texture";
 
 export class Cubemap extends Texture {
 
-    type = "TEXTURE_CUBE_MAP";
-
-    width = 1920;
-    height = 1920;
-    
-    image = [];
+    constructor(image) {
+        super(image);
+        
+        this.type = "TEXTURE_CUBE_MAP";
+        this.width = 1920;
+        this.height = 1920;
+        this.image = [];
+    }
 
 }

@@ -6,25 +6,26 @@ export class Material {
         return Object.assign(material, attributes);
     }
 
-    texture = new Texture();
-    specularMap = new Texture();
-    displacementMap = new Texture();
-    normalMap = new Texture();
-    
-    diffuseColor = [1, 1, 1];
-    transparency = 0;
-    specular = 1;
-    roughness = 1;
-    metallic = 0;
-
-    textureScale = 1;
-
-    receiveShadows = true;
-    castShadows = true;
-    
-    scaleUniform = false;
-
     constructor(attributes = {}) {
+
+        this.texture = new Texture();
+        this.specularMap = new Texture();
+        this.displacementMap = new Texture();
+        this.normalMap = new Texture();
+        
+        this.diffuseColor = [1, 1, 1];
+        this.transparency = 0;
+        this.specular = 1;
+        this.roughness = 1;
+        this.metallic = 0;
+        
+        this.textureScale = 1;
+        
+        this.receiveShadows = true;
+        this.castShadows = true;
+        
+        this.scaleUniform = false;
+
         for(let attrb in attributes) {
             this[attrb] = attributes[attrb];
         }

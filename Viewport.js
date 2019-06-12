@@ -73,10 +73,10 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
-    scheduler = new Scheduler();
-
     constructor() {
         super();
+
+        this.scheduler = new Scheduler();
 
         this.attachShadow({ mode: 'open' });
         this.root = this.shadowRoot;

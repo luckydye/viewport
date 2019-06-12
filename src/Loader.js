@@ -4,9 +4,9 @@ import { Texture } from "./materials/Texture";
 import { Logger } from "./Logger";
 import { Scene } from "./scene/Scene";
 
-import * as Geometry from './geo/*.*';
-import * as Camera from './camera/*.*';
-import * as Light from './light/*.*';
+// import * as Geometry from './geo/*.*';
+// import * as Camera from './camera/*.*';
+// import * as Light from './light/*.*';
 
 const logger = new Logger('Loader');
 

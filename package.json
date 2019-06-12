@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "@uncut/console": "file:../console",
+    "@uncut/console": "file:../th-console",
     "@uncut/node-editor": "file:../node-editor",
     "@uncut/viewport-gui": "file:../viewport-gui",
     "gl-matrix": "^3.0.0"

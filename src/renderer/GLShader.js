@@ -18,14 +18,16 @@ export class GLShader {
 		];
 	}
 
-	_vertShader = null;
-	_fragShader = null;
+	constructor() {
+		this._vertShader = null;
+		this._fragShader = null;
 
-	_uniforms = null;
-	_attributes = null;
+		this._uniforms = null;
+		this._attributes = null;
 
-	uniform = {};
-	initialized = false;
+		this.uniform = {};
+		this.initialized = false;
+	}
 
 	setUniforms(renderer, attributes, target) {
 		const uniforms = this._uniforms;

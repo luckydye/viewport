@@ -3,9 +3,12 @@ import { Vec } from "../Math";
 
 export class Entity extends Geometry {
 
-    velocity = new Vec();
+    constructor(args) {
+        super(args);
 
-    traits = new Set();
+        this.velocity = new Vec();
+        this.traits = new Set();
+    }
 
     onCreate(args) {
         

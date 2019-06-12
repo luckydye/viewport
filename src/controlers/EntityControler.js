@@ -16,15 +16,14 @@ export class EntityControler {
 		return mbutton;
 	}
 
-	locked = false;
-
 	constructor(entity, viewport) {
 		if(!entity) throw "No entity";
-
+		
 		if(entity instanceof Entity) {
 			entity.addTrait(this.update.bind(this));
 		}
-
+		
+		this.locked = false;
 		this.entity = entity;
 		this.viewport = viewport;
 

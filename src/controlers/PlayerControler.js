@@ -3,10 +3,13 @@ import { CameraControler } from "./CameraControler";
 
 export class PlayerControler extends CameraControler {
 
-	sensivity = 0.0025;
-	speed = 5;
+	constructor(...args) {
+		super(...args);
 
-	direction = new Vec();
+		this.sensivity = 0.0025;
+		this.speed = 5;
+		this.direction = new Vec();
+	}
 
 	jump() {
 		if(!this.entity.airborn) {

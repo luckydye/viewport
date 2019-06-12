@@ -2,13 +2,17 @@ import { Material } from "./Material";
 
 export default class PrimitivetMaterial extends Material {
 
-    diffuseColor = [1, 1, 1];
-    transparency = 0.5;
-    
-    scaleUniform = true;
+    constructor(args) {
+        super(args);
 
-    receiveShadows = false;
-    castShadows = false;
-
-    selected = false;
+        this.diffuseColor = [1, 1, 1];
+        this.transparency = 0.5;
+        
+        this.scaleUniform = true;
+        
+        this.receiveShadows = false;
+        this.castShadows = false;
+        
+        this.selected = false;
+    }
 }
