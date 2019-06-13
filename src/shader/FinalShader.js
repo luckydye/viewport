@@ -2,7 +2,7 @@ import { GLShader } from '../renderer/GLShader.js';
 import { Resources } from '../Resources.js';
 
 Resources.add({
-    'comp.fs': require('../../res/shader/comp.fragment.shader'),
+    'comp.fs': 'shader/comp.fragment.shader',
 }, false);
 
 export default class FinalShader extends GLShader {

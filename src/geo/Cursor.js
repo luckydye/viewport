@@ -4,7 +4,7 @@ import { Loader } from "../Loader";
 import { Resources } from "../Resources";
 
 Resources.add({
-    'cursor_model': require('../../res/models/cursor.obj'),
+    'cursor_model': 'models/cursor.obj',
 }, false);
 
 export class Cursor extends Guide {

@@ -3,7 +3,7 @@ import { Material } from "./Material";
 import { Texture } from "./Texture";
 
 Resources.add({
-    'texture256': require('../../res/textures/placeholder_256.png'),
+    'texture256': 'textures/placeholder_256.png',
 }, false);
 
 export default class TestMaterial extends Material {

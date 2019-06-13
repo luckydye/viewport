@@ -3,8 +3,8 @@ import { Texture } from "./Texture";
 import { Resources } from "../Resources";
 
 Resources.add({
-    'spec_map': require('../../res/textures/Rock_028_ROUGH.jpg'),
-    'norm_map': require('../../res/textures/Rock_028_NORM.jpg'),
+    'spec_map': 'textures/Rock_028_ROUGH.jpg',
+    'norm_map': 'textures/Rock_028_NORM.jpg',
 }, false);
 
 export default class DefaultMaterial extends Material {

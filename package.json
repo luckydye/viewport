@@ -2,7 +2,8 @@
   "name": "@uncut/viewport",
   "version": "1.0.1-1",
   "description": "",
-  "main": "./Viewport.js",
+  "main": "./src/Viewport.js",
+  "module": "./src/Viewport.js",
   "directories": {
     "lib": "lib"
   },
@@ -21,14 +22,6 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "@uncut/console": "file:../th-console",
-    "@uncut/node-editor": "file:../node-editor",
-    "@uncut/viewport-gui": "file:../viewport-gui",
     "gl-matrix": "^3.0.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "parcel-bundler": "^1.12.3"
   }
 }

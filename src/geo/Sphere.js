@@ -3,7 +3,7 @@ import { Resources } from "../Resources.js";
 import { Loader } from "../Loader.js";
 
 Resources.add({
-    'sphere_model': require('../../res/models/sphere.obj'),
+    'sphere_model': 'models/sphere.obj',
 }, false);
 
 export class Sphere extends Geometry {

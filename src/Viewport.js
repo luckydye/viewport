@@ -1,14 +1,14 @@
-import { Loader } from './src/Loader.js';
-import { Logger } from './src/Logger.js';
-import { Renderer } from "./src/renderer/Renderer";
-import { Resources } from "./src/Resources.js";
-import { Scene } from "./src/scene/Scene.js";
-import { Vec, Raycast } from "./src/Math";
-import { Scheduler } from "./src/Scheduler";
-import { CursorControler } from "./src/controlers/CursorController";
-import { CameraControler } from "./src/controlers/CameraControler";
-import { Camera } from './src/scene/Camera.js';
-import { Cubemap } from './src/materials/Cubemap.js';
+import { Loader } from './Loader.js';
+import { Logger } from './Logger.js';
+import { Renderer } from "./renderer/Renderer";
+import { Resources } from "./Resources.js";
+import { Scene } from "./scene/Scene.js";
+import { Vec, Raycast } from "./Math";
+import { Scheduler } from "./Scheduler";
+import { CursorControler } from "./controlers/CursorController";
+import { CameraControler } from "./controlers/CameraControler";
+import { Camera } from './scene/Camera.js';
+import { Cubemap } from './materials/Cubemap.js';
 
 const logger = new Logger('Viewport');
 
@@ -188,4 +188,5 @@ export default class Viewport extends HTMLElement {
 
 customElements.define('gl-viewport', Viewport);
 
+globalThis.module = globalThis.module || {};
 module.exports = Viewport;
