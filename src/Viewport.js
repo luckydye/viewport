@@ -187,6 +187,3 @@ export default class Viewport extends HTMLElement {
 }
 
 customElements.define('gl-viewport', Viewport);
-
-globalThis.module = globalThis.module || {};
-module.exports = Viewport;
