@@ -14,7 +14,7 @@ global.resourceTypes = {
 
 global.queue = new Set();
 global.map = new Map();
-global.resourceRoot = './res/';
+global.resourceRoot = '../res/';
 
 /*
 	Resource.add({ name, path }: arr, startLoading: bool): startLoading ? Promise : null
@@ -34,6 +34,14 @@ global.resourceRoot = './res/';
 */
 
 export class Resources {
+
+	static get resourceRoot() {
+		return global.resourceRoot;
+	}
+
+	static set resourceRoot(path) {
+		global.resourceRoot = path;
+	}
 
 	static get Types() {
 		return global.resourceTypes;
