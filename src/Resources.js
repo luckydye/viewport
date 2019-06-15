@@ -14,7 +14,7 @@ global.resourceTypes = {
 
 global.queue = new Set();
 global.map = new Map();
-global.resourceRoot = '../res/';
+global.resourceRoot = './res/';
 
 /*
 	Resource.add({ name, path }: arr, startLoading: bool): startLoading ? Promise : null
@@ -53,7 +53,7 @@ export class Resources {
 
 	static add(obj, startLoad) {
 		for(let key in obj) {
-			global.queue.add({ name: key, path: global.resourceRoot + obj[key] });
+			global.queue.add({ name: key, path: obj[key] });
 		}
 		if(startLoad === true) {
 			return Resources.load();
@@ -72,7 +72,7 @@ export class Resources {
 		let loads = [];
 
 		for(let res of global.queue) {
-			const loading = Resources._fetch(res.path).then(dataObj => {
+			const loading = Resources._fetch(global.resourceRoot + '/' + res.path).then(dataObj => {
 				const resource = res;
 				global.map.set(resource.name, dataObj);
 			});
