@@ -26,6 +26,8 @@ export class GLContext {
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
+
+		this.alpha = true;
 	
 		this.options = {
 			DEPTH_TEST: true,
@@ -70,7 +72,7 @@ export class GLContext {
 		this.canvas = canvas;
 
 		const ctxtOpts = { 
-			alpha: false,
+			alpha: this.alpha,
 			desynchronized: true,
 			preserveDrawingBuffer: true
 		};
