@@ -2,11 +2,6 @@ import { Geometry } from "../scene/Geometry";
 
 export class Terrain extends Geometry {
 
-	static attributes = [
-		{ size: 3, attribute: "aPosition" },
-		{ size: 2, attribute: "aTexCoords" }
-	]
-
 	onCreate({ 
 		// smoothness = 0.01,
 		// resolution = 25,
@@ -44,13 +39,13 @@ export class Terrain extends Geometry {
 					const botr = heightmap[x][z];
 					const botl = heightmap[x-1][z];
 					const verts = [
-						s + dx, botr, s + dz, (1 / size) * x, (1 / size) * z,
-						s + dx, topr, -s + dz, (1 / size) * x, (1 / size) * z,
-						-s + dx, topl, -s + dz, (1 / size) * x, (1 / size) * z,
+						s + dx, botr, s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0,
+						s + dx, topr, -s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0,
+						-s + dx, topl, -s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0,
 	
-						-s + dx, topl, -s + dz, (1 / size) * x, (1 / size) * z,
-						-s + dx, botl, s + dz, (1 / size) * x, (1 / size) * z,
-						s + dx, botr, s + dz, (1 / size) * x, (1 / size) * z,
+						-s + dx, topl, -s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0,
+						-s + dx, botl, s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0,
+						s + dx, botr, s + dz, (1 / size) * x, (1 / size) * z, 0, 1, 0
 					]
 					vertArray.push(...verts);
 				} catch(err) {}
