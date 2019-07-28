@@ -179,7 +179,6 @@ export class GLContext {
 		gl.compileShader(shader);
 
 		if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			console.error(src);
 			throw new Error(gl.getShaderInfoLog(shader));
 		}
 
