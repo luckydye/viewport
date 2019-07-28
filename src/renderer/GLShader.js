@@ -48,7 +48,13 @@ export class GLShader {
 
 			if(Array.isArray(value)) {
 
-				gl.uniform3fv(uniform, value);
+				if(value.length === 4) {
+					gl.uniform4fv(uniform, value);
+				} else if(value.length === 3) {
+					gl.uniform3fv(uniform, value);
+				} else {
+					gl.uniform2fv(uniform, value);
+				}
 
 			} else if(value instanceof Texture) {
 				renderer.prepareTexture(value);
