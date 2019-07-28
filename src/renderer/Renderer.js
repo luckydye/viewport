@@ -72,8 +72,6 @@ export class Renderer extends GLContext {
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.renderTarget = new Screen();
 
-		this.setResolution(...Renderer.defaults.resolution);
-
 		this.shadowMapSize = 3096;
 
 		const renderRes = this.width;
