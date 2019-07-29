@@ -38,8 +38,7 @@ export default class ColorShader extends GLShader {
             out vec4 oFragColor;
             
             void main() {
-                vec2 imageSize = vec2(textureSize(material.texture, 0));
-                vec2 textureCoords = vTexCoords / (imageSize.x / material.textureScale);
+                vec2 textureCoords = vec2(vTexCoords.x, -vTexCoords.y);
             
                 vec4 color = vec4(0.0);
             
