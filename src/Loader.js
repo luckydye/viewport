@@ -79,6 +79,8 @@ export class Loader {
         let face = null;
         let fface = null;
 
+        if(!objFile) return;
+
         try {
             objFile.faces.forEach((f, i) => {
                 for(let i = 0; i < 3; i++) {
@@ -131,7 +133,6 @@ export class Loader {
             });
 
         } catch(err) {
-            console.error(face, fface);
             console.error(err);
         }
 
