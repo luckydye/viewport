@@ -21,7 +21,7 @@ struct Material {
     sampler2D specularMap;
     sampler2D normalMap;
 	sampler2D displacementMap;
-    vec3 diffuseColor;
+    vec4 diffuseColor;
     float specular;
     float roughness;
     float metallic;

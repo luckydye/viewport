@@ -13,7 +13,7 @@ export class Material {
         this.displacementMap = new Texture();
         this.normalMap = new Texture();
         
-        this.diffuseColor = [1, 1, 1];
+        this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;
         this.specular = 1;
         this.roughness = 1;

@@ -24,7 +24,7 @@ export default class ColorShader extends GLShader {
                 sampler2D specularMap;
                 sampler2D normalMap;
                 sampler2D displacementMap;
-                vec3 diffuseColor;
+                vec4 diffuseColor;
                 float specular;
                 float roughness;
                 float metallic;
@@ -38,20 +38,22 @@ export default class ColorShader extends GLShader {
             out vec4 oFragColor;
             
             void main() {
+                vec2 imageSize = vec2(textureSize(material.texture, 0));
                 vec2 textureCoords = vec2(vTexCoords.x, -vTexCoords.y);
             
-                vec4 color = vec4(0.0);
+                vec4 texcolor = texture(material.texture, textureCoords);
             
-                vec4 tcolor = texture(material.texture, textureCoords);
-                bool emptyTexture = (tcolor.r + tcolor.g + tcolor.b) == 0.0;
-            
-                if(emptyTexture) {
-                    color += vec4(material.diffuseColor, 1.0 - material.transparency);
-                } else {
-                    color += tcolor;
+                vec4 color = material.diffuseColor;
+
+                if(imageSize.x > 0.0) {
+                    if(texcolor.a < 1.0) {
+                        color.rgb += texcolor.rgb;
+                    } else {
+                        color = texcolor;
+                    }
                 }
             
-                oFragColor = vec4(color.rgb, 1.0 - material.transparency);
+                oFragColor = vec4(color.rgb, color.a - material.transparency);
             }
         `;
     }
