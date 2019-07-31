@@ -107,7 +107,7 @@ export class Renderer extends GLContext {
 			
 			// update textures
 			for(let geo of this.scene.objects) {
-				if(geo.material && geo.material.animated) {
+				if(geo.material && geo.material.animated && geo.material.texture && geo.material.texture.image) {
 					this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
 				}
 			}
