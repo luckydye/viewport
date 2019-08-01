@@ -17,6 +17,8 @@ export class ViewportController extends EntityControler {
 		this.distance = -2000;
 
 		const down = e => {
+			if(this.locked) return;
+
 			if(e.buttons === 1) {
 				this.rotating = true;
 			} else if(e.buttons === 2) {
@@ -30,6 +32,8 @@ export class ViewportController extends EntityControler {
 		}
 
 		const wheel = e => {
+			if(this.locked) return;
+
 			const dir = Math.sign(e.deltaY);
 			this.distance -= 100 * dir;
 			update();
@@ -63,11 +67,6 @@ export class ViewportController extends EntityControler {
 		window.addEventListener("mouseup", up);
 
 		update();
-	}
-	
-	lock() {
-		super.lock();
-		document.exitPointerLock();
 	}
 
 }
