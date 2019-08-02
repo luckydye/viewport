@@ -65,6 +65,8 @@ export class Renderer extends GLContext {
 		this.grid = new Grid(100, 12);
 		this.showGrid = false;
 
+		this.lightDirection = [500.0, 250.0, 300.0];
+		this.ambientLight = 0.85;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.renderTarget = new Screen();
 
@@ -80,11 +82,26 @@ export class Renderer extends GLContext {
 			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
-		]
+		];
 
 		this.compShader = new FinalShader();
 
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
+	}
+
+	setResolution(width, height) {
+		super.setResolution(width, height);
+
+		const renderRes = this.width;
+		this.renderPasses = [
+			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
+			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
+			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'wolrd', new WorldShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
+		];
 	}
 
 	draw() {
@@ -168,6 +185,9 @@ export class Renderer extends GLContext {
 				lightCount++;
 			}
 		}
+		
+		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
+		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
 
 		this.drawGeo(this.renderTarget);
 	}
