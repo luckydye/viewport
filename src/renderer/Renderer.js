@@ -63,7 +63,7 @@ export class Renderer extends GLContext {
     onCreate() {
 
 		this.grid = new Grid(100, 12);
-		this.showGrid = true;
+		this.showGrid = false;
 
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.renderTarget = new Screen();
@@ -76,8 +76,8 @@ export class Renderer extends GLContext {
 			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
 			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'wolrd', new WorldShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'world', new WorldShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
 		]
