@@ -45,15 +45,9 @@ export default class ColorShader extends GLShader {
             
                 vec4 color = material.diffuseColor;
 
-                if(imageSize.x > 0.0) {
-                    if(texcolor.a < 1.0) {
-                        color.rgb += texcolor.rgb;
-                    } else {
-                        color = texcolor;
-                    }
-                }
-            
-                oFragColor = vec4(color.rgb, color.a - material.transparency);
+                color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
+
+                oFragColor = vec4(color.rgb, (color.a + texcolor.a) - material.transparency);
             }
         `;
     }

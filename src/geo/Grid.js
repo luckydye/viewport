@@ -1,7 +1,7 @@
 import { Guide } from "./Guide.js";
-import DefaultMaterial from './../materials/DefaultMaterial';
+import { Material } from './../materials/Material';
 
-const DEFAULT_GRID_MATERIAL = new DefaultMaterial();
+const DEFAULT_GRID_MATERIAL = new Material();
 DEFAULT_GRID_MATERIAL.castShadows = false;
 DEFAULT_GRID_MATERIAL.receiveShadows = false;
 
@@ -19,7 +19,6 @@ export class Grid extends Guide {
 
 	onCreate(args) {
 		args.drawmode = "LINES";
-		// args.guide = true;
 		args.material = DEFAULT_GRID_MATERIAL;
 	}
 	

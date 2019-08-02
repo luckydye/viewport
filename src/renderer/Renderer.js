@@ -13,6 +13,7 @@ import { Geometry } from '../scene/Geometry';
 import WorldShader from './../shader/WorldShader';
 import UVShader from './../shader/UVShader';
 import SpecularShader from './../shader/SpecularShader ';
+import { Grid } from '../geo/Grid';
 
 const logger = new Logger('Renderer');
 
@@ -48,14 +49,6 @@ export class Renderer extends GLContext {
 		}
 	}
 
-	get gridEnabled() {
-		return Config.global.getValue('drawGrid', true);
-	}
-
-	get fogEnabled() {
-		return Config.global.getValue('fogEnabled', true);
-	}
-
 	setScene(scene) {
 		this.scene = scene;
 	}
@@ -69,31 +62,27 @@ export class Renderer extends GLContext {
 
     onCreate() {
 
+		this.grid = new Grid(100, 12);
+		this.showGrid = true;
+
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.renderTarget = new Screen();
 
-		this.shadowMapSize = 3096;
+		this.shadowMapSize = 4096;
 
 		const renderRes = this.width;
 
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
-
+			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
+			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
+			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
-
 			new RenderPass(this, 'world', new WorldShader(), this.aspectratio, renderRes),
-
-			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
-
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'id', new MattShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
 		]
 
 		this.compShader = new FinalShader();
-
-		this.readings = {};
 
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
@@ -101,23 +90,17 @@ export class Renderer extends GLContext {
 	draw() {
 		if(!this.scene) return;
 
-		const frameTime = performance.now();
-
-		if(this.lastFrameTime) {
-			
-			// update textures
-			for(let geo of this.scene.objects) {
-				if(geo.material && geo.material.animated && geo.material.texture && geo.material.texture.image) {
-					this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
-				}
+		// update textures
+		for(let geo of this.scene.objects) {
+			if(geo.material && geo.material.animated && geo.material.texture && geo.material.texture.image) {
+				this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
 			}
-
-			this.renderMultiPasses(this.renderPasses);
-			this.compositePasses(this.renderPasses);
-
-			this.frameTime = frameTime - this.lastFrameTime;
 		}
-		this.lastFrameTime = frameTime;
+
+		this.clearTextureBuffer();
+
+		this.renderMultiPasses(this.renderPasses);
+		this.compositePasses(this.renderPasses);
 	}
 
 	renderMultiPasses(passes) {
@@ -131,70 +114,28 @@ export class Renderer extends GLContext {
 
 			this.useShader(pass.shader);
 
-			switch(pass.id) {
+			gl.clearColor(0, 0, 0, 0);
 
-				case "shadow":
-					this.drawScene(this.scene, this.scene.lightSources, obj => {
-						return obj.material.castShadows;
-					});
-					break;
-
-				case "guides":
-					if(cullDefault) this.disable(gl.CULL_FACE);
-					this.drawScene(this.scene, camera, obj => obj.guide);
-					if(cullDefault) this.enable(gl.CULL_FACE);
-					break;
-				
-				case "id":
-					if(cullDefault) this.disable(gl.CULL_FACE);
-					this.drawScene(this.scene, camera, obj => {
-						if(obj.id != null) {
-							gl.uniform1f(pass.shader.uniforms.geoid, obj.id);
-							return true;
-						}
-						return false;
-					});
-					this.disable(gl.DEPTH_TEST);
-					const curosr = this.scene.curosr;
-					gl.uniform1f(pass.shader.uniforms.geoid, curosr.id);
-					this.drawMesh(curosr);
-					this.enable(gl.DEPTH_TEST);
-					if(cullDefault) this.enable(gl.CULL_FACE);
-					break;
-
-				default:
-					this.drawScene(this.scene, camera, obj => !obj.guide);
+			if(pass.id == "shadow") {
+				this.drawScene(this.scene, this.scene.lightSources, obj => {
+					return obj.material.castShadows;
+				});
 			}
 
-			if(pass.id in this.readings) {
-				const read = this.readings[pass.id];
-				if(!read.value) {
-					read.setValue(this.readPixels(read.x, read.y, 1, 1));
+			else if(pass.id == "guides") {
+				this.drawScene(this.scene, camera, obj => obj.guide);
+
+				if(this.showGrid) {
+					this.drawMesh(this.grid);
 				}
 			}
+
+			else {
+				this.drawScene(this.scene, camera, obj => !obj.guide);
+			}
+
+			this.clearFramebuffer();
 		}
-		
-		this.clearFramebuffer();
-	}
-
-	readPixelFromBuffer(x, y, buffer) {
-		return new Promise((resolve, reject) => {
-			this.readings[buffer] = {
-				x, y, 
-				value: null, 
-				setValue(value) {
-					this.value = value;
-					resolve(value);
-				}
-			};
-		})
-	}
-
-	readPixels(x = 0 , y = 0, w = 1, h = 1) {
-		const gl = this.gl;
-		const pixels = new Uint8Array(w * h * 4);
-		gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-		return pixels;
 	}
 
 	compositePasses(passes) {
@@ -203,19 +144,13 @@ export class Renderer extends GLContext {
 		gl.clearColor(...this.background);
 		this.clear();
 
-		this.viewport(this.width, this.height);
-
 		this.useShader(this.compShader);
-
-		for(let i = 0; i < passes.length; i++) {
-			const pass = passes[i];
-			this.useTextureBuffer(pass.buffer, gl.TEXTURE_2D, pass.id + "Buffer", i);
+		
+		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
+		
+		for(let i = 1; i < passes.length; i++) {
+			this.useTextureBuffer(passes[i].buffer, gl.TEXTURE_2D, passes[i].id + "Buffer", i);
 		}
-
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', passes.length+1);
-
-		gl.uniformMatrix4fv(this.compShader.uniforms.lightProjViewMatrix, false, this.scene.lightSources.projViewMatrix);
-		gl.uniform1i(this.compShader.uniforms.fog, this.fogEnabled);
 
 		let lightCount = 0;
 		for(let light of this.scene.objects) {
@@ -234,13 +169,7 @@ export class Renderer extends GLContext {
 			}
 		}
 
-		this.gl.uniform1i(this.compShader.uniforms.lightCount, lightCount);
-
-		this.setupScene(this.compShader, this.scene.activeCamera);
-
 		this.drawGeo(this.renderTarget);
-
-		gl.clearColor(0, 0, 0, 0);
 	}
 
 	// give texture a .gltexture
@@ -263,6 +192,8 @@ export class Renderer extends GLContext {
 	}
 
 	setupGemoetry(geo) {
+		this.useVAO(null);
+		
 		this.initializeBuffersAndAttributes(geo.buffer);
 		
 		geo.modelMatrix = geo.modelMatrix || mat4.create();

@@ -8,10 +8,10 @@ export class Material {
 
     constructor(attributes = {}) {
 
-        this.texture = new Texture();
-        this.specularMap = new Texture();
-        this.displacementMap = new Texture();
-        this.normalMap = new Texture();
+        this.texture = null;
+        this.specularMap = null;
+        this.displacementMap = null;
+        this.normalMap = null;
         
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;

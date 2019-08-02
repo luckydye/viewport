@@ -2,6 +2,7 @@ import { Grid } from '../geo/Grid.js';
 import { Vec } from '../Math.js';
 import { Cursor } from '../geo/Cursor';
 import { Spotlight } from '../light/Spotlight.js';
+import { Camera } from './Camera.js';
 
 export class Scene {
 
@@ -14,10 +15,7 @@ export class Scene {
 			rotation: new Vec(0.8, 0.4, 0),
 		});
 
-		this.activeCamera = camera;
-
-		this.grid = new Grid(100, 12);
-		this.curosr = new Cursor();
+		this.activeCamera = new Camera();
 
 		this.clear();
 	}
@@ -61,12 +59,6 @@ export class Scene {
 		let arr = [...this.objects].filter(obj => {
 			return !obj.hidden;
 		});
-		if(!this.curosr.hidden) {
-			arr.push(this.curosr);
-		}
-		if(!this.grid.hidden) {
-			arr.push(this.grid);
-		}
 		return arr;
 	}
 

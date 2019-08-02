@@ -1,7 +1,7 @@
 import DefaultMaterial from "../materials/DefaultMaterial";
-import { Sphere } from "../geo/Sphere";
+import { Cube } from './../geo/Cube';
 
-export class Pointlight extends Sphere {
+export class Pointlight extends Cube {
 	
 	get isLight() {
 		return true;

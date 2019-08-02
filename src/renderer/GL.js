@@ -31,7 +31,7 @@ export class GLContext {
 	
 		this.options = {
 			DEPTH_TEST: true,
-			CULL_FACE: true,
+			CULL_FACE: false,
 			BLEND: true,
 		}
 
@@ -308,9 +308,19 @@ export class GLContext {
 	// update webgl texture
 	updateTextureBuffer(texture, image) {
 		const gl = this.gl;
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+
+		if(texture) {
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+		} else {
+			console.warn('tried to update emtpy texture');
+		}
+	}
+
+	// clear webgl texture
+	clearTextureBuffer() {
+		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 
 	// create webgl texture

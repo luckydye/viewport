@@ -56,6 +56,8 @@ export class Camera extends Entity {
 		} = args;
 		super(args);
 
+		this.hidden = true;
+
 		this.scale = scale;
 		this.fov = fov;
 		this.farplane = farplane;
