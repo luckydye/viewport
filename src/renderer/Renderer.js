@@ -187,8 +187,19 @@ export class Renderer extends GLContext {
 	applyMaterial(shader, material) {
 
 		// update textures
-		if(material && material.animated && material.texture && material.texture.image) {
-			this.updateTextureBuffer(material.texture.gltexture, material.texture.image);
+		if(material && material.animated) {
+			if(material.texture && material.texture.image) {
+				this.updateTextureBuffer(material.texture.gltexture, material.texture.image);
+			}
+			if(material.specularMap && material.specularMap.image) {
+				this.updateTextureBuffer(material.specularMap.gltexture, material.specularMap.image);
+			}
+			if(material.normalMap && material.normalMap.image) {
+				this.updateTextureBuffer(material.normalMap.gltexture, material.normalMap.image);
+			}
+			if(material.displacementMap && material.displacementMap.image) {
+				this.updateTextureBuffer(material.displacementMap.gltexture, material.displacementMap.image);
+			}
 		}
 
 		shader.setUniforms(this, material, 'material');
