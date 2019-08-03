@@ -1,5 +1,9 @@
 export class Texture {
 
+    static get EMPTY() {
+        return emptyTexture;
+    }
+
     get width() { return this.image.width; }
     get height() { return this.image.height; }
 
@@ -14,3 +18,5 @@ export class Texture {
     }
 
 }
+
+const emptyTexture = new Texture(document.createElement('canvas'));

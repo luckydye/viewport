@@ -40,10 +40,12 @@ export default class NormalShader extends GLShader {
             out vec4 oFragColor;
             
             void main() {
-                vec4 normal = vec4(vNormal, 1.0);
+                vec2 mapSize = vec2(textureSize(material.normalMap, 0));
                 vec4 map = texture(material.normalMap, vTexCoords);
-                if(map.r > 0.0) {
-                    normal = normalize(map * 2.0 - 1.0);
+
+                vec4 normal = vec4(vNormal, 1.0);
+                if(mapSize.x > 0.0) {
+                    // normal = map;
                 }
                 oFragColor = vec4(normal.xyz, 1.0);
             }

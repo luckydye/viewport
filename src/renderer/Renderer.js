@@ -14,6 +14,7 @@ import WorldShader from './../shader/WorldShader';
 import UVShader from './../shader/UVShader';
 import SpecularShader from './../shader/SpecularShader ';
 import { Grid } from '../geo/Grid';
+import { Texture } from '../materials/Texture';
 
 const logger = new Logger('Renderer');
 
@@ -72,17 +73,7 @@ export class Renderer extends GLContext {
 
 		this.shadowMapSize = 4096;
 
-		const renderRes = this.width;
-
-		this.renderPasses = [
-			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
-			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
-			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'wolrd', new WorldShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
-		];
+		this.setResolution(this.width, this.height);
 
 		this.compShader = new FinalShader();
 
@@ -93,6 +84,7 @@ export class Renderer extends GLContext {
 		super.setResolution(width, height);
 
 		const renderRes = this.width;
+
 		this.renderPasses = [
 			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
@@ -106,15 +98,6 @@ export class Renderer extends GLContext {
 
 	draw() {
 		if(!this.scene) return;
-
-		// update textures
-		for(let geo of this.scene.objects) {
-			if(geo.material && geo.material.animated && geo.material.texture && geo.material.texture.image) {
-				this.updateTextureBuffer(geo.material.texture.gltexture, geo.material.texture.image);
-			}
-		}
-
-		this.clearTextureBuffer();
 
 		this.renderMultiPasses(this.renderPasses);
 		this.compositePasses(this.renderPasses);
@@ -132,16 +115,10 @@ export class Renderer extends GLContext {
 			this.useShader(pass.shader);
 
 			gl.clearColor(0, 0, 0, 0);
+			this.clear();
 
-			if(pass.id == "shadow") {
-				this.drawScene(this.scene, this.scene.lightSources, obj => {
-					return obj.material.castShadows;
-				});
-			}
-
-			else if(pass.id == "guides") {
+			if(pass.id == "guides") {
 				this.drawScene(this.scene, camera, obj => obj.guide);
-
 				if(this.showGrid) {
 					this.drawMesh(this.grid);
 				}
@@ -163,11 +140,11 @@ export class Renderer extends GLContext {
 
 		this.useShader(this.compShader);
 		
-		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
-		
-		for(let i = 1; i < passes.length; i++) {
+		for(let i = 0; i < passes.length; i++) {
 			this.useTextureBuffer(passes[i].buffer, gl.TEXTURE_2D, passes[i].id + "Buffer", i);
 		}
+		
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', passes.length);
 
 		let lightCount = 0;
 		for(let light of this.scene.objects) {
@@ -208,12 +185,16 @@ export class Renderer extends GLContext {
 
 	// give material attributes to shader
 	applyMaterial(shader, material) {
+
+		// update textures
+		if(material && material.animated && material.texture && material.texture.image) {
+			this.updateTextureBuffer(material.texture.gltexture, material.texture.image);
+		}
+
 		shader.setUniforms(this, material, 'material');
 	}
 
 	setupGemoetry(geo) {
-		this.useVAO(null);
-		
 		this.initializeBuffersAndAttributes(geo.buffer);
 		
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
@@ -236,7 +217,10 @@ export class Renderer extends GLContext {
 		this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
 	}
 
-	setupScene(shader, camera) {
+	drawScene(scene, camera, filter) {
+		const objects = scene.getRenderableObjects();
+		const shader = this.currentShader;
+
 		this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
 		this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
 		
@@ -245,13 +229,6 @@ export class Renderer extends GLContext {
 			camera.worldPosition.y,
 			camera.worldPosition.z,
 		]);
-	}
-
-	drawScene(scene, camera, filter) {
-		const objects = scene.getRenderableObjects();
-		const shader = this.currentShader;
-
-		this.setupScene(shader, camera);
 		
 		for(let obj of objects) {
 			if(filter && filter(obj) || !filter) {
@@ -398,7 +375,6 @@ export class RenderPass {
 
 	use() {
 		this.renderer.useFramebuffer(this.id);
-		this.renderer.clear();
 		this.renderer.viewport(this.width, this.height);
 	}
 }

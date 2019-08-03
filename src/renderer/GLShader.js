@@ -33,7 +33,7 @@ export class GLShader {
 		const uniforms = this._uniforms;
 		const gl = renderer.gl;
 
-		let textureSlots = 1;
+		let textureSlots = 0;
 		let textures = [];
 
 		for(let key in attributes) {
@@ -57,7 +57,6 @@ export class GLShader {
 				}
 
 			} else if(value instanceof Texture) {
-				renderer.prepareTexture(value);
 				textures.push({
 					texture: value,
 					uniformloc: opt
@@ -76,7 +75,10 @@ export class GLShader {
 		}
 
 		for(let tex of textures) {
-			renderer.useTexture(tex.texture, tex.uniformloc, textureSlots);
+			const texture = tex.texture || Texture.EMPTY;
+
+			renderer.prepareTexture(texture);
+			renderer.useTexture(texture, tex.uniformloc, textureSlots);
 			textureSlots++;
 		}
 	}

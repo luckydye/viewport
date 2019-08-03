@@ -41,13 +41,15 @@ export default class ColorShader extends GLShader {
                 vec2 imageSize = vec2(textureSize(material.texture, 0));
                 vec2 textureCoords = vec2(vTexCoords.x, -vTexCoords.y);
             
-                vec4 texcolor = texture(material.texture, textureCoords);
-            
                 vec4 color = material.diffuseColor;
+            
+                if(imageSize.x > 0.0) {
+                    vec4 texcolor = texture(material.texture, textureCoords);
+                    color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
+                    color = vec4(color.rgb, color.a + texcolor.a);
+                }
 
-                color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
-
-                oFragColor = vec4(color.rgb, (color.a + texcolor.a) - material.transparency);
+                oFragColor = vec4(color.rgb, color.a - material.transparency);
             }
         `;
     }
