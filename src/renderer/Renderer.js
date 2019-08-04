@@ -99,11 +99,11 @@ export class Renderer extends GLContext {
 	draw() {
 		if(!this.scene) return;
 
-		this.renderMultiPasses(this.renderPasses);
-		this.compositePasses(this.renderPasses);
+		this.renderRenderPasses(this.renderPasses);
+		this.compositeRenderPasses(this.renderPasses);
 	}
 
-	renderMultiPasses(passes) {
+	renderRenderPasses(passes) {
 		const gl = this.gl;
 		const camera = this.scene.activeCamera;
 
@@ -132,7 +132,11 @@ export class Renderer extends GLContext {
 		}
 	}
 
-	compositePasses(passes) {
+	preComposition() {
+		// composition hook
+	}
+
+	compositeRenderPasses(passes) {
 		const gl = this.gl;
 
 		gl.clearColor(...this.background);
@@ -165,6 +169,8 @@ export class Renderer extends GLContext {
 		
 		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
+
+		this.preComposition();
 
 		this.drawGeo(this.renderTarget);
 	}
