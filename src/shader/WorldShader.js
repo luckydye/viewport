@@ -15,7 +15,7 @@ export default class WorldShader extends GLShader {
             out vec4 oFragColor;
             
             void main() {
-                oFragColor = vec4(vWorldPos.xyz, 1.0);
+                oFragColor = vec4(normalize(vWorldPos.xyz), 1.0);
             }
         `;
     }

@@ -108,7 +108,6 @@ export class Renderer extends GLContext {
 		const camera = this.scene.activeCamera;
 
 		for(let pass of passes) {
-			const cullDefault = gl.isEnabled(gl.CULL_FACE);
 
 			pass.use();
 
@@ -118,13 +117,11 @@ export class Renderer extends GLContext {
 			this.clear();
 
 			if(pass.id == "guides") {
-				this.drawScene(this.scene, camera, obj => obj.guide);
 				if(this.showGrid) {
 					this.drawMesh(this.grid);
 				}
-			}
-
-			else {
+				this.drawScene(this.scene, camera, obj => obj.guide);
+			} else {
 				this.drawScene(this.scene, camera, obj => !obj.guide);
 			}
 
@@ -143,12 +140,6 @@ export class Renderer extends GLContext {
 		this.clear();
 
 		this.useShader(this.compShader);
-		
-		for(let i = 0; i < passes.length; i++) {
-			this.useTextureBuffer(passes[i].buffer, gl.TEXTURE_2D, passes[i].id + "Buffer", i);
-		}
-		
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', passes.length);
 
 		let lightCount = 0;
 		for(let light of this.scene.objects) {
@@ -169,8 +160,13 @@ export class Renderer extends GLContext {
 		
 		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
+		
+		for(let i = 0; i < passes.length; i++) {
+			this.useTextureBuffer(passes[i].buffer, gl.TEXTURE_2D, passes[i].id + "Buffer", i);
+		}
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', passes.length);
 
-		this.preComposition();
+		// this.preComposition();
 
 		this.drawGeo(this.renderTarget);
 	}

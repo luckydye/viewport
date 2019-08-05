@@ -27,27 +27,12 @@ export default class NormalShader extends GLShader {
             };
             uniform Material material;
 
-            struct SceneProjection {
-                mat4 model;
-                mat4 view;
-                mat4 projection;
-            };
-            in SceneProjection sceneProjection;
-
             in vec3 vNormal;
-            in vec2 vTexCoords;
             
             out vec4 oFragColor;
             
             void main() {
-                vec2 mapSize = vec2(textureSize(material.normalMap, 0));
-                vec4 map = texture(material.normalMap, vTexCoords);
-
-                vec4 normal = vec4(vNormal, 1.0);
-                if(mapSize.x > 0.0) {
-                    // normal = map;
-                }
-                oFragColor = vec4(normal.xyz, 1.0);
+                oFragColor = vec4(vNormal.xyz, 1.0);
             }
         `;
     }
