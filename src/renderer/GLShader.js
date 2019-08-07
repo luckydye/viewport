@@ -48,6 +48,12 @@ export class GLShader {
 
 			if(Array.isArray(value)) {
 
+				// catch matrix
+				if(Array.isArray(value[0])) {
+					const size = value.length;
+					gl['uniformMatrix'+size+'fv'](uniform, value);
+				}
+
 				if(value.length === 4) {
 					gl.uniform4fv(uniform, value);
 				} else if(value.length === 3) {
