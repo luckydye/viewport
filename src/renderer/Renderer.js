@@ -89,10 +89,10 @@ export class Renderer extends GLContext {
 			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
 			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
 			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'wolrd', new WorldShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'world', new WorldShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'guides', new PrimitiveShader(), this.aspectratio, renderRes),
 			new RenderPass(this, 'color', new ColorShader(), this.aspectratio, renderRes),
+			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
 		];
 	}
 
@@ -161,12 +161,13 @@ export class Renderer extends GLContext {
 		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
 		
-		for(let i = 0; i < passes.length; i++) {
-			this.useTextureBuffer(passes[i].buffer, gl.TEXTURE_2D, passes[i].id + "Buffer", i);
-		}
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', passes.length);
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 0);
+		this.useTextureBuffer(this.getBufferTexture('normal'), gl.TEXTURE_2D, 'normalBuffer', 1);
+		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 2);
+		this.useTextureBuffer(this.getBufferTexture('world'), gl.TEXTURE_2D, 'worldBuffer', 3);
+		this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guidesBuffer', 4);
 
-		// this.preComposition();
+		this.preComposition();
 
 		this.drawGeo(this.renderTarget);
 	}

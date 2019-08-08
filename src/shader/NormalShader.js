@@ -32,7 +32,7 @@ export default class NormalShader extends GLShader {
             out vec4 oFragColor;
             
             void main() {
-                oFragColor = vec4(vNormal.xyz, 1.0);
+                oFragColor = vec4(vNormal, 1.0);
             }
         `;
     }
