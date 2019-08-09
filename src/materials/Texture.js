@@ -19,4 +19,4 @@ export class Texture {
 
 }
 
-const emptyTexture = new Texture(document.createElement('canvas'));
+const emptyTexture = new Texture();
