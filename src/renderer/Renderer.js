@@ -57,7 +57,7 @@ export class Renderer extends RendererContext {
 	onCreate() {
 
 		this.grid = new Grid(100, 14);
-		this.showGrid = true;
+		this.showGrid = false;
 
 		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.85;

@@ -1,18 +1,9 @@
-import { Loader } from '../src/Loader.js';
 import { Logger } from '../src/Logger.js';
 import { Renderer } from "../src/renderer/Renderer";
 import { Resources } from "../src/Resources.js";
 import { Scene } from "../src/scene/Scene.js";
-import { Vec, Raycast } from "../src/Math";
 import { Scheduler } from "../src/Scheduler";
-import { CursorControler } from "../src/controlers/CursorController";
-import { CameraControler } from "../src/controlers/CameraControler";
 import { Camera } from '../src/scene/Camera.js';
-import { Cubemap } from '../src/materials/Cubemap.js';
-import { Cube } from '../src/geo/Cube.js';
-import { ViewportController } from '../src/controlers/ViewportController.js';
-import DefaultMaterial from '../src/materials/DefaultMaterial.js';
-import { Texture } from '../src/materials/Texture.js';
 
 const logger = new Logger('Viewport');
 
@@ -20,10 +11,6 @@ let nextFrame = 0,
     lastFrame = 0,
     accumulator = 0,
     tickrate = 128;
-
-Resources.add({
-    'placeholder.tex': 'textures/placeholder_256.png',
-}, false);
 
 export default class Viewport extends HTMLElement {
 
@@ -136,19 +123,6 @@ export default class Viewport extends HTMLElement {
 
         this.renderer.setResolution(window.innerWidth, window.innerHeight);
         this.renderer.updateViewport();
-
-        const controler = new ViewportController(this.camera, this);
-
-        const cube = new Cube({
-            position: new Vec(0, 500, 0),
-            rotation: new Vec(0.5, 0.5, 0),
-            scale: 200,
-            material: new DefaultMaterial({
-                texture: new Texture(Resources.get('placeholder.tex'))
-            }),
-        });
-
-        this.scene.add(cube);
 
         this.dispatchEvent(new Event('load'));
     }
