@@ -13,10 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const viewport = document.querySelector('gl-viewport');
 
     viewport.addEventListener('load', () => {
+
+        viewport.renderer.showGrid = true;
+
         const controler = new ViewportController(viewport.camera, viewport);
 
         viewport.scene.add(new Cube({
-            position: [0, 500, 0],
+            position: [0, 250, 0],
             rotation: [0.5, 0.5, 0],
             scale: 200,
             material: new DefaultMaterial({

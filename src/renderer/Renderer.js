@@ -202,7 +202,9 @@ export class Renderer extends RendererContext {
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
 
-		this.drawMesh(this.grid, camera);
+		if (this.showGrid) {
+			this.drawMesh(this.grid, camera);
+		}
 
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
