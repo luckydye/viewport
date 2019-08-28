@@ -71,6 +71,8 @@ export class Renderer extends RendererContext {
 	setResolution(width, height) {
 		super.setResolution(width, height);
 
+		this.updateViewport();
+
 		this.renderPasses = [
 			new RenderPass(this, 'color', null, this.aspectratio, width),
 		];

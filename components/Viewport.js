@@ -27,42 +27,7 @@ export default class Viewport extends HTMLElement {
                 canvas {
                     width: 100%;
                     height: 100%;
-                }
-                .item {
-                    width: 50px;
-                    height: 50px;
-                    background: grey;
-                    border-radius: 20%;
-                    position: relative;
-                    color: white;
-                    font-family: sans-serif;
-                    font-size: 14px;
-                    margin: 0 15px 25px 0;
-                }
-                .spacer {
-                    width: 1px;
-                    height: 50px;
-                    background: grey;
-                    margin: 0 15px 25px 0;
-                }
-                .item::after {
-                    content: attr(geo);
-                    position: absolute;
-                    top: 100%;
-                    left: 50%;
-                    margin-top: 5px;
-                    transform: translateX(-50%);
-                    opacity: 0.75;
-                }
-                .item:hover:before {
-                    content: "";
-                    position: absolute;
-                    top: -5px;
-                    left: -5px;
-                    right: -5px;
-                    bottom: -25px;
-                    background: white;
-                    opacity: 0.125;
+                    display: block;
                 }
             </style>
         `;
@@ -121,8 +86,11 @@ export default class Viewport extends HTMLElement {
         this.renderer = new Renderer(canvas);
         this.renderer.setScene(this.scene);
 
-        this.renderer.setResolution(window.innerWidth, window.innerHeight);
-        this.renderer.updateViewport();
+        this.renderer.setResolution(this.clientWidth, this.clientHeight);
+
+        window.addEventListener('resize', () => {
+            this.renderer.setResolution(this.clientWidth, this.clientHeight);
+        })
 
         this.dispatchEvent(new Event('load'));
     }
