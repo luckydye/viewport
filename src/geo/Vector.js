@@ -8,9 +8,8 @@ export class Vector extends Geometry {
 	onCreate(args) {
 		args.guide = true;
 		args.material = DEFAULT_GUIDE_MATERIAL;
-		args.drawmode = "LINE_STRIP";
 
-        args.points = args.points || [];
+		args.points = args.points || [];
 		this.points = args.points;
 		this.color = [1, 1, 1];
 	}
@@ -20,11 +19,11 @@ export class Vector extends Geometry {
 	}
 
 	get vertecies() {
-        const vertArray = [];
-		for(let p of this.points) {
-            const {x, y, z} = p;
-			vertArray.push(x, y, z,	0,0, ...this.color);
-        }
+		const vertArray = [];
+		for (let p of this.points) {
+			const { x, y, z } = p;
+			vertArray.push(x, y, z, 0, 0, ...this.color);
+		}
 		return vertArray;
 	}
 

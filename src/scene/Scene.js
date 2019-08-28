@@ -9,7 +9,7 @@ export class Scene {
 	constructor(camera) {
 		this.objects = new Set();
 
-		this.activeCamera = new Camera();
+		this.activeCamera = camera || new Camera();
 
 		this.clear();
 	}

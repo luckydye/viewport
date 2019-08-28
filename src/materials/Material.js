@@ -22,7 +22,7 @@ export class Material {
         this.roughness = 1;
         this.metallic = 0;
 
-        this.textureScale = 1;
+        this.textureScale = 256;
 
         this.receiveShadows = true;
         this.castShadows = true;

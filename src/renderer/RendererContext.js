@@ -73,8 +73,9 @@ export class RendererContext {
 
 		const ctxtOpts = {
 			alpha: this.alpha,
+			antialias: false,
+			preserveDrawingBuffer: true,
 			desynchronized: true,
-			preserveDrawingBuffer: true
 		};
 		this.gl = canvas.getContext("webgl2", ctxtOpts) ||
 			canvas.getContext("webgl", ctxtOpts);

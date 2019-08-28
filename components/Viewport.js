@@ -9,6 +9,8 @@ import { CursorControler } from "../src/controlers/CursorController";
 import { CameraControler } from "../src/controlers/CameraControler";
 import { Camera } from '../src/scene/Camera.js';
 import { Cubemap } from '../src/materials/Cubemap.js';
+import { Cube } from '../src/geo/Cube.js';
+import { ViewportController } from '../src/controlers/ViewportController.js';
 
 const logger = new Logger('Viewport');
 
@@ -91,7 +93,6 @@ export default class Viewport extends HTMLElement {
 
     connectedCallback() {
         Resources.load().then(() => {
-            logger.log("resources loaded");
             this.init(this.canvas);
 
             logger.log("resources initialized");
@@ -99,24 +100,7 @@ export default class Viewport extends HTMLElement {
         });
     }
 
-    onRender() {
-        const width = this.canvas.clientWidth;
-        const height = this.canvas.clientHeight;
-
-        if (width != this.lastFrame.width ||
-            height != this.lastFrame.height) {
-
-            this.renderer.setResolution(width, height);
-            this.renderer.updateViewport();
-        }
-
-        this.lastFrame.width = width;
-        this.lastFrame.height = height;
-    }
-
     render() {
-        this.onRender();
-
         const currentFrame = performance.now();
         const delta = currentFrame - lastFrame;
 
@@ -134,16 +118,28 @@ export default class Viewport extends HTMLElement {
     }
 
     init(canvas) {
+
         this.camera = new Camera({
             fov: 90,
-            position: new Vec(0, -500, -1000),
-            rotation: new Vec(0.31, 0, 0),
         });
 
         this.scene = new Scene(this.camera);
 
         this.renderer = new Renderer(canvas);
         this.renderer.setScene(this.scene);
+
+        this.renderer.setResolution(window.innerWidth, window.innerHeight);
+        this.renderer.updateViewport();
+
+        const controler = new ViewportController(this.camera, this);
+
+        const cube = new Cube({
+            position: new Vec(0, 500, 0),
+            rotation: new Vec(0.5, 0.5, 0),
+            scale: 200,
+        });
+
+        this.scene.add(cube);
 
         this.dispatchEvent(new Event('load'));
     }

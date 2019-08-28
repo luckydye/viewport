@@ -1,10 +1,6 @@
 import { Shader } from '../renderer/RendererShader.js';
 import { Resources } from '../Resources.js';
 
-Resources.add({
-    'comp.fs': 'shader/comp.fragment.shader',
-}, false);
-
 export default class FinalShader extends Shader {
 
     static vertexSource() {
@@ -24,7 +20,29 @@ export default class FinalShader extends Shader {
     }
 
     static fragmentSource() {
-        return Resources.get('comp.fs');
+        return `#version 300 es
+
+        precision mediump float;
+        
+        in vec2 vTexCoords;
+        
+        struct SceneProjection {
+            mat4 model;
+            mat4 view;
+            mat4 projection;
+        };
+        uniform SceneProjection scene;
+        
+        uniform vec3 cameraPosition;
+        
+        uniform sampler2D colorBuffer;
+        
+        out vec4 oFragColor;
+        
+        void main() {
+            vec4 color = texture(colorBuffer, vTexCoords);
+            oFragColor = color;
+        }`;
     }
 
 }

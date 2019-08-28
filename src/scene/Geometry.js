@@ -33,62 +33,57 @@ export class Geometry extends Transform {
 
 		this.instanced = false;
 		this.instances = 0;
-		
-        this.onCreate(args);
-        
+
+		this.onCreate(args);
+
 		const {
 			vertecies = null,
 			material = DEFAULT_MATERIAL,
-            hidden = false,
+			hidden = false,
 			guide = false,
 			uv = [0, 0],
-			drawmode = "TRIANGLES",
 			id = null,
 		} = args;
-		
+
 		this.vertArray = vertecies;
 		this.material = material;
-        this.hidden = hidden;
+		this.hidden = hidden;
 		this.guide = guide;
 		this.uv = uv;
-		this.drawmode = drawmode;
 		this.id = id;
 	}
 
-	onCreate(args) {}
+	onCreate(args) { }
 
 	createBuffer() {
 		return new VertexBuffer(
-			this.vertecies, 
-			this.indecies, 
-			this.constructor.attributes, 
-			this.drawmode
+			this.vertecies,
+			this.indecies,
+			this.constructor.attributes
 		);
 	}
 }
 
 class VertexBuffer {
-	
+
 	get vertsPerElement() {
 		return this.vertecies.length / this.elements;
 	}
 
 	get elements() {
 		let count = 0;
-		for(let key in this.attributes) {
+		for (let key in this.attributes) {
 			count += this.attributes[key].size;
 		}
 		return count;
 	}
 
-	constructor(vertArray, indexArray, attributes, type) {
+	constructor(vertArray, indexArray, attributes) {
 
 		this.vertecies = new Float32Array(vertArray);
 		this.indecies = new Uint16Array(indexArray);
 
 		this.attributes = attributes;
-		
-		this.type = type || "TRIANGLES";
 	}
 
 }

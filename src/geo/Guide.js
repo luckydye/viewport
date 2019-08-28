@@ -9,7 +9,6 @@ export class Guide extends Geometry {
 	onCreate(args) {
 		args.guide = true;
 		args.material = DEFAULT_GUIDE_MATERIAL;
-		args.drawmode = "LINES";
 	}
 
 	get vertecies() {
@@ -17,12 +16,12 @@ export class Guide extends Geometry {
 		const { x, y, z } = this.origin || new Vec();
 
 		return [
-			x, y, z + s,	0, 1,	1, 1, 1,
-			x, y, z + -s,	0, 1,	1, 1, 1,
-			x, y + s, z,	0, 1,	1, 1, 1,
-			x, y -s, z,		0, 1,	1, 1, 1,
-			x + s, y, z,	0, 1,	1, 1, 1,
-			x -s, y, z,		0, 1,	1, 1, 1
+			x, y, z + s, 0, 1, 1, 1, 1,
+			x, y, z + -s, 0, 1, 1, 1, 1,
+			x, y + s, z, 0, 1, 1, 1, 1,
+			x, y - s, z, 0, 1, 1, 1, 1,
+			x + s, y, z, 0, 1, 1, 1, 1,
+			x - s, y, z, 0, 1, 1, 1, 1
 		];
 	}
 

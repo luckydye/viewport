@@ -1,4 +1,7 @@
 import OBJFile from "./resources/OBJFile.js";
+import { Logger } from './Logger.js';
+
+const logger = new Logger('Resources');
 
 const global = {};
 
@@ -85,6 +88,8 @@ export class Resources {
 			if (!global.initLoaded && Resources.finished) {
 				global.initLoaded = true;
 			}
+
+			logger.log('Resources loaded');
 		})
 	}
 

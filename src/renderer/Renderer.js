@@ -1,18 +1,12 @@
 import { RendererContext } from './RendererContext.js';
 import FinalShader from '../shader/FinalShader.js';
-import ColorShader from '../shader/ColorShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
 import { mat4, vec3 } from 'gl-matrix';
 import { Vec } from '../Math.js';
-import MattShader from '../shader/MattShader.js';
 import { Pointlight } from '../light/Pointlight';
-import NormalShader from './../shader/NormalShader.js';
 import { Geometry } from '../scene/Geometry';
-import WorldShader from './../shader/WorldShader.js';
-import UVShader from './../shader/UVShader.js';
-import SpecularShader from './../shader/SpecularShader.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 
@@ -62,34 +56,26 @@ export class Renderer extends RendererContext {
 
 	onCreate() {
 
-		this.grid = new Grid(100, 12);
+		this.grid = new Grid(100, 14);
 		this.showGrid = true;
 
 		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.85;
 		this.background = [0.08, 0.08, 0.08, 1.0];
-		this.renderTarget = new Screen();
-
 		this.shadowMapSize = 4096;
 
-		this.setResolution(this.width, this.height);
-
+		this.renderTarget = new Screen();
 		this.compShader = new FinalShader();
-
-		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
 	setResolution(width, height) {
 		super.setResolution(width, height);
 
 		this.renderPasses = [
-			// new RenderPass(this, 'shadow', new ColorShader(), this.aspectratio, this.shadowMapSize, true),
-			// new RenderPass(this, 'uv', new UVShader(), this.aspectratio, renderRes),
-			// new RenderPass(this, 'spec', new SpecularShader(), this.aspectratio, renderRes),
-			// new RenderPass(this, 'world', new WorldShader(), this.aspectratio, renderRes),
-			// new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, renderRes),
-			new RenderPass(this, 'color', null, this.aspectratio, this.width),
+			new RenderPass(this, 'color', null, this.aspectratio, width),
 		];
+
+		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
 	draw() {
@@ -216,14 +202,16 @@ export class Renderer extends RendererContext {
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
 
+		this.drawMesh(this.grid, camera);
+
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
-				this.drawMesh(obj, shaderOverwrite);
+				this.drawMesh(obj, camera, shaderOverwrite);
 			}
 		}
 	}
 
-	drawMesh(geo, shaderOverwrite) {
+	drawMesh(geo, camera, shaderOverwrite) {
 		if (geo.material) {
 
 			if (!shaderOverwrite) {
@@ -235,12 +223,6 @@ export class Renderer extends RendererContext {
 
 			this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
 			this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
-
-			this.gl.uniform3fv(shader.uniforms.cameraPosition, [
-				camera.worldPosition.x,
-				camera.worldPosition.y,
-				camera.worldPosition.z,
-			]);
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);
@@ -257,7 +239,7 @@ export class Renderer extends RendererContext {
 
 		this.setupGemoetry(geo);
 
-		gl.drawArraysInstanced(gl[buffer.type], 0, vertCount, geo.instances);
+		gl.drawArraysInstanced(gl[this.currentShader.drawmode], 0, vertCount, geo.instances);
 	}
 
 	drawGeo(geo) {
@@ -267,82 +249,10 @@ export class Renderer extends RendererContext {
 		this.setupGemoetry(geo);
 
 		if (buffer.indecies.length > 0) {
-			gl.drawElements(gl[buffer.type], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl[this.currentShader.drawmode], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
 		} else {
-			gl.drawArrays(gl[buffer.type], 0, buffer.vertecies.length / buffer.elements);
+			gl.drawArrays(gl[this.currentShader.drawmode], 0, buffer.vertecies.length / buffer.elements);
 		}
-	}
-
-	renderCubemap(cubemap, camera) {
-		const gl = this.gl;
-
-		const initial = {
-			rotation: new Vec(camera.rotation),
-			position: new Vec(camera.position),
-		};
-
-		const shader = new ColorShader();
-		this.useShader(shader);
-
-		const texture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-		for (let f = 0; f < 6; f++) {
-			const target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + f;
-			gl.texImage2D(target, 0, gl.RGBA, cubemap.width, cubemap.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-		}
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
-		const faces = [
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, rotation: new Vec(0, -90 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_X, rotation: new Vec(0, 90 / 180 * Math.PI, 0) },
-
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, rotation: new Vec(-90 / 180 * Math.PI, 0, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, rotation: new Vec(90 / 180 * Math.PI, 0, 0) },
-
-			{ target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, rotation: new Vec(0, 180 / 180 * Math.PI, 0) },
-			{ target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, rotation: new Vec(0, 0, 0) },
-		];
-
-		cubemap.gltexture = texture;
-
-		const fbo = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-		for (let face of faces) {
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, face.target, texture, 0);
-
-			camera.position.x = 0;
-			camera.position.y = -650;
-			camera.position.z = 0;
-
-			camera.rotation.x = face.rotation.x;
-			camera.rotation.y = face.rotation.y;
-			camera.rotation.z = face.rotation.z;
-
-			camera.fov = 75;
-
-			camera.update();
-
-			this.setResolution(cubemap.width, cubemap.height);
-			this.updateViewport();
-
-			this.clear();
-			this.drawScene(this.scene, camera);
-		}
-
-		camera.position.x = initial.position.x;
-		camera.position.y = initial.position.y;
-		camera.position.z = initial.position.z;
-
-		camera.rotation.x = initial.rotation.x;
-		camera.rotation.y = initial.rotation.y;
-		camera.rotation.z = initial.rotation.z;
-
-		camera.fov = 90;
-
-		this.setResolution(window.innerWidth, window.innerHeight);
-		this.updateViewport();
 	}
 
 }

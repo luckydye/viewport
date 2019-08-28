@@ -1,9 +1,5 @@
 import { Guide } from "./Guide.js";
-import { Material } from './../materials/Material.js';
-
-const DEFAULT_GRID_MATERIAL = new Material();
-DEFAULT_GRID_MATERIAL.castShadows = false;
-DEFAULT_GRID_MATERIAL.receiveShadows = false;
+import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
 
 export class Grid extends Guide {
 
@@ -18,8 +14,7 @@ export class Grid extends Guide {
 	}
 
 	onCreate(args) {
-		args.drawmode = "LINES";
-		args.material = DEFAULT_GRID_MATERIAL;
+		args.material = new PrimitivetMaterial();
 	}
 
 	generate(w = 100, s = 14) {

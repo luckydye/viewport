@@ -25,6 +25,8 @@ export class Shader {
 		this._uniforms = null;
 		this._attributes = null;
 
+		this.drawmode = "TRIANGLES";
+
 		this.uniform = {};
 		this.initialized = false;
 	}

@@ -17,11 +17,11 @@ export class ViewportController extends EntityControler {
 		this.distance = -2000;
 
 		const down = e => {
-			if(this.locked) return;
+			if (this.locked) return;
 
-			if(e.buttons === 1) {
+			if (e.buttons === 1) {
 				this.rotating = true;
-			} else if(e.buttons === 2) {
+			} else if (e.buttons === 2) {
 				this.moving = true;
 			}
 		}
@@ -32,7 +32,7 @@ export class ViewportController extends EntityControler {
 		}
 
 		const wheel = e => {
-			if(this.locked) return;
+			if (this.locked) return;
 
 			const dir = Math.sign(e.deltaY);
 			this.distance -= 100 * dir;
@@ -40,11 +40,11 @@ export class ViewportController extends EntityControler {
 		}
 
 		const move = e => {
-			if(this.rotating) {
+			if (this.rotating) {
 				this.angleY += e.movementX * this.sensivity;
 				this.angleX += e.movementY * this.sensivity;
 			}
-			if(this.moving) {
+			if (this.moving) {
 				this.posX += e.movementX * this.sensivity * 1000;
 				this.posY += -e.movementY * this.sensivity * 1000;
 			}
@@ -62,6 +62,7 @@ export class ViewportController extends EntityControler {
 		}
 
 		this.viewport.addEventListener("wheel", wheel);
+		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
 		this.viewport.addEventListener("mousedown", down);
 		window.addEventListener("mousemove", move);
 		window.addEventListener("mouseup", up);

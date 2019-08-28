@@ -35,9 +35,8 @@ export class Logger {
                 margin-right: 5px;
             `,
             text: `
-                background: #333;
                 color: #eee;
-                padding: 2px 6px;
+                padding: 2px 4px;
             `,
             attr: `
                 background: #3f3f3f;

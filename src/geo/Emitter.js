@@ -13,21 +13,21 @@ export class Particle extends Geometry {
         const d = this.direction;
 
         return [
-            x + 0, y + 0, z + 0,    0, 0,   d[0], d[1], d[2],
-            x + -s, y + 0, z + 0,    0, 0,   d[0], d[1], d[2],
-            x + -s, y + s, z + 0,    0, 0,   d[0], d[1], d[2],
+            x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2],
+            x + -s, y + 0, z + 0, 0, 0, d[0], d[1], d[2],
+            x + -s, y + s, z + 0, 0, 0, d[0], d[1], d[2],
 
-            x + -s, y + s, z,    0, 0,   d[0], d[1], d[2],
-            x + -s, y + 0, z,    0, 0,   d[0], d[1], d[2],
-            x + 0, y + 0, z + s,    0, 0,   d[0], d[1], d[2],
+            x + -s, y + s, z, 0, 0, d[0], d[1], d[2],
+            x + -s, y + 0, z, 0, 0, d[0], d[1], d[2],
+            x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2],
 
-            x + -s, y + s, z,    0, 0,   d[0], d[1], d[2],
-            x + 0, y + 0, z + s,    0, 0,   d[0], d[1], d[2],
-            x + 0, y + 0, z + 0,    0, 0,   d[0], d[1], d[2],
+            x + -s, y + s, z, 0, 0, d[0], d[1], d[2],
+            x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2],
+            x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2],
 
-            x + 0, y + 0, z + 0,    0, 0,   d[0], d[1], d[2],
-            x + 0, y + 0, z + s,    0, 0,   d[0], d[1], d[2],
-            x - s, y + 0, z + 0,    0, 0,   d[0], d[1], d[2],
+            x + 0, y + 0, z + 0, 0, 0, d[0], d[1], d[2],
+            x + 0, y + 0, z + s, 0, 0, d[0], d[1], d[2],
+            x - s, y + 0, z + 0, 0, 0, d[0], d[1], d[2],
         ]
     }
 
@@ -38,7 +38,7 @@ export class Particle extends Geometry {
         this.age = 0;
         this.position = new Vec();
         this.direction = Vec.normal(Vec.add(
-            this.base.rotation, 
+            this.base.rotation,
             new Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)
         ));
     }
@@ -51,13 +51,12 @@ export class Emitter extends Geometry {
         return this.createBuffer();
     }
 
-	onCreate(args) {
-		args.material = DEFAULT_GUIDE_MATERIAL;
-        args.drawmode = "TRIANGLES";
+    onCreate(args) {
+        args.material = DEFAULT_GUIDE_MATERIAL;
 
         this.particle = new Particle(this);
         this.particles = [];
-        
+
         this.instances = 1;
         this.instanced = true;
 
@@ -69,34 +68,34 @@ export class Emitter extends Geometry {
     update(ms) {
         this.spawn(10);
 
-        for(let p of this.particles) {
+        for (let p of this.particles) {
             p.position.x += p.direction.x * ms;
             p.position.y += p.direction.y * ms;
             p.position.z += p.direction.z * ms;
 
             p.age += ms;
 
-            if(p.age > this.maxage * Math.random()) {
+            if (p.age > this.maxage * Math.random()) {
                 this.particles.splice(this.particles.indexOf(p), 1);
             }
         }
     }
-    
+
     spawn(amount) {
-        for(let i = 0; i < amount; i++) {
+        for (let i = 0; i < amount; i++) {
             this.particles.push(new Particle(this));
         }
     }
 
-	get vertecies() {
+    get vertecies() {
         const verts = [];
 
-        for(let p of this.particles) {
-           const pverts = p.vertecies;
-           verts.push(...pverts);
-       }
+        for (let p of this.particles) {
+            const pverts = p.vertecies;
+            verts.push(...pverts);
+        }
 
         return verts;
-	}
+    }
 
 }

@@ -1,7 +1,13 @@
 import { Shader } from '../renderer/RendererShader';
 import { Resources } from '../Resources.js';
 
-export default class PickingShader extends Shader {
+export default class PrimitiveShader extends Shader {
+
+    constructor() {
+        super();
+
+        this.drawmode = "LINES";
+    }
 
     static vertexSource() {
         return Resources.get('gbuffer.vs');
@@ -12,32 +18,12 @@ export default class PickingShader extends Shader {
         
         precision mediump float;
         
-        struct Material {
-            sampler2D texture;
-            sampler2D specularMap;
-            sampler2D normalMap;
-            sampler2D displacementMap;
-            vec4 diffuseColor;
-            float specular;
-            float roughness;
-            float metallic;
-            float transparency;
-            float textureScale;
-            bool scaleUniform;
-            bool selected;
-        };
-        uniform Material material;
-
         in vec3 primitiveColor;
         
         out vec4 oFragColor;
         
         void main () {
             oFragColor = vec4(primitiveColor, .75);
-
-            if(material.selected) {
-                oFragColor = oFragColor + vec4(0.33, 0.33, 0.33, 1.0);
-            }
         }`;
     }
 }
