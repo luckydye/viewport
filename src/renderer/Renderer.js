@@ -10,6 +10,8 @@ import { Geometry } from '../scene/Geometry';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 
+Config.global.define('show.grid', false, false);
+
 const logger = new Logger('Renderer'), log = logger.log;
 
 class Screen extends Geometry {
@@ -57,7 +59,7 @@ export class Renderer extends RendererContext {
 	onCreate() {
 
 		this.grid = new Grid(100, 14);
-		this.showGrid = false;
+		this.showGrid = Config.global.getValue('show.grid');
 
 		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.85;

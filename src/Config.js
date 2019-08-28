@@ -5,17 +5,15 @@ export default class Config {
     }
 
     getValue(name, fallback) {
-        if(!(name in this)) {
+        if (!(name in this)) {
             this.define(name, fallback);
         }
-        this.load();
         return this[name].value;
     }
 
     setValue(name, value) {
-        if(!this[name]) this.define(name, value);
+        if (!this[name]) this.define(name, value);
         this[name].value = value;
-        this.save();
     }
 
     define(name, defaultValue, value) {
@@ -29,9 +27,9 @@ export default class Config {
     save() {
         const save = localStorage.getItem(this.name);
         const data = JSON.parse(save) || {};
-        for(let key in this) {
+        for (let key in this) {
             const value = this[key].value;
-            if(value != null) data[key] = value;
+            if (value != null) data[key] = value;
         }
         localStorage.setItem(this.name, JSON.stringify(data));
     }
@@ -39,8 +37,8 @@ export default class Config {
     load() {
         const save = localStorage.getItem(this.name);
         const data = JSON.parse(save);
-        for(let key in data) {
-            if(key in this) {
+        for (let key in data) {
+            if (key in this) {
                 this[key].value = data[key];
             }
         }
@@ -52,7 +50,7 @@ class ConfigParameter {
     constructor(name, defaultValue, value) {
         this.name = name;
         this.default = defaultValue;
-        this.value = value || this.default;
+        this.value = value != null ? value : this.default;
     }
 }
 

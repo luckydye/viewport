@@ -4,6 +4,9 @@ import { Cube } from '../src/geo/Cube';
 import DefaultMaterial from '../src/materials/DefaultMaterial';
 import { Texture } from '../src/materials/Texture';
 import { Resources } from '../src/Resources';
+import Config from '../src/Config.js';
+
+Config.global.setValue('show.grid', true);
 
 Resources.add({
     'placeholder.tex': 'textures/placeholder_256.png',
@@ -13,8 +16,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const viewport = document.querySelector('gl-viewport');
 
     viewport.addEventListener('load', () => {
-
-        viewport.renderer.showGrid = true;
 
         const controler = new ViewportController(viewport.camera, viewport);
 
