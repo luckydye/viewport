@@ -1,11 +1,11 @@
-import { GLShader } from '../renderer/GLShader.js';
+import { Shader } from '../renderer/RendererShader.js';
 import { Resources } from '../Resources.js';
 
 Resources.add({
     'comp.fs': 'shader/comp.fragment.shader',
 }, false);
 
-export default class FinalShader extends GLShader {
+export default class FinalShader extends Shader {
 
     static vertexSource() {
         return `#version 300 es

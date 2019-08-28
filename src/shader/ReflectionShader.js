@@ -1,6 +1,6 @@
-import { GLShader } from '../renderer/GLShader';
+import { Shader } from '../renderer/Shader';
 
-export default class ReflectionShader extends GLShader {
+export default class ReflectionShader extends Shader {
 
     static vertexSource() {
         return `#version 300 es

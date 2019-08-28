@@ -1,11 +1,11 @@
 import { Resources } from '../Resources.js';
-import { GLShader } from '../renderer/GLShader.js';
+import { Shader } from '../renderer/RendererShader.js';
 
 Resources.add({
     'gbuffer.vs': 'shader/gbuffer.vertex.shader',
 }, false);
 
-export default class ColorShader extends GLShader {
+export default class ColorShader extends Shader {
 
     static vertexSource() {
         return Resources.get('gbuffer.vs');

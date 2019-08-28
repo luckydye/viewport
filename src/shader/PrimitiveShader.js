@@ -1,7 +1,7 @@
-import { GLShader } from '../renderer/GLShader';
+import { Shader } from '../renderer/RendererShader';
 import { Resources } from '../Resources.js';
 
-export default class PickingShader extends GLShader {
+export default class PickingShader extends Shader {
 
     static vertexSource() {
         return Resources.get('gbuffer.vs');

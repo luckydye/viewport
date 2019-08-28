@@ -1,7 +1,7 @@
 import { Resources } from '../Resources.js';
-import { GLShader } from '../renderer/GLShader';
+import { Shader } from '../renderer/RendererShader';
 
-export default class MattShader extends GLShader {
+export default class MattShader extends Shader {
 
     static vertexSource() {
         return Resources.get('gbuffer.vs');
