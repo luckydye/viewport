@@ -134,54 +134,18 @@ export default class Viewport extends HTMLElement {
     }
 
     init(canvas) {
-        const mats = Resources.get('materials');
-        for (let name in mats) {
-            Loader.createMatFromJson(name, mats[name]);
-        }
-
         this.camera = new Camera({
             fov: 90,
             position: new Vec(0, -500, -1000),
             rotation: new Vec(0.31, 0, 0),
-        })
+        });
 
         this.scene = new Scene(this.camera);
 
         this.renderer = new Renderer(canvas);
         this.renderer.setScene(this.scene);
 
-        const controler = new CameraControler(this.scene.activeCamera, canvas);
-        const cursorControler = new CursorControler(this.scene.curosr, this);
-
-        cursorControler.interaction = objID => {
-            if (objID != 0) {
-                controler.lock();
-            } else {
-                controler.unlock();
-            }
-        }
-
         this.dispatchEvent(new Event('load'));
-
-        this.setCursor([...this.scene.objects][this.scene.objects.size - 1]);
-
-        // testing
-        // setTimeout(() => {
-        //     const cubemap = new Cubemap();
-        //     this.renderer.renderCubemap(cubemap, this.scene.activeCamera);
-        //     this.scene.cubemap = cubemap;
-        // }, 0)
-    }
-
-    onselect(objID) {
-
-    }
-
-    setCursor(obj) {
-        if (obj) {
-            this.scene.curosr.position = new Vec(obj.position);
-            obj.position = this.scene.curosr.position;
-        }
     }
 
 }

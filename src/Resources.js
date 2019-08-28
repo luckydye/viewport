@@ -14,7 +14,7 @@ global.resourceTypes = {
 
 global.queue = new Set();
 global.map = new Map();
-global.resourceRoot = './res/';
+global.resourceRoot = '../res/';
 
 /*
 	Resource.add({ name, path }: arr, startLoading: bool): startLoading ? Promise : null
@@ -52,10 +52,10 @@ export class Resources {
 	}
 
 	static add(obj, startLoad) {
-		for(let key in obj) {
+		for (let key in obj) {
 			global.queue.add({ name: key, path: obj[key] });
 		}
-		if(startLoad === true) {
+		if (startLoad === true) {
 			return Resources.load();
 		}
 	}
@@ -71,7 +71,7 @@ export class Resources {
 	static load() {
 		let loads = [];
 
-		for(let res of global.queue) {
+		for (let res of global.queue) {
 			const loading = Resources._fetch(global.resourceRoot + '/' + res.path).then(dataObj => {
 				const resource = res;
 				global.map.set(resource.name, dataObj);
@@ -82,7 +82,7 @@ export class Resources {
 		return Promise.all(loads).then(() => {
 			global.queue.clear();
 
-			if(!global.initLoaded && Resources.finished) {
+			if (!global.initLoaded && Resources.finished) {
 				global.initLoaded = true;
 			}
 		})
@@ -91,15 +91,15 @@ export class Resources {
 	static _fetch(path) {
 		let type = null;
 
-		for(let t in Resources.Types) {
-			for(let ending of Resources.Types[t]) {
-				if(path.match(ending)) {
+		for (let t in Resources.Types) {
+			for (let ending of Resources.Types[t]) {
+				if (path.match(ending)) {
 					type = Resources.Types[t];
 				}
 			}
 		}
 
-		switch(type) {
+		switch (type) {
 
 			case Resources.Types.JSON:
 				return fetch(path).then(res => res.json().catch(err => {
@@ -132,10 +132,10 @@ export class Resources {
 				return fetch(path).then(res => res.text().then(strData => {
 					return OBJFile.parseFile(strData);
 				}));
-				
+
 			case Resources.Types.TEXT:
 				return fetch(path).then(res => res.text());
-				
+
 			case Resources.Types.SHADER:
 				return fetch(path).then(res => res.text());
 

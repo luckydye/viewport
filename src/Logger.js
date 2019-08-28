@@ -4,15 +4,15 @@ export class Logger {
 
     static listen(name, f) {
         const listeners = loggerListeners.get(name);
-        if(listeners) {
+        if (listeners) {
             listeners.push(f);
         }
     }
 
     static dispatch(name, msg) {
         const listeners = loggerListeners.get(name);
-        if(listeners) {
-            for(let listener of listeners) {
+        if (listeners) {
+            for (let listener of listeners) {
                 listener(msg);
             }
         }
@@ -22,10 +22,12 @@ export class Logger {
         this.prefix = name;
 
         loggerListeners.set(name, []);
+    }
 
-        this.style = {
+    style(type) {
+        return {
             prefix: `
-                background: #1c1c1c;
+                background: ${type == 'error' ? 'red' : '#1c1c1c'};
                 color: rgba(255, 255, 255, 0.65);
                 font-weight: 600;
                 padding: 2px 6px;
@@ -47,23 +49,23 @@ export class Logger {
     }
 
     out(type, text, attr) {
-        if(attr) {
+        if (attr) {
             console[type](
                 `%c${this.prefix}%c${text}%c${attr}`,
-                this.style.prefix, 
-                this.style.text,
-                this.style.attr
+                this.style(type).prefix,
+                this.style(type).text,
+                this.style(type).attr
             );
         } else {
             console[type](
                 `%c${this.prefix}%c${text}`,
-                this.style.prefix, 
-                this.style.text,
+                this.style(type).prefix,
+                this.style(type).text,
             );
         }
-        
+
         Logger.dispatch(this.prefix, {
-            style: this.style,
+            style: this.style(type),
             prefix: this.prefix,
             text: text,
         });

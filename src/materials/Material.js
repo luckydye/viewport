@@ -1,5 +1,5 @@
 import { Texture } from "./Texture";
-import DefaultShader from '../shader/DefaultShader';
+import DefaultShader from '../shader/DefaultShader.js';
 
 export class Material {
 

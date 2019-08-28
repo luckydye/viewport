@@ -1,20 +1,20 @@
-import { RendererContext } from './RendererContext';
-import FinalShader from '../shader/FinalShader';
-import ColorShader from '../shader/ColorShader';
-import PrimitiveShader from '../shader/PrimitiveShader';
-import { Logger } from '../Logger';
-import Config from '../Config';
+import { RendererContext } from './RendererContext.js';
+import FinalShader from '../shader/FinalShader.js';
+import ColorShader from '../shader/ColorShader.js';
+import PrimitiveShader from '../shader/PrimitiveShader.js';
+import { Logger } from '../Logger.js';
+import Config from '../Config.js';
 import { mat4, vec3 } from 'gl-matrix';
-import { Vec } from '../Math';
-import MattShader from '../shader/MattShader';
+import { Vec } from '../Math.js';
+import MattShader from '../shader/MattShader.js';
 import { Pointlight } from '../light/Pointlight';
-import NormalShader from './../shader/NormalShader';
+import NormalShader from './../shader/NormalShader.js';
 import { Geometry } from '../scene/Geometry';
-import WorldShader from './../shader/WorldShader';
-import UVShader from './../shader/UVShader';
-import SpecularShader from './../shader/SpecularShader ';
-import { Grid } from '../geo/Grid';
-import { Texture } from '../materials/Texture';
+import WorldShader from './../shader/WorldShader.js';
+import UVShader from './../shader/UVShader.js';
+import SpecularShader from './../shader/SpecularShader.js';
+import { Grid } from '../geo/Grid.js';
+import { Texture } from '../materials/Texture.js';
 
 const logger = new Logger('Renderer'), log = logger.log;
 
@@ -37,7 +37,7 @@ class Screen extends Geometry {
 	}
 }
 
-export class Renderer extends GLContext {
+export class Renderer extends RendererContext {
 
 	static get defaults() {
 		return {
@@ -93,8 +93,6 @@ export class Renderer extends GLContext {
 	}
 
 	draw() {
-		if (!this.scene) return;
-
 		this.renderRenderPasses();
 		this.compositeRenderPasses();
 	}
@@ -217,16 +215,6 @@ export class Renderer extends GLContext {
 
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
-		const shader = this.currentShader;
-
-		this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
-		this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
-
-		this.gl.uniform3fv(shader.uniforms.cameraPosition, [
-			camera.worldPosition.x,
-			camera.worldPosition.y,
-			camera.worldPosition.z,
-		]);
 
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
@@ -242,6 +230,17 @@ export class Renderer extends GLContext {
 				this.useShader(geo.material.shader);
 			}
 			this.applyMaterial(geo.material);
+
+			const shader = this.currentShader;
+
+			this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
+			this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+
+			this.gl.uniform3fv(shader.uniforms.cameraPosition, [
+				camera.worldPosition.x,
+				camera.worldPosition.y,
+				camera.worldPosition.z,
+			]);
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);
@@ -378,6 +377,9 @@ export class RenderPass {
 	use() {
 		this.renderer.useFramebuffer(this.id);
 		this.renderer.viewport(this.width, this.height);
-		this.renderer.useShader(this.shader);
+
+		if (this.shader) {
+			this.renderer.useShader(this.shader);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-import { RendererShader } from "./RendererShader";
+import { Shader } from "./RendererShader";
 
 export class RendererContext {
 
@@ -127,7 +127,8 @@ export class RendererContext {
 	// initialize webgl shader
 	prepareShader(shader) {
 		const gl = this.gl;
-		if (shader instanceof RendererShader) {
+
+		if (shader instanceof Shader) {
 
 			if (shader.source) {
 				shader._vertShader = this.compileShader(shader.source[0], gl.VERTEX_SHADER);

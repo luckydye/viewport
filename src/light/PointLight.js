@@ -1,8 +1,8 @@
-import DefaultMaterial from "../materials/DefaultMaterial";
-import { Cube } from './../geo/Cube';
+import DefaultMaterial from "../materials/DefaultMaterial.js";
+import { Cube } from './../geo/Cube.js';
 
 export class Pointlight extends Cube {
-	
+
 	get isLight() {
 		return true;
 	}
@@ -15,7 +15,7 @@ export class Pointlight extends Cube {
 			color = [1, 1, 1],
 			size = 8,
 		} = args;
-		
+
 		this.intensity = intensity;
 		this.color = color;
 		this.size = size;

@@ -1,11 +1,15 @@
 import { Entity } from "../scene/Entity";
+import { Logger } from '../Logger';
+
+const logger = new Logger('EntityControler');
+const error = logger.error.bind(logger);
 
 export class EntityControler {
-	
+
 	static isMouseButton(e) {
 		let mbutton;
-		if(e.button != null) {
-			if(e.buttons == 4) {
+		if (e.button != null) {
+			if (e.buttons == 4) {
 				mbutton = 2;
 			} else {
 				mbutton = e.buttons;
@@ -17,12 +21,12 @@ export class EntityControler {
 	}
 
 	constructor(entity, viewport) {
-		if(!entity) throw "No entity";
-		
-		if(entity instanceof Entity) {
+		if (!entity) error("No entity");
+
+		if (entity instanceof Entity) {
 			entity.addTrait(this.update.bind(this));
 		}
-		
+
 		this.locked = false;
 		this.entity = entity;
 		this.viewport = viewport;
@@ -32,7 +36,7 @@ export class EntityControler {
 	}
 
 	update(ms) {
-		
+
 	}
 
 	lock() { this.locked = true; }
@@ -42,14 +46,14 @@ export class EntityControler {
 		this.keyMap = new Map();
 
 		window.addEventListener('keydown', e => {
-			if(document.pointerLockElement != null) {
+			if (document.pointerLockElement != null) {
 				e.preventDefault();
 				this.keyMap.set(e.key, true);
 			}
 		})
-		
+
 		window.addEventListener('keyup', e => {
-			if(document.pointerLockElement != null) {
+			if (document.pointerLockElement != null) {
 				e.preventDefault();
 			}
 			this.keyMap.delete(e.key);
@@ -57,14 +61,14 @@ export class EntityControler {
 	}
 
 	checkKey(key) {
-		if(!this.locked) {
+		if (!this.locked) {
 			return this.keyMap.has(key);
 		}
 		return false;
 	}
 
 	initMouse() {
-		
+
 	}
 
 }
