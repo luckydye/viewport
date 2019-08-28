@@ -11,6 +11,8 @@ import { Camera } from '../src/scene/Camera.js';
 import { Cubemap } from '../src/materials/Cubemap.js';
 import { Cube } from '../src/geo/Cube.js';
 import { ViewportController } from '../src/controlers/ViewportController.js';
+import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { Texture } from '../src/materials/Texture.js';
 
 const logger = new Logger('Viewport');
 
@@ -18,6 +20,10 @@ let nextFrame = 0,
     lastFrame = 0,
     accumulator = 0,
     tickrate = 128;
+
+Resources.add({
+    'placeholder.tex': 'textures/placeholder_256.png',
+}, false);
 
 export default class Viewport extends HTMLElement {
 
@@ -137,6 +143,9 @@ export default class Viewport extends HTMLElement {
             position: new Vec(0, 500, 0),
             rotation: new Vec(0.5, 0.5, 0),
             scale: 200,
+            material: new DefaultMaterial({
+                texture: new Texture(Resources.get('placeholder.tex'))
+            }),
         });
 
         this.scene.add(cube);

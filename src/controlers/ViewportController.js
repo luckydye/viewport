@@ -11,10 +11,10 @@ export class ViewportController extends EntityControler {
 		this.sensivity = 0.0033;
 
 		this.angleY = 0;
-		this.angleX = 0.5;
+		this.angleX = 0.33;
 		this.posX = 0;
-		this.posY = 0;
-		this.distance = -2000;
+		this.posY = -250;
+		this.distance = -1500;
 
 		const down = e => {
 			if (this.locked) return;
