@@ -76,6 +76,7 @@ export class Renderer extends RendererContext {
 		this.updateViewport();
 
 		this.renderPasses = [
+			new RenderPass(this, 'shadow', null, this.aspectratio, width),
 			new RenderPass(this, 'color', null, this.aspectratio, width),
 		];
 
@@ -98,7 +99,16 @@ export class Renderer extends RendererContext {
 			gl.clearColor(0, 0, 0, 0);
 			this.clear();
 
-			this.drawScene(this.scene, camera, null, pass.shader != null);
+			if (pass.id == "shadow") {
+				const shadowCamera = this.scene.lightSources;
+				this.drawScene(this.scene, shadowCamera, null, pass.shader != null);
+
+			} else {
+
+				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 1);
+
+				this.drawScene(this.scene, camera, null, pass.shader != null);
+			}
 
 			this.clearFramebuffer();
 		}
@@ -136,8 +146,8 @@ export class Renderer extends RendererContext {
 		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
 
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 0);
-		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 1);
+		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
+		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 1);
 
 		this.preComposition();
 

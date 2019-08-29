@@ -16,6 +16,7 @@ export default class DefaultShader extends Shader {
             precision mediump float;
             
             in vec2 vTexCoords;
+            in vec4 vTexelPos;
             in vec3 vNormal;
             in float id;
             
@@ -34,6 +35,8 @@ export default class DefaultShader extends Shader {
                 bool selected;
             };
             uniform Material material;
+
+            uniform sampler2D shadowBuffer;
             
             out vec4 oFragColor;
 
@@ -61,6 +64,9 @@ export default class DefaultShader extends Shader {
                 }
 
                 float shade = DiffuseShading(vNormal);
+
+                vec4 pos = normalize(vTexelPos);
+                vec4 shadow = texture(shadowBuffer, pos.xy);
 
                 oFragColor = vec4(color.rgb * shade, color.a - material.transparency);
             }

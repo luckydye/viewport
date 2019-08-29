@@ -38,6 +38,7 @@ uniform float geoid;
 out SceneProjection sceneProjection;
 out vec2 vTexCoords;
 out vec4 vWorldPos;
+out vec4 vTexelPos;
 out vec3 vNormal;
 out vec3 vertexPos;
 out vec3 primitiveColor;
@@ -62,6 +63,7 @@ void main() {
 
 	vertexPos = aPosition;
 	vWorldPos = pos;
+	vTexelPos = gl_Position;
 	vNormal = (vec4(aNormal, 1.0) * scene.model).xyz;
 	vTexCoords = aTexCoords;
 	id = geoid;

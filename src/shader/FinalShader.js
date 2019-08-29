@@ -36,11 +36,13 @@ export default class FinalShader extends Shader {
         uniform vec3 cameraPosition;
         
         uniform sampler2D colorBuffer;
+        uniform sampler2D shadowBuffer;
         
         out vec4 oFragColor;
         
         void main() {
             vec4 color = texture(colorBuffer, vTexCoords);
+            vec4 shadow = texture(shadowBuffer, vTexCoords);
             oFragColor = color;
         }`;
     }
