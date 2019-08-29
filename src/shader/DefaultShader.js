@@ -37,19 +37,22 @@ export default class DefaultShader extends Shader {
             
             out vec4 oFragColor;
 
-            void DiffuseShading(out vec4 finalColor, vec3 normal) {
+            float DiffuseShading(vec3 normal) {
                 float ambient = 0.5;
                 vec3 norm = normalize(normal);
-                vec3 lightDir = normalize(vec3(1.0, 0.5, 0.1));
+                vec3 lightDir = normalize(vec3(0.5, 0.4, 0.33));
                 float diffuse = max(dot(norm, lightDir), 0.0) * (1.0 - ambient) + ambient;
-                finalColor = vec4((finalColor * diffuse).rgb, 1.0);
+                return diffuse;
             }
 
             void main() {
                 vec2 imageSize = vec2(textureSize(material.texture, 0));
-                vec2 textureCoords = vec2(vTexCoords.x, -vTexCoords.y);
-            
+                
                 vec4 color = material.diffuseColor;
+                
+                float scale = (imageSize.x / material.textureScale);
+
+                vec2 textureCoords = vTexCoords / scale;
             
                 if(imageSize.x > 0.0) {
                     vec4 texcolor = texture(material.texture, textureCoords);
@@ -57,9 +60,9 @@ export default class DefaultShader extends Shader {
                     color = vec4(color.rgb, color.a + texcolor.a);
                 }
 
-                oFragColor = vec4(color.rgb, color.a - material.transparency);
+                float shade = DiffuseShading(vNormal);
 
-                DiffuseShading(oFragColor, vNormal);
+                oFragColor = vec4(color.rgb * shade, color.a - material.transparency);
             }
         `;
     }

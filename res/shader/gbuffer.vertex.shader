@@ -62,7 +62,7 @@ void main() {
 
 	vertexPos = aPosition;
 	vWorldPos = pos;
-	vNormal = aNormal;
+	vNormal = (vec4(aNormal, 1.0) * scene.model).xyz;
 	vTexCoords = aTexCoords;
 	id = geoid;
 	primitiveColor = aNormal;

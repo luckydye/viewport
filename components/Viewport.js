@@ -28,6 +28,8 @@ export default class Viewport extends HTMLElement {
                     width: 100%;
                     height: 100%;
                     display: block;
+                    image-rendering: pixelated;
+                    image-rendering: optimizespeed;
                 }
             </style>
         `;
@@ -41,15 +43,16 @@ export default class Viewport extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         this.root = this.shadowRoot;
 
-        this.root.innerHTML = this.constructor.template;
-
         this.canvas = document.createElement('canvas');
-        this.root.appendChild(this.canvas);
 
         this.lastFrame = {};
     }
 
     connectedCallback() {
+
+        this.root.innerHTML = this.constructor.template;
+        this.root.appendChild(this.canvas);
+
         Resources.load().then(() => {
             this.init(this.canvas);
 
@@ -87,10 +90,6 @@ export default class Viewport extends HTMLElement {
         this.renderer.setScene(this.scene);
 
         this.renderer.setResolution(this.clientWidth, this.clientHeight);
-
-        window.addEventListener('resize', () => {
-            this.renderer.setResolution(this.clientWidth, this.clientHeight);
-        })
 
         this.dispatchEvent(new Event('load'));
     }

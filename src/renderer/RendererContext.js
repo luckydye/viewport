@@ -31,7 +31,7 @@ export class RendererContext {
 
 		this.options = {
 			DEPTH_TEST: true,
-			CULL_FACE: false,
+			CULL_FACE: true,
 			BLEND: true,
 		}
 
@@ -73,9 +73,9 @@ export class RendererContext {
 
 		const ctxtOpts = {
 			alpha: this.alpha,
-			antialias: false,
+			antialias: true,
 			preserveDrawingBuffer: true,
-			desynchronized: true,
+			desynchronized: false,	// for non antiliase canvas on chrome to false
 		};
 		this.gl = canvas.getContext("webgl2", ctxtOpts) ||
 			canvas.getContext("webgl", ctxtOpts);
@@ -333,8 +333,8 @@ export class RendererContext {
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
