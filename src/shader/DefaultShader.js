@@ -48,6 +48,14 @@ export default class DefaultShader extends Shader {
                 return diffuse;
             }
 
+            float Shadow(vec3 normal) {
+                float ambient = 0.5;
+                vec3 norm = normalize(normal);
+                vec3 lightDir = normalize(vec3(0.5, 0.4, 0.33));
+                float diffuse = max(dot(norm, lightDir), 0.0) * (1.0 - ambient) + ambient;
+                return diffuse;
+            }
+
             void main() {
                 vec2 imageSize = vec2(textureSize(material.texture, 0));
                 

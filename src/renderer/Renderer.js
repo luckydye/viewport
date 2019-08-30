@@ -1,6 +1,5 @@
 import { RendererContext } from './RendererContext.js';
 import FinalShader from '../shader/FinalShader.js';
-import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
 import { mat4, vec3 } from 'gl-matrix';
@@ -9,6 +8,7 @@ import { Pointlight } from '../light/Pointlight';
 import { Geometry } from '../scene/Geometry';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
+import NormalShader from '../shader/NormalShader.js';
 
 Config.global.define('show.grid', false, false);
 
@@ -78,6 +78,7 @@ export class Renderer extends RendererContext {
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', null, this.aspectratio, width),
 			new RenderPass(this, 'color', null, this.aspectratio, width),
+			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, width),
 		];
 
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
@@ -148,6 +149,8 @@ export class Renderer extends RendererContext {
 
 		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
 		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 1);
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 2);
+		this.useTextureBuffer(this.getBufferTexture('normal'), gl.TEXTURE_2D, 'normalBuffer', 3);
 
 		this.preComposition();
 
@@ -216,14 +219,14 @@ export class Renderer extends RendererContext {
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
 
-		if (this.showGrid) {
-			this.drawMesh(this.grid, camera);
-		}
-
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
 				this.drawMesh(obj, camera, shaderOverwrite);
 			}
+		}
+
+		if (this.showGrid) {
+			this.drawMesh(this.grid, camera);
 		}
 	}
 

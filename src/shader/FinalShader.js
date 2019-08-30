@@ -37,13 +37,24 @@ export default class FinalShader extends Shader {
         
         uniform sampler2D colorBuffer;
         uniform sampler2D shadowBuffer;
+        uniform sampler2D depthBuffer;
+        uniform sampler2D normalBuffer;
         
         out vec4 oFragColor;
         
         void main() {
+            float depth = texture(depthBuffer, vTexCoords).r;
             vec4 color = texture(colorBuffer, vTexCoords);
             vec4 shadow = texture(shadowBuffer, vTexCoords);
-            oFragColor = color;
+            vec4 normal = texture(normalBuffer, vTexCoords);
+
+            float selfShadow = clamp(pow(depth, 20.0), 0.75, 1.0);
+
+            float fog = (pow(depth, 300.0) * 0.5);
+
+            float ambient = 0.05;
+
+            oFragColor = color * selfShadow + fog + ambient;
         }`;
     }
 

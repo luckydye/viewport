@@ -64,7 +64,7 @@ void main() {
 	vertexPos = aPosition;
 	vWorldPos = pos;
 	vTexelPos = gl_Position;
-	vNormal = (vec4(aNormal, 1.0) * scene.model).xyz;
+	vNormal = aNormal;
 	vTexCoords = aTexCoords;
 	id = geoid;
 	primitiveColor = aNormal;
