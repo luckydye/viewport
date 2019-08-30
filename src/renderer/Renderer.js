@@ -9,6 +9,7 @@ import { Geometry } from '../scene/Geometry';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
+import WorldShader from '../shader/WorldShader.js';
 
 Config.global.define('show.grid', false, false);
 
@@ -76,9 +77,10 @@ export class Renderer extends RendererContext {
 		this.updateViewport();
 
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', null, this.aspectratio, width),
-			new RenderPass(this, 'color', null, this.aspectratio, width),
+			new RenderPass(this, 'shadow', null, this.aspectratio, this.shadowMapSize),
+			new RenderPass(this, 'world', new WorldShader(), this.aspectratio, width),
 			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, width),
+			new RenderPass(this, 'color', null, this.aspectratio, width),
 		];
 
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
@@ -105,9 +107,6 @@ export class Renderer extends RendererContext {
 				this.drawScene(this.scene, shadowCamera, null, pass.shader != null);
 
 			} else {
-
-				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 1);
-
 				this.drawScene(this.scene, camera, null, pass.shader != null);
 			}
 
@@ -144,13 +143,17 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
+		const shadowProjViewMat = this.scene.lightSources.projViewMatrix;
+		this.gl.uniformMatrix4fv(this.currentShader.uniforms["shadowProjViewMat"], false, shadowProjViewMat);
+
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
+		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 
 		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
-		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 1);
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 2);
-		this.useTextureBuffer(this.getBufferTexture('normal'), gl.TEXTURE_2D, 'normalBuffer', 3);
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 1);
+		this.useTextureBuffer(this.getBufferTexture('normal'), gl.TEXTURE_2D, 'normalBuffer', 2);
+		this.useTextureBuffer(this.getBufferTexture('world'), gl.TEXTURE_2D, 'worldBuffer', 3);
+		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 4);
 
 		this.preComposition();
 

@@ -13,7 +13,7 @@ export class Scene {
 
 		this.lightSources = new Spotlight({
 			fov: 90,
-			position: new Vec(500, -2500, -1500),
+			position: new Vec(500, -2500, -1000),
 			rotation: new Vec(0.8, 0.4, 0),
 		});
 
