@@ -7,6 +7,22 @@ export class Material {
         return Object.assign(material, attributes);
     }
 
+    get attributes() {
+        return {
+            texture: this.texture,
+            specularMap: this.specularMap,
+            displacementMap: this.displacementMap,
+            normalMap: this.normalMap,
+
+            diffuseColor: this.diffuseColor,
+            transparency: this.transparency,
+            specular: this.specular,
+            roughness: this.roughness,
+            textureScale: this.textureScale,
+            scaleUniform: this.scaleUniform,
+        };
+    }
+
     constructor(attributes = {}) {
 
         this.shader = new DefaultShader();
@@ -20,7 +36,6 @@ export class Material {
         this.transparency = 0;
         this.specular = 1;
         this.roughness = 1;
-        this.metallic = 0;
 
         this.textureScale = 256;
 

@@ -54,7 +54,7 @@ export default class FinalShader extends Shader {
 
             float ambient = 0.05;
 
-            oFragColor = color * selfShadow + fog + ambient;
+            oFragColor = vec4((color * selfShadow + fog + ambient).rgb, color.a);
         }`;
     }
 

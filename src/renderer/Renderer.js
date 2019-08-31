@@ -194,7 +194,7 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.currentShader.setUniforms(this, material, 'material');
+		this.currentShader.setUniforms(this, material.attributes, 'material');
 	}
 
 	setupGemoetry(geo) {
@@ -242,10 +242,8 @@ export class Renderer extends RendererContext {
 			}
 			this.applyMaterial(geo.material);
 
-			const shader = this.currentShader;
-
-			this.gl.uniformMatrix4fv(shader.uniforms["scene.projection"], false, camera.projMatrix);
-			this.gl.uniformMatrix4fv(shader.uniforms["scene.view"], false, camera.viewMatrix);
+			this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.projection"], false, camera.projMatrix);
+			this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.view"], false, camera.viewMatrix);
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);
