@@ -82,7 +82,7 @@ export class RendererContext {
 			canvas.getContext("webgl", ctxtOpts);
 
 		this.gl.cullFace(this.gl.BACK);
-		this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
+		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 	}
 
 	// use webgl shader
