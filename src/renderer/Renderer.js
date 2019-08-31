@@ -149,11 +149,12 @@ export class Renderer extends RendererContext {
 		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
 		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
 
-		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'colorBuffer', 0);
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', 1);
-		this.useTextureBuffer(this.getBufferTexture('normal'), gl.TEXTURE_2D, 'normalBuffer', 2);
-		this.useTextureBuffer(this.getBufferTexture('world'), gl.TEXTURE_2D, 'worldBuffer', 3);
-		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', 4);
+		// push pass frame buffers to comp
+		for (let pass of this.renderPasses) {
+			this.useTextureBuffer(this.getBufferTexture(pass.id), gl.TEXTURE_2D, pass.id + 'Buffer', this.renderPasses.indexOf(pass));
+		}
+		// push depth from color buffer
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', this.renderPasses.length);
 
 		this.preComposition();
 
