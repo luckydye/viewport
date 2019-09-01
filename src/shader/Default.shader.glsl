@@ -54,7 +54,7 @@ void main() {
     if(imageSize.x > 0.0) {
         vec4 texcolor = texture(material.texture, textureCoords);
         color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
-        color = vec4(color.rgb, color.a + texcolor.a);
+        color = vec4(color.rgb, color.a + texcolor.a / 2.0);
     }
 
     float shade = DiffuseShading(vNormal);
