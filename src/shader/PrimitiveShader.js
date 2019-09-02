@@ -1,16 +1,11 @@
-import { Shader } from '../renderer/RendererShader.js';
-import { Resources } from '../Resources.js';
+import MeshShader from './MeshShader.js';
 
-export default class PrimitiveShader extends Shader {
+export default class PrimitiveShader extends MeshShader {
 
     constructor() {
         super();
 
         this.drawmode = "LINES";
-    }
-
-    static vertexSource() {
-        return Resources.get('gbuffer.vs');
     }
 
     static fragmentSource() {

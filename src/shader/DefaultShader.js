@@ -1,15 +1,6 @@
-import { Resources } from '../Resources.js';
-import { Shader } from '../renderer/RendererShader.js';
+import MeshShader from './MeshShader.js';
 
-Resources.add({
-    'gbuffer.vs': 'shader/gbuffer.vertex.shader',
-}, false);
-
-export default class DefaultShader extends Shader {
-
-    static vertexSource() {
-        return Resources.get('gbuffer.vs');
-    }
+export default class DefaultShader extends MeshShader {
 
     static fragmentSource() {
         return `#version 300 es

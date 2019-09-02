@@ -1,5 +1,5 @@
 import { RendererContext } from './RendererContext.js';
-import FinalShader from '../shader/FinalShader.js';
+import CompShader from '../shader/CompShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
 import { mat4, glMatrix } from 'gl-matrix';
@@ -74,7 +74,7 @@ export class Renderer extends RendererContext {
 		this.shadowMapSize = 4096;
 
 		this.renderTarget = new Screen();
-		this.compShader = new FinalShader();
+		this.compShader = new CompShader();
 	}
 
 	setResolution(width, height) {
