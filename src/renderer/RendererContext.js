@@ -93,7 +93,6 @@ export class RendererContext {
 			this.prepareShader(shader);
 		}
 		this.gl.useProgram(shader.program);
-		shader.setUniforms(this, shader.uniform);
 		this.currentShader = shader;
 	}
 
