@@ -22,6 +22,8 @@ export class RendererContext {
 	constructor(canvas) {
 		if (!canvas) throw "RendererContext: Err: no canvas";
 
+		this.debug = false;
+
 		this.currentShader = null;
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
@@ -135,15 +137,17 @@ export class RendererContext {
 			if (shader.source) {
 				shader._vertShader = this.compileShader(shader.source[0], gl.VERTEX_SHADER);
 				shader._fragShader = this.compileShader(shader.source[1], gl.FRAGMENT_SHADER);
+
 				shader.program = this.createProgram(shader._vertShader, shader._fragShader);
 
 				shader._uniforms = this.getUniforms(shader.program);
 				shader._attributes = this.getAttributes(shader.program);
 
 				shader.initialized = true;
+
+				this.shaders.set(shader.name, shader);
 			}
 
-			this.shaders.set(shader.name, shader);
 			return shader.program;
 		}
 	}
@@ -181,8 +185,10 @@ export class RendererContext {
 		gl.shaderSource(shader, src);
 		gl.compileShader(shader);
 
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			throw new Error(gl.getShaderInfoLog(shader));
+		if (this.debug) {
+			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+				throw new Error(gl.getShaderInfoLog(shader));
+			}
 		}
 
 		return shader;
@@ -265,8 +271,10 @@ export class RendererContext {
 		gl.attachShader(program, fragShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			throw new Error(gl.getProgramInfoLog(program));
+		if (this.debug) {
+			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+				throw new Error(gl.getProgramInfoLog(program));
+			}
 		}
 
 		return program;

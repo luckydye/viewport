@@ -12,6 +12,7 @@ import NormalShader from '../shader/NormalShader.js';
 import WorldShader from '../shader/WorldShader.js';
 
 Config.global.define('show.grid', false, false);
+Config.global.define('debug', false, false);
 
 const logger = new Logger('Renderer'), log = logger.log;
 
@@ -58,6 +59,8 @@ export class Renderer extends RendererContext {
 	}
 
 	onCreate() {
+
+		this.debug = Config.global.getValue('debug');
 
 		this.grid = new Grid(100, 14);
 		this.showGrid = Config.global.getValue('show.grid');
