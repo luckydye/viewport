@@ -1,5 +1,5 @@
-import { Material } from "./Material";
-import PrimitiveShader from '../shader/PrimitiveShader';
+import { Material } from "./Material.js";
+import PrimitiveShader from '../shader/PrimitiveShader.js';
 
 export default class PrimitivetMaterial extends Material {
 

@@ -1,5 +1,5 @@
-import { Entity } from "../scene/Entity";
-import { Logger } from '../Logger';
+import { Entity } from "../scene/Entity.js";
+import { Logger } from '../Logger.js';
 
 const logger = new Logger('EntityControler');
 const error = logger.error.bind(logger);

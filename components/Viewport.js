@@ -1,8 +1,8 @@
 import { Logger } from '../src/Logger.js';
-import { Renderer } from "../src/renderer/Renderer";
+import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/Resources.js";
 import { Scene } from "../src/scene/Scene.js";
-import { Scheduler } from "../src/Scheduler";
+import { Scheduler } from "../src/Scheduler.js";
 import { Camera } from '../src/scene/Camera.js';
 
 const logger = new Logger('Viewport');

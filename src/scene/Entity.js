@@ -1,5 +1,5 @@
-import { Geometry } from "./Geometry";
-import { Vec } from "../Math";
+import { Geometry } from "./Geometry.js";
+import { Vec } from "../Math.js";
 
 export class Entity extends Geometry {
 
@@ -11,11 +11,11 @@ export class Entity extends Geometry {
     }
 
     onCreate(args) {
-        
+
     }
 
     update(ms) {
-        for(let trait of this.traits) {
+        for (let trait of this.traits) {
             trait(ms);
         }
     }
@@ -28,8 +28,8 @@ export class Entity extends Geometry {
         this.traits.delete(trait);
     }
 
-	setPositionTo(transform) {
-		this.position = transform.position;
-		this.rotation = transform.rotation;
-	}
+    setPositionTo(transform) {
+        this.position = transform.position;
+        this.rotation = transform.rotation;
+    }
 }

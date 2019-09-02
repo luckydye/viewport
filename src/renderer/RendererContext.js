@@ -1,4 +1,4 @@
-import { Shader } from "./RendererShader";
+import { Shader } from "./RendererShader.js";
 
 export class RendererContext {
 

@@ -1,6 +1,6 @@
-import PrimitivetMaterial from "../materials/PrimitiveMaterial";
-import { Vec } from "../Math";
-import { Geometry } from "../scene/Geometry";
+import PrimitivetMaterial from "../materials/PrimitiveMaterial.js";
+import { Vec } from "../Math.js";
+import { Geometry } from "../scene/Geometry.js";
 
 const DEFAULT_GUIDE_MATERIAL = new PrimitivetMaterial();
 

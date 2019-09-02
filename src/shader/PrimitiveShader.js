@@ -1,4 +1,4 @@
-import { Shader } from '../renderer/RendererShader';
+import { Shader } from '../renderer/RendererShader.js';
 import { Resources } from '../Resources.js';
 
 export default class PrimitiveShader extends Shader {

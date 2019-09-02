@@ -1,9 +1,9 @@
-import { EntityControler } from "./EntityControler";
-import { Vec, Raycast } from "../Math";
+import { EntityControler } from "./EntityControler.js";
+import { Vec, Raycast } from "../Math.js";
 
 export class CursorControler extends EntityControler {
 
-	initMouse() {
+    initMouse() {
 
         this.lastAction = {
             target: null,
@@ -20,21 +20,21 @@ export class CursorControler extends EntityControler {
         let hovering = false;
         let selected = null;
         let color = [0, 0, 0];
-        
-		const down = e => {
-            if(EntityControler.isMouseButton(e) == 1) {
+
+        const down = e => {
+            if (EntityControler.isMouseButton(e) == 1) {
                 this.interaction(selected);
 
-                if(hovering) {
+                if (hovering) {
                     moving = selected == 1;
                 }
-    
-                if(!moving) {
-                    for(let obj of scene.objects) {
-                        if(obj.id == selected) {
+
+                if (!moving) {
+                    for (let obj of scene.objects) {
+                        if (obj.id == selected) {
                             this.viewport.setCursor(obj);
                             this.viewport.onselect(obj);
-                
+
                             this.lastAction.target = curosr;
                             this.lastAction.property = 'position';
                             this.lastAction.state = new Vec(curosr.position);
@@ -43,27 +43,27 @@ export class CursorControler extends EntityControler {
                 }
             }
         }
-        
-		const up = e => {
-			moving = false;
+
+        const up = e => {
+            moving = false;
         }
-        
+
         let startdelta = null;
 
-		const move = e => {
+        const move = e => {
             test(e);
 
-			if(moving) {
+            if (moving) {
                 const pos = Vec.multiply(curosr.position, new Vec(-1, -1, 1));
                 const hitx = new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, 1, 0)) ||
-                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
+                    new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
 
                 const hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
-                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
+                    new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
 
-                if(!hitx && !hity) return;
+                if (!hitx && !hity) return;
 
-                if(!startdelta) {
+                if (!startdelta) {
                     startdelta = new Vec(
                         hitx.position[0] - curosr.position[0],
                         hity.position[1] - curosr.position[1],
@@ -71,7 +71,7 @@ export class CursorControler extends EntityControler {
                     );
                 } else {
                     let axis = color.indexOf(Math.max(...color));
-                    if(axis == 1) {
+                    if (axis == 1) {
                         curosr.position[axis] = hity.position[axis] - startdelta[axis];
                     } else {
                         curosr.position[axis] = hitx.position[axis] - startdelta[axis];
@@ -86,7 +86,7 @@ export class CursorControler extends EntityControler {
             const x = e.x;
             const y = this.viewport.renderer.height - e.y;
 
-            if(!moving) {
+            if (!moving) {
                 renderer.readPixelFromBuffer(x, y, 'id').then(value => {
                     selected = value[0];
                     hovering = selected == 1;
@@ -97,25 +97,25 @@ export class CursorControler extends EntityControler {
                 })
             }
         }
-        
-        const keydown = (e) => {
-            if(e.ctrlKey)
 
-            switch(e.key) {
-                case "z":
-                    this.undo();
-                    break;
-            }
+        const keydown = (e) => {
+            if (e.ctrlKey)
+
+                switch (e.key) {
+                    case "z":
+                        this.undo();
+                        break;
+                }
         }
 
-		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
-		this.viewport.addEventListener("mousedown", e => {
+        this.viewport.addEventListener("contextmenu", e => e.preventDefault());
+        this.viewport.addEventListener("mousedown", e => {
             down(e);
         });
-		this.viewport.addEventListener("mouseup", up);
+        this.viewport.addEventListener("mouseup", up);
         this.viewport.addEventListener("mousemove", move);
-        
-		window.addEventListener("keydown", keydown);
+
+        window.addEventListener("keydown", keydown);
     }
 
     undo() {
@@ -125,7 +125,7 @@ export class CursorControler extends EntityControler {
         action.target[action.property][1] = action.state.y;
         action.target[action.property][2] = action.state.z;
     }
-    
+
     interaction(objId) {
 
     }

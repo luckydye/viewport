@@ -1,4 +1,4 @@
-import { EntityControler } from "./EntityControler";
+import { EntityControler } from "./EntityControler.js";
 
 export class ViewportController extends EntityControler {
 

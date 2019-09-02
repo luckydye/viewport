@@ -1,6 +1,6 @@
 import { Grid } from '../geo/Grid.js';
 import { Vec } from '../Math.js';
-import { Cursor } from '../geo/Cursor';
+import { Cursor } from '../geo/Cursor.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
 

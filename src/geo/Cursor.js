@@ -1,7 +1,7 @@
-import { Vec } from "../Math";
-import { Guide } from "./Guide";
-import { Loader } from "../Loader";
-import { Resources } from "../Resources";
+import { Vec } from "../Math.js";
+import { Guide } from "./Guide.js";
+import { Loader } from "../Loader.js";
+import { Resources } from "../Resources.js";
 
 Resources.add({
 	'cursor_model': 'models/cursor.obj',

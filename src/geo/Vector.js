@@ -1,5 +1,5 @@
-import DefaultMaterial from "../materials/DefaultMaterial";
-import { Geometry } from "../scene/Geometry";
+import DefaultMaterial from "../materials/DefaultMaterial.js";
+import { Geometry } from "../scene/Geometry.js";
 
 const DEFAULT_GUIDE_MATERIAL = new DefaultMaterial();
 

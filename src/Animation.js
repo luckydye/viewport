@@ -1,4 +1,4 @@
-import { Task } from "./Scheduler";
+import { Task } from "./Scheduler.js";
 
 export class Animation extends Task {
 
@@ -34,22 +34,22 @@ export class Animation extends Task {
 
     animate(deltaTime) {
         const keyframes = this.keyframes.length;
-        
+
         this.playing = true;
         this.time += deltaTime;
 
-        if(this.time >= this.duration) {
+        if (this.time >= this.duration) {
             this.reset();
 
-            if(!this.loop) this.stop();
+            if (!this.loop) this.stop();
 
         } else {
-            const frameTime = Math.floor(this.duration / (keyframes-1));
+            const frameTime = Math.floor(this.duration / (keyframes - 1));
             const currentKeyframe = this.time / frameTime;
             const lastKeyframe = this.keyframes[Math.floor(currentKeyframe)];
-            const nextKeyframe = this.keyframes[Math.floor(currentKeyframe)+1];
+            const nextKeyframe = this.keyframes[Math.floor(currentKeyframe) + 1];
             const progress = currentKeyframe - Math.floor(currentKeyframe);
-    
+
             this.applyAnimation(lastKeyframe, nextKeyframe, progress);
         }
     }
@@ -57,8 +57,8 @@ export class Animation extends Task {
     applyAnimation(lastKeyframe, nextKeyframe, progress) {
         const object = this.target.object;
         const property = this.target.property;
-        
-        for(let i in object[property]) {
+
+        for (let i in object[property]) {
             object[property][i] = this.linearLerp(lastKeyframe.value[i], nextKeyframe.value[i], progress);
         }
     }
@@ -72,7 +72,7 @@ export class Animation extends Task {
     }
 
     setKeyframes(arr) {
-        for(let key of arr) {
+        for (let key of arr) {
             this.setKeyframe(new Keyframe(key));
         }
     }
@@ -81,8 +81,8 @@ export class Animation extends Task {
 export class Keyframe {
 
     get value() {
-        let values = [ this.input ];
-        if(Array.isArray(this.input)) {
+        let values = [this.input];
+        if (Array.isArray(this.input)) {
             values = this.input;
         }
         return values;

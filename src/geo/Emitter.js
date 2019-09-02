@@ -1,6 +1,6 @@
-import { Geometry } from "../scene/Geometry";
-import DefaultMaterial from "../materials/DefaultMaterial";
-import { Vec } from "../Math";
+import { Geometry } from "../scene/Geometry.js";
+import DefaultMaterial from "../materials/DefaultMaterial.js";
+import { Vec } from "../Math.js";
 
 const DEFAULT_GUIDE_MATERIAL = new DefaultMaterial();
 

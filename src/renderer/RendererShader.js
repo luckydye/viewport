@@ -1,4 +1,4 @@
-import { Texture } from "../materials/Texture";
+import { Texture } from "../materials/Texture.js";
 
 export class Shader {
 

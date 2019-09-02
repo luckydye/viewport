@@ -1,9 +1,9 @@
 import '../components/Viewport.js';
-import { ViewportController } from '../src/controlers/ViewportController';
-import { Cube } from '../src/geo/Cube';
-import DefaultMaterial from '../src/materials/DefaultMaterial';
-import { Texture } from '../src/materials/Texture';
-import { Resources } from '../src/Resources';
+import { ViewportController } from '../src/controlers/ViewportController.js';
+import { Cube } from '../src/geo/Cube.js';
+import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { Texture } from '../src/materials/Texture.js';
+import { Resources } from '../src/Resources.js';
 import Config from '../src/Config.js';
 
 Config.global.setValue('show.grid', true);

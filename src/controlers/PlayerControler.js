@@ -1,5 +1,5 @@
-import { Vec } from "../Math";
-import { CameraControler } from "./CameraControler";
+import { Vec } from "../Math.js";
+import { CameraControler } from "./CameraControler.js";
 
 export class PlayerControler extends CameraControler {
 

@@ -1,4 +1,4 @@
-import File from "./File";
+import File from "./File.js";
 
 export default class OBJFile extends File {
 
@@ -6,12 +6,12 @@ export default class OBJFile extends File {
 		const lines = strData.split(/\n/g);
 		const objData = new OBJFile();
 
-		for(let line of lines) {
+		for (let line of lines) {
 			const data = line.split(" ");
 			const prefix = data[0];
 			let coords = [];
 
-			switch(prefix) {
+			switch (prefix) {
 
 				case "v":
 					coords = data.slice(1);
@@ -42,7 +42,7 @@ export default class OBJFile extends File {
 				case "f":
 					coords = data.slice(1);
 					const face = [];
-					for(let c of coords) {
+					for (let c of coords) {
 						face.push(c.split('/').map(i => parseInt(i)));
 					}
 					objData.faces.push(face);
