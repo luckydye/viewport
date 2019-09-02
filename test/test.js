@@ -12,7 +12,7 @@ Resources.add({
     'placeholder.tex': 'textures/placeholder_256.png',
 }, false);
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
     const viewport = document.querySelector('gl-viewport');
 
     viewport.addEventListener('load', () => {
@@ -22,7 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
         viewport.scene.add(new Cube({
             position: [0, 250, 0],
             rotation: [0.5, 0.5, 0],
-            scale: 200,
+            scale: 1,
             material: new DefaultMaterial({
                 texture: new Texture(Resources.get('placeholder.tex'))
             }),

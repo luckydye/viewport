@@ -1,4 +1,7 @@
-import { mat4, vec4, vec3 } from "gl-matrix";
+import { mat4, vec4, vec3, glMatrix } from "gl-matrix";
+
+// performance option, use Array instad of Float32Arrays
+glMatrix.setMatrixArrayType(Array);
 
 export class Vec extends Array {
 
@@ -73,7 +76,7 @@ export class Vec extends Array {
 		this[2] = z;
 		this[3] = w;
 
-		if(arguments.length === 1) {
+		if (arguments.length === 1) {
 			this[0] = x[0];
 			this[1] = x[1];
 			this[2] = x[2];
@@ -111,7 +114,7 @@ export class Raycast extends Vec {
 
 	constructor(camera, x, y) {
 		super();
-		
+
 		const camPos = camera.worldPosition;
 		const width = camera.sensor.width;
 		const height = camera.sensor.height;
@@ -149,7 +152,7 @@ export class Raycast extends Vec {
 		const t = this.distnace(plane, normal);
 		const pos = this.origin.add(this.multiply(new Vec(t, t, t)));
 
-		if(t > 0 && t < 100000) {
+		if (t > 0 && t < 100000) {
 			return {
 				distance: t,
 				position: pos,

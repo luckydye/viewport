@@ -2,7 +2,7 @@ import { RendererContext } from './RendererContext.js';
 import FinalShader from '../shader/FinalShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, glMatrix } from 'gl-matrix';
 import { Vec } from '../Math.js';
 import { Pointlight } from '../light/Pointlight.js';
 import { Geometry } from '../scene/Geometry.js';
@@ -10,6 +10,9 @@ import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
 import WorldShader from '../shader/WorldShader.js';
+
+// performance option, use Array instad of Float32Arrays
+glMatrix.setMatrixArrayType(Array);
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);

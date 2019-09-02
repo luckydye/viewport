@@ -3,6 +3,9 @@ import { Vec } from '../Math.js';
 import DefaultMaterial from '../materials/DefaultMaterial.js';
 import { Entity } from './Entity.js';
 
+// performance option, use Array instad of Float32Arrays
+glMatrix.setMatrixArrayType(Array);
+
 export class Camera extends Entity {
 
 	get vertecies() {
