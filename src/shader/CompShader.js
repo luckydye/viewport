@@ -43,18 +43,9 @@ export default class CompShader extends Shader {
         out vec4 oFragColor;
         
         void main() {
-            float depth = texture(depthBuffer, vTexCoords).r;
             vec4 color = texture(colorBuffer, vTexCoords);
-            vec4 shadow = texture(shadowBuffer, vTexCoords);
-            vec4 normal = texture(normalBuffer, vTexCoords);
 
-            float selfShadow = clamp(pow(depth, 20.0), 0.75, 1.0);
-
-            float fog = (pow(depth, 300.0) * 0.5);
-
-            float ambient = 0.05;
-
-            oFragColor = vec4((color * selfShadow + fog + ambient).rgb, color.a);
+            oFragColor = vec4(color.rgb, color.a);
         }`;
     }
 

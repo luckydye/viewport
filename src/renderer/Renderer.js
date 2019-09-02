@@ -49,32 +49,41 @@ export class Renderer extends RendererContext {
 		}
 	}
 
-	setScene(scene) {
-		this.scene = scene;
-		this.updateViewport();
-	}
-
-	updateViewport() {
-		this.scene.activeCamera.sensor = {
-			width: this.width,
-			height: this.height
-		};
-	}
-
 	onCreate() {
 
 		this.debug = Config.global.getValue('debug');
+		this.showGrid = Config.global.getValue('show.grid');
 
 		this.grid = new Grid(100, 14);
-		this.showGrid = Config.global.getValue('show.grid');
 
 		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.85;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
+		this.renderPasses = [
+			new RenderPass(this, 'color'),
+		];
+
 		this.renderTarget = new Screen();
 		this.compShader = new CompShader();
+	}
+
+	setScene(scene) {
+		this.scene = scene;
+		this.updateViewport();
+	}
+
+	updateViewport() {
+
+		for (let pass of this.renderPasses) {
+			pass.resize(this.width, this.height);
+		}
+
+		this.scene.activeCamera.sensor = {
+			width: this.width,
+			height: this.height
+		};
 	}
 
 	setResolution(width, height) {
@@ -82,14 +91,12 @@ export class Renderer extends RendererContext {
 
 		this.updateViewport();
 
-		this.renderPasses = [
-			new RenderPass(this, 'shadow', null, this.aspectratio, this.shadowMapSize),
-			new RenderPass(this, 'world', new WorldShader(), this.aspectratio, width),
-			new RenderPass(this, 'normal', new NormalShader(), this.aspectratio, width),
-			new RenderPass(this, 'color', null, this.aspectratio, width),
-		];
-
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
+	}
+
+	createRenderPass(name, shader, setupCallback) {
+		const pass = new RenderPass(this, name, shader, setupCallback);
+		this.renderPasses.push(pass);
 	}
 
 	draw() {
@@ -294,17 +301,32 @@ export class RenderPass {
 		return this.renderer.getBufferTexture(this.id + '.depth');
 	}
 
-	constructor(renderer, id, shaderOverwrite, ar, resolution, isDepthBuffer) {
+	constructor(renderer, id, shaderOverwrite, setupCallback, isDepthBuffer) {
 		this.id = id;
 		this.shader = shaderOverwrite;
 		this.renderer = renderer;
 
-		this.width = resolution;
-		this.height = resolution / ar;
+		this.setupCallback = setupCallback;
+
+		this.width = renderer.width;
+		this.height = renderer.height;
+
+		this.isDepthBuffer = isDepthBuffer;
 
 		this.fbo = null;
 
-		if (isDepthBuffer) {
+		if (this.isDepthBuffer) {
+			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
+		} else {
+			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
+		}
+	}
+
+	resize(width, height) {
+		this.width = width;
+		this.height = height;
+
+		if (this.isDepthBuffer) {
 			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
 		} else {
 			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
@@ -317,6 +339,10 @@ export class RenderPass {
 
 		if (this.shader) {
 			this.renderer.useShader(this.shader);
+		}
+
+		if (this.setupCallback) {
+			this.setupCallback();
 		}
 	}
 }
