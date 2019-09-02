@@ -144,7 +144,7 @@ export class RendererContext {
 
 				shader.initialized = true;
 
-				this.shaders.set(shader.name, shader);
+				this.shaders.set(shader.constructor.name, shader);
 			}
 
 			return shader.program;

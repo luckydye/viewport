@@ -15,17 +15,14 @@ Resources.add({
 window.addEventListener('load', () => {
     const viewport = document.querySelector('gl-viewport');
 
-    viewport.addEventListener('load', () => {
+    const controler = new ViewportController(viewport.camera, viewport);
 
-        const controler = new ViewportController(viewport.camera, viewport);
-
-        viewport.scene.add(new Cube({
-            position: [0, 250, 0],
-            rotation: [0.5, 0.5, 0],
-            scale: 1,
-            material: new DefaultMaterial({
-                texture: new Texture(Resources.get('placeholder.tex'))
-            }),
-        }));
-    })
+    viewport.scene.add(new Cube({
+        position: [0, 250, 0],
+        rotation: [0.5, 0.5, 0],
+        scale: 100,
+        material: new DefaultMaterial({
+            texture: new Texture(Resources.get('placeholder.tex'))
+        }),
+    }));
 })

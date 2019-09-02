@@ -243,21 +243,21 @@ export class Renderer extends RendererContext {
 			});
 		}
 
-		for (let obj of objects) {
-			if (filter && filter(obj) || !filter) {
-				this.drawMesh(obj, camera, shaderOverwrite);
-			}
+		if (this.showGrid) {
+			objects.push(this.grid);
 		}
 
-		if (this.showGrid) {
-			this.drawMesh(this.grid, camera);
+		for (let obj of objects) {
+			if (filter && filter(obj) || !filter) {
+				this.drawMesh(obj, shaderOverwrite);
+			}
 		}
 	}
 
-	drawMesh(geo, camera, shaderOverwrite) {
+	drawMesh(geo, shaderOverwrite) {
 		if (geo.material) {
 
-			if (!shaderOverwrite) {
+			if (!shaderOverwrite && this.currentShader !== geo.material.shader) {
 				this.useShader(geo.material.shader);
 			}
 

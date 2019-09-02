@@ -68,8 +68,6 @@ export default class MeshShader extends Shader {
             gl_Position = scene.projection * scene.view * vec4(pos.x + xbump, pos.y + ybump, pos.z + zbump, 1.0);
             gl_PointSize = 5.0;
 
-            gl_Position.y -= sin(time * 0.0005 + gl_Position.z) * 0.5;
-        
             vertexPos = aPosition;
             vWorldPos = pos;
             vTexelPos = gl_Position;
