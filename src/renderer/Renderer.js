@@ -143,29 +143,32 @@ export class Renderer extends RendererContext {
 		for (let light of this.scene.objects) {
 			if (light instanceof Pointlight) {
 
-				this.gl.uniform3fv(this.compShader.uniforms["lights[" + lightCount + "].position"], [
-					light.position.x,
-					light.position.y,
-					light.position.z,
-				]);
+				this.currentShader.setUniforms(this, {
+					'position': [
+						light.position.x,
+						light.position.y,
+						light.position.z,
+					],
+					'color': light.color,
+					'intensity': light.intensity,
+					'size': light.size,
+				}, "lights[" + lightCount + "]");
 
-				this.gl.uniform3fv(this.compShader.uniforms["lights[" + lightCount + "].color"], light.color);
-				this.gl.uniform1f(this.compShader.uniforms["lights[" + lightCount + "].intensity"], light.intensity);
-				this.gl.uniform1f(this.compShader.uniforms["lights[" + lightCount + "].size"], light.size);
 				lightCount++;
 			}
 		}
 
-		const shadowProjViewMat = this.scene.lightSources.projViewMatrix;
-		this.gl.uniformMatrix4fv(this.currentShader.uniforms["shadowProjViewMat"], false, shadowProjViewMat);
-
-		this.gl.uniform1f(this.currentShader.uniforms.ambientLight, this.ambientLight);
-		this.gl.uniform3fv(this.currentShader.uniforms.lightDirection, this.lightDirection);
+		this.currentShader.setUniforms(this, {
+			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
+			'ambientLight': this.ambientLight,
+			'lightDirection': this.lightDirection,
+		});
 
 		// push pass frame buffers to comp
 		for (let pass of this.renderPasses) {
 			this.useTextureBuffer(this.getBufferTexture(pass.id), gl.TEXTURE_2D, pass.id + 'Buffer', this.renderPasses.indexOf(pass));
 		}
+
 		// push depth from color buffer
 		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', this.renderPasses.length);
 
@@ -184,6 +187,9 @@ export class Renderer extends RendererContext {
 	// use a Texture
 	useTexture(texture, uniformStr, slot) {
 		const gltexture = texture ? texture.gltexture : null;
+		if (!gltexture) {
+			this.prepareTexture(texture);
+		}
 		const type = texture ? this.gl[texture.type] : null;
 		this.useTextureBuffer(gltexture, type, uniformStr, slot);
 	}
@@ -230,7 +236,7 @@ export class Renderer extends RendererContext {
 
 		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
 
-		this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.model"], false, modelMatrix);
+		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
 	}
 
 	drawScene(scene, camera, filter, shaderOverwrite) {
