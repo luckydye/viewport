@@ -373,8 +373,6 @@ export class RendererContext {
 
 		// create new buffers
 		if (newbuffer) {
-			// bufferInfo.vao = this.createVAO();
-
 			bufferInfo.indexBuffer = gl.createBuffer();
 			bufferInfo.vertexBuffer = gl.createBuffer();
 

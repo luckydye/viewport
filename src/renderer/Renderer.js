@@ -94,8 +94,8 @@ export class Renderer extends RendererContext {
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
-	createRenderPass(name, shader, setupCallback) {
-		const pass = new RenderPass(this, name, shader, setupCallback);
+	createRenderPass(name, shader, setupCallback, resolution, onlyDepth) {
+		const pass = new RenderPass(this, name, shader, setupCallback, resolution, onlyDepth);
 		this.renderPasses.push(pass);
 	}
 
@@ -217,7 +217,18 @@ export class Renderer extends RendererContext {
 	}
 
 	setupGemoetry(geo) {
-		this.initializeBuffersAndAttributes(geo.buffer);
+
+		if (!geo.buffer.vao) {
+			geo.buffer.vao = this.createVAO();
+		}
+
+		this.useVAO(geo.buffer.vao);
+
+		if (this.scene.lastchange != geo.buffer.lastchange) {
+			geo.buffer.lastchange = this.scene.lastchange;
+
+			this.initializeBuffersAndAttributes(geo.buffer);
+		}
 
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
@@ -319,15 +330,17 @@ export class RenderPass {
 		return this.renderer.getBufferTexture(this.id + '.depth');
 	}
 
-	constructor(renderer, id, shaderOverwrite, setupCallback, isDepthBuffer) {
+	constructor(renderer, id, shaderOverwrite, setupCallback, resolution, isDepthBuffer) {
 		this.id = id;
 		this.shader = shaderOverwrite;
 		this.renderer = renderer;
 
 		this.setupCallback = setupCallback;
 
-		this.width = renderer.width;
-		this.height = renderer.height;
+		this.resolution = resolution || [];
+
+		this.width = this.resolution[0] || renderer.width;
+		this.height = this.resolution[1] || renderer.height;
 
 		this.isDepthBuffer = isDepthBuffer;
 
@@ -341,13 +354,15 @@ export class RenderPass {
 	}
 
 	resize(width, height) {
-		this.width = width;
-		this.height = height;
+		if (!this.resolution[0]) {
+			this.width = width;
+			this.height = height;
 
-		if (this.isDepthBuffer) {
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
-		} else {
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
+			if (this.isDepthBuffer) {
+				this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
+			} else {
+				this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
+			}
 		}
 	}
 

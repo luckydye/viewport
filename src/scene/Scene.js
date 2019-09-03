@@ -17,6 +17,8 @@ export class Scene {
 			rotation: new Vec(0.8, 0.4, 0),
 		});
 
+		this.lastchange = Date.now();
+
 		this.clear();
 	}
 
@@ -26,6 +28,8 @@ export class Scene {
 		} else {
 			this.objects.add(obj);
 		}
+
+		this.lastchange = Date.now();
 	}
 
 	remove(obj) {
@@ -34,6 +38,8 @@ export class Scene {
 		} else {
 			this.objects.delete(obj);
 		}
+
+		this.lastchange = Date.now();
 	}
 
 	clear() {
