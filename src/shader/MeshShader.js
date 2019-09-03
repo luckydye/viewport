@@ -4,6 +4,7 @@ export default class MeshShader extends Shader {
 
     static vertexSource() {
         return `#version 300 es
+        
         precision mediump float;
         
         #define POINT_SIZE 5.0;
@@ -38,7 +39,8 @@ export default class MeshShader extends Shader {
         uniform Material material;
         
         uniform mat4 lightProjViewMatrix;
-        uniform float geoid;
+
+        uniform float time;
         
         out SceneProjection sceneProjection;
         out vec2 vTexCoords;
@@ -65,13 +67,12 @@ export default class MeshShader extends Shader {
         
             gl_Position = scene.projection * scene.view * vec4(pos.x + xbump, pos.y + ybump, pos.z + zbump, 1.0);
             gl_PointSize = 5.0;
-        
+
             vertexPos = aPosition;
             vWorldPos = pos;
             vTexelPos = gl_Position;
             vNormal = (vec4(aNormal, 1.0) * scene.model).xyz;
             vTexCoords = aTexCoords;
-            id = geoid;
             primitiveColor = aNormal;
             sceneProjection = scene;
         }`;

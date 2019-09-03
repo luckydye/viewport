@@ -93,7 +93,6 @@ export class RendererContext {
 			this.prepareShader(shader);
 		}
 		this.gl.useProgram(shader.program);
-		shader.setUniforms(this, shader.uniform);
 		this.currentShader = shader;
 	}
 
@@ -145,7 +144,7 @@ export class RendererContext {
 
 				shader.initialized = true;
 
-				this.shaders.set(shader.name, shader);
+				this.shaders.set(shader.constructor.name, shader);
 			}
 
 			return shader.program;

@@ -27,7 +27,6 @@ export class Shader {
 
 		this.drawmode = "TRIANGLES";
 
-		this.uniform = {};
 		this.initialized = false;
 	}
 
@@ -50,7 +49,7 @@ export class Shader {
 
 			if (Array.isArray(value)) {
 
-				// catch matrix
+				// catch 2d array matrix
 				if (Array.isArray(value[0])) {
 					const size = value.length;
 					gl['uniformMatrix' + size + 'fv'](uniform, false, value.flat());
@@ -60,6 +59,8 @@ export class Shader {
 					gl.uniform4fv(uniform, value);
 				} else if (value.length === 3) {
 					gl.uniform3fv(uniform, value);
+				} else if (value.length === 4 * 4) {
+					gl['uniformMatrix4fv'](uniform, false, value.flat());
 				} else {
 					gl.uniform2fv(uniform, value);
 				}

@@ -236,27 +236,39 @@ export class Renderer extends RendererContext {
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
 
-		for (let obj of objects) {
-			if (filter && filter(obj) || !filter) {
-				this.drawMesh(obj, camera, shaderOverwrite);
-			}
+		// prepeare every used shader with global uniforms of the scene
+		for (let [_, shader] of this.shaders) {
+			this.useShader(shader);
+
+			this.currentShader.setUniforms(this, {
+				'projection': camera.projMatrix,
+				'view': camera.viewMatrix
+			}, 'scene');
+
+			this.currentShader.setUniforms(this, {
+				'time': performance.now()
+			});
 		}
 
 		if (this.showGrid) {
-			this.drawMesh(this.grid, camera);
+			objects.push(this.grid);
+		}
+
+		for (let obj of objects) {
+			if (filter && filter(obj) || !filter) {
+				this.drawMesh(obj, shaderOverwrite);
+			}
 		}
 	}
 
-	drawMesh(geo, camera, shaderOverwrite) {
+	drawMesh(geo, shaderOverwrite) {
 		if (geo.material) {
 
-			if (!shaderOverwrite) {
+			if (!shaderOverwrite && this.currentShader !== geo.material.shader) {
 				this.useShader(geo.material.shader);
 			}
-			this.applyMaterial(geo.material);
 
-			this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.projection"], false, camera.projMatrix);
-			this.gl.uniformMatrix4fv(this.currentShader.uniforms["scene.view"], false, camera.viewMatrix);
+			this.applyMaterial(geo.material);
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);
