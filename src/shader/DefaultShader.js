@@ -28,7 +28,8 @@ export default class DefaultShader extends MeshShader {
 
         uniform Material material;
         
-        const vec3 lightDirection = vec3(0.5, 0.4, 0.33);
+        uniform vec3 lightDirection;
+        uniform float ambientLight;
         
         out vec4 oFragColor;
         
@@ -67,7 +68,7 @@ export default class DefaultShader extends MeshShader {
             // diffuse
             vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
 
-            DiffuseShading(oFragColor, normal, 0.25);
+            DiffuseShading(oFragColor, normal, ambientLight);
 
             // specular
             float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;

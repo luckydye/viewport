@@ -57,7 +57,7 @@ export class Renderer extends RendererContext {
 		this.grid = new Grid(100, 14);
 
 		this.lightDirection = [500.0, 250.0, 300.0];
-		this.ambientLight = 0.85;
+		this.ambientLight = 0.25;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
@@ -158,11 +158,9 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.currentShader.setUniforms(this, {
-			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
-			'ambientLight': this.ambientLight,
-			'lightDirection': this.lightDirection,
-		});
+		// this.currentShader.setUniforms(this, {
+		// 	'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
+		// });
 
 		// push pass frame buffers to comp
 		for (let pass of this.renderPasses) {
@@ -264,6 +262,8 @@ export class Renderer extends RendererContext {
 
 			this.currentShader.setUniforms(this, {
 				'time': performance.now(),
+				'lightDirection': this.lightDirection,
+				'ambientLight': this.ambientLight,
 				'cameraPosition': camera.position
 			});
 		}

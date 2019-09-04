@@ -91,14 +91,14 @@ export class Loader {
                     const uv = objFile.uvs[face[1] - 1];
                     const normal = objFile.normals[face[2] - 1];
 
-                    if (vertex && uv && normal) {
+                    if (vertex && normal) {
                         vertecies.push(
                             vertex[0],
                             vertex[1],
                             vertex[2],
 
-                            uv[0],
-                            uv[1],
+                            uv ? uv[0] : 0,
+                            uv ? uv[1] : 0,
 
                             normal[0],
                             normal[1],

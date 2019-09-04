@@ -11,7 +11,7 @@ Config.global.load();
 Config.global.save();
 
 Resources.add({
-    'sphere': 'models/sphere.obj',
+    'model': 'models/teapot.obj',
     'albedo': 'textures/TexturesCom_Scifi_Panel_2K_albedo.png',
     'normal': 'textures/TexturesCom_Scifi_Panel_2K_normal.png',
     'spec': 'textures/TexturesCom_Scifi_Panel_2K_roughness.png',
@@ -31,10 +31,15 @@ window.addEventListener('load', () => {
             viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
         })
 
+        setInterval(() => {
+            viewport.renderer.lightDirection[0] += Math.sin(performance.now() / 500.0) * 1500.0;
+            viewport.renderer.lightDirection[2] += Math.cos(performance.now() / 500.0) * 1500.0;
+        }, 16);
+
         new PlayerControler(viewport.camera, viewport);
 
         viewport.scene.add(new Geometry({
-            vertecies: Loader.loadObjFile(Resources.get('sphere')),
+            vertecies: Loader.loadObjFile(Resources.get('model')),
             scale: 200,
             material: new DefaultMaterial({
                 specularMap: new Texture(Resources.get('spec')),
