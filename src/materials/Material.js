@@ -37,7 +37,7 @@ export class Material {
         this.specular = 1;
         this.roughness = 1;
 
-        this.textureScale = 256;
+        this.textureScale = 0;
 
         this.receiveShadows = true;
         this.castShadows = true;

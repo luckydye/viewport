@@ -10,22 +10,6 @@ export default class NormalShader extends MeshShader {
             in vec4 vTexelPos;
             in vec3 vNormal;
             
-            struct Material {
-                sampler2D texture;
-                sampler2D specularMap;
-                sampler2D normalMap;
-                sampler2D displacementMap;
-                vec4 diffuseColor;
-                float specular;
-                float roughness;
-                float metallic;
-                float transparency;
-                float textureScale;
-                bool scaleUniform;
-                bool selected;
-            };
-            uniform Material material;
-            
             out vec4 oFragColor;
 
             void main() {

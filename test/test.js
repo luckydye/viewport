@@ -1,36 +1,46 @@
 import '../components/Viewport.js';
-import { ViewportController } from '../src/controlers/ViewportController.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Resources } from '../src/Resources.js';
 import Config from '../src/Config.js';
 import { Geometry } from '../src/scene/Geometry.js';
 import { Loader } from '../src/Loader.js';
+import { Texture } from '../src/materials/Texture.js';
+import { PlayerControler } from '../src/controlers/PlayerControler.js';
 
-Config.global.setValue('show.grid', false);
+Config.global.load();
+Config.global.save();
 
 Resources.add({
     'sphere': 'models/sphere.obj',
+    'albedo': 'textures/TexturesCom_Scifi_Panel_2K_albedo.png',
+    'normal': 'textures/TexturesCom_Scifi_Panel_2K_normal.png',
+    'spec': 'textures/TexturesCom_Scifi_Panel_2K_roughness.png',
 }, false);
 
 window.addEventListener('load', () => {
     const viewport = document.querySelector('gl-viewport');
 
-    viewport.addEventListener('load', () => {
+    viewport.addEventListener('load', init);
 
+    init();
+
+    function init() {
         viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
 
         window.addEventListener('resize', () => {
             viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
         })
 
-        new ViewportController(viewport.camera, viewport);
+        new PlayerControler(viewport.camera, viewport);
 
         viewport.scene.add(new Geometry({
             vertecies: Loader.loadObjFile(Resources.get('sphere')),
-            scale: 800,
+            scale: 200,
             material: new DefaultMaterial({
-                diffuseColor: [1.0, 141 / 255, 0.0, 1.0]
+                specularMap: new Texture(Resources.get('spec')),
+                normalMap: new Texture(Resources.get('normal')),
+                texture: new Texture(Resources.get('albedo')),
             }),
         }));
-    })
+    }
 })

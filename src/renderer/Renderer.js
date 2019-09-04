@@ -263,7 +263,8 @@ export class Renderer extends RendererContext {
 			}, 'scene');
 
 			this.currentShader.setUniforms(this, {
-				'time': performance.now()
+				'time': performance.now(),
+				'cameraPosition': camera.position
 			});
 		}
 
