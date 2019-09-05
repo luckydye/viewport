@@ -10,6 +10,7 @@ import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
 import WorldShader from '../shader/WorldShader.js';
+import LightShader from '../shader/LightingShader.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -63,6 +64,7 @@ export class Renderer extends RendererContext {
 
 		this.renderPasses = [
 			new RenderPass(this, 'color'),
+			new RenderPass(this, 'lighting', new LightShader()),
 		];
 
 		this.renderTarget = new Screen();
@@ -115,13 +117,7 @@ export class Renderer extends RendererContext {
 			gl.clearColor(0, 0, 0, 0);
 			this.clear();
 
-			if (pass.id == "shadow") {
-				const shadowCamera = this.scene.lightSources;
-				this.drawScene(this.scene, shadowCamera, null, pass.shader != null);
-
-			} else {
-				this.drawScene(this.scene, camera, null, pass.shader != null);
-			}
+			this.drawScene(this.scene, camera, null, pass.shader != null);
 
 			this.clearFramebuffer();
 		}
@@ -253,6 +249,11 @@ export class Renderer extends RendererContext {
 	drawScene(scene, camera, filter, shaderOverwrite) {
 		const objects = scene.getRenderableObjects();
 
+		let tempShader;
+		if (this.currentShader) {
+			tempShader = this.currentShader;
+		}
+
 		// prepeare every used shader with global uniforms of the scene
 		for (let [_, shader] of this.shaders) {
 			this.useShader(shader);
@@ -268,6 +269,10 @@ export class Renderer extends RendererContext {
 				'ambientLight': this.ambientLight,
 				'cameraPosition': camera.position
 			});
+		}
+
+		if (tempShader) {
+			this.useShader(tempShader);
 		}
 
 		if (this.showGrid) {
