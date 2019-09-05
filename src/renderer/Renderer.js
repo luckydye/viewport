@@ -231,7 +231,7 @@ export class Renderer extends RendererContext {
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
 
-		const position = Vec.add(geo.position, geo.origin);
+		const position = geo.position;
 		const rotation = geo.rotation;
 		const scale = geo.scale;
 
@@ -242,6 +242,8 @@ export class Renderer extends RendererContext {
 		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
 		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
 		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
+
+		mat4.translate(modelMatrix, modelMatrix, geo.origin);
 
 		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
 

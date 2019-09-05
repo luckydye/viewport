@@ -7,6 +7,7 @@ import { Loader } from '../src/Loader.js';
 import { Texture } from '../src/materials/Texture.js';
 import { PlayerControler } from '../src/controlers/PlayerControler.js';
 import { Plane } from '../src/geo/Plane.js';
+import { ViewportController } from '../src/controlers/ViewportController.js';
 
 Config.global.load();
 Config.global.save();
@@ -32,38 +33,34 @@ window.addEventListener('load', () => {
             viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
         })
 
-        setInterval(() => {
-            viewport.renderer.lightDirection[0] += Math.sin(performance.now() / 500.0) * 1500.0;
-            viewport.renderer.lightDirection[2] += Math.cos(performance.now() / 500.0) * 1500.0;
-        }, 16);
+        new ViewportController(viewport.camera, viewport);
 
-        new PlayerControler(viewport.camera, viewport);
-
-        const mat1 = new DefaultMaterial({
-            specularMap: new Texture(Resources.get('spec')),
-            normalMap: new Texture(Resources.get('normal')),
-            texture: new Texture(Resources.get('albedo')),
+        const teapot = new Geometry({
+            position: [0, 400, 0],
+            origin: [0, -100, 0],
+            vertecies: Loader.loadObjFile(Resources.get('model')),
+            scale: 50,
+            material: new DefaultMaterial({
+                specularMap: new Texture(Resources.get('spec')),
+                normalMap: new Texture(Resources.get('normal')),
+                texture: new Texture(Resources.get('albedo')),
+            })
         });
 
-        const mat2 = new DefaultMaterial();
-
-        viewport.scene.add(new Geometry({
-            vertecies: Loader.loadObjFile(Resources.get('model')),
-            scale: 200,
-            material: mat1
-        }));
+        viewport.scene.add(teapot);
 
         viewport.scene.add(new Plane({
             rotation: [90 * Math.PI / 180, 0, 0],
-            scale: 2000,
-            material: mat2,
+            scale: 1000,
+            material: new DefaultMaterial({
+                diffuseColor: [0.2, 0.2, 0.2, 1.0],
+                specular: 0,
+            }),
         }));
 
-        viewport.scene.add(new Plane({
-            rotation: [43 * Math.PI / 180, 0, 0],
-            position: [0, 1200, 3200],
-            scale: 2000,
-            material: mat2,
-        }));
+        setInterval(() => {
+            teapot.rotation.y = performance.now() / 3000.0;
+            teapot.rotation.x = performance.now() / 3000.0;
+        }, 16);
     }
 })

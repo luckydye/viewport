@@ -71,7 +71,7 @@ export default class MeshShader extends Shader {
             vViewPos = -cameraPosition.xyz;
             vVertexPos = aPosition;
             vWorldPos = pos;
-            vNormal = (vec4(aNormal, 1.0) * scene.model).xyz;
+            vNormal = (vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
             primitiveColor = aNormal;
             sceneProjection = scene;
         
