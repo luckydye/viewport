@@ -6,6 +6,7 @@ import { Geometry } from '../src/scene/Geometry.js';
 import { Loader } from '../src/Loader.js';
 import { Texture } from '../src/materials/Texture.js';
 import { PlayerControler } from '../src/controlers/PlayerControler.js';
+import { Plane } from '../src/geo/Plane.js';
 
 Config.global.load();
 Config.global.save();
@@ -38,14 +39,31 @@ window.addEventListener('load', () => {
 
         new PlayerControler(viewport.camera, viewport);
 
+        const mat1 = new DefaultMaterial({
+            specularMap: new Texture(Resources.get('spec')),
+            normalMap: new Texture(Resources.get('normal')),
+            texture: new Texture(Resources.get('albedo')),
+        });
+
+        const mat2 = new DefaultMaterial();
+
         viewport.scene.add(new Geometry({
             vertecies: Loader.loadObjFile(Resources.get('model')),
             scale: 200,
-            material: new DefaultMaterial({
-                specularMap: new Texture(Resources.get('spec')),
-                normalMap: new Texture(Resources.get('normal')),
-                texture: new Texture(Resources.get('albedo')),
-            }),
+            material: mat1
+        }));
+
+        viewport.scene.add(new Plane({
+            rotation: [90 * Math.PI / 180, 0, 0],
+            scale: 2000,
+            material: mat2,
+        }));
+
+        viewport.scene.add(new Plane({
+            rotation: [43 * Math.PI / 180, 0, 0],
+            position: [0, 1200, 3200],
+            scale: 2000,
+            material: mat2,
         }));
     }
 })
