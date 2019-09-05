@@ -36,7 +36,9 @@ export default class CompShader extends Shader {
         uniform vec3 cameraPosition;
         
         uniform sampler2D colorBuffer;
-        uniform sampler2D lightingBuffer;
+        uniform sampler2D shadowBuffer;
+
+        uniform mat4 shadowProjViewMat;
         
         out vec4 oFragColor;
 
@@ -55,10 +57,19 @@ export default class CompShader extends Shader {
         vec4 Bloom(sampler2D image) {
             return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
         }
+
+        void Shadow(sampler2D shadowMap, mat4 shadowProjViewMat) {
+            
+        }
         
         void main() {
             vec4 color = texture(colorBuffer, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
+
+            if(vTexCoords.x * 3.0 > 2.0 && vTexCoords.y * 3.0 > 2.0) {
+                vec4 shadow = texture(shadowBuffer, vTexCoords * 3.0);
+                oFragColor = vec4(vec3(pow(shadow.r, 100000.0)), 1.0);
+            }
 
             // oFragColor += Bloom(lightingBuffer);
         }`;

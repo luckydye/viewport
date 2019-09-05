@@ -33,10 +33,10 @@ window.addEventListener('load', () => {
             viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
         })
 
-        new ViewportController(viewport.camera, viewport);
+        new PlayerControler(viewport.camera, viewport);
 
         const teapot = new Geometry({
-            position: [0, 400, 0],
+            position: [0, 0, 0],
             origin: [0, -100, 0],
             vertecies: Loader.loadObjFile(Resources.get('model')),
             scale: 50,
@@ -49,18 +49,18 @@ window.addEventListener('load', () => {
 
         viewport.scene.add(teapot);
 
-        viewport.scene.add(new Plane({
-            rotation: [90 * Math.PI / 180, 0, 0],
-            scale: 1000,
-            material: new DefaultMaterial({
-                diffuseColor: [0.2, 0.2, 0.2, 1.0],
-                specular: 0,
-            }),
-        }));
+        // viewport.scene.add(new Plane({
+        //     rotation: [90 * Math.PI / 180, 0, 0],
+        //     scale: 1000,
+        //     material: new DefaultMaterial({
+        //         diffuseColor: [0.2, 0.2, 0.2, 1.0],
+        //         specular: 0,
+        //     }),
+        // }));
 
         setInterval(() => {
             teapot.rotation.y = performance.now() / 3000.0;
-            teapot.rotation.x = performance.now() / 3000.0;
+            // teapot.rotation.x = performance.now() / 3000.0;
         }, 16);
     }
 })

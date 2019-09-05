@@ -45,14 +45,23 @@ export class Camera extends Entity {
 		args.material = new DefaultMaterial();
 	}
 
+	get worldPosition() {
+		return new Vec(
+			-this.position.x,
+			-this.position.y,
+			-this.position.z,
+		);
+	}
+
 	constructor(args = {}) {
 		const {
 			fov = 50,
 			scale = 0.004,
-			farplane = 350,
+			farplane = 5000,
 			nearplane = 0.025,
 			width = 1280,
 			height = 720,
+			oribting = false,
 		} = args;
 		super(args);
 
@@ -63,6 +72,7 @@ export class Camera extends Entity {
 		this.farplane = farplane;
 		this.nearplane = nearplane;
 		this.lookAt = new Vec(0, 0, 0);
+		this.oribting = oribting;
 
 		this.projMatrix = mat4.create();
 		this.viewMatrix = mat4.create();
@@ -71,20 +81,6 @@ export class Camera extends Entity {
 		this.sensor = {
 			width: width,
 			height: height
-		}
-
-		const self = this;
-
-		this.worldPosition = {
-			get x() {
-				return -self.position.x;
-			},
-			get y() {
-				return -self.position.y;
-			},
-			get z() {
-				return -self.position.z;
-			}
 		}
 	}
 
@@ -96,44 +92,47 @@ export class Camera extends Entity {
 		const camera = this;
 
 		const ar = this.sensor.width / this.sensor.height;
+
 		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 
 		if (this.oribting) {
 
-			mat4.lookAt(
-				viewMatrix,
-				vec3.fromValues(0, 0, 0),
-				camera.lookAt,
-				vec3.fromValues(0, 0, 0)
-			);
-
 			mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
 				camera.scale,
 				camera.scale,
 				camera.scale,
 			));
+
+			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
+			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
+			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
 
 			mat4.translate(viewMatrix, viewMatrix, camera.position);
 
-			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-
-		} else {
 			mat4.lookAt(
 				viewMatrix,
-				vec3.fromValues(0, 0, 0),
+				camera.position,
 				camera.lookAt,
-				vec3.fromValues(0, 0, 0)
+				vec3.fromValues(0, 1, 0)
 			);
 
-			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-
+		} else {
 			mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
 				camera.scale,
 				camera.scale,
 				camera.scale,
 			));
+
+			mat4.lookAt(
+				viewMatrix,
+				vec3.fromValues(0, 0, 0),
+				camera.lookAt,
+				vec3.fromValues(0, 1, 0)
+			);
+
+			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
+			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
+			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
 
 			mat4.translate(viewMatrix, viewMatrix, camera.position);
 		}

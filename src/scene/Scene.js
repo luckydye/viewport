@@ -9,11 +9,9 @@ export class Scene {
 		this.objects = new Set();
 
 		this.activeCamera = camera || new Camera();
-
 		this.lightSources = new Spotlight({
 			fov: 90,
-			position: new Vec(500, -2500, -1000),
-			rotation: new Vec(0.8, 0.4, 0),
+			oribting: true,
 		});
 
 		this.lastchange = Date.now();
@@ -49,6 +47,16 @@ export class Scene {
 		if (this.activeCamera) {
 			this.activeCamera.update(ms);
 		}
+
+		const position = new Vec(
+			this.activeCamera.worldPosition.x,
+			0,
+			this.activeCamera.worldPosition.z,
+		);
+
+		this.lightSources.position = Vec.add(position, Vec.multiply(new Vec(500.0, 250.0, 300.0), new Vec(5.0, 5.0, 5.0)));
+		this.lightSources.lookAt = position;
+
 		if (this.lightSources) {
 			this.lightSources.update(ms);
 		}

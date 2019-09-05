@@ -63,8 +63,8 @@ export class Renderer extends RendererContext {
 		this.shadowMapSize = 4096;
 
 		this.renderPasses = [
+			new RenderPass(this, 'shadow', null, null, this.shadowMapSize),
 			new RenderPass(this, 'color'),
-			// new RenderPass(this, 'lighting', new LightShader()),
 		];
 
 		this.renderTarget = new Screen();
@@ -83,6 +83,11 @@ export class Renderer extends RendererContext {
 		}
 
 		this.scene.activeCamera.sensor = {
+			width: this.width,
+			height: this.height
+		};
+
+		this.scene.lightSources.sensor = {
 			width: this.width,
 			height: this.height
 		};
@@ -108,7 +113,6 @@ export class Renderer extends RendererContext {
 
 	renderRenderPasses() {
 		const gl = this.gl;
-		const camera = this.scene.activeCamera;
 
 		for (let pass of this.renderPasses) {
 
@@ -117,7 +121,11 @@ export class Renderer extends RendererContext {
 			gl.clearColor(0, 0, 0, 0);
 			this.clear();
 
-			this.drawScene(this.scene, camera, null, pass.shader != null);
+			if (pass.id == "shadow") {
+				this.drawScene(this.scene, this.scene.lightSources, null, pass.shader != null);
+			} else {
+				this.drawScene(this.scene, this.scene.activeCamera, null, pass.shader != null);
+			}
 
 			this.clearFramebuffer();
 		}
@@ -154,9 +162,9 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		// this.currentShader.setUniforms(this, {
-		// 	'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
-		// });
+		this.currentShader.setUniforms(this, {
+			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
+		});
 
 		// push pass frame buffers to comp
 		for (let pass of this.renderPasses) {
@@ -165,6 +173,7 @@ export class Renderer extends RendererContext {
 
 		// push depth from color buffer
 		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', this.renderPasses.length);
+		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', this.renderPasses.length);
 
 		this.preComposition();
 

@@ -11,9 +11,7 @@ export class ViewportController extends EntityControler {
 		this.sensivity = 0.0033;
 
 		this.angleY = 0;
-		this.angleX = 0.33;
-		this.posX = 0;
-		this.posY = 0;
+		this.angleX = Math.PI * 180;
 		this.distance = -1500;
 
 		const down = e => {
@@ -33,7 +31,6 @@ export class ViewportController extends EntityControler {
 
 		const wheel = e => {
 			if (this.locked) return;
-
 			const dir = Math.sign(e.deltaY);
 			this.distance -= 100 * dir;
 			update();
@@ -43,27 +40,22 @@ export class ViewportController extends EntityControler {
 			if (this.rotating) {
 				this.angleY += e.movementX * this.sensivity;
 				this.angleX += e.movementY * this.sensivity;
-			}
-			if (this.moving) {
-				this.posX += e.movementX * this.sensivity * 1000;
-				this.posY += -e.movementY * this.sensivity * 1000;
+
+				this.angleX = Math.max(Math.min(this.angleX, Math.PI), 0);
 			}
 			update();
 		}
 
 		const update = () => {
-			entity.position.z = this.distance;
-
-			entity.position.x = this.posX;
-			entity.position.y = this.posY;
-
-			entity.rotation.x = this.angleX;
-			entity.rotation.y = this.angleY;
+			entity.position.x = Math.sin(-this.angleY) * this.distance;
+			entity.position.y = Math.min(Math.cos(-this.angleX), Math.PI) * this.distance;
+			entity.position.z = Math.cos(-this.angleY) * this.distance;
 		}
 
 		this.viewport.addEventListener("wheel", wheel);
 		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
 		this.viewport.addEventListener("mousedown", down);
+
 		window.addEventListener("mousemove", move);
 		window.addEventListener("mouseup", up);
 
