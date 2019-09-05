@@ -49,14 +49,14 @@ window.addEventListener('load', () => {
 
         viewport.scene.add(teapot);
 
-        // viewport.scene.add(new Plane({
-        //     rotation: [90 * Math.PI / 180, 0, 0],
-        //     scale: 1000,
-        //     material: new DefaultMaterial({
-        //         diffuseColor: [0.2, 0.2, 0.2, 1.0],
-        //         specular: 0,
-        //     }),
-        // }));
+        viewport.scene.add(new Plane({
+            rotation: [90 * Math.PI / 180, 0, 0],
+            scale: 1000,
+            material: new DefaultMaterial({
+                diffuseColor: [0.4, 0.4, 0.4, 1.0],
+                specular: 0,
+            }),
+        }));
 
         setInterval(() => {
             teapot.rotation.y = performance.now() / 3000.0;

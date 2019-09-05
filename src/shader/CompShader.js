@@ -36,6 +36,7 @@ export default class CompShader extends Shader {
         uniform vec3 cameraPosition;
         
         uniform sampler2D colorBuffer;
+        uniform sampler2D worldBuffer;
         uniform sampler2D shadowBuffer;
 
         uniform mat4 shadowProjViewMat;
@@ -58,20 +59,29 @@ export default class CompShader extends Shader {
             return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
         }
 
-        void Shadow(sampler2D shadowMap, mat4 shadowProjViewMat) {
-            
+        float Shadow(sampler2D shadowMap, vec4 fragPosLightSpace) {
+            vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+            projCoords = projCoords * 0.5 + 0.5;
+            float closestDepth = texture(shadowMap, projCoords.xy).r; 
+            float currentDepth = projCoords.z;
+            float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+            return shadow;
         }
         
         void main() {
             vec4 color = texture(colorBuffer, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
 
-            if(vTexCoords.x * 3.0 > 2.0 && vTexCoords.y * 3.0 > 2.0) {
-                vec4 shadow = texture(shadowBuffer, vTexCoords * 3.0);
+            if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
+                vec4 shadow = texture(shadowBuffer, vTexCoords * 4.0);
                 oFragColor = vec4(vec3(pow(shadow.r, 100000.0)), 1.0);
-            }
+            } else {
+                vec4 world = texture(worldBuffer, vTexCoords);
+                float shadow = Shadow(shadowBuffer, world * shadowProjViewMat);
 
-            // oFragColor += Bloom(lightingBuffer);
+                oFragColor += vec4(vec3(shadow), 1.0);
+            }
         }`;
     }
 
