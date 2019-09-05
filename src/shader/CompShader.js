@@ -52,16 +52,15 @@ export default class CompShader extends Shader {
             return color;
         }
 
-        vec4 Blur(sampler2D image) {
-            return blur9(image, vTexCoords, vec2(200.0), vec2(1.0, 0.0));
+        vec4 Bloom(sampler2D image) {
+            return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
         }
         
         void main() {
             vec4 color = texture(colorBuffer, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
 
-            vec4 light = texture(lightingBuffer, vTexCoords);
-            oFragColor = light;
+            // oFragColor += Bloom(lightingBuffer);
         }`;
     }
 

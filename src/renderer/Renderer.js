@@ -64,7 +64,7 @@ export class Renderer extends RendererContext {
 
 		this.renderPasses = [
 			new RenderPass(this, 'color'),
-			new RenderPass(this, 'lighting', new LightShader()),
+			// new RenderPass(this, 'lighting', new LightShader()),
 		];
 
 		this.renderTarget = new Screen();

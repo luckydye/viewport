@@ -29,7 +29,13 @@ export default class LightShader extends MeshShader {
             out vec4 oFragColor;
 
             void main() {
-                oFragColor = texture(material.specularMap, vTexCoords);
+                vec4 spec = texture(material.specularMap, vTexCoords);
+
+                if(spec.r > 0.75) {
+                    oFragColor = vec4(vec3(1.0), 1.0);
+                } else {
+                    oFragColor = vec4(vec3(0.0), 1.0);
+                }
             }
         `;
     }
