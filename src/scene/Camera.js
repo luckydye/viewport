@@ -8,6 +8,14 @@ glMatrix.setMatrixArrayType(Array);
 
 export class Camera extends Entity {
 
+	static get ORTHGRAPHIC() {
+		return "orthographic";
+	}
+
+	static get PERSPECTIVE() {
+		return "perspective";
+	}
+
 	get vertecies() {
 		const s = 50 / this.scale;
 		const vertArray = [
@@ -73,6 +81,7 @@ export class Camera extends Entity {
 		this.nearplane = nearplane;
 		this.lookAt = new Vec(0, 0, 0);
 		this.oribting = oribting;
+		this.perspective = Camera.PERSPECTIVE;
 
 		this.projMatrix = mat4.create();
 		this.viewMatrix = mat4.create();
@@ -93,15 +102,22 @@ export class Camera extends Entity {
 
 		const ar = this.sensor.width / this.sensor.height;
 
+
 		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
+
+		if (this.perspective == Camera.ORTHGRAPHIC) {
+			const sx = Math.tan(camera.fov / 2) * 4;
+			const sy = Math.tan(camera.fov / 2) * 4;
+			// mat4.ortho(projMatrix, -sx, sx, -sy, sy, ar, camera.nearplane, camera.farplane);
+		}
 
 		if (this.oribting) {
 
-			mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
+			mat4.scale(viewMatrix, viewMatrix, [
 				camera.scale,
 				camera.scale,
 				camera.scale,
-			));
+			]);
 
 			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
 			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
@@ -113,21 +129,21 @@ export class Camera extends Entity {
 				viewMatrix,
 				camera.position,
 				camera.lookAt,
-				vec3.fromValues(0, 1, 0)
+				[0, 1, 0]
 			);
 
 		} else {
-			mat4.scale(viewMatrix, viewMatrix, vec3.fromValues(
+			mat4.scale(viewMatrix, viewMatrix, [
 				camera.scale,
 				camera.scale,
 				camera.scale,
-			));
+			]);
 
 			mat4.lookAt(
 				viewMatrix,
-				vec3.fromValues(0, 0, 0),
+				[0, 0, 0],
 				camera.lookAt,
-				vec3.fromValues(0, 1, 0)
+				[0, 1, 0]
 			);
 
 			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);

@@ -14,6 +14,8 @@ export class Scene {
 			oribting: true,
 		});
 
+		this.lightSources.perspective = Camera.ORTHGRAPHIC;
+
 		this.lastchange = Date.now();
 
 		this.clear();
@@ -54,7 +56,9 @@ export class Scene {
 			this.activeCamera.worldPosition.z,
 		);
 
-		this.lightSources.position = Vec.add(position, Vec.multiply(new Vec(500.0, 250.0, 300.0), new Vec(5.0, 5.0, 5.0)));
+		const lightoffset = new Vec(Math.sin(performance.now() * 0.001) * 500.0, 250.0, Math.cos(performance.now() * 0.001) * 300.0);
+
+		this.lightSources.position = Vec.add(position, Vec.multiply(lightoffset, new Vec(5.0, 5.0, 5.0)));
 		this.lightSources.lookAt = position;
 
 		if (this.lightSources) {

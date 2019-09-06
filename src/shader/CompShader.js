@@ -12,10 +12,15 @@ export default class CompShader extends Shader {
         uniform float aspectRatio;
 
         out vec2 vTexCoords;
+        out mat4 vShadowCoords;
         
+        const mat4 texUnitConverter = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 
+            0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);
+
         void main() {
             gl_Position = vec4(aPosition, 1.0);
             vTexCoords = aTexCoords;
+            vShadowCoords = texUnitConverter;
         }`;
     }
 
@@ -25,6 +30,7 @@ export default class CompShader extends Shader {
         precision mediump float;
         
         in vec2 vTexCoords;
+        in mat4 vShadowCoords;
         
         struct SceneProjection {
             mat4 model;
@@ -37,6 +43,7 @@ export default class CompShader extends Shader {
         
         uniform sampler2D colorBuffer;
         uniform sampler2D worldBuffer;
+        uniform sampler2D depthBuffer;
         uniform sampler2D shadowBuffer;
 
         uniform mat4 shadowProjViewMat;
@@ -59,14 +66,16 @@ export default class CompShader extends Shader {
             return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
         }
 
-        float Shadow(sampler2D shadowMap, vec4 fragPosLightSpace) {
-            vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-            projCoords = projCoords * 0.5 + 0.5;
-            float closestDepth = texture(shadowMap, projCoords.xy).r; 
-            float currentDepth = projCoords.z;
-            float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+        vec4 Shadow(sampler2D shadowMap, vec4 shadowCoord) {
 
-            return shadow;
+            float distance = normalize(texture(shadowMap, shadowCoord.xy).z);
+
+            float shadow = 1.0;
+            if(distance < shadowCoord.z) {
+                shadow = 0.5;
+            }
+
+            return vec4(shadow);
         }
         
         void main() {
@@ -74,13 +83,15 @@ export default class CompShader extends Shader {
             oFragColor = vec4(color.rgb, color.a);
 
             if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
-                vec4 shadow = texture(shadowBuffer, vTexCoords * 4.0);
-                oFragColor = vec4(vec3(pow(shadow.r, 100000.0)), 1.0);
+                float depth = pow(texture(shadowBuffer, vTexCoords * 4.0).r, 10000.0);
+                oFragColor = vec4(depth);
+
             } else {
                 vec4 world = texture(worldBuffer, vTexCoords);
-                float shadow = Shadow(shadowBuffer, world * shadowProjViewMat);
+                vec4 projection = vShadowCoords * world * shadowProjViewMat;
+                vec4 shadow = Shadow(shadowBuffer, projection);
 
-                oFragColor += vec4(vec3(shadow), 1.0);
+                oFragColor *= shadow;
             }
         }`;
     }

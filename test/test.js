@@ -37,7 +37,7 @@ window.addEventListener('load', () => {
 
         const teapot = new Geometry({
             position: [0, 0, 0],
-            origin: [0, -100, 0],
+            origin: [0, 20, 0],
             vertecies: Loader.loadObjFile(Resources.get('model')),
             scale: 50,
             material: new DefaultMaterial({
@@ -62,5 +62,8 @@ window.addEventListener('load', () => {
             teapot.rotation.y = performance.now() / 3000.0;
             // teapot.rotation.x = performance.now() / 3000.0;
         }, 16);
+
+        viewport.camera.position.z = -1000;
+        viewport.camera.position.y = -200;
     }
 })

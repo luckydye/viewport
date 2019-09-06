@@ -63,7 +63,7 @@ export class Renderer extends RendererContext {
 		this.shadowMapSize = 4096;
 
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', null, null, this.shadowMapSize),
+			new RenderPass(this, 'shadow', new LightShader(), null, this.shadowMapSize),
 			new RenderPass(this, 'world', new WorldShader()),
 			new RenderPass(this, 'color'),
 		];
