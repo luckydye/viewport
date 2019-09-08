@@ -74,7 +74,6 @@ export class Renderer extends RendererContext {
 
 	setScene(scene) {
 		this.scene = scene;
-		this.updateViewport();
 	}
 
 	updateViewport() {
@@ -83,15 +82,17 @@ export class Renderer extends RendererContext {
 			pass.resize(this.width, this.height);
 		}
 
-		this.scene.activeCamera.sensor = {
-			width: this.width,
-			height: this.height
-		};
+		if (this.scene) {
+			this.scene.activeCamera.sensor = {
+				width: this.width,
+				height: this.height
+			};
 
-		this.scene.lightSources.sensor = {
-			width: this.width,
-			height: this.height
-		};
+			this.scene.lightSources.sensor = {
+				width: this.width,
+				height: this.height
+			};
+		}
 	}
 
 	setResolution(width, height) {
@@ -228,8 +229,10 @@ export class Renderer extends RendererContext {
 
 		this.useVAO(geo.buffer.vao);
 
-		if (this.scene.lastchange != geo.buffer.lastchange) {
-			geo.buffer.lastchange = this.scene.lastchange;
+		if (!this.scene || this.scene.lastchange != geo.buffer.lastchange) {
+			if (this.scene) {
+				geo.buffer.lastchange = this.scene.lastchange;
+			}
 
 			this.initializeBuffersAndAttributes(geo.buffer);
 		}
