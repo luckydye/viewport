@@ -42,7 +42,6 @@ export class Geometry extends Transform {
 			hidden = false,
 			guide = false,
 			uv = [0, 0],
-			id = null,
 		} = args;
 
 		this.vertArray = vertecies;
@@ -50,7 +49,6 @@ export class Geometry extends Transform {
 		this.hidden = hidden;
 		this.guide = guide;
 		this.uv = uv;
-		this.id = id;
 	}
 
 	onCreate(args) { }

@@ -82,17 +82,17 @@ export default class CompShader extends Shader {
             vec4 color = texture(colorBuffer, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
 
-            if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
-                float depth = pow(texture(shadowBuffer, vTexCoords * 4.0).r, 10000.0);
-                oFragColor = vec4(depth);
+            // if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
+            //     float depth = pow(texture(shadowBuffer, vTexCoords * 4.0).r, 10000.0);
+            //     oFragColor = vec4(depth);
 
-            } else {
-                vec4 world = texture(worldBuffer, vTexCoords);
-                vec4 projection = vShadowCoords * world * shadowProjViewMat;
-                vec4 shadow = Shadow(shadowBuffer, projection);
+            // } else {
+            //     vec4 world = texture(worldBuffer, vTexCoords);
+            //     vec4 projection = vShadowCoords * world * shadowProjViewMat;
+            //     vec4 shadow = Shadow(shadowBuffer, projection);
 
-                oFragColor *= shadow;
-            }
+            //     oFragColor *= shadow;
+            // }
         }`;
     }
 

@@ -61,7 +61,6 @@ export class Loader {
                         position: obj.position,
                         rotation: obj.rotation,
                         scale: obj.scale,
-                        id: obj.id,
                     }
                 })
             ],
