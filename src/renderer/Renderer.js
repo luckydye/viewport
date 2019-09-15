@@ -50,6 +50,12 @@ export class Renderer extends RendererContext {
 		}
 	}
 
+	nextRenderBufferSlot() {
+		const slot = this.currentRenderBufferSlot;
+		this.currentRenderBufferSlot++;
+		return slot;
+	}
+
 	onCreate() {
 
 		this.debug = Config.global.getValue('debug');
@@ -57,14 +63,16 @@ export class Renderer extends RendererContext {
 
 		this.grid = new Grid(100, 14);
 
+		this.currentRenderBufferSlot = 0;
+
 		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.25;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
 		this.renderPasses = [
-			new RenderPass(this, 'shadow', new LightShader(), null, this.shadowMapSize),
-			new RenderPass(this, 'world', new WorldShader()),
+			// new RenderPass(this, 'shadow', new LightShader(), null, this.shadowMapSize),
+			// new RenderPass(this, 'world', new WorldShader()),
 			new RenderPass(this, 'color'),
 		];
 
@@ -168,14 +176,15 @@ export class Renderer extends RendererContext {
 			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
 		});
 
+		this.currentRenderBufferSlot = 0;
+
 		// push pass frame buffers to comp
 		for (let pass of this.renderPasses) {
-			this.useTextureBuffer(this.getBufferTexture(pass.id), gl.TEXTURE_2D, pass.id + 'Buffer', this.renderPasses.indexOf(pass));
+			this.pushTexture(this.getBufferTexture(pass.id), pass.id + 'Buffer');
 		}
 
 		// push depth from color buffer
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depthBuffer', this.renderPasses.length);
-		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), gl.TEXTURE_2D, 'shadowBuffer', this.renderPasses.length);
+		this.pushTexture(this.getBufferTexture('color.depth'), 'depthBuffer');
 
 		this.preComposition();
 
@@ -197,6 +206,10 @@ export class Renderer extends RendererContext {
 		}
 		const type = texture ? this.gl[texture.type] : null;
 		this.useTextureBuffer(gltexture, type, uniformStr, slot);
+	}
+
+	pushTexture(gltexture, uniformStr) {
+		this.useTextureBuffer(gltexture, this.gl.TEXTURE_2D, uniformStr, this.nextRenderBufferSlot());
 	}
 
 	// give material attributes to shader

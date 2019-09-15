@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "test.bat",
-    "build": "build.bat"
+    "build": "parcel watch ./test/index.html --public-url ."
   },
   "repository": {
     "type": "git",

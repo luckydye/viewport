@@ -13,14 +13,10 @@ export default class CompShader extends Shader {
 
         out vec2 vTexCoords;
         out mat4 vShadowCoords;
-        
-        const mat4 texUnitConverter = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 
-            0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);
 
         void main() {
             gl_Position = vec4(aPosition, 1.0);
             vTexCoords = aTexCoords;
-            vShadowCoords = texUnitConverter;
         }`;
     }
 
@@ -39,15 +35,11 @@ export default class CompShader extends Shader {
         };
         uniform SceneProjection scene;
         
-        uniform vec3 cameraPosition;
-        
         uniform sampler2D colorBuffer;
-        uniform sampler2D worldBuffer;
         uniform sampler2D depthBuffer;
-        uniform sampler2D shadowBuffer;
+        uniform sampler2D paperTexture;
+        uniform sampler2D noiseTexture;
 
-        uniform mat4 shadowProjViewMat;
-        
         out vec4 oFragColor;
 
         vec4 blur9(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
@@ -61,38 +53,23 @@ export default class CompShader extends Shader {
             color += texture(image, uv - (off2 / resolution)) * 0.0702702703;
             return color;
         }
-
-        vec4 Bloom(sampler2D image) {
-            return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
-        }
-
-        vec4 Shadow(sampler2D shadowMap, vec4 shadowCoord) {
-
-            float distance = normalize(texture(shadowMap, shadowCoord.xy).z);
-
-            float shadow = 1.0;
-            if(distance < shadowCoord.z) {
-                shadow = 0.5;
-            }
-
-            return vec4(shadow);
-        }
         
         void main() {
-            vec4 color = texture(colorBuffer, vTexCoords);
-            oFragColor = vec4(color.rgb, color.a);
+            vec2 noise = texture(noiseTexture, vTexCoords).rg;
+            vec4 paper = texture(paperTexture, vTexCoords);
 
-            // if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
-            //     float depth = pow(texture(shadowBuffer, vTexCoords * 4.0).r, 10000.0);
-            //     oFragColor = vec4(depth);
+            vec2 tex = vTexCoords * noise;
 
-            // } else {
-            //     vec4 world = texture(worldBuffer, vTexCoords);
-            //     vec4 projection = vShadowCoords * world * shadowProjViewMat;
-            //     vec4 shadow = Shadow(shadowBuffer, projection);
+            vec4 color1 = blur9(colorBuffer, tex, vec2(1280.0), vec2(1.0, 1.0));
+            vec4 color2 = blur9(colorBuffer, tex, vec2(1280.0), vec2(-1.0, -1.0));
+            
+            oFragColor = paper;
 
-            //     oFragColor *= shadow;
-            // }
+            if(color1.a > 0.0) {
+                oFragColor -= color1.g;
+                oFragColor -= color2.g;
+                oFragColor.a *= noise.r;
+            }
         }`;
     }
 

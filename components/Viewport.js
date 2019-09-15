@@ -46,6 +46,18 @@ export default class Viewport extends HTMLElement {
         this.canvas = document.createElement('canvas');
 
         this.lastFrame = {};
+
+        this.renderer = new Renderer(this.canvas);
+
+        this.camera = new Camera({
+            fov: 90,
+        });
+
+        this.scene = new Scene(this.camera);
+
+        this.renderer.setScene(this.scene);
+
+        this.renderer.setResolution(this.clientWidth, this.clientHeight);
     }
 
     connectedCallback() {
@@ -79,18 +91,6 @@ export default class Viewport extends HTMLElement {
     }
 
     init(canvas) {
-
-        this.camera = new Camera({
-            fov: 90,
-        });
-
-        this.scene = new Scene(this.camera);
-
-        this.renderer = new Renderer(canvas);
-        this.renderer.setScene(this.scene);
-
-        this.renderer.setResolution(this.clientWidth, this.clientHeight);
-
         this.dispatchEvent(new Event('load'));
     }
 

@@ -51,11 +51,13 @@ export default class MeshShader extends Shader {
         out SceneProjection sceneProjection;
         
         void main() {
+            // uniformSacle
             float uniformSacle = 1.0;
             if(material.scaleUniform) {
                 uniformSacle = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
             }
 
+            // texture coords
             if(material.textureScale > 0.0) {
                 vec2 imageSize = vec2(textureSize(material.texture, 0));
                 float scale = (imageSize.x / material.textureScale);
@@ -63,11 +65,18 @@ export default class MeshShader extends Shader {
             } else {
                 vTexCoords = aTexCoords;
             }
+
+            // displacement
+            vec2 displace = texture(material.displacementMap, vTexCoords).rg;
+            vTexCoords = aTexCoords + (displace.xy - 0.5);
         
             vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
-            float bump = texture(material.displacementMap, vTexCoords).r * 10.0;
-            pos += vec4(aNormal.xyz, 1.0) * bump;
+            
+            // deform
+            // float bump = texture(material.displacementMap, vTexCoords).r * 10.0;
+            // pos += vec4(aNormal.xyz, 1.0) * bump;
 
+            // set vert outputs
             vViewPos = -cameraPosition.xyz;
             vVertexPos = aPosition;
             vWorldPos = pos;
