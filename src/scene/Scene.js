@@ -76,6 +76,22 @@ export class Scene {
 		let arr = [...this.objects].filter(obj => {
 			return !obj.hidden;
 		});
+
+		arr = arr.sort((a, b) => {
+
+			const distA = Math.sqrt(
+				Math.pow(-this.camera.position.x - a.position.x, 2) +
+				Math.pow(-this.camera.position.z - a.position.z, 2)
+			);
+
+			const distB = Math.sqrt(
+				Math.pow(-this.camera.position.x - b.position.x, 2) +
+				Math.pow(-this.camera.position.z - b.position.z, 2)
+			);
+
+			return distB - distA;
+		});
+
 		return arr;
 	}
 

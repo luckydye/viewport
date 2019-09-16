@@ -56,8 +56,6 @@ export default class Viewport extends HTMLElement {
         this.scene = new Scene(this.camera);
 
         this.renderer.setScene(this.scene);
-
-        this.renderer.setResolution(this.clientWidth, this.clientHeight);
     }
 
     connectedCallback() {
@@ -91,6 +89,8 @@ export default class Viewport extends HTMLElement {
     }
 
     init(canvas) {
+        this.renderer.setResolution(this.clientWidth, this.clientHeight);
+
         this.dispatchEvent(new Event('load'));
     }
 
