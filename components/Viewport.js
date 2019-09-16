@@ -79,8 +79,8 @@ export default class Viewport extends HTMLElement {
         if (accumulator >= (1000 / tickrate)) {
             accumulator = 0;
 
-            this.scheduler.run(delta);
             this.scene.update(delta);
+            this.scheduler.run(delta);
         }
         this.renderer.draw();
 
