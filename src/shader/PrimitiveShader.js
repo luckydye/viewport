@@ -18,7 +18,7 @@ export default class PrimitiveShader extends MeshShader {
         out vec4 oFragColor;
         
         void main () {
-            oFragColor = vec4(0.0, 1.0, 0.0, 1.0);
+            oFragColor = vec4(primitiveColor, 1.0);
         }`;
     }
 }

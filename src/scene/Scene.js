@@ -74,19 +74,25 @@ export class Scene {
 
 	getRenderableObjects() {
 		let arr = [...this.objects].filter(obj => {
-			return !obj.hidden;
+
+			const dist = Math.sqrt(
+				Math.pow(-this.activeCamera.position.x - obj.position.x, 2) +
+				Math.pow(-this.activeCamera.position.z - obj.position.z, 2)
+			);
+
+			return !obj.hidden && dist < this.activeCamera.farplane;
 		});
 
 		arr = arr.sort((a, b) => {
 
 			const distA = Math.sqrt(
-				Math.pow(-this.camera.position.x - a.position.x, 2) +
-				Math.pow(-this.camera.position.z - a.position.z, 2)
+				Math.pow(-this.activeCamera.position.x - a.position.x, 2) +
+				Math.pow(-this.activeCamera.position.z - a.position.z, 2)
 			);
 
 			const distB = Math.sqrt(
-				Math.pow(-this.camera.position.x - b.position.x, 2) +
-				Math.pow(-this.camera.position.z - b.position.z, 2)
+				Math.pow(-this.activeCamera.position.x - b.position.x, 2) +
+				Math.pow(-this.activeCamera.position.z - b.position.z, 2)
 			);
 
 			return distB - distA;

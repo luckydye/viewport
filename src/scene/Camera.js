@@ -102,6 +102,8 @@ export class Camera extends Entity {
 
 		const ar = this.sensor.width / this.sensor.height;
 
+		const position = Vec.add(camera.position, camera.origin);
+
 
 		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 
@@ -123,7 +125,7 @@ export class Camera extends Entity {
 			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
 			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
 
-			mat4.translate(viewMatrix, viewMatrix, camera.position);
+			mat4.translate(viewMatrix, viewMatrix, position);
 
 			mat4.lookAt(
 				viewMatrix,
@@ -150,7 +152,7 @@ export class Camera extends Entity {
 			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
 			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
 
-			mat4.translate(viewMatrix, viewMatrix, camera.position);
+			mat4.translate(viewMatrix, viewMatrix, position);
 		}
 
 		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
