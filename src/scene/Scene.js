@@ -1,11 +1,13 @@
 import { Grid } from '../geo/Grid.js';
-import { Vec } from '../Math.js';
+import { Vec, Transform } from '../Math.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
 
-export class Scene {
+export class Scene extends Transform {
 
 	constructor(camera) {
+		super();
+		
 		this.objects = new Set();
 
 		this.activeCamera = camera || new Camera();
@@ -75,9 +77,11 @@ export class Scene {
 	getRenderableObjects() {
 		let arr = [...this.objects].filter(obj => {
 
+			const pos = Vec.add(this.origin, obj.position);
+
 			const dist = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - obj.position.x, 2) +
-				Math.pow(-this.activeCamera.position.z - obj.position.z, 2)
+				Math.pow(-this.activeCamera.position.x - pos.x, 2) +
+				Math.pow(-this.activeCamera.position.z - pos.z, 2)
 			);
 
 			return !obj.hidden && dist < this.activeCamera.farplane;
@@ -85,14 +89,17 @@ export class Scene {
 
 		arr = arr.sort((a, b) => {
 
+			const posA = Vec.add(this.origin, a.position);
+			const posB = Vec.add(this.origin, b.position);
+
 			const distA = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - a.position.x, 2) +
-				Math.pow(-this.activeCamera.position.z - a.position.z, 2)
+				Math.pow(-this.activeCamera.position.x - posA.x, 2) +
+				Math.pow(-this.activeCamera.position.z - posA.z, 2)
 			);
 
 			const distB = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - b.position.x, 2) +
-				Math.pow(-this.activeCamera.position.z - b.position.z, 2)
+				Math.pow(-this.activeCamera.position.x - posB.x, 2) +
+				Math.pow(-this.activeCamera.position.z - posB.z, 2)
 			);
 
 			return distB - distA;

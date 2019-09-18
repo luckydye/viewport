@@ -66,7 +66,7 @@ export default class DefaultShader extends MeshShader {
 
         void defaultShading() {
             // diffuse
-            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
+            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal * 100.0, 1.0)).xyz;
 
             DiffuseShading(oFragColor, normal, ambientLight);
 

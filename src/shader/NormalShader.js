@@ -13,7 +13,7 @@ export default class NormalShader extends MeshShader {
             out vec4 oFragColor;
 
             void main() {
-                oFragColor = vec4(normalize(vNormal + 1.0), 1.0);
+                oFragColor = vec4(normalize(vNormal * 100.0 + 1.0), 1.0);
             }
         `;
     }
