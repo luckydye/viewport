@@ -70,10 +70,13 @@ export class Renderer extends RendererContext {
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
+		const self = this;
+
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', {
-				shaderOverwrite: new LightShader(),
-				get camera() { return this.scene ? this.scene.lightSources : null; },
+				get camera() { 
+					return self.scene.lightSources;
+				},
 				resolution: [this.shadowMapSize, this.shadowMapSize]
 			}),
 			new RenderPass(this, 'color'),

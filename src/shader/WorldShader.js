@@ -3,16 +3,7 @@ import MeshShader from './MeshShader.js';
 export default class WorldShader extends MeshShader {
 
     static fragmentSource() {
-        return `#version 300 es
-            precision mediump float;
-            
-            in vec2 vTexCoords;
-            in vec4 vTexelPos;
-            in vec4 vWorldPos;
-            in vec3 vNormal;
-            
-            out vec4 oFragColor;
-
+        return MeshShader.shaderFragmentHeader`
             void main() {
                 oFragColor = vec4(normalize(vWorldPos.xyz), 1.0);
             }

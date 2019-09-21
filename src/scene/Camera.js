@@ -108,9 +108,9 @@ export class Camera extends Entity {
 		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 
 		if (this.perspective == Camera.ORTHGRAPHIC) {
-			const sx = Math.tan(camera.fov / 2) * 4;
-			const sy = Math.tan(camera.fov / 2) * 4;
-			// mat4.ortho(projMatrix, -sx, sx, -sy, sy, ar, camera.nearplane, camera.farplane);
+			const sx = 1280;
+			const sy = 1280;
+			mat4.ortho(projMatrix, -sx, sx, -sy, sy, 1, camera.nearplane, camera.farplane);
 		}
 
 		if (this.oribting) {

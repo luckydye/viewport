@@ -13,10 +13,7 @@ export class Scene extends Transform {
 		this.activeCamera = camera || new Camera();
 		this.lightSources = new Spotlight({
 			fov: 90,
-			oribting: true,
 		});
-
-		this.lightSources.perspective = Camera.ORTHGRAPHIC;
 
 		this.lastchange = Date.now();
 
@@ -52,16 +49,16 @@ export class Scene extends Transform {
 			this.activeCamera.update(ms);
 		}
 
-		const position = new Vec(
-			this.activeCamera.worldPosition.x,
-			0,
-			this.activeCamera.worldPosition.z,
-		);
+		// const position = new Vec(
+		// 	this.activeCamera.worldPosition.x,
+		// 	0,
+		// 	this.activeCamera.worldPosition.z,
+		// );
 
-		const lightoffset = new Vec(Math.sin(performance.now() * 0.001) * 500.0, 250.0, Math.cos(performance.now() * 0.001) * 300.0);
+		// const lightoffset = new Vec(Math.sin(performance.now() * 0.001) * 500.0, 250.0, Math.cos(performance.now() * 0.001) * 300.0);
 
-		this.lightSources.position = Vec.add(position, Vec.multiply(lightoffset, new Vec(5.0, 5.0, 5.0)));
-		this.lightSources.lookAt = position;
+		// this.lightSources.position = Vec.add(position, Vec.multiply(lightoffset, new Vec(5.0, 5.0, 5.0)));
+		// this.lightSources.lookAt = position;
 
 		if (this.lightSources) {
 			this.lightSources.update(ms);
