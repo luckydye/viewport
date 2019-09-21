@@ -12,17 +12,28 @@ export default class CompShader extends Shader {
         uniform float aspectRatio;
 
         out vec2 vTexCoords;
-        out mat4 vShadowCoords;
-        
-        const mat4 texUnitConverter = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 
-            0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);
 
         void main() {
             gl_Position = vec4(aPosition, 1.0);
             vTexCoords = aTexCoords;
-            vShadowCoords = texUnitConverter;
         }`;
     }
+
+	static blur9() {
+		return `
+			vec4 blur9(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
+				vec4 color = vec4(0.0);
+				vec2 off1 = vec2(1.3846153846) * direction;
+				vec2 off2 = vec2(3.2307692308) * direction;
+				color += texture(image, uv) * 0.2270270270;
+				color += texture(image, uv + (off1 / resolution)) * 0.3162162162;
+				color += texture(image, uv - (off1 / resolution)) * 0.3162162162;
+				color += texture(image, uv + (off2 / resolution)) * 0.0702702703;
+				color += texture(image, uv - (off2 / resolution)) * 0.0702702703;
+				return color;
+			}
+		`;
+	}
 
     static fragmentSource() {
         return `#version 300 es
@@ -30,14 +41,6 @@ export default class CompShader extends Shader {
         precision mediump float;
         
         in vec2 vTexCoords;
-        in mat4 vShadowCoords;
-        
-        struct SceneProjection {
-            mat4 model;
-            mat4 view;
-            mat4 projection;
-        };
-        uniform SceneProjection scene;
         
         uniform vec3 cameraPosition;
         
@@ -49,7 +52,7 @@ export default class CompShader extends Shader {
         
         out vec4 oFragColor;
 
-        ${Shader.blur9()}
+        ${CompShader.blur9()}
 
         vec4 Bloom(sampler2D image) {
             return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
@@ -68,7 +71,7 @@ export default class CompShader extends Shader {
         }
         
         void main() {
-            vec4 color = texture(shadow, vTexCoords);
+            vec4 color = texture(color, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
         }`;
     }
