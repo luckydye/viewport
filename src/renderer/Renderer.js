@@ -71,8 +71,11 @@ export class Renderer extends RendererContext {
 		this.shadowMapSize = 4096;
 
 		this.renderPasses = [
-			// new RenderPass(this, 'shadow', new LightShader(), null, this.shadowMapSize),
-			// new RenderPass(this, 'world', new WorldShader()),
+			new RenderPass(this, 'shadow', {
+				shaderOverwrite: new LightShader(),
+				get camera() { return this.scene ? this.scene.lightSources : null; },
+				resolution: [this.shadowMapSize, this.shadowMapSize]
+			}),
 			new RenderPass(this, 'color'),
 		];
 
@@ -111,14 +114,21 @@ export class Renderer extends RendererContext {
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
-	createRenderPass(name, shader, setupCallback, resolution, onlyDepth) {
-		const pass = new RenderPass(this, name, shader, setupCallback, resolution, onlyDepth);
+	createRenderPass(name, shader, setup = {}) {
+		const pass = new RenderPass(this, name, shader, setup);
 		this.renderPasses.push(pass);
+		return pass;
 	}
 
-	draw() {
-		this.renderRenderPasses();
-		this.compositeRenderPasses();
+	draw(setup) {
+		if(this.renderPasses.length > 0) {
+			this.renderRenderPasses();
+			this.compositeRenderPasses();
+		} else {
+			this.gl.clearColor(0, 0, 0, 0);
+			this.clear();
+			this.drawScene(this.scene, setup);
+		}
 	}
 
 	renderRenderPasses() {
@@ -131,12 +141,8 @@ export class Renderer extends RendererContext {
 			gl.clearColor(0, 0, 0, 0);
 			this.clear();
 
-			if (pass.id == "shadow") {
-				this.drawScene(this.scene, this.scene.lightSources, null, pass.shader != null);
-			} else {
-				this.drawScene(this.scene, this.scene.activeCamera, null, pass.shader != null);
-			}
-
+			this.drawScene(this.scene, pass.sceneSetup);
+			
 			this.clearFramebuffer();
 		}
 	}
@@ -152,25 +158,6 @@ export class Renderer extends RendererContext {
 		this.clear();
 
 		this.useShader(this.compShader);
-
-		let lightCount = 0;
-		for (let light of this.scene.objects) {
-			if (light instanceof Pointlight) {
-
-				this.currentShader.setUniforms(this, {
-					'position': [
-						light.position.x,
-						light.position.y,
-						light.position.z,
-					],
-					'color': light.color,
-					'intensity': light.intensity,
-					'size': light.size,
-				}, "lights[" + lightCount + "]");
-
-				lightCount++;
-			}
-		}
 
 		this.currentShader.setUniforms(this, {
 			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
@@ -272,8 +259,14 @@ export class Renderer extends RendererContext {
 		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
 	}
 
-	drawScene(scene, camera, filter, shaderOverwrite) {
+	// this.scene.activeCamera, null, pass.shader != null
+	// drawScene(scene, camera, filter, shaderOverwrite) {
+	drawScene(scene, setup = {}) {
 		const objects = scene.getRenderableObjects();
+
+		const camera = setup.camera || scene.activeCamera;
+		const filter = setup.filter;
+		const shaderOverwrite = setup.shaderOverwrite;
 
 		let tempShader;
 		if (this.currentShader) {
@@ -364,19 +357,21 @@ export class RenderPass {
 		return this.renderer.getBufferTexture(this.id + '.depth');
 	}
 
-	constructor(renderer, id, shaderOverwrite, setupCallback, resolution, isDepthBuffer) {
+	constructor(renderer, id, setup = {
+		resolution: null,
+		isDepthBuffer: null
+	}) {
 		this.id = id;
-		this.shader = shaderOverwrite;
+		this.sceneSetup = setup;
+		this.shader = setup.shaderOverwrite;
 		this.renderer = renderer;
 
-		this.setupCallback = setupCallback;
-
-		this.resolution = resolution || [];
+		this.resolution = setup.resolution || [];
 
 		this.width = this.resolution[0] || renderer.width;
 		this.height = this.resolution[1] || renderer.height;
 
-		this.isDepthBuffer = isDepthBuffer;
+		this.isDepthBuffer = setup.isDepthBuffer;
 
 		this.fbo = null;
 
@@ -406,10 +401,6 @@ export class RenderPass {
 
 		if (this.shader) {
 			this.renderer.useShader(this.shader);
-		}
-
-		if (this.setupCallback) {
-			this.setupCallback();
 		}
 	}
 }

@@ -28,8 +28,6 @@ export default class Viewport extends HTMLElement {
                     width: 100%;
                     height: 100%;
                     display: block;
-                    image-rendering: pixelated;
-                    image-rendering: optimizespeed;
                 }
             </style>
         `;
