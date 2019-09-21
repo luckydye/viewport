@@ -11,6 +11,10 @@ export class RendererContext {
 		// on create method
 	}
 
+	onDestory() {
+		// on create method
+	}
+
 	enable(constant) {
 		this.gl.enable(constant);
 	}
@@ -25,9 +29,11 @@ export class RendererContext {
 		this.debug = false;
 
 		this.currentShader = null;
+
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
+		this.buffers = [];
 
 		this.alpha = true;
 
@@ -78,10 +84,10 @@ export class RendererContext {
 			premultipliedAlpha: false,
 			antialias: false,
 			preserveDrawingBuffer: true,
-			desynchronized: false,	// for non antiliase canvas on chrome to false
+			desynchronized: true,	// for non antiliase canvas on chrome to false
 		};
 		this.gl = canvas.getContext("webgl2", ctxtOpts) ||
-			canvas.getContext("webgl", ctxtOpts);
+				  canvas.getContext("webgl", ctxtOpts);
 
 		this.gl.cullFace(this.gl.BACK);
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
@@ -109,11 +115,8 @@ export class RendererContext {
 
 	// use framebuffer
 	useFramebuffer(nameOrFBO) {
-		if (this.framebuffers.has(nameOrFBO)) {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffers.get(nameOrFBO));
-		} else {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, nameOrFBO);
-		}
+		const fbo = this.framebuffers.has(nameOrFBO) ? this.framebuffers.get(nameOrFBO) : nameOrFBO;
+		fbo.use();
 	}
 
 	// unbind framebuffer
@@ -210,60 +213,76 @@ export class RendererContext {
 	}
 
 	// create webgl framebuffer objects
-	createFramebuffer(name, width, height) {
+	createFramebuffer(name, width, height, depthAttatchment = true) {
 		const gl = this.gl;
-
-		const fbo = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-		this.framebuffers.set(name, fbo);
 
 		let textures = {
 			color: null,
 			depth: null,
 		}
 
-		return {
-			get colorTexture() {
-				return textures.color;
-			},
-			get depthTexture() {
-				return textures.depth;
-			},
+		const targetTexture = this.createBufferTexture(width, height);
 
-			colorbuffer: () => {
-				const renderTraget = this.createBufferTexture(width, height);
-				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTraget, 0);
+		const FRAMEBUFFER = {
+            RENDERBUFFER: 0,
+            COLORBUFFER: 1
+        };
+        const framebuffers = [
+            gl.createFramebuffer(),
+            gl.createFramebuffer()
+		];
+		
+        const colorRenderbuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+        gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.RGBA8, width, height);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderbuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		
+		// color
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
 
-				const depthTexture = this.createDepthTexture(width, height);
-				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+		textures.color = targetTexture;
+		
+		// depth
+		if(depthAttatchment) {
+			const depthTexture = this.createDepthTexture(width, height);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
 
-				textures.color = renderTraget;
-				textures.depth = depthTexture;
+			textures.depth = depthTexture;
+		}
 
-				if (name) {
-					this.bufferTextures.set(name + '.depth', textures.depth);
-					this.bufferTextures.set(name, textures.color);
-				}
+		if (name) {
+			this.bufferTextures.set(name + '.depth', textures.depth);
+			this.bufferTextures.set(name, textures.color);
+		}
 
-				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-				return fbo;
-			},
+		const fbo = {
+			framebuffers: framebuffers,
+			textures: textures,
+			colorRenderbuffer: colorRenderbuffer,
 
-			depthbuffer: () => {
-				const depthTexture = this.createDepthTexture(width, height);
-				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
-				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-				textures.depth = depthTexture;
-
-				if (name) {
-					this.bufferTextures.set(name, textures.depth);
-				}
-
-				return fbo;
+			use() {
+				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+				gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+				
+				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+				gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+				gl.blitFramebuffer(
+					0, 0, width, height,
+					0, 0, width, height,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST
+				);
 			}
 		}
+		
+		this.framebuffers.set(name, fbo);
+
+		return fbo;
 	}
 
 	// create shader program
@@ -380,6 +399,8 @@ export class RendererContext {
 			bufferInfo.indexBuffer = gl.createBuffer();
 			bufferInfo.vertexBuffer = gl.createBuffer();
 
+			this.buffers.push(bufferInfo);
+
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
 
@@ -409,6 +430,31 @@ export class RendererContext {
 			gl.enableVertexAttribArray(attributes[bufferAttributes[i].attribute]);
 
 			lastAttrSize += bufferAttributes[i].size;
+		}
+	}
+
+	destroy() {
+		this.onDestory();
+
+		const gl = this.gl;
+
+		for(let buffer of this.buffers) {
+			gl.deleteBuffer(buffer.vertexBuffer);
+			gl.deleteVertexArray(buffer.vao);
+		}
+
+		for(let [_, fb] of this.framebuffers) {
+			gl.deleteTexture(fb.textures.color);
+			gl.deleteTexture(fb.textures.depth);
+
+			gl.deleteFramebuffer(fb.framebuffers[0]);
+			gl.deleteFramebuffer(fb.framebuffers[1]);
+			
+			gl.deleteRenderbuffer(fb.colorRenderbuffer);
+		}
+
+		for(let [_, shader] of this.shaders) {
+			gl.deleteProgram(shader.program);
 		}
 	}
 

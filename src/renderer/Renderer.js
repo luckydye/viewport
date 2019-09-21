@@ -360,7 +360,6 @@ export class RenderPass {
 
 	constructor(renderer, id, setup = {
 		resolution: null,
-		isDepthBuffer: null
 	}) {
 		this.id = id;
 		this.sceneSetup = setup;
@@ -372,15 +371,7 @@ export class RenderPass {
 		this.width = this.resolution[0] || renderer.width;
 		this.height = this.resolution[1] || renderer.height;
 
-		this.isDepthBuffer = setup.isDepthBuffer;
-
-		this.fbo = null;
-
-		if (this.isDepthBuffer) {
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
-		} else {
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
-		}
+		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height);
 	}
 
 	resize(width, height) {
@@ -388,11 +379,7 @@ export class RenderPass {
 			this.width = width;
 			this.height = height;
 
-			if (this.isDepthBuffer) {
-				this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).depthbuffer();
-			} else {
-				this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height).colorbuffer();
-			}
+			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height);
 		}
 	}
 

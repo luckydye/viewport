@@ -53,6 +53,7 @@ function init() {
     }));
 
     viewport.scene.add(new Plane({
+        position: [0, -10, 0],
         rotation: [90 * Math.PI / 180, 0, 0],
         scale: 1000
     }));
