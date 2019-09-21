@@ -114,36 +114,32 @@ export class Renderer extends RendererContext {
 		logger.log(`Resolution set to ${this.width}x${this.height}`);
 	}
 
-	createRenderPass(name, shader, setup = {}) {
-		const pass = new RenderPass(this, name, shader, setup);
+	createRenderPass(name, setup = {}) {
+		const pass = new RenderPass(this, name, setup);
 		this.renderPasses.push(pass);
 		return pass;
 	}
 
 	draw(setup) {
 		if(this.renderPasses.length > 0) {
-			this.renderRenderPasses();
+
+			for (let pass of this.renderPasses) {
+				pass.use();
+
+				this.gl.clearColor(0, 0, 0, 0);
+				this.clear();
+
+				this.drawScene(this.scene, pass.sceneSetup);
+				
+				this.clearFramebuffer();
+			}
+
 			this.compositeRenderPasses();
 		} else {
+
 			this.gl.clearColor(0, 0, 0, 0);
 			this.clear();
 			this.drawScene(this.scene, setup);
-		}
-	}
-
-	renderRenderPasses() {
-		const gl = this.gl;
-
-		for (let pass of this.renderPasses) {
-
-			pass.use();
-
-			gl.clearColor(0, 0, 0, 0);
-			this.clear();
-
-			this.drawScene(this.scene, pass.sceneSetup);
-			
-			this.clearFramebuffer();
 		}
 	}
 
@@ -167,11 +163,11 @@ export class Renderer extends RendererContext {
 
 		// push pass frame buffers to comp
 		for (let pass of this.renderPasses) {
-			this.pushTexture(this.getBufferTexture(pass.id), pass.id + 'Buffer');
+			this.pushTexture(this.getBufferTexture(pass.id), pass.id);
 		}
 
 		// push depth from color buffer
-		this.pushTexture(this.getBufferTexture('color.depth'), 'depthBuffer');
+		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
 
 		this.preComposition();
 
@@ -259,9 +255,11 @@ export class Renderer extends RendererContext {
 		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
 	}
 
-	// this.scene.activeCamera, null, pass.shader != null
-	// drawScene(scene, camera, filter, shaderOverwrite) {
-	drawScene(scene, setup = {}) {
+	drawScene(scene, setup = {
+		filter: null,
+		camera: null,
+		shaderOverwrite: null,
+	}) {
 		const objects = scene.getRenderableObjects();
 
 		const camera = setup.camera || scene.activeCamera;

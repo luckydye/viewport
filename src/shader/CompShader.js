@@ -41,10 +41,9 @@ export default class CompShader extends Shader {
         
         uniform vec3 cameraPosition;
         
-        uniform sampler2D colorBuffer;
-        uniform sampler2D worldBuffer;
-        uniform sampler2D depthBuffer;
-        uniform sampler2D shadowBuffer;
+        uniform sampler2D color;
+        uniform sampler2D depth;
+        uniform sampler2D shadow;
 
         uniform mat4 shadowProjViewMat;
         
@@ -79,20 +78,8 @@ export default class CompShader extends Shader {
         }
         
         void main() {
-            vec4 color = texture(colorBuffer, vTexCoords);
+            vec4 color = texture(color, vTexCoords);
             oFragColor = vec4(color.rgb, color.a);
-
-            // if(vTexCoords.x * 4.0 > 3.0 && vTexCoords.y * 4.0 > 3.0) {
-            //     float depth = pow(texture(shadowBuffer, vTexCoords * 4.0).r, 10000.0);
-            //     oFragColor = vec4(depth);
-
-            // } else {
-            //     vec4 world = texture(worldBuffer, vTexCoords);
-            //     vec4 projection = vShadowCoords * world * shadowProjViewMat;
-            //     vec4 shadow = Shadow(shadowBuffer, projection);
-
-            //     oFragColor *= shadow;
-            // }
         }`;
     }
 
