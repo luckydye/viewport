@@ -6,6 +6,10 @@ export default class DefaultShader extends MeshShader {
         return MeshShader.shaderFragmentHeader`
 
             uniform Material material;
+
+            uniform sampler2D shadowDepth;
+            uniform mat4 shadowProjMat;
+            uniform mat4 shadowViewMat;
             
             uniform vec3 lightDirection;
             uniform float ambientLight;
@@ -35,10 +39,58 @@ export default class DefaultShader extends MeshShader {
                 vec4 mapped = texture(image, vTexCoords);
 
                 if(mapped.a > 0.0) {
-                    value *= vec4(mapped.rgb * mapped.a, 1.0);
+                    value *= vec4(mapped.rgb, 1.0);
                 }
 
                 return value;
+            }
+
+            float saturate(float value) {
+                return clamp(value, 0.0, 1.0);
+            }
+
+            void Fresnel(out vec4 finalColor, vec3 normal) {
+                vec3 viewDir = normalize(vViewPos - vWorldPos.xyz);
+                float fresnel = dot(normal, viewDir);
+                fresnel = saturate(1.0 - fresnel);
+                fresnel = pow(fresnel, 75.0);
+                finalColor += vec4(vec3(1., .0, .0) * fresnel, 0.0);
+            }
+
+            vec4 powVec4(vec4 vec, float value) {
+                vec.r = pow(vec.r, value);
+                vec.g = pow(vec.g, value);
+                vec.b = pow(vec.b, value);
+                vec.a = pow(vec.a, value);
+                return vec;
+            }
+
+            void Shadow(out vec4 finalColor, vec3 normal) {
+
+                vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * vWorldPos;
+
+                vec3 vertex_relative_to_light = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
+                vertex_relative_to_light = vertex_relative_to_light * 0.5 + 0.5;
+
+                vec2 shadowTexCoord = vec2(
+                    clamp(vertex_relative_to_light.x, 0.0, 1.0),
+                    clamp(vertex_relative_to_light.y, 0.0, 1.0)
+                );
+                vec4 shadowmap_color = texture(shadowDepth, shadowTexCoord);
+
+                float shadowmap_distance = shadowmap_color.r;
+
+                vec3 norm = normalize(normal);
+                vec3 lightDir = normalize(lightDirection);
+                float diffuse = max(dot(norm, lightDir), 0.0);
+
+                if(diffuse > 0.25) {
+                    if ( vertex_relative_to_light.z <= shadowmap_distance + 0.0000002 ) {
+                        finalColor.rgb *= 1.0;
+                    } else {
+                        finalColor.rgb *= 0.75;
+                    }
+                }
             }
 
             void defaultShading() {
@@ -47,11 +99,15 @@ export default class DefaultShader extends MeshShader {
 
                 DiffuseShading(oFragColor, normal, ambientLight);
 
+                Shadow(oFragColor, normal);
+
                 // specular
                 float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
                 float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
 
                 Specular(oFragColor, normal, specular, roughness);
+
+                // Fresnel(oFragColor, vNormal);
             }
             
             void main() {

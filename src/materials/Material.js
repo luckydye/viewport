@@ -34,8 +34,8 @@ export class Material {
 
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;
-        this.specular = 1;
-        this.roughness = 1;
+        this.specular = 0.33;
+        this.roughness = 0.25;
 
         this.textureScale = 0;
 

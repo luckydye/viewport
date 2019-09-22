@@ -84,7 +84,6 @@ export default class MeshShader extends Shader {
         uniform SceneProjection scene;
         uniform Material material;
         
-        uniform mat4 lightProjViewMatrix;
         uniform vec4 cameraPosition;
 
         uniform float time;

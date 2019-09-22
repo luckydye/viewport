@@ -47,8 +47,6 @@ export default class CompShader extends Shader {
         uniform sampler2D color;
         uniform sampler2D depth;
         uniform sampler2D shadow;
-
-        uniform mat4 shadowProjViewMat;
         
         out vec4 oFragColor;
 
@@ -56,18 +54,6 @@ export default class CompShader extends Shader {
 
         vec4 Bloom(sampler2D image) {
             return blur9(image, vTexCoords, vec2(1024.0), vec2(1.5, 0.0));
-        }
-
-        vec4 Shadow(sampler2D shadowMap, vec4 shadowCoord) {
-
-            float distance = normalize(texture(shadowMap, shadowCoord.xy).z);
-
-            float shadow = 1.0;
-            if(distance < shadowCoord.z) {
-                shadow = 0.5;
-            }
-
-            return vec4(shadow);
         }
         
         void main() {

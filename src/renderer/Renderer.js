@@ -66,7 +66,7 @@ export class Renderer extends RendererContext {
 		this.currentRenderBufferSlot = 0;
 
 		this.lightDirection = [500.0, 250.0, 300.0];
-		this.ambientLight = 0.25;
+		this.ambientLight = 0.33;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
@@ -75,8 +75,14 @@ export class Renderer extends RendererContext {
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', {
 				get camera() { 
+					self.scene.lightSources.sensor.width = 4096;
+					self.scene.lightSources.sensor.height = 4096;
 					return self.scene.lightSources;
 				},
+				filter(geo) {
+					return !geo.guide;
+				},
+				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize]
 			}),
 			new RenderPass(this, 'color'),
@@ -88,6 +94,14 @@ export class Renderer extends RendererContext {
 
 	setScene(scene) {
 		this.scene = scene;
+
+		if(this.scene.lightSources) {
+			this.lightDirection = [
+				this.scene.lightSources.worldPosition.x,
+				this.scene.lightSources.worldPosition.y,
+				this.scene.lightSources.worldPosition.z,
+			];
+		}
 	}
 
 	updateViewport() {
@@ -98,11 +112,6 @@ export class Renderer extends RendererContext {
 
 		if (this.scene) {
 			this.scene.activeCamera.sensor = {
-				width: this.width,
-				height: this.height
-			};
-
-			this.scene.lightSources.sensor = {
 				width: this.width,
 				height: this.height
 			};
@@ -158,10 +167,6 @@ export class Renderer extends RendererContext {
 
 		this.useShader(this.compShader);
 
-		this.currentShader.setUniforms(this, {
-			'shadowProjViewMat': this.scene.lightSources.projViewMatrix,
-		});
-
 		this.currentRenderBufferSlot = 0;
 
 		// push pass frame buffers to comp
@@ -171,6 +176,7 @@ export class Renderer extends RendererContext {
 
 		// push depth from color buffer
 		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
+		this.pushTexture(this.getBufferTexture('shadow.depth'), 'shadow');
 
 		this.preComposition();
 
@@ -314,6 +320,15 @@ export class Renderer extends RendererContext {
 			}
 
 			this.applyMaterial(geo.material);
+
+			if(!shaderOverwrite) {
+				this.currentShader.setUniforms(this, {
+					'shadowProjMat': this.scene.lightSources.projMatrix,
+					'shadowViewMat': this.scene.lightSources.viewMatrix,
+				});
+
+				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);
+			}
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);

@@ -11,6 +11,7 @@ export class Grid extends Guide {
 		super();
 		this.size = size;
 		this.count = count;
+		this.guide = true;
 	}
 
 	onCreate(args) {
