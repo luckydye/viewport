@@ -55,6 +55,24 @@ function init() {
         scale: 50
     }));
 
+    viewport.scene.add(new Geometry({
+        material: new DefaultMaterial({
+            diffuseColor: [1, 0, 0.2, 1]
+        }),
+        position: [500, 600, 200],
+        vertecies: Loader.loadObjFile(Resources.get('model')),
+        scale: 100
+    }));
+
+    viewport.scene.add(new Geometry({
+        material: new DefaultMaterial({
+            diffuseColor: [1, 0, 0.2, 1]
+        }),
+        position: [100, 500, 0],
+        vertecies: Loader.loadObjFile(Resources.get('model')),
+        scale: 25
+    }));
+
     viewport.scene.add(new Cube({
         material: new DefaultMaterial({
             diffuseColor: [0.55, 0.5, 0.6, 1],
