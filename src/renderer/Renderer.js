@@ -94,14 +94,6 @@ export class Renderer extends RendererContext {
 
 	setScene(scene) {
 		this.scene = scene;
-
-		if(this.scene.lightSources) {
-			this.lightDirection = [
-				this.scene.lightSources.worldPosition.x,
-				this.scene.lightSources.worldPosition.y,
-				this.scene.lightSources.worldPosition.z,
-			];
-		}
 	}
 
 	updateViewport() {
@@ -176,7 +168,7 @@ export class Renderer extends RendererContext {
 
 		// push depth from color buffer
 		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
-		this.pushTexture(this.getBufferTexture('shadow.depth'), 'shadow');
+		this.pushTexture(this.getBufferTexture('shadow'), 'shadow');
 
 		this.preComposition();
 
@@ -280,6 +272,14 @@ export class Renderer extends RendererContext {
 			tempShader = this.currentShader;
 		}
 
+		if(this.scene.lightSources) {
+			this.lightDirection = [
+				this.scene.lightSources.worldPosition.x,
+				this.scene.lightSources.worldPosition.y,
+				this.scene.lightSources.worldPosition.z,
+			];
+		}
+
 		// prepeare every used shader with global uniforms of the scene
 		for (let [_, shader] of this.shaders) {
 			this.useShader(shader);
@@ -290,11 +290,14 @@ export class Renderer extends RendererContext {
 			}, 'scene');
 
 			this.currentShader.setUniforms(this, {
-				'time': performance.now(),
+				'shadowProjMat': this.scene.lightSources.projMatrix,
+				'shadowViewMat': this.scene.lightSources.viewMatrix,
 				'lightDirection': this.lightDirection,
 				'ambientLight': this.ambientLight,
 				'cameraPosition': camera.position
 			});
+
+			this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);
 		}
 
 		if (tempShader) {
@@ -320,15 +323,6 @@ export class Renderer extends RendererContext {
 			}
 
 			this.applyMaterial(geo.material);
-
-			if(!shaderOverwrite) {
-				this.currentShader.setUniforms(this, {
-					'shadowProjMat': this.scene.lightSources.projMatrix,
-					'shadowViewMat': this.scene.lightSources.viewMatrix,
-				});
-
-				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);
-			}
 
 			if (geo.instanced) {
 				this.drawGeoInstanced(geo);
