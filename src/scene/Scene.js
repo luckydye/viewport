@@ -1,4 +1,3 @@
-import { Grid } from '../geo/Grid.js';
 import { Vec, Transform } from '../Math.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
@@ -59,6 +58,10 @@ export class Scene extends Transform {
 
 		// this.lightSources.position = Vec.add(position, Vec.multiply(lightoffset, new Vec(5.0, 5.0, 5.0)));
 		// this.lightSources.lookAt = position;
+
+		// this.lightSources.origin.x = -this.activeCamera.worldPosition.x;
+		// this.lightSources.origin.Y = -this.activeCamera.worldPosition.y;
+		// this.lightSources.origin.z = -this.activeCamera.worldPosition.z;
 
 		if (this.lightSources) {
 			this.lightSources.update(ms);

@@ -106,7 +106,7 @@ export default class MeshShader extends Shader {
 
             // displacement
             vec2 displace = texture(material.displacementMap, vTexCoords).rg;
-            vTexCoords = aTexCoords + (displace.xy - 0.5);
+            vTexCoords += (displace.xy);
         
             vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
             

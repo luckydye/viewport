@@ -4,9 +4,10 @@ export class Spotlight extends Camera {
 	
 	constructor(args) {
 		super(args = {
-			position: [0, -1200, -1000],
+			position: [0, -5000, 0],
 			rotation: [0.8, 0, 0],
-			fov: 50
+			farplane: 10000,
+			fov: 90
 		});
 	}
 
