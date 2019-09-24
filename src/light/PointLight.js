@@ -1,5 +1,5 @@
 import DefaultMaterial from "../materials/DefaultMaterial.js";
-import { Cube } from './../geo/Cube.js';
+import { Cube } from '../geo/Cube.js';
 
 export class Pointlight extends Cube {
 

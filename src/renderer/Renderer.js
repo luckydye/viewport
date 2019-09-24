@@ -4,7 +4,6 @@ import { Logger } from '../Logger.js';
 import Config from '../Config.js';
 import { mat4, glMatrix } from 'gl-matrix';
 import { Vec } from '../Math.js';
-import { Pointlight } from '../light/Pointlight.js';
 import { Geometry } from '../scene/Geometry.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
