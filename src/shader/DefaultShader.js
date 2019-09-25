@@ -2,6 +2,17 @@ import MeshShader from './MeshShader.js';
 
 export default class DefaultShader extends MeshShader {
 
+    static defaultShading() {
+        return `
+            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal * 100.0, 1.0)).xyz;
+            float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
+            float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
+
+            Specular(oFragColor, normal, specular, roughness);
+            DiffuseShading(oFragColor, normal, ambientLight);
+        `;
+    }
+
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
 
@@ -87,23 +98,6 @@ export default class DefaultShader extends MeshShader {
                 }
             }
 
-            void defaultShading() {
-                // diffuse
-                vec3 normal = getMappedValue(material.normalMap, vec4(vNormal * 100.0, 1.0)).xyz;
-
-                DiffuseShading(oFragColor, normal, ambientLight);
-
-                Shadow(oFragColor, normal);
-
-                // specular
-                float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
-                float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
-
-                Specular(oFragColor, normal, specular, roughness);
-
-                // Fresnel(oFragColor, vNormal);
-            }
-            
             void main() {
             
                 // albedo
@@ -115,7 +109,7 @@ export default class DefaultShader extends MeshShader {
 
                 oFragColor = vec4(color.rgb, color.a - material.transparency);
 
-                defaultShading();
+                ${this.defaultShading()}
             }
         `;
     }

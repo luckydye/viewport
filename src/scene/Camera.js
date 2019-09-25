@@ -69,7 +69,6 @@ export class Camera extends Entity {
 			nearplane = 0.025,
 			width = 1280,
 			height = 720,
-			oribting = false,
 		} = args;
 		super(args);
 
@@ -80,7 +79,6 @@ export class Camera extends Entity {
 		this.farplane = farplane;
 		this.nearplane = nearplane;
 		this.lookAt = new Vec(0, 0, 0);
-		this.oribting = oribting;
 		this.perspective = Camera.PERSPECTIVE;
 
 		this.projMatrix = mat4.create();
@@ -102,9 +100,6 @@ export class Camera extends Entity {
 
 		const ar = this.sensor.width / this.sensor.height;
 
-		const position = Vec.add(camera.position, camera.origin);
-
-
 		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 
 		if (this.perspective == Camera.ORTHGRAPHIC) {
@@ -113,47 +108,20 @@ export class Camera extends Entity {
 			mat4.ortho(projMatrix, -sx, sx, -sy, sy, 1, camera.nearplane, camera.farplane);
 		}
 
-		if (this.oribting) {
+		mat4.lookAt(
+			viewMatrix,
+			[0, 0, 0],
+			camera.lookAt,
+			[0, 1, 0]
+		);
 
-			mat4.scale(viewMatrix, viewMatrix, [
-				camera.scale,
-				camera.scale,
-				camera.scale,
-			]);
+		mat4.translate(viewMatrix, viewMatrix, camera.origin);
 
-			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
+		mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
+		mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
+		mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
 
-			mat4.translate(viewMatrix, viewMatrix, position);
-
-			mat4.lookAt(
-				viewMatrix,
-				camera.position,
-				camera.lookAt,
-				[0, 1, 0]
-			);
-
-		} else {
-			mat4.scale(viewMatrix, viewMatrix, [
-				camera.scale,
-				camera.scale,
-				camera.scale,
-			]);
-
-			mat4.lookAt(
-				viewMatrix,
-				[0, 0, 0],
-				camera.lookAt,
-				[0, 1, 0]
-			);
-
-			mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-			mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-			mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
-
-			mat4.translate(viewMatrix, viewMatrix, position);
-		}
+		mat4.translate(viewMatrix, viewMatrix, camera.position);
 
 		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 	}

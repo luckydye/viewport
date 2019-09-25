@@ -6,12 +6,10 @@ export class ViewportController extends EntityControler {
 
 		const entity = this.entity;
 
-		entity.oribting = true;
-
 		this.sensivity = 0.0033;
 
-		this.angleY = 0;
-		this.angleX = Math.PI * 180;
+		this.angleY = 1.0;
+		this.angleX = 1.0;
 		this.distance = -1500;
 
 		const down = e => {
@@ -40,16 +38,14 @@ export class ViewportController extends EntityControler {
 			if (this.rotating) {
 				this.angleY += e.movementX * this.sensivity;
 				this.angleX += e.movementY * this.sensivity;
-
-				this.angleX = Math.max(Math.min(this.angleX, Math.PI), 0);
 			}
 			update();
 		}
 
 		const update = () => {
-			entity.position.x = Math.sin(-this.angleY) * this.distance;
-			entity.position.y = Math.min(Math.cos(-this.angleX), Math.PI) * this.distance;
-			entity.position.z = Math.cos(-this.angleY) * this.distance;
+			entity.rotation.y = this.angleY;
+			entity.rotation.x = this.angleX;
+			entity.origin.z = this.distance;
 		}
 
 		this.viewport.addEventListener("wheel", wheel);

@@ -8,8 +8,7 @@ import { Geometry } from '../scene/Geometry.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
-import WorldShader from '../shader/WorldShader.js';
-import LightShader from '../shader/LightingShader.js';
+import LightingShader from '../shader/LightingShader.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -83,6 +82,12 @@ export class Renderer extends RendererContext {
 				},
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize]
+			}),
+			new RenderPass(this, 'lighting', {
+				filter(geo) {
+					return !geo.guide;
+				},
+				shaderOverwrite: new LightingShader()
 			}),
 			new RenderPass(this, 'color'),
 		];
@@ -293,7 +298,7 @@ export class Renderer extends RendererContext {
 				'shadowViewMat': this.scene.lightSources.viewMatrix,
 				'lightDirection': this.lightDirection,
 				'ambientLight': this.ambientLight,
-				'cameraPosition': camera.position
+				'cameraPosition': Vec.add(camera.position, camera.origin),
 			});
 
 			this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);

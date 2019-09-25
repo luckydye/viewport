@@ -41,10 +41,7 @@ function init() {
         viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
     })
 
-    new PlayerControler(viewport.camera, viewport);
-
-    viewport.camera.position.z = -500;
-    viewport.camera.position.y = -200;
+    new ViewportController(viewport.camera, viewport);
 
     viewport.scene.add(new Geometry({
         material: new DefaultMaterial({

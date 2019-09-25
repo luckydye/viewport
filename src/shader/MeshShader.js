@@ -56,7 +56,14 @@ export default class MeshShader extends Shader {
         `;
     }
 
-    static shaderFragmentHeader(str = "") {
+    static shaderFragmentHeader(strings, ...raw) {
+        let string = "";
+
+        for(let i = 0; i < strings.length; i++) {
+            string += strings[i] || "";
+            string += raw[i] || "";
+        }
+
         return `#version 300 es
 
             precision mediump float;
@@ -74,7 +81,7 @@ export default class MeshShader extends Shader {
         
             out vec4 oFragColor;
 
-            ${str}
+            ${string}
         `;
     }
 

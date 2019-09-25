@@ -1,22 +1,14 @@
 import MeshShader from './MeshShader.js';
+import DefaultShader from './DefaultShader.js';
 
-export default class LightShader extends MeshShader {
+export default class LightingShader extends DefaultShader {
+    static defaultShading() {
+        return `
+            oFragColor = vec4(1.0);
 
-    static fragmentSource() {
-        return MeshShader.shaderFragmentHeader`
+            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
 
-            uniform Material material;
-
-            void main() {
-                vec4 spec = texture(material.specularMap, vTexCoords);
-
-                if(spec.r > 0.75) {
-                    oFragColor = vec4(vec3(1.0), 1.0);
-                } else {
-                    oFragColor = vec4(vec3(0.0), 1.0);
-                }
-            }
+            Shadow(oFragColor, normal);
         `;
     }
-
 }
