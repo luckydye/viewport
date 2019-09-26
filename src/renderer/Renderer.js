@@ -72,6 +72,8 @@ export class Renderer extends RendererContext {
 		this.materialShaders = new Map();
 		this.textures = new Map();
 
+		this.info = {};
+
 		const self = this;
 
 		this.currentScene = null;
@@ -133,7 +135,24 @@ export class Renderer extends RendererContext {
 		return pass;
 	}
 
+	clearBuffers() {
+		this.vertexBuffers = new Map();
+		this.materialShaders = new Map();
+		this.textures = new Map();
+	}
+
 	draw(scene, setup) {
+		this.info.passes = this.renderPasses.length;
+		this.info.debug = this.debug;
+		this.info.shaders = this.shaders.size;
+		this.info.materials = this.materialShaders.size;
+		this.info.textures = this.textures.size;
+		this.info.objects = this.vertexBuffers.size;
+
+		if(this.currentScene !== scene) {
+			this.clearBuffers();
+		}
+
 		if(!scene) {
 			logger.error('No scene');
 		}
@@ -342,10 +361,14 @@ export class Renderer extends RendererContext {
 			objects.push(this.grid);
 		}
 
+		this.info.verts = 0;
+
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
 				this.drawMesh(obj, shaderOverwrite);
 			}
+
+			this.info.verts += this.getGemoetryBuffer(obj).vertecies.length;
 		}
 	}
 

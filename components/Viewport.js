@@ -16,6 +16,7 @@ export default class Viewport extends HTMLElement {
             <style>
                 :host {
                     display: block;
+                    position: relative;
                 }
                 canvas {
                     width: 100%;
@@ -25,7 +26,20 @@ export default class Viewport extends HTMLElement {
                     object-position: center;
                     object-fit: cover;
                 }
+                .stats {
+                    position: absolute;
+                    top: 20px;
+                    left: 20px;
+                    z-index: 10000;
+                    color: white;
+                    opacity: 0.75;
+                    pointer-events: none;
+                    user-select: none;
+                    margin: 0;
+                }
             </style>
+
+            <pre class="stats"></pre>
         `;
     }
 
@@ -93,6 +107,10 @@ export default class Viewport extends HTMLElement {
 
         this.frame.lastFrame = currentFrame;
         this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
+
+        if(this.renderer.debug) {
+            this.shadowRoot.querySelector('.stats').innerHTML = JSON.stringify(this.renderer.info, null, '  ');
+        }
     }
 
     init(canvas) {
