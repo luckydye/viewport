@@ -10,9 +10,9 @@ export default class LightingShader extends DefaultShader {
             float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
             float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
 
-            Shadow(oFragColor, normal);
-            Specular(oFragColor, normal, specular, roughness);
             DiffuseShading(oFragColor, normal, ambientLight);
+            Specular(oFragColor, normal, specular, roughness);
+            Shadow(oFragColor, normal);
         `;
     }
 }

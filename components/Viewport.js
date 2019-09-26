@@ -1,16 +1,9 @@
-import { Logger } from '../src/Logger.js';
 import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/Resources.js";
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
 import { Camera } from '../src/scene/Camera.js';
-
-const logger = new Logger('Viewport');
-
-let nextFrame = 0,
-    lastFrame = 0,
-    accumulator = 0,
-    tickrate = 128;
+import { ViewportController } from '../src/controlers/ViewportController.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -46,17 +39,29 @@ export default class Viewport extends HTMLElement {
 
         this.canvas = document.createElement('canvas');
 
-        this.lastFrame = {};
+        this.frame = {
+            currentFrame: 0,
+            nextFrame: 0,
+            lastFrame: 0,
+            accumulator: 0,
+            tickrate: 128
+        };
 
         this.renderer = new Renderer(this.canvas);
 
         this.camera = new Camera({
-            fov: 90,
+            position: [0, 0, 0],
+            fov: 90
         });
 
-        this.scene = new Scene(this.camera);
+        this.scene = new Scene([ this.camera ]);
 
-        this.renderer.setScene(this.scene);
+        new ViewportController(this.camera, this);
+    }
+
+    setScene(scene) {
+        this.scene = scene;
+        this.scene.add(this.camera);
     }
 
     connectedCallback() {
@@ -66,31 +71,33 @@ export default class Viewport extends HTMLElement {
 
         Resources.load().then(() => {
             this.init(this.canvas);
-
-            logger.log("resources initialized");
             this.render();
         });
     }
 
     render() {
         const currentFrame = performance.now();
-        const delta = currentFrame - lastFrame;
+        const delta = this.frame.lastFrame - this.frame.currentFrame;
 
-        accumulator += delta;
-        if (accumulator >= (1000 / tickrate)) {
-            accumulator = 0;
+        this.frame.accumulator += delta;
+        if (this.frame.accumulator >= (1000 / this.frame.tickrate)) {
+            this.frame.accumulator = 0;
 
             this.scene.update(delta);
             this.scheduler.run(delta);
         }
-        this.renderer.draw();
+        this.renderer.draw(this.scene);
 
-        lastFrame = currentFrame;
-        nextFrame = requestAnimationFrame(this.render.bind(this));
+        this.frame.lastFrame = currentFrame;
+        this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
     }
 
     init(canvas) {
         this.renderer.setResolution(this.clientWidth, this.clientHeight);
+
+        window.addEventListener('resize', () => {
+            this.renderer.setResolution(this.clientWidth, this.clientHeight);
+        });
 
         this.dispatchEvent(new Event('load'));
     }

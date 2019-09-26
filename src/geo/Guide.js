@@ -2,13 +2,11 @@ import PrimitivetMaterial from "../materials/PrimitiveMaterial.js";
 import { Vec } from "../Math.js";
 import { Geometry } from "../scene/Geometry.js";
 
-const DEFAULT_GUIDE_MATERIAL = new PrimitivetMaterial();
-
 export class Guide extends Geometry {
 
 	onCreate(args) {
 		args.guide = true;
-		args.material = DEFAULT_GUIDE_MATERIAL;
+		args.material = new PrimitivetMaterial();
 	}
 
 	get vertecies() {

@@ -1,8 +1,6 @@
 import { Transform } from "../Math.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
 
-const DEFAULT_MATERIAL = new DefaultMaterial();
-
 export class Geometry extends Transform {
 
 	static get attributes() {
@@ -38,7 +36,7 @@ export class Geometry extends Transform {
 
 		const {
 			vertecies = null,
-			material = DEFAULT_MATERIAL,
+			material = null,
 			hidden = false,
 			guide = false,
 			uv = [0, 0],

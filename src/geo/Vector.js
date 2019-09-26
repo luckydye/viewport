@@ -1,13 +1,11 @@
 import DefaultMaterial from "../materials/DefaultMaterial.js";
 import { Geometry } from "../scene/Geometry.js";
 
-const DEFAULT_GUIDE_MATERIAL = new DefaultMaterial();
-
 export class Vector extends Geometry {
 
 	onCreate(args) {
 		args.guide = true;
-		args.material = DEFAULT_GUIDE_MATERIAL;
+		args.material = new DefaultMaterial();
 
 		args.points = args.points || [];
 		this.points = args.points;

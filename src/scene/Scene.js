@@ -4,22 +4,28 @@ import { Camera } from './Camera.js';
 
 export class Scene extends Transform {
 
-	constructor() {
+	get cameras() {
+		return this.getObjectsByConstructor(Camera);
+	}
+
+	get lightsource() {
+		return this.getObjectsByConstructor(Spotlight)[0];
+	}
+
+	constructor(objs = []) {
 		super();
 		
 		this.objects = new Set();
-
-		this.activeCamera = new Camera({
-			position: [0, -200, -1000]
-		});
-
-		this.lightSources = new Spotlight({
-			fov: 90,
-		});
-
 		this.lastchange = Date.now();
 
-		this.clear();
+		this.add(objs);
+
+		this.add(new Spotlight({
+			position: [0, -5000, -3000],
+			rotation: [1.0, 0, 0],
+			farplane: 10000,
+			fov: 90,
+		}));
 	}
 
 	add(obj) {
@@ -47,14 +53,6 @@ export class Scene extends Transform {
 	}
 
 	update(ms) {
-		if (this.activeCamera) {
-			this.activeCamera.update(ms);
-		}
-
-		if (this.lightSources) {
-			this.lightSources.update(ms);
-		}
-
 		for (let obj of this.objects) {
 			if (obj.update) {
 				obj.update(ms);
@@ -62,17 +60,22 @@ export class Scene extends Transform {
 		}
 	}
 
-	getRenderableObjects() {
+	getObjectsByConstructor(objectConstructor) {
+		return [...this.objects].filter(obj => obj.constructor.name == objectConstructor.name);
+	}
+
+	getRenderableObjects(camera) {
+
 		let arr = [...this.objects].filter(obj => {
 
 			const pos = Vec.add(this.origin, obj.position);
 
 			const dist = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - pos.x, 2) +
-				Math.pow(-this.activeCamera.position.z - pos.z, 2)
+				Math.pow(-camera.position.x - pos.x, 2) +
+				Math.pow(-camera.position.z - pos.z, 2)
 			);
 
-			return !obj.hidden && dist < this.activeCamera.farplane;
+			return !obj.hidden && dist < camera.farplane;
 		});
 
 		arr = arr.sort((a, b) => {
@@ -81,13 +84,13 @@ export class Scene extends Transform {
 			const posB = Vec.add(this.origin, b.position);
 
 			const distA = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - posA.x, 2) +
-				Math.pow(-this.activeCamera.position.z - posA.z, 2)
+				Math.pow(-camera.position.x - posA.x, 2) +
+				Math.pow(-camera.position.z - posA.z, 2)
 			);
 
 			const distB = Math.sqrt(
-				Math.pow(-this.activeCamera.position.x - posB.x, 2) +
-				Math.pow(-this.activeCamera.position.z - posB.z, 2)
+				Math.pow(-camera.position.x - posB.x, 2) +
+				Math.pow(-camera.position.z - posB.z, 2)
 			);
 
 			return distB - distA;

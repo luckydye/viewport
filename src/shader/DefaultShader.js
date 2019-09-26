@@ -85,10 +85,14 @@ export default class DefaultShader extends MeshShader {
 
                 float shadowmap_distance = shadowmap_color.r;
 
-                if (vertex_relative_to_light.z <= shadowmap_distance + 0.0000002) {
-                    finalColor.rgb *= 1.0;
-                } else {
-                    finalColor.rgb *= 0.5;
+                float diffuse = max(dot(normalize(normal), normalize(lightDirection)), 0.0);
+
+                if(diffuse > 0.0) {
+                    if (vertex_relative_to_light.z <= shadowmap_distance + 0.0000002) {
+                        finalColor.rgb *= 1.0;
+                    } else {
+                        finalColor.rgb *= 0.5;
+                    }
                 }
             }
 

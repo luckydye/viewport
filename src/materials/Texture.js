@@ -1,7 +1,7 @@
 export class Texture {
 
     static get EMPTY() {
-        return emptyTexture;
+        return new Texture();
     }
 
     get width() { return this.image.width; }
@@ -10,7 +10,7 @@ export class Texture {
     constructor(image) {
 
         this.type = "TEXTURE_2D";
-        this.gltexture = null; // gets filled in by the renderer
+        this.gltexture = null;
         this.animated = false;
 
         this.image = image;
@@ -18,5 +18,3 @@ export class Texture {
     }
 
 }
-
-const emptyTexture = new Texture();

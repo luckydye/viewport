@@ -11,6 +11,9 @@ import { ViewportController } from '../src/controlers/ViewportController.js';
 import PrimitiveShader from '../src/shader/PrimitiveShader.js';
 import { Cube } from '../src/geo/Cube.js';
 import CompShader from '../src/shader/CompShader.js';
+import Viewport from '../components/Viewport.js';
+import { Scene } from '../src/scene/Scene.js';
+import { Camera } from '../src/scene/Camera.js';
 
 Config.global.load();
 Config.global.save();
@@ -21,34 +24,53 @@ Resources.add({
 }, false);
 
 window.addEventListener('load', () => {
-    const viewport = document.querySelector('gl-viewport');
+    Resources.load().then(() => {
+        const scene = createScene();
 
-    viewport.addEventListener('load', () => {
-        init();
-    });
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            viewport.setScene(scene);
+
+            viewport.camera.position.y = -400;
+        }
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            // viewport.setScene(scene);
+            
+            viewport.camera.position.y = -400;
+        }
+    })
 })
 
-function init() {
-    const renderer = viewport.renderer;
+function createScene() {
 
-    viewport.renderer.setResolution(240, 240);
+    const scene = new Scene();
 
-    new ViewportController(viewport.camera, viewport);
-
-    viewport.scene.add(new Geometry({
+    scene.add(new Geometry({
         material: new DefaultMaterial({
-            diffuseColor: [0.4, 0.5, 1, 1]
+            diffuseColor: [0.4, 0.65, 0.4, 1]
         }),
-        position: [0, 0, 0],
+        position: [0, 400, 0],
         vertecies: Loader.loadObjFile(Resources.get('sphere')),
-        scale: 300
+        scale: 100
+    }));
+
+    scene.add(new Plane({
+        material: new DefaultMaterial({
+            diffuseColor: [0.4, 0.65, 0.4, 1]
+        }),
+        position: [0, -30, 0],
+        rotation: [Math.PI / 2, 0, 0],
+        scale: 2000
     }));
 
     genTrees();
 
     function genTrees() {
 
-        const steps = 35;
+        const steps = 30;
         const scatter = 0.8;
 
         const treeamt = new DefaultMaterial({
@@ -65,26 +87,16 @@ function init() {
         }
 
         function tree(xa, ya) {
-            viewport.scene.add(new Geometry({
+            scene.add(new Geometry({
                 material: treeamt,
-                position: [0, 0, 0],
+                position: [0, 400, 0],
                 rotation: [xa * 2, 0, ya * 2],
-                origin: [0, 600, 0],
+                origin: [0, 180, 0],
                 vertecies: verts,
-                scale: 30
+                scale: 15
             }));
         }
     }
 
-    setInterval(() => {
-        const light = viewport.scene.lightSources;
-
-        const a = performance.now() / 1000;
-        const dist = 2000;
-
-        light.position.x = (Math.sin(a) * dist) + viewport.scene.activeCamera.position.x;
-        light.position.z = (Math.cos(a) * dist) + viewport.scene.activeCamera.position.z;
-        light.position.y = -dist;
-        light.rotation.y = -a + Math.PI;
-    }, 16);
+    return scene;
 }

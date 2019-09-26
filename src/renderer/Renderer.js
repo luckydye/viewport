@@ -9,6 +9,7 @@ import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
 import LightingShader from '../shader/LightingShader.js';
+import { Camera } from '../scene/Camera.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -63,19 +64,22 @@ export class Renderer extends RendererContext {
 
 		this.currentRenderBufferSlot = 0;
 
-		this.lightDirection = [500.0, 250.0, 300.0];
 		this.ambientLight = 0.33;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
 		const self = this;
 
+		this.currentScene = null;
+
 		this.renderPasses = [
 			new RenderPass(this, 'shadow', {
-				get camera() { 
-					self.scene.lightSources.sensor.width = 4096;
-					self.scene.lightSources.sensor.height = 4096;
-					return self.scene.lightSources;
+				get camera() {
+					if(self.currentScene.lightsource) {
+						self.currentScene.lightsource.sensor.width = 4096;
+						self.currentScene.lightsource.sensor.height = 4096;
+						return self.currentScene.lightsource;
+					}
 				},
 				filter(geo) {
 					return !geo.guide;
@@ -89,28 +93,25 @@ export class Renderer extends RendererContext {
 				},
 				shaderOverwrite: new LightingShader()
 			}),
-			new RenderPass(this, 'color'),
+			new RenderPass(this, 'color', {
+				filter(geo) {
+					return !geo.guide;
+				}
+			}),
+			new RenderPass(this, 'guides', {
+				filter(geo) {
+					return geo.guide;
+				}
+			}),
 		];
 
 		this.renderTarget = new Screen();
 		this.compShader = new CompShader();
 	}
 
-	setScene(scene) {
-		this.scene = scene;
-	}
-
 	updateViewport() {
-
 		for (let pass of this.renderPasses) {
 			pass.resize(this.width, this.height);
-		}
-
-		if (this.scene) {
-			this.scene.activeCamera.sensor = {
-				width: this.width,
-				height: this.height
-			};
 		}
 	}
 
@@ -128,7 +129,11 @@ export class Renderer extends RendererContext {
 		return pass;
 	}
 
-	draw(setup) {
+	draw(scene, setup) {
+		if(!scene) {
+			logger.error('No scene');
+		}
+		
 		if(this.renderPasses.length > 0) {
 
 			for (let pass of this.renderPasses) {
@@ -137,7 +142,7 @@ export class Renderer extends RendererContext {
 				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
-				this.drawScene(this.scene, pass.sceneSetup);
+				this.drawScene(scene, pass.sceneSetup);
 				
 				this.clearFramebuffer();
 			}
@@ -147,7 +152,7 @@ export class Renderer extends RendererContext {
 
 			this.gl.clearColor(0, 0, 0, 0);
 			this.clear();
-			this.drawScene(this.scene, setup);
+			this.drawScene(scene, setup);
 		}
 	}
 
@@ -172,6 +177,7 @@ export class Renderer extends RendererContext {
 
 		// push depth from color buffer
 		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
+		this.pushTexture(this.getBufferTexture('guides.depth'), 'guidesDepth');
 		this.pushTexture(this.getBufferTexture('shadow'), 'shadow');
 
 		this.preComposition();
@@ -230,20 +236,14 @@ export class Renderer extends RendererContext {
 
 		this.useVAO(geo.buffer.vao);
 
-		if (!this.scene || this.scene.lastchange != geo.buffer.lastchange) {
-			if (this.scene) {
-				geo.buffer.lastchange = this.scene.lastchange;
-			}
-
-			this.initializeBuffersAndAttributes(geo.buffer);
-		}
+		this.initializeBuffersAndAttributes(geo.buffer);
 
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
 
-		const position = Vec.add(geo.position, this.scene.origin);
-		const rotation = Vec.add(geo.rotation, this.scene.rotation);
-		const scale = geo.scale * this.scene.scale;
+		const position = geo.position;
+		const rotation = geo.rotation;
+		const scale = geo.scale;
 
 		mat4.identity(modelMatrix);
 
@@ -265,23 +265,22 @@ export class Renderer extends RendererContext {
 		camera: null,
 		shaderOverwrite: null,
 	}) {
-		const objects = scene.getRenderableObjects();
+		this.currentScene = scene;
 
-		const camera = setup.camera || scene.activeCamera;
+		const camera = setup.camera || scene.cameras[0];
 		const filter = setup.filter;
 		const shaderOverwrite = setup.shaderOverwrite;
+
+		if(!camera) return;
+
+		camera.sensor.width = this.width;
+		camera.sensor.height = this.height;
+
+		const objects = scene.getRenderableObjects(camera);
 
 		let tempShader;
 		if (this.currentShader) {
 			tempShader = this.currentShader;
-		}
-
-		if(this.scene.lightSources) {
-			this.lightDirection = [
-				this.scene.lightSources.worldPosition.x,
-				this.scene.lightSources.worldPosition.y,
-				this.scene.lightSources.worldPosition.z,
-			];
 		}
 
 		// prepeare every used shader with global uniforms of the scene
@@ -293,10 +292,21 @@ export class Renderer extends RendererContext {
 				'view': camera.viewMatrix
 			}, 'scene');
 
+			const lightSource = scene.lightsource;
+
+			if(lightSource) {
+				this.currentShader.setUniforms(this, {
+					'shadowProjMat': lightSource.projMatrix,
+					'shadowViewMat': lightSource.viewMatrix,
+					'lightDirection': [
+						lightSource.worldPosition[0],
+						lightSource.worldPosition[1],
+						lightSource.worldPosition[2],
+					],
+				});
+			}
+
 			this.currentShader.setUniforms(this, {
-				'shadowProjMat': this.scene.lightSources.projMatrix,
-				'shadowViewMat': this.scene.lightSources.viewMatrix,
-				'lightDirection': this.lightDirection,
 				'ambientLight': this.ambientLight,
 				'cameraPosition': Vec.add(camera.position, camera.origin),
 			});
