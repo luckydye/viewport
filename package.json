@@ -2,7 +2,7 @@
   "name": "@uncut/viewport",
   "version": "1.0.1-1",
   "description": "",
-  "main": "./src/Viewport.js",
+  "main": "./index.js",
   "module": "./src/Viewport.js",
   "directories": {
     "lib": "lib"
