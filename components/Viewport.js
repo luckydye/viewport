@@ -28,6 +28,9 @@ export default class Viewport extends HTMLElement {
                     width: 100%;
                     height: 100%;
                     display: block;
+                    image-rendering: pixelated;
+                    object-position: center;
+                    object-fit: cover;
                 }
             </style>
         `;
