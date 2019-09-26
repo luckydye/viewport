@@ -68,11 +68,9 @@ export class Scene extends Transform {
 
 		let arr = [...this.objects].filter(obj => {
 
-			const pos = Vec.add(this.origin, obj.position);
-
 			const dist = Math.sqrt(
-				Math.pow(-camera.position.x - pos.x, 2) +
-				Math.pow(-camera.position.z - pos.z, 2)
+				Math.pow(-camera.position.x - (this.origin.x + obj.position.x), 2) +
+				Math.pow(-camera.position.z - (this.origin.z + obj.position.z), 2)
 			);
 
 			return !obj.hidden && dist < camera.farplane;
@@ -80,17 +78,14 @@ export class Scene extends Transform {
 
 		arr = arr.sort((a, b) => {
 
-			const posA = Vec.add(this.origin, a.position);
-			const posB = Vec.add(this.origin, b.position);
-
 			const distA = Math.sqrt(
-				Math.pow(-camera.position.x - posA.x, 2) +
-				Math.pow(-camera.position.z - posA.z, 2)
+				Math.pow(-camera.position.x - (this.origin.x + a.position.x), 2) +
+				Math.pow(-camera.position.z - (this.origin.z + a.position.z), 2)
 			);
 
 			const distB = Math.sqrt(
-				Math.pow(-camera.position.x - posB.x, 2) +
-				Math.pow(-camera.position.z - posB.z, 2)
+				Math.pow(-camera.position.x - (this.origin.x + b.position.x), 2) +
+				Math.pow(-camera.position.z - (this.origin.z + b.position.z), 2)
 			);
 
 			return distB - distA;

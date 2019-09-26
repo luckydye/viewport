@@ -347,7 +347,11 @@ export class Renderer extends RendererContext {
 
 			this.currentShader.setUniforms(this, {
 				'ambientLight': this.ambientLight,
-				'cameraPosition': Vec.add(camera.position, camera.origin),
+				'cameraPosition': [
+					camera.position.x + camera.origin.x,
+					camera.position.y + camera.origin.y,
+					camera.position.z + camera.origin.z,
+				],
 			});
 
 			this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);
