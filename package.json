@@ -8,7 +8,6 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "test.bat",
     "build": "parcel watch ./test/index.html --public-url ."
   },
   "repository": {

@@ -4,12 +4,15 @@ import { Camera } from './Camera.js';
 
 export class Scene extends Transform {
 
-	constructor(camera) {
+	constructor() {
 		super();
 		
 		this.objects = new Set();
 
-		this.activeCamera = camera || new Camera();
+		this.activeCamera = new Camera({
+			position: [0, -200, -1000]
+		});
+
 		this.lightSources = new Spotlight({
 			fov: 90,
 		});
@@ -47,21 +50,6 @@ export class Scene extends Transform {
 		if (this.activeCamera) {
 			this.activeCamera.update(ms);
 		}
-
-		// const position = new Vec(
-		// 	this.activeCamera.worldPosition.x,
-		// 	0,
-		// 	this.activeCamera.worldPosition.z,
-		// );
-
-		// const lightoffset = new Vec(Math.sin(performance.now() * 0.001) * 500.0, 250.0, Math.cos(performance.now() * 0.001) * 300.0);
-
-		// this.lightSources.position = Vec.add(position, Vec.multiply(lightoffset, new Vec(5.0, 5.0, 5.0)));
-		// this.lightSources.lookAt = position;
-
-		// this.lightSources.origin.x = -this.activeCamera.worldPosition.x;
-		// this.lightSources.origin.Y = -this.activeCamera.worldPosition.y;
-		// this.lightSources.origin.z = -this.activeCamera.worldPosition.z;
 
 		if (this.lightSources) {
 			this.lightSources.update(ms);
