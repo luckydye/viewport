@@ -4,12 +4,6 @@ export default class DefaultShader extends MeshShader {
 
     static defaultShading() {
         return `
-            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal * 100.0, 1.0)).xyz;
-            float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
-            float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
-
-            Specular(oFragColor, normal, specular, roughness);
-            DiffuseShading(oFragColor, normal, ambientLight);
         `;
     }
 

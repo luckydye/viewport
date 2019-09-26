@@ -55,7 +55,7 @@ export default class CompShader extends Shader {
         
         void main() {
             vec4 color = texture(color, vTexCoords);
-            vec4 light = blur9(lighting, vTexCoords, vec2(1280.0), vec2(1.0, 0.0));
+            vec4 light = texture(lighting, vTexCoords);
             oFragColor = vec4(color.rgb * light.rgb, color.a);
         }`;
     }
