@@ -16,7 +16,8 @@ Config.global.load();
 Config.global.save();
 
 Resources.add({
-    'model': 'models/sphere.obj',
+    'sphere': 'models/sphere.obj',
+    'tree': 'models/tree.obj',
 }, false);
 
 window.addEventListener('load', () => {
@@ -28,57 +29,52 @@ window.addEventListener('load', () => {
 })
 
 function init() {
-
-    const paperTexture = new Texture(Resources.get('paper'));
-    const noiseTexture = new Texture(Resources.get('noise'));
-    const noiseTexture2 = new Texture(Resources.get('noise2'));
-
     const renderer = viewport.renderer;
 
-    viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
-
-    window.addEventListener('resize', () => {
-        viewport.renderer.setResolution(window.innerWidth, window.innerHeight);
-    })
+    viewport.renderer.setResolution(240, 240);
 
     new ViewportController(viewport.camera, viewport);
 
     viewport.scene.add(new Geometry({
         material: new DefaultMaterial({
-            diffuseColor: [1, 0, 0.2, 1]
+            diffuseColor: [0.4, 0.5, 1, 1]
         }),
-        position: [0, 200, 0],
-        vertecies: Loader.loadObjFile(Resources.get('model')),
-        scale: 50
+        position: [0, 0, 0],
+        vertecies: Loader.loadObjFile(Resources.get('sphere')),
+        scale: 300
     }));
 
-    viewport.scene.add(new Geometry({
-        material: new DefaultMaterial({
-            diffuseColor: [1, 0, 0.2, 1]
-        }),
-        position: [500, 600, 200],
-        vertecies: Loader.loadObjFile(Resources.get('model')),
-        scale: 100
-    }));
+    genTrees();
 
-    viewport.scene.add(new Geometry({
-        material: new DefaultMaterial({
-            diffuseColor: [1, 0, 0.2, 1]
-        }),
-        position: [100, 500, 0],
-        vertecies: Loader.loadObjFile(Resources.get('model')),
-        scale: 25
-    }));
+    function genTrees() {
 
-    viewport.scene.add(new Cube({
-        material: new DefaultMaterial({
-            diffuseColor: [0.55, 0.5, 0.6, 1],
-            roughness: 0.05
-        }),
-        position: [0, -1002, 0],
-        rotation: [90 * Math.PI / 180, 0, 0],
-        scale: 1000
-    }));
+        const steps = 35;
+        const scatter = 0.8;
+
+        const treeamt = new DefaultMaterial({
+            diffuseColor: [0.3, 1, 0.2, 1]
+        });
+
+        const verts = Loader.loadObjFile(Resources.get('tree'));
+
+        for(let j = 0; j < Math.PI; j += Math.PI / steps)
+        for(let i = 0; i < Math.PI; i += Math.PI / steps) {
+            if(Math.random() > scatter) {
+                tree(i, j);
+            }
+        }
+
+        function tree(xa, ya) {
+            viewport.scene.add(new Geometry({
+                material: treeamt,
+                position: [0, 0, 0],
+                rotation: [xa * 2, 0, ya * 2],
+                origin: [0, 600, 0],
+                vertecies: verts,
+                scale: 30
+            }));
+        }
+    }
 
     setInterval(() => {
         const light = viewport.scene.lightSources;
