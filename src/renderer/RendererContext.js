@@ -23,8 +23,16 @@ export class RendererContext {
 		this.gl.disable(constant);
 	}
 
-	constructor(canvas) {
+	constructor(canvas, contextOptions = {
+		alpha: true,
+		premultipliedAlpha: false,
+		antialias: false,
+		preserveDrawingBuffer: true,
+		desynchronized: true, // for non antiliase canvas on chrome to false
+	}) {
 		if (!canvas) throw "RendererContext: Err: no canvas";
+
+		this.contextOptions = contextOptions;
 
 		this.debug = false;
 
@@ -34,8 +42,6 @@ export class RendererContext {
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
 		this.buffers = [];
-
-		this.alpha = true;
 
 		this.options = {
 			DEPTH_TEST: true,
@@ -79,13 +85,7 @@ export class RendererContext {
 	getContext(canvas) {
 		this.canvas = canvas;
 
-		const ctxtOpts = {
-			alpha: this.alpha,
-			premultipliedAlpha: false,
-			antialias: false,
-			preserveDrawingBuffer: true,
-			desynchronized: true,	// for non antiliase canvas on chrome to false
-		};
+		const ctxtOpts = this.contextOptions;
 		this.gl = canvas.getContext("webgl2", ctxtOpts) ||
 				  canvas.getContext("webgl", ctxtOpts);
 

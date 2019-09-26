@@ -21,10 +21,8 @@ export class Scene extends Transform {
 		this.add(objs);
 
 		this.add(new Spotlight({
-			position: [0, -5000, -3000],
-			rotation: [1.0, 0, 0],
-			farplane: 10000,
-			fov: 90,
+			position: [500, -4000, -500],
+			rotation: [1.2, 0.77, 0],
 		}));
 	}
 

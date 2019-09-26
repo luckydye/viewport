@@ -14,6 +14,7 @@ import CompShader from '../src/shader/CompShader.js';
 import Viewport from '../components/Viewport.js';
 import { Scene } from '../src/scene/Scene.js';
 import { Camera } from '../src/scene/Camera.js';
+import { Guide } from '../src/geo/Guide.js';
 
 Config.global.load();
 Config.global.save();
@@ -61,6 +62,46 @@ window.addEventListener('load', () => {
             
             viewport.camera.position.y = -400;
         }
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            viewport.setScene(scene);
+            
+            viewport.camera.position.y = -400;
+        }
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            viewport.setScene(scene);
+            
+            viewport.camera.position.y = -400;
+        }
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            viewport.setScene(scene);
+            
+            viewport.camera.position.y = -400;
+        }
+        {
+            const viewport = new Viewport();
+            document.body.appendChild(viewport);
+            viewport.setScene(scene);
+            
+            viewport.camera.position.y = -400;
+        }
+
+        // setInterval(() => {
+        //     const light = scene.lightsource;
+
+        //     const a = performance.now() / 1000;
+        //     const dist = 2000;
+    
+        //     light.position.x = (Math.sin(a) * dist);
+        //     light.position.z = (Math.cos(a) * dist);
+        //     light.position.y = -dist;
+        //     light.rotation.y = -a + Math.PI;
+        // }, 14);
     })
 })
 
@@ -74,7 +115,7 @@ function createScene(geo) {
 
     function genTrees() {
 
-        const steps = 30;
+        const steps = 25;
         const scatter = 0.8;
 
         const treeamt = new DefaultMaterial({

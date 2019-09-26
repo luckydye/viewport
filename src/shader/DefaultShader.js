@@ -4,6 +4,13 @@ export default class DefaultShader extends MeshShader {
 
     static defaultShading() {
         return `
+            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
+            float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
+            float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
+
+            DiffuseShading(oFragColor, normal, ambientLight);
+            Specular(oFragColor, normal, specular, roughness);
+            Shadow(oFragColor, normal);
         `;
     }
 
@@ -85,14 +92,10 @@ export default class DefaultShader extends MeshShader {
 
                 float shadowmap_distance = shadowmap_color.r;
 
-                float diffuse = max(dot(normalize(normal), normalize(lightDirection)), 0.0);
-
-                if(diffuse > 0.0) {
-                    if (vertex_relative_to_light.z <= shadowmap_distance + 0.0000002) {
-                        finalColor.rgb *= 1.0;
-                    } else {
-                        finalColor.rgb *= 0.5;
-                    }
+                if (vertex_relative_to_light.z <= shadowmap_distance + 0.0002) {
+                    finalColor.rgb *= 1.0;
+                } else {
+                    finalColor.rgb *= 0.5;
                 }
             }
 

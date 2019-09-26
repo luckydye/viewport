@@ -63,10 +63,10 @@ export class Camera extends Entity {
 
 	constructor(args = {}) {
 		const {
-			fov = 50,
+			fov = 75,
 			scale = 0.004,
-			farplane = 5000,
-			nearplane = 0.025,
+			farplane = 7000,
+			nearplane = 0.01,
 			width = 1280,
 			height = 720,
 		} = args;
@@ -98,14 +98,19 @@ export class Camera extends Entity {
 		const viewMatrix = this.viewMatrix;
 		const camera = this;
 
-		const ar = this.sensor.width / this.sensor.height;
-
-		mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-
 		if (this.perspective == Camera.ORTHGRAPHIC) {
-			const sx = 1280;
-			const sy = 1280;
-			mat4.ortho(projMatrix, -sx, sx, -sy, sy, 1, camera.nearplane, camera.farplane);
+			mat4.ortho(
+				projMatrix, 
+				-this.sensor.width * 4, this.sensor.width * 4, 
+				-this.sensor.height * 4, this.sensor.height * 4,
+				camera.nearplane, 
+				camera.farplane
+			);
+		}
+
+		if (this.perspective == Camera.PERSPECTIVE) {
+			const ar = this.sensor.width / this.sensor.height;
+			mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
 		}
 
 		mat4.lookAt(

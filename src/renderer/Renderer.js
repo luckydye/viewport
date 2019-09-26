@@ -64,7 +64,7 @@ export class Renderer extends RendererContext {
 
 		this.currentRenderBufferSlot = 0;
 
-		this.ambientLight = 0.33;
+		this.ambientLight = 0.5;
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
@@ -92,12 +92,6 @@ export class Renderer extends RendererContext {
 				},
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize]
-			}),
-			new RenderPass(this, 'lighting', {
-				filter(geo) {
-					return !geo.guide;
-				},
-				shaderOverwrite: new LightingShader()
 			}),
 			new RenderPass(this, 'color', {
 				filter(geo) {
@@ -276,7 +270,12 @@ export class Renderer extends RendererContext {
 
 		this.useVAO(buffer.vao);
 
-		this.initializeBuffersAndAttributes(buffer);
+		if (!this.currentScene || this.currentScene.lastchange != buffer.lastchange) {
+			if (this.currentScene) {
+				buffer.lastchange = this.currentScene.lastchange;
+			}
+			this.initializeBuffersAndAttributes(buffer);
+		}
 
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
@@ -350,7 +349,7 @@ export class Renderer extends RendererContext {
 				'cameraPosition': [
 					camera.position.x + camera.origin.x,
 					camera.position.y + camera.origin.y,
-					camera.position.z + camera.origin.z,
+					camera.position.z + camera.origin.z
 				],
 			});
 

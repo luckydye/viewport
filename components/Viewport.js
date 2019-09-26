@@ -22,7 +22,6 @@ export default class Viewport extends HTMLElement {
                     width: 100%;
                     height: 100%;
                     display: block;
-                    image-rendering: pixelated;
                     object-position: center;
                     object-fit: cover;
                 }
@@ -91,9 +90,12 @@ export default class Viewport extends HTMLElement {
 
     render() {
         const currentFrame = performance.now();
-        const delta = this.frame.lastFrame - this.frame.currentFrame;
+        const delta = currentFrame - this.frame.lastFrame;
 
         this.frame.accumulator += delta;
+
+        this.renderer.info.drawtime = this.frame.accumulator.toFixed(1);
+
         if (this.frame.accumulator >= (1000 / this.frame.tickrate)) {
             this.frame.accumulator = 0;
 
@@ -107,6 +109,8 @@ export default class Viewport extends HTMLElement {
 
         this.frame.lastFrame = currentFrame;
         this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
+
+        this.renderer.info.cputime = (performance.now() - currentFrame).toFixed(1);
 
         if(this.renderer.debug) {
             this.shadowRoot.querySelector('.stats').innerHTML = JSON.stringify(this.renderer.info, null, '  ');
