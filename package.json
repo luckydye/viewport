@@ -3,7 +3,7 @@
   "version": "1.0.1-1",
   "description": "",
   "main": "./index.js",
-  "module": "./src/Viewport.js",
+  "module": "./index.js",
   "directories": {
     "lib": "lib"
   },
