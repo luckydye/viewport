@@ -12,10 +12,6 @@ export class Vector extends Geometry {
 		this.color = [1, 1, 1];
 	}
 
-	update() {
-		this._buffer = null;
-	}
-
 	get vertecies() {
 		const vertArray = [];
 		for (let p of this.points) {

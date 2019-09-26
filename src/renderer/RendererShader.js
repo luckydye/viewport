@@ -92,9 +92,7 @@ export class Shader {
 		}
 
 		for (let tex of textures) {
-			const texture = tex.texture || Texture.EMPTY;
-
-			renderer.prepareTexture(texture);
+			const texture = tex.texture;
 			renderer.useTexture(texture, tex.uniformloc, textureSlots);
 			textureSlots++;
 		}

@@ -1,3 +1,5 @@
+import { uuidv4 } from '../Math';
+
 export class Texture {
 
     static get EMPTY() {
@@ -9,8 +11,9 @@ export class Texture {
 
     constructor(image) {
 
+        this.uid = uuidv4();
+
         this.type = "TEXTURE_2D";
-        this.gltexture = null;
         this.animated = false;
 
         this.image = image;

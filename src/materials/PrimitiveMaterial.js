@@ -6,7 +6,7 @@ export default class PrimitivetMaterial extends Material {
     constructor(args) {
         super(args);
 
-        this.shader = new PrimitiveShader();
+        this.shader = PrimitiveShader;
 
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0.5;

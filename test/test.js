@@ -25,7 +25,27 @@ Resources.add({
 
 window.addEventListener('load', () => {
     Resources.load().then(() => {
-        const scene = createScene();
+
+        const geo = [
+            new Geometry({
+                material: new DefaultMaterial({
+                    diffuseColor: [0.4, 0.65, 0.4, 1]
+                }),
+                position: [0, 400, 0],
+                vertecies: Loader.loadObjFile(Resources.get('sphere')),
+                scale: 100
+            }),
+            new Plane({
+                material: new DefaultMaterial({
+                    diffuseColor: [0.4, 0.65, 0.4, 1]
+                }),
+                position: [0, -30, 0],
+                rotation: [Math.PI / 2, 0, 0],
+                scale: 2000
+            })
+        ];
+
+        const scene = createScene(geo);
 
         {
             const viewport = new Viewport();
@@ -37,34 +57,18 @@ window.addEventListener('load', () => {
         {
             const viewport = new Viewport();
             document.body.appendChild(viewport);
-            // viewport.setScene(scene);
+            viewport.setScene(scene);
             
             viewport.camera.position.y = -400;
         }
     })
 })
 
-function createScene() {
+function createScene(geo) {
 
     const scene = new Scene();
 
-    scene.add(new Geometry({
-        material: new DefaultMaterial({
-            diffuseColor: [0.4, 0.65, 0.4, 1]
-        }),
-        position: [0, 400, 0],
-        vertecies: Loader.loadObjFile(Resources.get('sphere')),
-        scale: 100
-    }));
-
-    scene.add(new Plane({
-        material: new DefaultMaterial({
-            diffuseColor: [0.4, 0.65, 0.4, 1]
-        }),
-        position: [0, -30, 0],
-        rotation: [Math.PI / 2, 0, 0],
-        scale: 2000
-    }));
+    scene.add(geo);
 
     genTrees();
 

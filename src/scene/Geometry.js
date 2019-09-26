@@ -1,4 +1,4 @@
-import { Transform } from "../Math.js";
+import { Transform, uuidv4 } from "../Math.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
 
 export class Geometry extends Transform {
@@ -9,11 +9,6 @@ export class Geometry extends Transform {
 			{ size: 2, attribute: "aTexCoords" },
 			{ size: 3, attribute: "aNormal" },
 		]
-	}
-
-	get buffer() {
-		this._buffer = this._buffer || this.createBuffer();
-		return this._buffer;
 	}
 
 	get vertecies() {
@@ -27,10 +22,10 @@ export class Geometry extends Transform {
 	constructor(args = {}) {
 		super(args);
 
-		this._buffer = null;
-
 		this.instanced = false;
 		this.instances = 0;
+
+		this.uid = uuidv4();
 
 		this.onCreate(args);
 

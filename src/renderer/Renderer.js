@@ -68,6 +68,10 @@ export class Renderer extends RendererContext {
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
+		this.vertexBuffers = new Map();
+		this.materialShaders = new Map();
+		this.textures = new Map();
+
 		const self = this;
 
 		this.currentScene = null;
@@ -136,13 +140,17 @@ export class Renderer extends RendererContext {
 		
 		if(this.renderPasses.length > 0) {
 
+			this.currentScene = scene;
+
 			for (let pass of this.renderPasses) {
 				pass.use();
 
 				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
-				this.drawScene(scene, pass.sceneSetup);
+				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
+
+				this.drawScene(scene, camera, pass.sceneSetup);
 				
 				this.clearFramebuffer();
 			}
@@ -150,9 +158,11 @@ export class Renderer extends RendererContext {
 			this.compositeRenderPasses();
 		} else {
 
+			const camera = setup.camera || scene.cameras[0];
+
 			this.gl.clearColor(0, 0, 0, 0);
 			this.clear();
-			this.drawScene(scene, setup);
+			this.drawScene(scene, camera, setup);
 		}
 	}
 
@@ -185,19 +195,17 @@ export class Renderer extends RendererContext {
 		this.drawGeo(this.renderTarget);
 	}
 
-	// give texture a .gltexture
 	prepareTexture(texture) {
-		if (!texture.gltexture) {
-			texture.gltexture = this.createTexture(texture.image);
+		if(!this.textures.has(texture.uid)) {
+			this.textures.set(texture.uid, this.createTexture(texture.image));
 		}
+		return this.textures.get(texture.uid);
 	}
 
 	// use a Texture
 	useTexture(texture, uniformStr, slot) {
-		const gltexture = texture ? texture.gltexture : null;
-		if (!gltexture) {
-			this.prepareTexture(texture);
-		}
+		let gltexture = this.prepareTexture(texture);
+
 		const type = texture ? this.gl[texture.type] : null;
 		this.useTextureBuffer(gltexture, type, uniformStr, slot);
 	}
@@ -212,31 +220,44 @@ export class Renderer extends RendererContext {
 		// update textures
 		if (material && material.animated) {
 			if (material.texture && material.texture.image) {
-				this.updateTextureBuffer(material.texture.gltexture, material.texture.image);
+				const gltexture = this.prepareTexture(material.texture);
+				this.updateTextureBuffer(gltexture, material.texture.image);
 			}
 			if (material.specularMap && material.specularMap.image) {
-				this.updateTextureBuffer(material.specularMap.gltexture, material.specularMap.image);
+				const gltexture = this.prepareTexture(material.specularMap);
+				this.updateTextureBuffer(gltexture, material.specularMap.image);
 			}
 			if (material.normalMap && material.normalMap.image) {
-				this.updateTextureBuffer(material.normalMap.gltexture, material.normalMap.image);
+				const gltexture = this.prepareTexture(material.normalMap);
+				this.updateTextureBuffer(gltexture, material.normalMap.image);
 			}
 			if (material.displacementMap && material.displacementMap.image) {
-				this.updateTextureBuffer(material.displacementMap.gltexture, material.displacementMap.image);
+				const gltexture = this.prepareTexture(material.displacementMap);
+				this.updateTextureBuffer(gltexture, material.displacementMap.image);
 			}
 		}
 
 		this.currentShader.setUniforms(this, material.attributes, 'material');
 	}
 
+	getGemoetryBuffer(geo) {
+		if(!this.vertexBuffers.has(geo.uid)) {
+			this.vertexBuffers.set(geo.uid, geo.createBuffer());
+		}
+		return this.vertexBuffers.get(geo.uid);
+	}
+
 	setupGemoetry(geo) {
 
-		if (!geo.buffer.vao) {
-			geo.buffer.vao = this.createVAO();
+		const buffer = this.getGemoetryBuffer(geo);
+
+		if (!buffer.vao) {
+			buffer.vao = this.createVAO();
 		}
 
-		this.useVAO(geo.buffer.vao);
+		this.useVAO(buffer.vao);
 
-		this.initializeBuffersAndAttributes(geo.buffer);
+		this.initializeBuffersAndAttributes(buffer);
 
 		geo.modelMatrix = geo.modelMatrix || mat4.create();
 		const modelMatrix = geo.modelMatrix;
@@ -260,14 +281,13 @@ export class Renderer extends RendererContext {
 		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
 	}
 
-	drawScene(scene, setup = {
+	drawScene(scene, camera, setup = {
 		filter: null,
-		camera: null,
 		shaderOverwrite: null,
 	}) {
+		
 		this.currentScene = scene;
 
-		const camera = setup.camera || scene.cameras[0];
 		const filter = setup.filter;
 		const shaderOverwrite = setup.shaderOverwrite;
 
@@ -329,11 +349,20 @@ export class Renderer extends RendererContext {
 		}
 	}
 
+	getMaterialShader(material) {
+		if(!this.materialShaders.has(material.uid)) {
+			this.materialShaders.set(material.uid, new material.shader());
+		}
+		return this.materialShaders.get(material.uid);
+	}
+
 	drawMesh(geo, shaderOverwrite) {
 		if (geo.material) {
 
-			if (!shaderOverwrite && this.currentShader !== geo.material.shader) {
-				this.useShader(geo.material.shader);
+			const shader = this.getMaterialShader(geo.material);
+
+			if (!shaderOverwrite && this.currentShader !== shader) {
+				this.useShader(shader);
 			}
 
 			this.applyMaterial(geo.material);
@@ -348,7 +377,7 @@ export class Renderer extends RendererContext {
 
 	drawGeoInstanced(geo) {
 		const gl = this.gl;
-		const buffer = geo.buffer;
+		const buffer = this.getGemoetryBuffer(geo);
 		const vertCount = buffer.vertecies.length / buffer.elements;
 
 		this.setupGemoetry(geo);
@@ -358,7 +387,7 @@ export class Renderer extends RendererContext {
 
 	drawGeo(geo) {
 		const gl = this.gl;
-		const buffer = geo.buffer;
+		const buffer = this.getGemoetryBuffer(geo);
 
 		this.setupGemoetry(geo);
 

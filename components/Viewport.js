@@ -86,7 +86,10 @@ export default class Viewport extends HTMLElement {
             this.scene.update(delta);
             this.scheduler.run(delta);
         }
-        this.renderer.draw(this.scene);
+        
+        this.renderer.draw(this.scene, {
+            camera: this.camera,
+        });
 
         this.frame.lastFrame = currentFrame;
         this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));

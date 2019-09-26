@@ -1,5 +1,6 @@
 import { Texture } from "./Texture.js";
 import DefaultShader from '../shader/DefaultShader.js';
+import { uuidv4 } from '../Math.js';
 
 export class Material {
 
@@ -24,8 +25,10 @@ export class Material {
     }
 
     constructor(attributes = {}) {
+        
+		this.uid = uuidv4();
 
-        this.shader = new DefaultShader();
+        this.shader = DefaultShader;
 
         this.texture = Texture.EMPTY;
         this.specularMap = Texture.EMPTY;
