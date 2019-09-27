@@ -82,6 +82,8 @@ export default class Viewport extends HTMLElement {
         this.root.innerHTML = this.constructor.template;
         this.root.appendChild(this.canvas);
 
+        this.statsElement = this.shadowRoot.querySelector('.stats');
+
         Resources.load().then(() => {
             this.init(this.canvas);
             this.render();
@@ -91,6 +93,12 @@ export default class Viewport extends HTMLElement {
     render() {
         const currentFrame = performance.now();
         const delta = currentFrame - this.frame.lastFrame;
+        
+        this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
+
+        if(this.offsetWidth + this.offsetHeight === 0) {
+            return;
+        }
 
         this.frame.accumulator += delta;
 
@@ -108,12 +116,13 @@ export default class Viewport extends HTMLElement {
         });
 
         this.frame.lastFrame = currentFrame;
-        this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
 
         this.renderer.info.cputime = (performance.now() - currentFrame).toFixed(1);
 
         if(this.renderer.debug) {
-            this.shadowRoot.querySelector('.stats').innerHTML = JSON.stringify(this.renderer.info, null, '  ');
+            this.statsElement.innerHTML = JSON.stringify(this.renderer.info, null, '  ');
+        } else if(!this.renderer.debug && this.statsElement.innerHTML != "") {
+            this.statsElement.innerHTML = "";
         }
     }
 

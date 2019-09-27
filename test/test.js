@@ -55,41 +55,6 @@ window.addEventListener('load', () => {
 
             viewport.camera.position.y = -400;
         }
-        {
-            const viewport = new Viewport();
-            document.body.appendChild(viewport);
-            viewport.setScene(scene);
-            
-            viewport.camera.position.y = -400;
-        }
-        {
-            const viewport = new Viewport();
-            document.body.appendChild(viewport);
-            viewport.setScene(scene);
-            
-            viewport.camera.position.y = -400;
-        }
-        {
-            const viewport = new Viewport();
-            document.body.appendChild(viewport);
-            viewport.setScene(scene);
-            
-            viewport.camera.position.y = -400;
-        }
-        {
-            const viewport = new Viewport();
-            document.body.appendChild(viewport);
-            viewport.setScene(scene);
-            
-            viewport.camera.position.y = -400;
-        }
-        {
-            const viewport = new Viewport();
-            document.body.appendChild(viewport);
-            viewport.setScene(scene);
-            
-            viewport.camera.position.y = -400;
-        }
 
         // setInterval(() => {
         //     const light = scene.lightsource;
