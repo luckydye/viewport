@@ -24,7 +24,7 @@ import { PlayerControler } from './src/controlers/PlayerControler.js';
 import { ViewportController } from './src/controlers/ViewportController.js';
 import { EntityControler } from './src/controlers/EntityControler.js';
 
-export {
+export default {
     Viewport,
     Camera,
     Resources,
