@@ -135,7 +135,7 @@ export class Renderer extends RendererContext {
 		this.textures = new Map();
 	}
 
-	draw(scene, setup) {
+	draw(scene, setup = {}) {
 		this.info.passes = this.renderPasses.length;
 		this.info.debug = this.debug;
 		this.info.shaders = this.shaders.size;
