@@ -65,6 +65,7 @@ export class Renderer extends RendererContext {
 		this.currentRenderBufferSlot = 0;
 
 		this.ambientLight = 0.5;
+		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0.08, 0.08, 0.08, 1.0];
 		this.shadowMapSize = 4096;
 
@@ -346,6 +347,7 @@ export class Renderer extends RendererContext {
 
 			this.currentShader.setUniforms(this, {
 				'ambientLight': this.ambientLight,
+				'shadowColor': this.shadowColor,
 				'cameraPosition': [
 					camera.position.x + camera.origin.x,
 					camera.position.y + camera.origin.y,
