@@ -5,7 +5,7 @@ export class Group extends Geometry {
 	get vertecies() {
 		const vertArray = [];
 		for (let obj of this.objects) {
-			vertArray.push(...obj.buffer.vertecies);
+			vertArray.push(...obj.createBuffer().vertecies);
 		}
 		return vertArray;
 	}
@@ -14,12 +14,13 @@ export class Group extends Geometry {
 		const indexArray = [];
 		let offset = 0;
 		for (let obj of this.objects) {
-			const indecies = obj.buffer.indecies.map(i => {
+			const buffer = obj.createBuffer();
+			const indecies = buffer.indecies.map(i => {
 				return i + offset;
 			});
 			indexArray.push(...indecies);
 
-			offset = obj.buffer.vertecies.length / obj.buffer.vertsPerElement;
+			offset = buffer.vertecies.length / buffer.vertsPerElement;
 		}
 		return indexArray;
 	}

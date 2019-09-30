@@ -42,7 +42,7 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
-    constructor() {
+    constructor(controllertype = ViewportController) {
         super();
 
         this.scheduler = new Scheduler();
@@ -69,7 +69,9 @@ export default class Viewport extends HTMLElement {
 
         this.scene = new Scene([ this.camera ]);
 
-        new ViewportController(this.camera, this);
+        if(controllertype) {
+            new controllertype(this.camera, this);
+        }
     }
 
     setScene(scene) {
