@@ -252,6 +252,10 @@ export class Renderer extends RendererContext {
 		}
 
 		this.currentShader.setUniforms(this, material.attributes, 'material');
+
+		if(Object.keys(material.customUniforms).length > 0) {
+			this.currentShader.setUniforms(this, material.customUniforms);
+		}
 	}
 
 	getGemoetryBuffer(geo) {
