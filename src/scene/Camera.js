@@ -69,6 +69,7 @@ export class Camera extends Entity {
 			nearplane = 0.01,
 			width = 1280,
 			height = 720,
+			perspective = Camera.PERSPECTIVE,
 		} = args;
 		super(args);
 
@@ -79,7 +80,7 @@ export class Camera extends Entity {
 		this.farplane = farplane;
 		this.nearplane = nearplane;
 		this.lookAt = new Vec(0, 0, 0);
-		this.perspective = Camera.PERSPECTIVE;
+		this.perspective = perspective;
 
 		this.projMatrix = mat4.create();
 		this.viewMatrix = mat4.create();
@@ -101,8 +102,8 @@ export class Camera extends Entity {
 		if (this.perspective == Camera.ORTHGRAPHIC) {
 			mat4.ortho(
 				projMatrix, 
-				-this.sensor.width * 4, this.sensor.width * 4, 
-				-this.sensor.height * 4, this.sensor.height * 4,
+				-this.sensor.width, this.sensor.width, 
+				-this.sensor.height, this.sensor.height,
 				camera.nearplane, 
 				camera.farplane
 			);
