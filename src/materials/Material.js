@@ -47,6 +47,8 @@ export class Material {
 
         this.scaleUniform = false;
 
+        this.customUniforms = {};
+
         for (let attrb in attributes) {
             this[attrb] = attributes[attrb];
         }

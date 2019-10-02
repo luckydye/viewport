@@ -3,20 +3,25 @@ import { Geometry } from "../scene/Geometry.js";
 export class Plane extends Geometry {
 
 	get vertecies() {
-		const s = 1;
-		return [
-			-s, -s, 0, 	0, 0,	0, 1, 0,
-			s, -s, 0, 	1, 0, 	0, 1, 0,
-			s, s, 0, 	1, 1,	0, 1, 0,
+		const w = this.width || 1;
+		const h = this.height || 1;
 
-			s, s, 0, 	1, 1,	0, 1, 0,
-			-s, s, 0, 	0, 1, 	0, 1, 0,
-			-s, -s, 0, 	0, 0,	0, 1, 0
+		return [
+			-w, -h, 0, 	0, 0,	0, 1, 0,
+			w, -h, 0, 	1, 0, 	0, 1, 0,
+			w, h, 0, 	1, 1,	0, 1, 0,
+
+			w, h, 0, 	1, 1,	0, 1, 0,
+			-w, h, 0, 	0, 1, 	0, 1, 0,
+			-w, -h, 0, 	0, 0,	0, 1, 0
 		]
 	}
 
 	onCreate(args) {
 		args.drawmoed = "TRIANGLES";
+
+		this.width = args.width;
+		this.height = args.height;
 	}
 	
 }
