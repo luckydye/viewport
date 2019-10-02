@@ -101,7 +101,7 @@ export class Renderer extends RendererContext {
 			}),
 			new RenderPass(this, 'guides', {
 				filter(geo) {
-					return geo.guide;
+					return geo.guide && self.showGrid;
 				},
 				shaderOverwrite: new PrimitiveShader()
 			}),
@@ -166,6 +166,7 @@ export class Renderer extends RendererContext {
 			for (let pass of this.renderPasses) {
 				pass.use();
 
+				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
 				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];

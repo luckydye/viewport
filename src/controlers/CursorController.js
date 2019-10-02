@@ -1,46 +1,25 @@
 import { EntityControler } from "./EntityControler.js";
-import { Vec, Raycast } from "../Math.js";
+import { Vec, Raycast, Transform } from "../Math.js";
 
 export class CursorControler extends EntityControler {
 
     initMouse() {
 
-        this.lastAction = {
-            target: null,
-            state: null,
-            property: null
-        }
-
         const curosr = this.entity;
         const renderer = this.viewport.renderer;
         const camera = this.viewport.camera;
-        const scene = this.viewport.scene;
 
         let moving = false;
-        let hovering = false;
-        let selected = null;
-        let color = [0, 0, 0];
+        let currentObject = null;
+        let selectedObject = null;
 
         const down = e => {
-            if (EntityControler.isMouseButton(e) == 1) {
-                this.interaction(selected);
+            if (EntityControler.isMouseButton(e) == 2) {
+                moving = true;
 
-                if (hovering) {
-                    moving = selected == 1;
-                }
+                selectedObject = currentObject;
 
-                if (!moving) {
-                    for (let obj of scene.objects) {
-                        if (obj.id == selected) {
-                            this.viewport.setCursor(obj);
-                            this.viewport.onselect(obj);
-
-                            this.lastAction.target = curosr;
-                            this.lastAction.property = 'position';
-                            this.lastAction.state = new Vec(curosr.position);
-                        }
-                    }
-                }
+                console.log(selectedObject);
             }
         }
 
@@ -54,28 +33,26 @@ export class CursorControler extends EntityControler {
             test(e);
 
             if (moving) {
-                const pos = Vec.multiply(curosr.position, new Vec(-1, -1, 1));
-                const hitx = new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, 1, 0)) ||
-                    new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
+                const pos = Vec.multiply(selectedObject.position, new Vec(-1, -1, 1));
 
-                const hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
-                    new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
+                let hitx = new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, 1, 0)) ||
+                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(0, -1, 0));
 
-                if (!hitx && !hity) return;
+                let hity = new Raycast(camera, e.x, e.y).hit(pos, new Vec(1, 0, 0)) ||
+                             new Raycast(camera, e.x, e.y).hit(pos, new Vec(-1, 0, 0));
+
+                hitx = hitx || new Transform();
+                hity = hity || new Transform();
 
                 if (!startdelta) {
                     startdelta = new Vec(
-                        hitx.position[0] - curosr.position[0],
-                        hity.position[1] - curosr.position[1],
-                        hitx.position[2] - curosr.position[2],
+                        hitx.position[0] - selectedObject.position[0],
+                        hity.position[1] - selectedObject.position[1],
+                        hitx.position[2] - selectedObject.position[2],
                     );
                 } else {
-                    let axis = color.indexOf(Math.max(...color));
-                    if (axis == 1) {
-                        curosr.position[axis] = hity.position[axis] - startdelta[axis];
-                    } else {
-                        curosr.position[axis] = hitx.position[axis] - startdelta[axis];
-                    }
+                    let axis = 1;
+                    selectedObject.position[axis] = hity.position[axis] - startdelta[axis];
                 }
             } else {
                 startdelta = null;
@@ -83,51 +60,26 @@ export class CursorControler extends EntityControler {
         }
 
         const test = e => {
-            const x = e.x;
-            const y = this.viewport.renderer.height - e.y;
-
             if (!moving) {
-                renderer.readPixelFromBuffer(x, y, 'id').then(value => {
-                    selected = value[0];
-                    hovering = selected == 1;
-                    this.entity.material.selected = hovering;
-                })
-                renderer.readPixelFromBuffer(x, y, 'guides').then(value => {
-                    color = value;
-                })
+
+                const scene = this.viewport.scene;
+
+                const bounds = renderer.canvas.getBoundingClientRect();
+                const pixel = renderer.readPixelFromBuffer('id', e.x - bounds.x, bounds.height - (e.y - bounds.y));
+
+                //n ewstuff
+                if(pixel[3] > 0) {
+                    const objIndex = Math.round(pixel[0] / 256 * scene.objects.size);
+                    const object = [...scene.objects][objIndex];
+
+                    currentObject = object;
+                }
             }
         }
 
-        const keydown = (e) => {
-            if (e.ctrlKey)
-
-                switch (e.key) {
-                    case "z":
-                        this.undo();
-                        break;
-                }
-        }
-
-        this.viewport.addEventListener("contextmenu", e => e.preventDefault());
-        this.viewport.addEventListener("mousedown", e => {
-            down(e);
-        });
+        this.viewport.addEventListener("mousedown", e => down(e));
         this.viewport.addEventListener("mouseup", up);
         this.viewport.addEventListener("mousemove", move);
-
-        window.addEventListener("keydown", keydown);
-    }
-
-    undo() {
-        const action = this.lastAction;
-
-        action.target[action.property][0] = action.state.x;
-        action.target[action.property][1] = action.state.y;
-        action.target[action.property][2] = action.state.z;
-    }
-
-    interaction(objId) {
-
     }
 
 }

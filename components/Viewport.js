@@ -6,6 +6,7 @@ import { Camera } from '../src/scene/Camera.js';
 import { ViewportController } from '../src/controlers/ViewportController.js';
 import { Guide } from '../src/geo/Guide.js';
 import PrimitivetMaterial from '../src/materials/PrimitiveMaterial.js';
+import { CursorControler } from '../src/controlers/CursorController.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -86,19 +87,13 @@ export default class Viewport extends HTMLElement {
             new controllertype(this.camera, this);
         }
 
-        this.addEventListener('click', e => {
-            const bounds = this.canvas.getBoundingClientRect();
-            const pixel = this.renderer.readPixelFromBuffer('id', e.x - bounds.x, bounds.height - (e.y - bounds.y));
-            const objIndex = Math.round(pixel[0] / 256 * this.scene.objects.size);
-            const object = [...this.scene.objects][objIndex];
-
-            this.selectGeometry(object);
-        });
+        // new CursorControler(this.camera, this);
     }
 
     selectGeometry(geo) {
         this.selectedGeometry = geo;
-        console.log(this.selectedGeometry);
+        this.scene.add(this.cursor);
+        this.cursor.position = geo.position;
     }
 
     setScene(scene) {
