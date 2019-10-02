@@ -51,6 +51,7 @@ export default class MeshShader extends Shader {
             out vec3 vNormal;
             out vec3 vVertexPos;
             out vec3 primitiveColor;
+            out float index;
 
             ${str}
         `;
@@ -75,6 +76,7 @@ export default class MeshShader extends Shader {
             in vec3 vNormal;
             in vec3 vVertexPos;
             in vec3 primitiveColor;
+            in float index;
 
             ${MeshShader.structSceneProjection}
             ${MeshShader.structMaterial}
@@ -90,6 +92,8 @@ export default class MeshShader extends Shader {
         
         uniform SceneProjection scene;
         uniform Material material;
+        
+        uniform float objectIndex;
         
         uniform vec3 cameraPosition;
 
@@ -127,6 +131,7 @@ export default class MeshShader extends Shader {
             vWorldPos = pos;
             vNormal = (vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
             primitiveColor = aNormal;
+            index = objectIndex;
         
             gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);
             gl_PointSize = 5.0;

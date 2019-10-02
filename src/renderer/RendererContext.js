@@ -464,16 +464,11 @@ export class RendererContext {
 		return data;
 	}
 
-	readPixelFromBuffer(fboName, x, y) {
-		const data = new Uint8Array(4);
-		const fbo = this.framebuffers.get(fboName);
-
-		if(fbo) {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.framebuffers[0]);
-			this.gl.readPixels(x, y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
-			this.clearFramebuffer();
-		}
-
+	readPixelFromBuffer(nameOrFBO, x, y) {
+		const fbo = this.framebuffers.has(nameOrFBO) ? this.framebuffers.get(nameOrFBO) : nameOrFBO;;
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.framebuffers[1]);
+		const data = this.readPixel(x, y);
+		this.clearFramebuffer();
 		return data;
 	}
 

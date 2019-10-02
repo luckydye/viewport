@@ -7,8 +7,7 @@ export default class WorldShader extends MeshShader {
             uniform SceneProjection scene;
 
             void main() {
-                vec4 diff = (vec4(1.0) * scene.model) - vec4(vViewPos, 1.0);
-                oFragColor = vec4(diff.xyz, 1.0);
+                oFragColor = vec4(vec3(index), 1.0);
             }
         `;
     }

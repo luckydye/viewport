@@ -166,7 +166,6 @@ export class Renderer extends RendererContext {
 			for (let pass of this.renderPasses) {
 				pass.use();
 
-				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
 				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
@@ -177,10 +176,10 @@ export class Renderer extends RendererContext {
 				}
 
 				this.drawScene(scene, camera, pass.sceneSetup);
-				
-				this.clearFramebuffer();
 			}
-
+			
+			this.clearFramebuffer();
+			
 			this.compositeRenderPasses();
 		} else {
 
@@ -214,7 +213,6 @@ export class Renderer extends RendererContext {
 		// push depth from color buffer
 		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
 		this.pushTexture(this.getBufferTexture('guides.depth'), 'guidesDepth');
-		this.pushTexture(this.getBufferTexture('shadow'), 'shadow');
 
 		this.preComposition();
 
@@ -320,6 +318,10 @@ export class Renderer extends RendererContext {
 		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
 
 		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
+
+		this.currentShader.setUniforms(this, { 
+			'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
+		});
 	}
 
 	drawScene(scene, camera, setup = {

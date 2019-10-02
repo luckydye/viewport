@@ -80,15 +80,25 @@ export default class Viewport extends HTMLElement {
 
         this.scene = new Scene([ this.camera ]);
 
+        this.selectedGeometry = null;
+
         if(controllertype) {
             new controllertype(this.camera, this);
         }
 
         this.addEventListener('click', e => {
-            const bounds = this.getBoundingClientRect();
-            const pixel = this.renderer.readPixelFromBuffer('readPixelFromBuffer', e.x - bounds.x, e.y - bounds.y);
-            console.log(pixel);
+            const bounds = this.canvas.getBoundingClientRect();
+            const pixel = this.renderer.readPixelFromBuffer('id', e.x - bounds.x, bounds.height - (e.y - bounds.y));
+            const objIndex = Math.round(pixel[0] / 256 * this.scene.objects.size);
+            const object = [...this.scene.objects][objIndex];
+
+            this.selectGeometry(object);
         });
+    }
+
+    selectGeometry(geo) {
+        this.selectedGeometry = geo;
+        console.log(this.selectedGeometry);
     }
 
     setScene(scene) {
