@@ -30,10 +30,10 @@ export class Material {
 
         this.shader = DefaultShader;
 
-        this.texture = Texture.EMPTY;
-        this.specularMap = Texture.EMPTY;
-        this.displacementMap = Texture.EMPTY;
-        this.normalMap = Texture.EMPTY;
+        this.texture = new Texture();
+        this.specularMap = new Texture();
+        this.displacementMap = new Texture();
+        this.normalMap = new Texture();
 
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;

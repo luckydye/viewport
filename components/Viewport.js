@@ -86,7 +86,7 @@ export default class Viewport extends HTMLElement {
 
         this.addEventListener('click', e => {
             const bounds = this.getBoundingClientRect();
-            const pixel = this.renderer.readPixel(e.x - bounds.x, e.y - bounds.y);
+            const pixel = this.renderer.readPixelFromBuffer('readPixelFromBuffer', e.x - bounds.x, e.y - bounds.y);
             console.log(pixel);
         });
     }

@@ -85,8 +85,6 @@ export class Renderer extends RendererContext {
 			new RenderPass(this, 'shadow', {
 				get camera() {
 					if(self.currentScene.lightsource) {
-						self.currentScene.lightsource.sensor.width = 4096;
-						self.currentScene.lightsource.sensor.height = 4096;
 						return self.currentScene.lightsource;
 					}
 				},
@@ -173,6 +171,11 @@ export class Renderer extends RendererContext {
 
 				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
 
+				if(!camera.isLight) {
+					camera.sensor.width = this.width;
+					camera.sensor.height = this.height;
+				}
+
 				this.drawScene(scene, camera, pass.sceneSetup);
 				
 				this.clearFramebuffer();
@@ -227,6 +230,12 @@ export class Renderer extends RendererContext {
 
 	// use a Texture
 	useTexture(texture, uniformStr, slot) {
+
+		if(!texture.image) {
+			this.emptyTexture = this.emptyTexture || Texture.EMPTY;
+			texture = this.emptyTexture;
+		}
+
 		let gltexture = this.prepareTexture(texture);
 
 		const type = texture ? this.gl[texture.type] : null;
@@ -324,9 +333,6 @@ export class Renderer extends RendererContext {
 		const shaderOverwrite = setup.shaderOverwrite;
 
 		if(!camera) return;
-
-		camera.sensor.width = this.width;
-		camera.sensor.height = this.height;
 
 		const objects = scene.getRenderableObjects(camera);
 
