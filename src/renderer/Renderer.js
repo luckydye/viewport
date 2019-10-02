@@ -61,6 +61,7 @@ export class Renderer extends RendererContext {
 
 		this.debug = Config.global.getValue('debug');
 		this.showGrid = Config.global.getValue('show.grid');
+		this.showGuides = true;
 
 		this.grid = new Grid(100, 14);
 
@@ -101,7 +102,7 @@ export class Renderer extends RendererContext {
 			}),
 			new RenderPass(this, 'guides', {
 				filter(geo) {
-					return geo.guide && self.showGrid;
+					return geo.guide && self.showGuides;
 				},
 				shaderOverwrite: new PrimitiveShader()
 			}),

@@ -115,6 +115,7 @@ export default class Viewport extends HTMLElement {
 
         // axis
         this.axisDisplay = new Renderer(this.shadowRoot.querySelector('#axis'));
+        this.axisDisplay.showGrid = false;
         this.axisDisplay.renderPasses.splice(0, 2);
         this.axisDisplay.renderPasses.splice(1, 1);
         this.axisDisplay.background = [0, 0, 0, 0];
