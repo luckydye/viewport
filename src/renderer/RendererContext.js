@@ -458,4 +458,10 @@ export class RendererContext {
 		}
 	}
 
+	readPixel(x, y) {
+		const data = new Uint8Array(4);
+		this.gl.readPixels(x, y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+		return data;
+	}
+
 }

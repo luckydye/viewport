@@ -10,6 +10,8 @@ import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
 import LightingShader from '../shader/LightingShader.js';
 import { Camera } from '../scene/Camera.js';
+import WorldShader from '../shader/WorldShader.js';
+import PrimitiveShader from '../shader/PrimitiveShader.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -102,7 +104,14 @@ export class Renderer extends RendererContext {
 			new RenderPass(this, 'guides', {
 				filter(geo) {
 					return geo.guide;
-				}
+				},
+				shaderOverwrite: new PrimitiveShader()
+			}),
+			new RenderPass(this, 'id', {
+				filter(geo) {
+					return !geo.guide;
+				},
+				shaderOverwrite: new WorldShader(),
 			}),
 		];
 

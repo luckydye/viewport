@@ -14,12 +14,12 @@ export class Guide extends Geometry {
 		const { x, y, z } = this.origin || new Vec();
 
 		return [
-			x, y, z + s, 0, 1, 1, 1, 1,
-			x, y, z + -s, 0, 1, 1, 1, 1,
-			x, y + s, z, 0, 1, 1, 1, 1,
-			x, y - s, z, 0, 1, 1, 1, 1,
-			x + s, y, z, 0, 1, 1, 1, 1,
-			x - s, y, z, 0, 1, 1, 1, 1
+			x, y, z + s, 0, 1, 0, 0, 1,
+			x, y, z + -s, 0, 1, 0, 0, 1,
+			x, y + s, z, 0, 1, 0, 1, 0,
+			x, y - s, z, 0, 1, 0, 1, 0,
+			x + s, y, z, 0, 1, 1, 0, 0,
+			x - s, y, z, 0, 1, 1, 0, 0
 		];
 	}
 

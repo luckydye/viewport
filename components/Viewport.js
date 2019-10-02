@@ -4,6 +4,8 @@ import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
 import { Camera } from '../src/scene/Camera.js';
 import { ViewportController } from '../src/controlers/ViewportController.js';
+import { Guide } from '../src/geo/Guide.js';
+import PrimitivetMaterial from '../src/materials/PrimitiveMaterial.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -27,7 +29,7 @@ export default class Viewport extends HTMLElement {
                 }
                 .stats {
                     position: absolute;
-                    top: 20px;
+                    bottom: 20px;
                     left: 20px;
                     z-index: 10000;
                     color: white;
@@ -36,8 +38,17 @@ export default class Viewport extends HTMLElement {
                     user-select: none;
                     margin: 0;
                 }
+                .axis {
+                    position: absolute;
+                    bottom: 10px;
+                    right: 10px;
+                    pointer-events: none;
+                }
             </style>
 
+            <div class="axis">
+                <canvas id="axis" width="50px" height="50px"></canvas>
+            </div>
             <pre class="stats"></pre>
         `;
     }
@@ -72,6 +83,12 @@ export default class Viewport extends HTMLElement {
         if(controllertype) {
             new controllertype(this.camera, this);
         }
+
+        this.addEventListener('click', e => {
+            const bounds = this.getBoundingClientRect();
+            const pixel = this.renderer.readPixel(e.x - bounds.x, e.y - bounds.y);
+            console.log(pixel);
+        });
     }
 
     setScene(scene) {
@@ -90,6 +107,23 @@ export default class Viewport extends HTMLElement {
             this.init(this.canvas);
             this.render();
         });
+
+        // axis
+        this.axisDisplay = new Renderer(this.shadowRoot.querySelector('#axis'));
+        this.axisDisplay.renderPasses.splice(0, 2);
+        this.axisDisplay.renderPasses.splice(1, 1);
+        this.axisDisplay.background = [0, 0, 0, 0];
+        const axisScene = new Scene([ 
+            new Camera({ 
+                position: [0, 0, -2000],
+                perspective: Camera.ORTHGRAPHIC
+            }) 
+        ]);
+        this.axis = new Guide({
+            scale: 0.25,
+        });
+        axisScene.add(this.axis);
+        this.axisDisplay.scene = axisScene;
     }
 
     render() {
@@ -116,6 +150,11 @@ export default class Viewport extends HTMLElement {
         this.renderer.draw(this.scene, {
             camera: this.camera,
         });
+
+        this.axis.rotation.x = this.camera.rotation.x;
+        this.axis.rotation.y = this.camera.rotation.y;
+        this.axis.rotation.z = this.camera.rotation.z;
+        this.axisDisplay.draw(this.axisDisplay.scene);
 
         this.frame.lastFrame = currentFrame;
 
