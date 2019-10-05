@@ -66,7 +66,7 @@ export class Camera extends Entity {
 			fov = 75,
 			scale = 0.004,
 			farplane = 7000,
-			nearplane = 0.01,
+			nearplane = 1,
 			width = 1280,
 			height = 720,
 			perspective = Camera.PERSPECTIVE,
