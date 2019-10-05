@@ -321,9 +321,11 @@ export class Renderer extends RendererContext {
 
 		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
 
-		this.currentShader.setUniforms(this, { 
-			'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
-		});
+		if(this.currentScene) {
+			this.currentShader.setUniforms(this, { 
+				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
+			});
+		}
 	}
 
 	drawScene(scene, camera, setup = {

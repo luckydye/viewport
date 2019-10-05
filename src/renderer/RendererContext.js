@@ -342,7 +342,7 @@ export class RendererContext {
 	updateTextureBuffer(texture, image) {
 		const gl = this.gl;
 
-		if (texture) {
+		if (texture && image) {
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			gl.bindTexture(gl.TEXTURE_2D, null);

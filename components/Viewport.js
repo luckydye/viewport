@@ -138,7 +138,7 @@ export default class Viewport extends HTMLElement {
         
         this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
 
-        if(this.offsetWidth + this.offsetHeight === 0) {
+        if(document.hidden) {
             return;
         }
 
