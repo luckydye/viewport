@@ -98,8 +98,10 @@ export class RendererContext {
 		if (!shader.initialized) {
 			this.prepareShader(shader);
 		}
-		this.gl.useProgram(shader.program);
-		this.currentShader = shader;
+		if(this.currentShader !== shader) {
+			this.gl.useProgram(shader.program);
+			this.currentShader = shader;
+		}
 	}
 
 	// use webgl texture

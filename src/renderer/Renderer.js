@@ -2,7 +2,6 @@ import { RendererContext } from './RendererContext.js';
 import CompShader from '../shader/CompShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
-import { mat4, glMatrix } from 'gl-matrix';
 import { Vec } from '../Math.js';
 import { Geometry } from '../scene/Geometry.js';
 import { Grid } from '../geo/Grid.js';
@@ -12,9 +11,6 @@ import LightingShader from '../shader/LightingShader.js';
 import { Camera } from '../scene/Camera.js';
 import WorldShader from '../shader/WorldShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
-
-// performance option, use Array instad of Float32Arrays
-glMatrix.setMatrixArrayType(Array);
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -208,17 +204,22 @@ export class Renderer extends RendererContext {
 		this.currentRenderBufferSlot = 0;
 
 		// push pass frame buffers to comp
-		for (let pass of this.renderPasses) {
-			this.pushTexture(this.getBufferTexture(pass.id), pass.id);
-		}
-
-		// push depth from color buffer
-		this.pushTexture(this.getBufferTexture('color.depth'), 'depth');
-		this.pushTexture(this.getBufferTexture('guides.depth'), 'guidesDepth');
+		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
+		this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
+		this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
 
 		this.preComposition();
 
 		this.drawGeo(this.renderTarget);
+
+		this.currentRenderBufferSlot = 0;
+
+		// clear buffer textures
+		this.useTextureBuffer(null, gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
+		this.useTextureBuffer(null, gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
+		this.useTextureBuffer(null, gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
+		this.useTextureBuffer(null, gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
 	}
 
 	prepareTexture(texture) {
@@ -240,10 +241,6 @@ export class Renderer extends RendererContext {
 
 		const type = texture ? this.gl[texture.type] : null;
 		this.useTextureBuffer(gltexture, type, uniformStr, slot);
-	}
-
-	pushTexture(gltexture, uniformStr) {
-		this.useTextureBuffer(gltexture, this.gl.TEXTURE_2D, uniformStr, this.nextRenderBufferSlot());
 	}
 
 	// give material attributes to shader
@@ -300,28 +297,10 @@ export class Renderer extends RendererContext {
 			this.initializeBuffersAndAttributes(buffer);
 		}
 
-		geo.modelMatrix = geo.modelMatrix || mat4.create();
-		const modelMatrix = geo.modelMatrix;
-
-		const position = geo.position;
-		const rotation = geo.rotation;
-		const scale = geo.scale;
-
-		mat4.identity(modelMatrix);
-
-		mat4.translate(modelMatrix, modelMatrix, position);
-
-		mat4.rotateX(modelMatrix, modelMatrix, rotation.x);
-		mat4.rotateY(modelMatrix, modelMatrix, rotation.y);
-		mat4.rotateZ(modelMatrix, modelMatrix, rotation.z);
-
-		mat4.translate(modelMatrix, modelMatrix, geo.origin);
-
-		mat4.scale(modelMatrix, modelMatrix, new Vec(scale, scale, scale));
-
-		this.currentShader.setUniforms(this, { 'model': modelMatrix }, 'scene');
+		geo.updateModelMatrix();
 
 		if(this.currentScene) {
+			this.currentShader.setUniforms(this, { 'model': geo.modelMatrix }, 'scene');
 			this.currentShader.setUniforms(this, { 
 				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
 			});

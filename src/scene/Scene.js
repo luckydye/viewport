@@ -59,7 +59,7 @@ export class Scene extends Transform {
 	}
 
 	getObjectsByConstructor(objectConstructor) {
-		return [...this.objects].filter(obj => obj.constructor.name == objectConstructor.name);
+		return [...this.objects].filter(obj => obj.constructor == objectConstructor);
 	}
 
 	getRenderableObjects(camera) {

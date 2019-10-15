@@ -1,5 +1,9 @@
-import { Transform, uuidv4 } from "../Math.js";
+import { Transform, uuidv4, Vec } from "../Math.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
+import { mat4, glMatrix } from 'gl-matrix';
+
+// performance option, use Array instad of Float32Arrays
+glMatrix.setMatrixArrayType(Array);
 
 export class Geometry extends Transform {
 
@@ -42,9 +46,53 @@ export class Geometry extends Transform {
 		this.hidden = hidden;
 		this.guide = guide;
 		this.uv = uv;
+		this.modelMatrix = mat4.create();
 	}
 
-	onCreate(args) { }
+	getState() {
+		return (
+			this.position[0] +
+			this.position[1] +
+			this.position[2]
+		) + (
+			this.rotation[0] +
+			this.rotation[1] +
+			this.rotation[2]
+		) + (
+			this.origin[0] +
+			this.origin[1] +
+			this.origin[2]
+		) + this.scale;
+	}
+
+	updateModelMatrix() {
+		const state = this.getState();
+
+		if(state != this.cache) {
+			const modelMatrix = this.modelMatrix;
+			const position = this.position;
+			const rotation = this.rotation;
+			const scale = this.scale;
+	
+			mat4.identity(modelMatrix);
+	
+			mat4.translate(modelMatrix, modelMatrix, position);
+	
+			mat4.rotateX(modelMatrix, modelMatrix, rotation[0]);
+			mat4.rotateY(modelMatrix, modelMatrix, rotation[1]);
+			mat4.rotateZ(modelMatrix, modelMatrix, rotation[2]);
+	
+			mat4.translate(modelMatrix, modelMatrix, this.origin);
+	
+			mat4.scale(modelMatrix, modelMatrix, [scale, scale, scale]);
+		}
+
+		this.cache = state;
+	}
+
+	onCreate(args) {
+
+	}
 
 	createBuffer() {
 		return new VertexBuffer(

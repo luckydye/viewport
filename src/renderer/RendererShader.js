@@ -36,6 +36,31 @@ export class Shader {
 		this.drawmode = "TRIANGLES";
 
 		this.initialized = false;
+
+		this.cache = {};
+	}
+
+	cacheUniform(key, value, target) {
+		let cache = this.cache;
+		let matched = false;
+
+		if(target) {
+			if(!this.cache[target]) {
+				this.cache[target] = {};
+			}
+			cache = this.cache[target];
+		}
+
+		if(value instanceof Texture) {
+			return false;
+
+		} else {
+			matched = cache[key] === value;
+		}
+
+		cache[key] = value;
+
+		return matched;
 	}
 
 	setUniforms(renderer, attributes, target) {
@@ -54,6 +79,9 @@ export class Shader {
 
 			const value = attributes[key];
 			const uniform = uniforms[opt];
+
+			if(this.cacheUniform(key, value, target)) 
+				continue;
 
 			if (Array.isArray(value)) {
 
