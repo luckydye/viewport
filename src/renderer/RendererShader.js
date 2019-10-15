@@ -54,10 +54,11 @@ export class Shader {
 		if(value instanceof Texture) {
 			return false;
 
-		} else {
-			matched = cache[key] === value;
+		} else if(Array.isArray(value)) {
+			value = value.reduce((a,b) => a+b);
 		}
-
+		
+		matched = cache[key] === value;
 		cache[key] = value;
 
 		return matched;
