@@ -372,6 +372,12 @@ export class Renderer extends RendererContext {
 
 		this.info.verts = 0;
 
+		for(let [uid, buffer] of this.vertexBuffers) {
+			if(!objects.find(obj => obj.uid === uid)) {
+				this.vertexBuffers.delete(uid);
+			}
+		}
+
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
 				this.drawMesh(obj, shaderOverwrite);

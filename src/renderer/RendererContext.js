@@ -41,7 +41,6 @@ export class RendererContext {
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
-		this.buffers = [];
 
 		this.options = {
 			DEPTH_TEST: true,
@@ -401,8 +400,6 @@ export class RendererContext {
 			bufferInfo.indexBuffer = gl.createBuffer();
 			bufferInfo.vertexBuffer = gl.createBuffer();
 
-			this.buffers.push(bufferInfo);
-
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.STATIC_DRAW);
 
@@ -439,11 +436,6 @@ export class RendererContext {
 		this.onDestory();
 
 		const gl = this.gl;
-
-		for(let buffer of this.buffers) {
-			gl.deleteBuffer(buffer.vertexBuffer);
-			gl.deleteVertexArray(buffer.vao);
-		}
 
 		for(let [_, fb] of this.framebuffers) {
 			gl.deleteTexture(fb.textures.color);
