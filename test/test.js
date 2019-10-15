@@ -30,11 +30,11 @@ window.addEventListener('load', () => {
         const geo = [
             new Geometry({
                 material: new DefaultMaterial({
-                    diffuseColor: [0.4, 0.65, 0.4, 1]
+                    diffuseColor: [1, 1, 1, 1]
                 }),
-                position: [0, 400, 0],
-                vertecies: Loader.loadObjFile(Resources.get('sphere')),
-                scale: 100
+                position: [0, 0, 0],
+                vertecies: Loader.loadObjFile(Resources.get('tree')),
+                scale: 200
             }),
             new Plane({
                 material: new DefaultMaterial({
@@ -76,7 +76,7 @@ function createScene(geo) {
 
     scene.add(geo);
 
-    genTrees();
+    // genTrees();
 
     function genTrees() {
 

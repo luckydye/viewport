@@ -101,13 +101,7 @@ export class Renderer extends RendererContext {
 					return geo.guide && self.showGuides;
 				},
 				shaderOverwrite: new PrimitiveShader()
-			}),
-			new RenderPass(this, 'id', {
-				filter(geo) {
-					return !geo.guide;
-				},
-				shaderOverwrite: new WorldShader(),
-			}),
+			})
 		];
 
 		this.renderTarget = new Screen();
