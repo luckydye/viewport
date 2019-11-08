@@ -18,9 +18,9 @@ export class Grid extends Guide {
 		args.material = new PrimitivetMaterial();
 	}
 
-	generate(w = 100, s = 14) {
+	generate(w = 1, s = 20) {
 		const dataArray = [];
-		const size = w * s / 2;
+		const size = w * (s / 2);
 		for (let x = -s / 2; x <= s / 2; x++) {
 			let color = [0.5, 0.5, 0.5];
 			if (x == 0) color = [.15, .15, 1];

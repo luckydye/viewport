@@ -59,7 +59,7 @@ export class Renderer extends RendererContext {
 		this.showGrid = Config.global.getValue('show.grid');
 		this.showGuides = true;
 
-		this.grid = new Grid(100, 14);
+		this.grid = new Grid();
 
 		this.currentRenderBufferSlot = 0;
 
@@ -86,7 +86,7 @@ export class Renderer extends RendererContext {
 					}
 				},
 				filter(geo) {
-					return !geo.guide;
+					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize]
@@ -313,6 +313,8 @@ export class Renderer extends RendererContext {
 
 		if(!camera) return;
 
+		camera.updateModelMatrix();
+
 		const objects = scene.getRenderableObjects(camera);
 
 		let tempShader;
@@ -336,9 +338,9 @@ export class Renderer extends RendererContext {
 					'shadowProjMat': lightSource.projMatrix,
 					'shadowViewMat': lightSource.viewMatrix,
 					'lightDirection': [
-						lightSource.worldPosition[0],
-						lightSource.worldPosition[1],
-						lightSource.worldPosition[2],
+						lightSource.position[0],
+						lightSource.position[1],
+						lightSource.position[2],
 					],
 				});
 			}

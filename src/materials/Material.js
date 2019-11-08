@@ -20,7 +20,6 @@ export class Material {
             specular: this.specular,
             roughness: this.roughness,
             textureScale: this.textureScale,
-            scaleUniform: this.scaleUniform,
         };
     }
 

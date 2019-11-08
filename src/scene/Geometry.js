@@ -1,6 +1,6 @@
 import { Transform, uuidv4, Vec } from "../Math.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
-import { mat4, glMatrix } from 'gl-matrix';
+import { mat4, glMatrix, quat } from 'gl-matrix';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -69,22 +69,21 @@ export class Geometry extends Transform {
 		const state = this.getState();
 
 		if(state != this.cache) {
-			const modelMatrix = this.modelMatrix;
-			const position = this.position;
-			const rotation = this.rotation;
-			const scale = this.scale;
-	
-			mat4.identity(modelMatrix);
-	
-			mat4.translate(modelMatrix, modelMatrix, position);
-	
-			mat4.rotateX(modelMatrix, modelMatrix, rotation[0]);
-			mat4.rotateY(modelMatrix, modelMatrix, rotation[1]);
-			mat4.rotateZ(modelMatrix, modelMatrix, rotation[2]);
-	
-			mat4.translate(modelMatrix, modelMatrix, this.origin);
-	
-			mat4.scale(modelMatrix, modelMatrix, [scale, scale, scale]);
+			const rotQuat = quat.create();
+
+			quat.fromEuler(rotQuat, 
+				this.rotation.x * ( 180 / Math.PI ),
+				this.rotation.y * ( 180 / Math.PI ),
+				this.rotation.z * ( 180 / Math.PI ),
+			);
+
+			mat4.fromRotationTranslationScaleOrigin(
+				this.modelMatrix,
+				rotQuat,
+				this.position,
+				[this.scale, this.scale, this.scale],
+				this.origin
+			);
 		}
 
 		this.cache = state;

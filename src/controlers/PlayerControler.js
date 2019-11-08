@@ -7,7 +7,7 @@ export class PlayerControler extends CameraControler {
 		super(...args);
 
 		this.sensivity = 0.0025;
-		this.speed = 2;
+		this.speed = 0.1;
 		this.maxSpeed = 1;
 		this.weight = 0.85;
 		this.direction = new Vec();
@@ -37,9 +37,6 @@ export class PlayerControler extends CameraControler {
 		if (this.checkKey("q")) this.pan(this.speed);
 		if (this.checkKey("y")) this.pan(-this.speed);
 
-		const a = -this.entity.rotation.y;
-		const b = -this.entity.rotation.x;
-
 		const camDirectionInv = new Vec(
 			Math.sin(-this.entity.rotation.y),
 			Math.max(Math.min(Math.tan(this.entity.rotation.x), 1), -1),
@@ -59,6 +56,7 @@ export class PlayerControler extends CameraControler {
 		this.entity.position.x += this.entity.velocity.x;
 		this.entity.position.y += this.entity.velocity.y;
 		this.entity.position.z += this.entity.velocity.z;
+		this.entity.position[3] = 1;
 
 		let resistance = this.weight;
 

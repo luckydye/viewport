@@ -20,11 +20,6 @@ export class CameraControler extends EntityControler {
 			if (document.pointerLockElement != null) {
 				entity.rotation.y += e.movementX * this.sensivity;
 				entity.rotation.x += e.movementY * this.sensivity;
-
-				entity.rotation.x = entity.rotation.x % (Math.PI * 2);
-				entity.rotation.y = entity.rotation.y % (Math.PI * 2);
-
-				entity.rotation.x = Math.max(Math.min(entity.rotation.x, 1.5), -1.5);
 			}
 		}
 

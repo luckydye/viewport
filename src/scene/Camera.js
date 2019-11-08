@@ -1,7 +1,8 @@
-import { mat4, vec3, glMatrix } from 'gl-matrix';
+import { mat4, vec3, glMatrix, quat } from 'gl-matrix';
 import { Vec } from '../Math.js';
 import DefaultMaterial from '../materials/DefaultMaterial.js';
 import { Entity } from './Entity.js';
+import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -17,56 +18,66 @@ export class Camera extends Entity {
 	}
 
 	get vertecies() {
-		const s = 50 / this.scale;
+		const s = 1;
+		const w = this.sensor.width;
 		const vertArray = [
-			-s, -s, 0, 0, 0, 0, 0, 0,
-			s, -s, 0, 1, 0, 0, 0, 0,
-			s, s, 0, 1, 1, 0, 0, 0,
+			// farplane
+			w, w, this.farplane, 1, 1, 1, 1, 1,
+			-w, w, this.farplane, 1, 1, 1, 1, 1,
 
-			s, s, 0, 1, 1, 0, 0, 0,
-			-s, s, 0, 0, 1, 0, 0, 0,
-			-s, -s, 0, 0, 0, 0, 0, 0,
+			-w, w, this.farplane, 1, 1, 1, 1, 1,
+			-w, -w, this.farplane, 1, 1, 1, 1, 1,
 
-			s, s, 0, 1, 1, 0, 0, 0,
-			s, s, s * 2, 1, 1, 0, 0, 0,
+			-w, -w, this.farplane, 1, 1, 1, 1, 1,
+			w, -w, this.farplane, 1, 1, 1, 1, 1,
 
-			-s, -s, s * 2, 0, 0, 0, 0, 0,
-			s, -s, s * 2, 1, 0, 0, 0, 0,
-			s, s, s * 2, 1, 1, 0, 0, 0,
+			w, -w, this.farplane, 1, 1, 1, 1, 1,
+			w, w, this.farplane, 1, 1, 1, 1, 1,
 
-			s, s, s * 2, 1, 1, 0, 0, 0,
-			-s, s, s * 2, 0, 1, 0, 0, 0,
-			-s, -s, s * 2, 0, 0, 0, 0, 0,
+			// nearplane
+			s, s, this.nearplane, 1, 1, 1, 1, 1,
+			-s, s, this.nearplane, 1, 1, 1, 1, 1,
 
-			-s / 2, -s / 2, -s, 0, 0, 0, 0, 0,
-			s / 2, -s / 2, -s, 1, 0, 0, 0, 0,
-			s / 2, s / 2, -s, 1, 1, 0, 0, 0,
+			-s, s, this.nearplane, 1, 1, 1, 1, 1,
+			-s, -s, this.nearplane, 1, 1, 1, 1, 1,
 
-			s / 2, s / 2, -s, 1, 1, 0, 0, 0,
-			-s / 2, s / 2, -s, 0, 1, 0, 0, 0,
-			-s / 2, -s / 2, -s, 0, 0, 0, 0, 0,
+			-s, -s, this.nearplane, 1, 1, 1, 1, 1,
+			s, -s, this.nearplane, 1, 1, 1, 1, 1,
+
+			s, -s, this.nearplane, 1, 1, 1, 1, 1,
+			s, s, this.nearplane, 1, 1, 1, 1, 1,
+
+			-s, -s, this.nearplane, 1, 1, 1, 1, 1,
+			s, s, this.nearplane, 1, 1, 1, 1, 1,
+
+
+			0, 0, this.nearplane, 0, 0, 1, 0, 0,
+			0, 0, this.farplane, 0, 0, 1, 0, 0,
+
+			-s, -s, this.nearplane, 0, 0, 1, 1, 1,
+			-w, -w, this.farplane, 0, 0, 1, 1, 1,
+
+			-s, s, this.nearplane, 0, 0, 1, 1, 1,
+			-w, w, this.farplane, 0, 0, 1, 1, 1,
+
+			s, s, this.nearplane, 0, 0, 1, 1, 1,
+			w, w, this.farplane, 0, 0, 1, 1, 1,
+
+			s, -s, this.nearplane, 0, 0, 1, 1, 1,
+			w, -w, this.farplane, 0, 0, 1, 1, 1,
 		]
 		return vertArray;
 	}
 
 	onCreate(args) {
-		args.material = new DefaultMaterial();
-	}
-
-	get worldPosition() {
-		return new Vec(
-			-this.position.x,
-			-this.position.y,
-			-this.position.z,
-		);
+		args.material = new PrimitivetMaterial();
 	}
 
 	constructor(args = {}) {
 		const {
-			fov = 75,
-			scale = 0.004,
-			farplane = 7000,
-			nearplane = 1,
+			fov = 54.4,
+			farplane = 1000,
+			nearplane = 0.1,
 			width = 1280,
 			height = 720,
 			perspective = Camera.PERSPECTIVE,
@@ -75,7 +86,6 @@ export class Camera extends Entity {
 
 		this.hidden = true;
 
-		this.scale = scale;
 		this.fov = fov;
 		this.farplane = farplane;
 		this.nearplane = nearplane;
@@ -86,50 +96,51 @@ export class Camera extends Entity {
 		this.viewMatrix = mat4.create();
 		this.projViewMatrix = mat4.create();
 
+		// this.modelMatrix = this.viewMatrix;
+
 		this.sensor = {
 			width: width,
 			height: height
 		}
 	}
 
-	update(ms) {
-		super.update(ms);
+	updateModelMatrix() {
+		const state = this.getState();
 
-		const projMatrix = this.projMatrix;
-		const viewMatrix = this.viewMatrix;
-		const camera = this;
+		if(state != this.cache) {
 
-		if (this.perspective == Camera.ORTHGRAPHIC) {
-			mat4.ortho(
-				projMatrix, 
-				-this.sensor.width, this.sensor.width, 
-				-this.sensor.height, this.sensor.height,
-				camera.nearplane, 
-				camera.farplane
-			);
+			if (this.perspective == Camera.ORTHGRAPHIC) {
+				mat4.ortho(
+					this.projMatrix, 
+					-this.sensor.width, this.sensor.width, 
+					-this.sensor.height, this.sensor.height,
+					this.nearplane, 
+					this.farplane
+				);
+			}
+	
+			if (this.perspective == Camera.PERSPECTIVE) {
+				const ar = this.sensor.width / this.sensor.height;
+				mat4.perspective(this.projMatrix, Math.PI / 180 * this.fov, ar, this.nearplane, this.farplane);
+			}
+
+			mat4.identity(this.viewMatrix);
+
+			mat4.rotateX(this.viewMatrix, this.viewMatrix, this.rotation.x);
+			mat4.rotateY(this.viewMatrix, this.viewMatrix, this.rotation.y);
+			mat4.rotateZ(this.viewMatrix, this.viewMatrix, this.rotation.z);
+			
+			mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
+
+			mat4.identity(this.modelMatrix);
+			mat4.invert(this.modelMatrix, this.viewMatrix);
+			// mat4.scale(this.modelMatrix, this.modelMatrix, [-1, -1, -1]);
+
+
+			mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 		}
 
-		if (this.perspective == Camera.PERSPECTIVE) {
-			const ar = this.sensor.width / this.sensor.height;
-			mat4.perspective(projMatrix, Math.PI / 180 * camera.fov, ar, camera.nearplane, camera.farplane);
-		}
-
-		mat4.lookAt(
-			viewMatrix,
-			[0, 0, 0],
-			camera.lookAt,
-			[0, 1, 0]
-		);
-
-		mat4.translate(viewMatrix, viewMatrix, camera.origin);
-
-		mat4.rotateX(viewMatrix, viewMatrix, camera.rotation.x);
-		mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
-		mat4.rotateZ(viewMatrix, viewMatrix, camera.rotation.z);
-
-		mat4.translate(viewMatrix, viewMatrix, camera.position);
-
-		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
+		this.cache = state;
 	}
 
 }

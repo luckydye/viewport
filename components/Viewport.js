@@ -7,6 +7,9 @@ import { ViewportController } from '../src/controlers/ViewportController.js';
 import { Guide } from '../src/geo/Guide.js';
 import PrimitivetMaterial from '../src/materials/PrimitiveMaterial.js';
 import { CursorControler } from '../src/controlers/CursorController.js';
+import { PlayerControler } from '../src/controlers/PlayerControler.js';
+import { Cube } from '../src/geo/Cube.js';
+import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -75,16 +78,19 @@ export default class Viewport extends HTMLElement {
         this.renderer = new Renderer(this.canvas);
 
         this.camera = new Camera({
-            position: [0, 0, 0],
-            fov: 90
+            position: [0, -20, -50],
+            rotation: [0.3, 0.1, 0],
+            fov: 46.8
         });
+
+        this.camera.hidden = false;
 
         this.scene = new Scene([ this.camera ]);
 
         this.selectedGeometry = null;
 
         if(controllertype) {
-            new controllertype(this.camera, this);
+            new PlayerControler(this.camera, this);
         }
 
         // new CursorControler(this.camera, this);
@@ -121,7 +127,7 @@ export default class Viewport extends HTMLElement {
         this.axisDisplay.background = [0, 0, 0, 0];
         const axisScene = new Scene([ 
             new Camera({ 
-                position: [0, 0, -2000],
+                position: [0, 0, -20],
                 perspective: Camera.ORTHGRAPHIC
             }) 
         ]);
@@ -130,6 +136,8 @@ export default class Viewport extends HTMLElement {
         });
         axisScene.add(this.axis);
         this.axisDisplay.scene = axisScene;
+
+        // this.camera = this.scene.lightsource;
     }
 
     render() {

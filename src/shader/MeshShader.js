@@ -15,7 +15,6 @@ export default class MeshShader extends Shader {
                 float roughness;
                 float transparency;
                 float textureScale;
-                bool scaleUniform;
             };
         `;
     }
@@ -100,12 +99,6 @@ export default class MeshShader extends Shader {
         uniform float time;
         
         void main() {
-            // uniformSacle
-            float uniformSacle = 1.0;
-            if(material.scaleUniform) {
-                uniformSacle = (scene.projection * scene.view * scene.model * vec4(aPosition, 1.0)).z;
-            }
-
             // texture coords
             if(material.textureScale > 0.0) {
                 vec2 imageSize = vec2(textureSize(material.texture, 0));
@@ -119,21 +112,21 @@ export default class MeshShader extends Shader {
             vec2 displace = texture(material.displacementMap, vTexCoords).rg;
             vTexCoords += (displace.xy);
         
-            vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
+            vec4 pos = scene.model * vec4(aPosition, 1.0);
             
             // deform
             // float bump = texture(material.displacementMap, vTexCoords).r * 10.0;
             // pos += vec4(aNormal.xyz, 1.0) * bump;
 
             // set vert outputs
-            vViewPos = -cameraPosition.xyz;
+            vViewPos = cameraPosition.xyz;
             vVertexPos = aPosition;
             vWorldPos = pos;
             vNormal = (vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
             primitiveColor = aNormal;
             index = objectIndex;
         
-            gl_Position = scene.projection * scene.view * vec4(pos.xyz, 1.0);
+            gl_Position = scene.projection * scene.view * pos;
             gl_PointSize = 5.0;
 
             vTexelPos = gl_Position;
