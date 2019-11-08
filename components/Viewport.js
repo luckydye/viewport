@@ -80,10 +80,8 @@ export default class Viewport extends HTMLElement {
         this.camera = new Camera({
             position: [0, -20, -50],
             rotation: [0.3, 0.1, 0],
-            fov: 46.8
+            fov: 90
         });
-
-        this.camera.hidden = false;
 
         this.scene = new Scene([ this.camera ]);
 

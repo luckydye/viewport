@@ -7,7 +7,7 @@ export class PlayerControler extends CameraControler {
 		super(...args);
 
 		this.sensivity = 0.0025;
-		this.speed = 0.1;
+		this.speed = 0.01;
 		this.maxSpeed = 1;
 		this.weight = 0.85;
 		this.direction = new Vec();

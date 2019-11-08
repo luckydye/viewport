@@ -29,7 +29,7 @@ export default class DefaultShader extends MeshShader {
             
             void DiffuseShading(out vec4 finalColor, vec3 normal, float ambient) {
                 vec3 norm = normalize(normal);
-                vec3 lightDir = normalize(lightDirection);
+                vec3 lightDir = normalize(-lightDirection);
                 float diffuse = max(dot(norm, lightDir), 0.0) * (1.0 - ambient) + ambient;
 
                 finalColor *= vec4(vec3(diffuse), 1.0);
@@ -38,7 +38,7 @@ export default class DefaultShader extends MeshShader {
             void Specular(out vec4 finalColor, vec3 normal, float strength, float roughness) {
 
                 vec3 norm = normalize(normal);
-                vec3 lightDir = normalize(lightDirection);
+                vec3 lightDir = normalize(-lightDirection);
 
                 vec3 viewDir = normalize(vViewPos - vWorldPos.xyz);
                 vec3 reflectDir = reflect(-lightDir, norm);
@@ -93,7 +93,7 @@ export default class DefaultShader extends MeshShader {
 
                 float shadowmap_distance = shadowmap_color.r;
 
-                if (vertex_relative_to_light.z <= shadowmap_distance + 0.00035) {
+                if (vertex_relative_to_light.z <= shadowmap_distance + 0.00009) {
                     finalColor.rgb *= 1.0;
                 } else {
                     finalColor.rgb *= 1.0 - shadowColor.a;
