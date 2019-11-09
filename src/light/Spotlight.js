@@ -7,12 +7,12 @@ export class Spotlight extends Camera {
 		super(args);
 
 		this.perspective = Camera.ORTHGRAPHIC;
-		this.farplane = 500;
-		this.nearplane = 5;
+		this.farplane = 1000;
+		this.nearplane = 1;
 
 		this.sensor = {
-			width: 50,
-			height: 50,
+			width: 32,
+			height: 32,
 		}
 	}
 

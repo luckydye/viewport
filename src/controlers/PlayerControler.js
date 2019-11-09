@@ -6,7 +6,7 @@ export class PlayerControler extends CameraControler {
 	constructor(...args) {
 		super(...args);
 
-		this.sensivity = 0.0025;
+		this.sensivity = 0.00125;
 		this.speed = 0.01;
 		this.maxSpeed = 1;
 		this.weight = 0.85;

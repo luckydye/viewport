@@ -76,7 +76,7 @@ export class Camera extends Entity {
 	constructor(args = {}) {
 		const {
 			fov = 54.4,
-			farplane = 1000,
+			farplane = 2000,
 			nearplane = 0.1,
 			width = 1280,
 			height = 720,
@@ -134,8 +134,6 @@ export class Camera extends Entity {
 
 			mat4.identity(this.modelMatrix);
 			mat4.invert(this.modelMatrix, this.viewMatrix);
-			// mat4.scale(this.modelMatrix, this.modelMatrix, [-1, -1, -1]);
-
 
 			mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 		}

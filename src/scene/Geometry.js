@@ -84,6 +84,8 @@ export class Geometry extends Transform {
 				[this.scale, this.scale, this.scale],
 				this.origin
 			);
+
+			mat4.translate(this.modelMatrix, this.modelMatrix, this.origin);
 		}
 
 		this.cache = state;
