@@ -428,6 +428,8 @@ export class Renderer extends RendererContext {
 			for(let mat of geo.materials) {
 				matIndex++;
 				drawWithMaterial(mat, matIndex);
+
+				if(shaderOverwrite) break;
 			}
 			
 		}

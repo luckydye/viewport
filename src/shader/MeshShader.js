@@ -33,7 +33,6 @@ export default class MeshShader extends Shader {
         return `#version 300 es
             
             precision mediump float;
-            precision mediump int;
             
             layout(location = 0) in vec3 aPosition;
             layout(location = 1) in vec2 aTexCoords;
@@ -65,7 +64,6 @@ export default class MeshShader extends Shader {
         return `#version 300 es
 
             precision mediump float;
-            precision mediump int;
 
             in vec2 vTexCoords;
             in vec4 vTexelPos;

@@ -20,7 +20,7 @@ export class Geometry extends Transform {
 	}
 
 	get indecies() {
-		return [];
+		return this.indexArray || [];
 	}
 
     get material() {
@@ -42,6 +42,7 @@ export class Geometry extends Transform {
 		this.onCreate(args);
 
 		const {
+			indecies = null,
 			vertecies = null,
 			material = null,
 			materials = null,
@@ -56,6 +57,7 @@ export class Geometry extends Transform {
 			this.materials.push(material);
 		}
 
+		this.indexArray = indecies;
 		this.vertArray = vertecies;
 		this.hidden = hidden;
 		this.guide = guide;
