@@ -59,6 +59,8 @@ export class RendererContext {
 		for (let opt in options) {
 			if (options[opt] === true) {
 				this.gl.enable(this.gl[opt]);
+			} else if(options[opt] === false) {
+				this.gl.disable(this.gl[opt]);
 			}
 		}
 	}

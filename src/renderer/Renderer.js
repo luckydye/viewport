@@ -10,6 +10,7 @@ import NormalShader from '../shader/NormalShader.js';
 import { Camera } from '../scene/Camera.js';
 import WorldShader from '../shader/WorldShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
+import { vec3, mat4 } from 'gl-matrix';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -88,7 +89,10 @@ export class Renderer extends RendererContext {
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				shaderOverwrite: new NormalShader(),
-				resolution: [this.shadowMapSize, this.shadowMapSize]
+				resolution: [this.shadowMapSize, this.shadowMapSize],
+				options: {
+					CULL_FACE: false
+				}
 			}),
 			new RenderPass(this, 'color', {
 				filter(geo) {
@@ -156,6 +160,8 @@ export class Renderer extends RendererContext {
 			for (let pass of this.renderPasses) {
 				pass.use();
 
+				this.setOptions(pass.sceneSetup.options);
+
 				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
@@ -167,6 +173,8 @@ export class Renderer extends RendererContext {
 				}
 
 				this.drawScene(scene, camera, pass.sceneSetup);
+
+				this.setOptions(this.options);
 			}
 			
 			this.clearFramebuffer();
@@ -337,11 +345,6 @@ export class Renderer extends RendererContext {
 				this.currentShader.setUniforms(this, {
 					'shadowProjMat': lightSource.projMatrix,
 					'shadowViewMat': lightSource.viewMatrix,
-					'lightDirection': [
-						lightSource.position[0],
-						lightSource.position[1],
-						lightSource.position[2],
-					],
 				});
 			}
 

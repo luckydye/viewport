@@ -8,9 +8,8 @@ export default class DefaultShader extends MeshShader {
             float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
             float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
 
-            DiffuseShading(oFragColor, normal, ambientLight);
             Specular(oFragColor, normal, specular, roughness);
-            Shadow(oFragColor, normal, shadowColor);
+            Shading(oFragColor, normal, shadowColor);
         `;
     }
 
@@ -23,22 +22,13 @@ export default class DefaultShader extends MeshShader {
             uniform mat4 shadowProjMat;
             uniform mat4 shadowViewMat;
             
-            uniform vec3 lightDirection;
             uniform vec4 shadowColor;
             uniform float ambientLight;
-            
-            void DiffuseShading(out vec4 finalColor, vec3 normal, float ambient) {
-                vec3 norm = normalize(normal);
-                vec3 lightDir = normalize(-lightDirection);
-                float diffuse = max(dot(norm, lightDir), 0.0) * (1.0 - ambient) + ambient;
-
-                finalColor *= vec4(vec3(diffuse), 1.0);
-            }
             
             void Specular(out vec4 finalColor, vec3 normal, float strength, float roughness) {
 
                 vec3 norm = normalize(normal);
-                vec3 lightDir = normalize(-lightDirection);
+                vec3 lightDir = normalize((vec4(1.0) * shadowViewMat).xyz);
 
                 vec3 viewDir = normalize(vViewPos - vWorldPos.xyz);
                 vec3 reflectDir = reflect(-lightDir, norm);
@@ -78,24 +68,32 @@ export default class DefaultShader extends MeshShader {
                 return vec;
             }
 
-            void Shadow(out vec4 finalColor, vec3 normal, vec4 shadowColor) {
+            void Shading(out vec4 finalColor, vec3 normal, vec4 shadowColor) {
 
                 vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * vWorldPos;
+                vec3 light_pos = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
 
-                vec3 vertex_relative_to_light = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
-                vertex_relative_to_light = vertex_relative_to_light * 0.5 + 0.5;
+                vec3 vertex_relative_to_light = light_pos * 0.5 + 0.5;
 
                 vec2 shadowTexCoord = vec2(
                     clamp(vertex_relative_to_light.x, 0.0, 1.0),
                     clamp(vertex_relative_to_light.y, 0.0, 1.0)
                 );
-                vec4 shadowmap_color = texture(shadowDepth, shadowTexCoord);
 
-                float shadowmap_distance = shadowmap_color.r;
+                vec4 shadowmap_color1 = texture(shadowDepth, vec2(shadowTexCoord.x, shadowTexCoord.y));
+                float shadowmap_distance = shadowmap_color1.r;
 
-                if (vertex_relative_to_light.z <= shadowmap_distance + 0.00009) {
-                    finalColor.rgb *= 1.0;
-                } else {
+                float bias = 0.00005;
+
+                float illuminated = step(vertex_relative_to_light.z, shadowmap_distance + bias);
+
+                vec3 norm = normalize(normal);
+                vec3 lightDir = normalize((vec4(1.0) * shadowViewMat).xyz);
+                float diffuse = max(dot(norm, lightDir), 0.0);
+
+                finalColor.rgb *= vec3(diffuse * (1.0 - ambientLight) + ambientLight);
+
+                if(illuminated < 1.0) {
                     finalColor.rgb *= 1.0 - shadowColor.a;
                 }
             }
