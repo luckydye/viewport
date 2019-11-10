@@ -17,6 +17,7 @@ export default class DefaultShader extends MeshShader {
         return MeshShader.shaderFragmentHeader`
 
             uniform Material material;
+            uniform float materialIndex;
 
             uniform sampler2D shadowDepth;
             uniform mat4 shadowProjMat;
@@ -24,6 +25,31 @@ export default class DefaultShader extends MeshShader {
             
             uniform vec4 shadowColor;
             uniform float ambientLight;
+
+            vec2 TextureCoords() {
+                float scale = 1.0;
+
+                if(vTexCoords.x > materialIndex || vTexCoords.y > materialIndex) {
+                    discard;
+                }
+
+                if(material.textureScale > 0.0) {
+                    vec2 imageSize = vec2(textureSize(material.texture, 0));
+                    scale = (imageSize.x / material.textureScale);
+                }
+
+                vec2 displace = texture(material.displacementMap, vTexCoords).rg;
+
+                return (vTexCoords / scale) + displace.xy;
+            }
+
+            vec4 getMappedValue(sampler2D image, vec4 value) {
+                vec4 mapped = texture(image, TextureCoords());
+                if(mapped.a > 0.0) {
+                    value *= vec4(mapped.rgb, 1.0);
+                }
+                return value;
+            }
             
             void Specular(out vec4 finalColor, vec3 normal, float strength, float roughness) {
 
@@ -38,16 +64,6 @@ export default class DefaultShader extends MeshShader {
                 finalColor += specular * strength;
             }
 
-            vec4 getMappedValue(sampler2D image, vec4 value) {
-                vec4 mapped = texture(image, vTexCoords);
-
-                if(mapped.a > 0.0) {
-                    value *= vec4(mapped.rgb, 1.0);
-                }
-
-                return value;
-            }
-
             float saturate(float value) {
                 return clamp(value, 0.0, 1.0);
             }
@@ -58,14 +74,6 @@ export default class DefaultShader extends MeshShader {
                 fresnel = saturate(1.0 - fresnel);
                 fresnel = pow(fresnel, 75.0);
                 finalColor += vec4(vec3(1., .0, .0) * fresnel, 0.0);
-            }
-
-            vec4 powVec4(vec4 vec, float value) {
-                vec.r = pow(vec.r, value);
-                vec.g = pow(vec.g, value);
-                vec.b = pow(vec.b, value);
-                vec.a = pow(vec.a, value);
-                return vec;
             }
 
             void Shading(out vec4 finalColor, vec3 normal, vec4 shadowColor) {
@@ -99,10 +107,9 @@ export default class DefaultShader extends MeshShader {
             }
 
             void main() {
-            
                 // albedo
                 vec4 color = material.diffuseColor;
-                vec4 texcolor = texture(material.texture, vTexCoords);
+                vec4 texcolor = texture(material.texture, TextureCoords());
 
                 color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
                 color = vec4(color.rgb, color.a + texcolor.a / 2.0);

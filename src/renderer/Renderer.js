@@ -65,7 +65,7 @@ export class Renderer extends RendererContext {
 
 		this.ambientLight = 0.5;
 		this.shadowColor = [0, 0, 0, 0.33];
-		this.background = [0.08, 0.08, 0.08, 1.0];
+		this.background = [0, 0, 0, 0];
 		this.shadowMapSize = 4096;
 
 		this.vertexBuffers = new Map();
@@ -162,7 +162,6 @@ export class Renderer extends RendererContext {
 
 				this.setOptions(pass.sceneSetup.options);
 
-				this.gl.clearColor(0, 0, 0, 0);
 				this.clear();
 
 				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
@@ -184,7 +183,6 @@ export class Renderer extends RendererContext {
 
 			const camera = setup.camera || scene.cameras[0];
 
-			this.gl.clearColor(0, 0, 0, 0);
 			this.clear();
 			this.drawScene(scene, camera, setup);
 		}
@@ -267,7 +265,7 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.currentShader.setUniforms(this, material.attributes, 'material');
+		this.currentShader.setUniforms(this, material.attributes, `material`);
 
 		if(Object.keys(material.customUniforms).length > 0) {
 			this.currentShader.setUniforms(this, material.customUniforms);
@@ -304,7 +302,6 @@ export class Renderer extends RendererContext {
 			this.currentShader.setUniforms(this, { 'model': geo.modelMatrix }, 'scene');
 			this.currentShader.setUniforms(this, { 
 				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
-				'materialIndex': (geo.material ? geo.material.index : 0) / 255,
 			});
 		}
 	}
@@ -338,27 +335,38 @@ export class Renderer extends RendererContext {
 				'projection': camera.projMatrix,
 				'view': camera.viewMatrix
 			}, 'scene');
+		}
 
-			const lightSource = scene.lightsource;
+		const materials = objects.map(obj => obj.materials).flat();
+		this.materials = materials;
 
-			if(lightSource) {
+		if(!shaderOverwrite) {
+			// update materials
+			for(let mat of materials) {
+				const shader = this.getMaterialShader(mat);
+				this.useShader(shader);
+
+				const lightSource = scene.lightsource;
+	
+				if(lightSource) {
+					this.currentShader.setUniforms(this, {
+						'shadowProjMat': lightSource.projMatrix,
+						'shadowViewMat': lightSource.viewMatrix,
+					});
+				}
+
 				this.currentShader.setUniforms(this, {
-					'shadowProjMat': lightSource.projMatrix,
-					'shadowViewMat': lightSource.viewMatrix,
+					'ambientLight': this.ambientLight,
+					'shadowColor': this.shadowColor,
+					'cameraPosition': [
+						camera.position.x + camera.origin.x,
+						camera.position.y + camera.origin.y,
+						camera.position.z + camera.origin.z
+					],
 				});
+
+				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 0);
 			}
-
-			this.currentShader.setUniforms(this, {
-				'ambientLight': this.ambientLight,
-				'shadowColor': this.shadowColor,
-				'cameraPosition': [
-					camera.position.x + camera.origin.x,
-					camera.position.y + camera.origin.y,
-					camera.position.z + camera.origin.z
-				],
-			});
-
-			this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 5);
 		}
 
 		if (tempShader) {
@@ -396,19 +404,32 @@ export class Renderer extends RendererContext {
 	drawMesh(geo, shaderOverwrite) {
 		if (geo.material) {
 
-			const shader = this.getMaterialShader(geo.material);
+			const drawWithMaterial = (material, index) => {
+				const shader = this.getMaterialShader(material);
 
-			if (!shaderOverwrite && this.currentShader !== shader) {
-				this.useShader(shader);
+				if (!shaderOverwrite && this.currentShader !== shader) {
+					this.useShader(shader);
+					this.applyMaterial(material);
+				}
+
+				this.currentShader.setUniforms(this, {
+					'materialIndex': index,
+				});
+				
+				if (geo.instanced) {
+					this.drawGeoInstanced(geo);
+				} else {
+					this.drawGeo(geo);
+				}
 			}
 
-			this.applyMaterial(geo.material);
+			let matIndex = 0;
 
-			if (geo.instanced) {
-				this.drawGeoInstanced(geo);
-			} else {
-				this.drawGeo(geo);
+			for(let mat of geo.materials) {
+				matIndex++;
+				drawWithMaterial(mat, matIndex);
 			}
+			
 		}
 	}
 

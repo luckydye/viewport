@@ -6,6 +6,8 @@ export default class OBJFile extends File {
 		const lines = strData.split(/\n/g);
 		const objData = new OBJFile();
 
+		objData.materials = [];
+
 		for (let line of lines) {
 			const data = line.split(" ");
 			const prefix = data[0];
@@ -46,6 +48,10 @@ export default class OBJFile extends File {
 						face.push(c.split('/').map(i => parseInt(i)));
 					}
 					objData.faces.push(face);
+					break;
+
+				case "usemtl":
+					objData.materials.push(data[1]);
 					break;
 			}
 		}

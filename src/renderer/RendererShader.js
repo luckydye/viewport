@@ -68,8 +68,7 @@ export class Shader {
 		const uniforms = this._uniforms;
 		const gl = renderer.gl;
 
-		let textureSlots = 0;
-		let textures = [];
+		let textures = 1;
 
 		for (let key in attributes) {
 			let opt = key;
@@ -103,10 +102,8 @@ export class Shader {
 				}
 
 			} else if (value instanceof Texture) {
-				textures.push({
-					texture: value,
-					uniformloc: opt
-				});
+				renderer.useTexture(value, opt, textures);
+				textures++;
 			} else {
 				const type = typeof value;
 				switch (type) {
@@ -118,12 +115,6 @@ export class Shader {
 						break;
 				}
 			}
-		}
-
-		for (let tex of textures) {
-			const texture = tex.texture;
-			renderer.useTexture(texture, tex.uniformloc, textureSlots);
-			textureSlots++;
 		}
 	}
 }

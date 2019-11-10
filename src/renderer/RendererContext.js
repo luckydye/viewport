@@ -387,6 +387,10 @@ export class RendererContext {
 		return texture;
 	}
 
+	initializeMatterialAttributeBuffer(bufferInfo) {
+		
+	}
+
 	// prepare geometry buffers for draw
 	initializeBuffersAndAttributes(bufferInfo) {
 		const gl = this.gl;

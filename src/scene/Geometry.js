@@ -23,6 +23,14 @@ export class Geometry extends Transform {
 		return [];
 	}
 
+    get material() {
+        return this.materials[0];
+    }
+
+    set material(mat) {
+        this.materials[0] = mat;
+    }
+
 	constructor(args = {}) {
 		super(args);
 
@@ -36,13 +44,19 @@ export class Geometry extends Transform {
 		const {
 			vertecies = null,
 			material = null,
+			materials = null,
 			hidden = false,
 			guide = false,
 			uv = [0, 0],
 		} = args;
 
+        this.materials = materials || [];
+
+		if(material) {
+			this.materials.push(material);
+		}
+
 		this.vertArray = vertecies;
-		this.material = material;
 		this.hidden = hidden;
 		this.guide = guide;
 		this.uv = uv;
