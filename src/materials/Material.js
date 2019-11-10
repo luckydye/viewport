@@ -25,7 +25,9 @@ export class Material {
 
     constructor(attributes = {}) {
         
-		this.uid = uuidv4();
+        this.uid = uuidv4();
+        
+        this.index = 0;
 
         this.shader = DefaultShader;
 
@@ -41,7 +43,6 @@ export class Material {
 
         this.textureScale = 0;
 
-        this.receiveShadows = true;
         this.castShadows = true;
 
         this.scaleUniform = false;

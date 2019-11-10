@@ -7,7 +7,6 @@ import { Geometry } from '../scene/Geometry.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
-import LightingShader from '../shader/LightingShader.js';
 import { Camera } from '../scene/Camera.js';
 import WorldShader from '../shader/WorldShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
@@ -297,6 +296,7 @@ export class Renderer extends RendererContext {
 			this.currentShader.setUniforms(this, { 'model': geo.modelMatrix }, 'scene');
 			this.currentShader.setUniforms(this, { 
 				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
+				'materialIndex': (geo.material ? geo.material.index : 0) / 255,
 			});
 		}
 	}

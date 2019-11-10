@@ -9,7 +9,7 @@ global.initLoaded = false;
 global.resourceTypes = {
 	JSON: [".json"],
 	TEXT: [".txt"],
-	IMAGE: [".png", ".jpg"],
+	IMAGE: [".png", ".jpg", ".webp"],
 	VIDEO: [".mp4"],
 	SHADER: [".shader", ".fs", ".vs"],
 	GEOMETRY: [".obj"],

@@ -27,7 +27,7 @@ export class RendererContext {
 		alpha: true,
 		premultipliedAlpha: false,
 		antialias: false,
-		preserveDrawingBuffer: true,
+		preserveDrawingBuffer: false,
 		desynchronized: true, // for non antiliase canvas on chrome to false
 	}) {
 		if (!canvas) throw "RendererContext: Err: no canvas";
@@ -44,7 +44,7 @@ export class RendererContext {
 
 		this.options = {
 			DEPTH_TEST: true,
-			CULL_FACE: false,
+			CULL_FACE: true,
 			BLEND: true,
 		}
 
@@ -276,7 +276,7 @@ export class RendererContext {
 				gl.blitFramebuffer(
 					0, 0, width, height,
 					0, 0, width, height,
-					gl.COLOR_BUFFER_BIT, gl.NEAREST
+					gl.COLOR_BUFFER_BIT, gl.LINEAR
 				);
 			}
 		}
@@ -329,8 +329,8 @@ export class RendererContext {
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
@@ -365,8 +365,8 @@ export class RendererContext {
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 

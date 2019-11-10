@@ -24,7 +24,6 @@ export class Pointlight extends Cube {
 		args.material = new DefaultMaterial();
 		args.material.diffuseColor = this.color;
 		args.material.specular = 0;
-		args.material.receiveShadows = false;
 	}
 
 }
