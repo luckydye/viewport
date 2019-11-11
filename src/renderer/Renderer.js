@@ -55,18 +55,18 @@ export class Renderer extends RendererContext {
 
 	onCreate() {
 
+		this.grid = new Grid();
+
 		this.debug = Config.global.getValue('debug');
 		this.showGrid = Config.global.getValue('show.grid');
 		this.showGuides = true;
+		this.clearPass = true;
 
-		this.grid = new Grid();
-
-		this.currentRenderBufferSlot = 0;
-
-		this.ambientLight = 0.5;
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
 		this.shadowMapSize = 4096;
+
+		this.currentRenderBufferSlot = 0;
 
 		this.vertexBuffers = new Map();
 		this.materialShaders = new Map();
@@ -88,6 +88,7 @@ export class Renderer extends RendererContext {
 				filter(geo) {
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
+				colorBuffer: false,
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize],
 				options: {
@@ -195,30 +196,27 @@ export class Renderer extends RendererContext {
 	compositeRenderPasses() {
 		const gl = this.gl;
 
-		gl.clearColor(...this.background);
-		this.clear();
+		if(this.clearPass) {
+			gl.clearColor(...this.background);
+			this.clear();
+		} else {
+			this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+		}
 
 		this.useShader(this.compShader);
 
 		this.currentRenderBufferSlot = 0;
-
-		// push pass frame buffers to comp
-		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
-		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
-		this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
-		this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
+		if(this.currentRenderBufferSlot == 0) {
+			// push pass frame buffers to comp
+			this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
+			this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
+			this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
+			this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
+		}
 
 		this.preComposition();
 
 		this.drawGeo(this.renderTarget);
-
-		this.currentRenderBufferSlot = 0;
-
-		// clear buffer textures
-		this.useTextureBuffer(null, gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
-		this.useTextureBuffer(null, gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
-		this.useTextureBuffer(null, gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
-		this.useTextureBuffer(null, gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
 	}
 
 	prepareTexture(texture) {
@@ -236,10 +234,8 @@ export class Renderer extends RendererContext {
 			texture = this.emptyTexture;
 		}
 
-		let gltexture = this.prepareTexture(texture);
-
 		const type = texture ? this.gl[texture.type] : null;
-		this.useTextureBuffer(gltexture, type, uniformStr, slot);
+		this.useTextureBuffer(this.prepareTexture(texture), type, uniformStr, slot);
 	}
 
 	// give material attributes to shader
@@ -332,8 +328,7 @@ export class Renderer extends RendererContext {
 			this.useShader(shader);
 
 			this.currentShader.setUniforms(this, {
-				'projection': camera.projMatrix,
-				'view': camera.viewMatrix
+				'projectionView': camera.projViewMatrix,
 			}, 'scene');
 		}
 
@@ -348,24 +343,22 @@ export class Renderer extends RendererContext {
 
 				const lightSource = scene.lightsource;
 	
-				if(lightSource) {
+				if(lightSource && camera !== lightSource) {
 					this.currentShader.setUniforms(this, {
 						'shadowProjMat': lightSource.projMatrix,
 						'shadowViewMat': lightSource.viewMatrix,
 					});
+
+					this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 0);
 				}
 
 				this.currentShader.setUniforms(this, {
-					'ambientLight': this.ambientLight,
-					'shadowColor': this.shadowColor,
 					'cameraPosition': [
 						camera.position.x + camera.origin.x,
 						camera.position.y + camera.origin.y,
 						camera.position.z + camera.origin.z
 					],
 				});
-
-				this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 0);
 			}
 		}
 
@@ -380,7 +373,7 @@ export class Renderer extends RendererContext {
 		this.info.verts = 0;
 
 		for(let [uid, buffer] of this.vertexBuffers) {
-			if(!objects.find(obj => obj.uid === uid)) {
+			if(![...objects, this.renderTarget].find(obj => obj.uid === uid)) {
 				this.vertexBuffers.delete(uid);
 			}
 		}
@@ -472,6 +465,8 @@ export class RenderPass {
 
 	constructor(renderer, id, setup = {
 		resolution: null,
+		colorBuffer: true,
+		depthbuffer: true,
 	}) {
 		this.id = id;
 		this.sceneSetup = setup;
@@ -483,7 +478,7 @@ export class RenderPass {
 		this.width = this.resolution[0] || renderer.width;
 		this.height = this.resolution[1] || renderer.height;
 
-		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height);
+		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer);
 	}
 
 	resize(width, height) {

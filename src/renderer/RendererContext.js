@@ -216,7 +216,7 @@ export class RendererContext {
 	}
 
 	// create webgl framebuffer objects
-	createFramebuffer(name, width, height, depthAttatchment = true) {
+	createFramebuffer(name, width, height, depthAttatchment = true, colorAttatchment = true) {
 		const gl = this.gl;
 
 		let textures = {
@@ -235,22 +235,27 @@ export class RendererContext {
             gl.createFramebuffer()
 		];
 		
-        const colorRenderbuffer = gl.createRenderbuffer();
-        gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
-        gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.RGBA8, width, height);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderbuffer);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		
-		// color
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
+		let colorRenderbuffer = null;
 
-		textures.color = targetTexture;
+		if(colorAttatchment) {
+			colorRenderbuffer = gl.createRenderbuffer();
+			gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+			gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.RGBA8, width, height);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderbuffer);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			
+			// color
+			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
+	
+			textures.color = targetTexture;
+		}
 		
 		// depth
 		if(depthAttatchment) {
 			const depthTexture = this.createDepthTexture(width, height);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
 
 			textures.depth = depthTexture;
@@ -269,17 +274,21 @@ export class RendererContext {
 			colorRenderbuffer: colorRenderbuffer,
 
 			use() {
-				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
-				gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+				if(colorAttatchment) {
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+					gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+					gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
 				
-				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
-				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
-				gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
-				gl.blitFramebuffer(
-					0, 0, width, height,
-					0, 0, width, height,
-					gl.COLOR_BUFFER_BIT, gl.LINEAR
-				);
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+					gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+					gl.blitFramebuffer(
+						0, 0, width, height,
+						0, 0, width, height,
+						gl.COLOR_BUFFER_BIT, gl.LINEAR
+					);
+				} else {
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+				}
 			}
 		}
 		

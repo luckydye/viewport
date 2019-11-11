@@ -13,10 +13,6 @@ import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 
 export default class Viewport extends HTMLElement {
 
-    get frameRate() {
-        return 1000 / this.renderer.frameTime;
-    }
-
     static get template() {
         return `
             <style>
@@ -155,8 +151,8 @@ export default class Viewport extends HTMLElement {
         if (this.frame.accumulator >= (1000 / this.frame.tickrate)) {
             this.frame.accumulator = 0;
 
-            this.scene.update(delta);
-            this.scheduler.run(delta);
+            this.scene.update(this.frame.tickrate);
+            this.scheduler.run(this.frame.tickrate);
         }
         
         this.renderer.draw(this.scene, {
@@ -171,6 +167,7 @@ export default class Viewport extends HTMLElement {
         this.frame.lastFrame = currentFrame;
 
         this.renderer.info.cputime = (performance.now() - currentFrame).toFixed(1);
+        this.renderer.info.fps = Math.round(1000 / delta);
 
         if(this.renderer.debug) {
             this.statsElement.innerHTML = JSON.stringify(this.renderer.info, null, '  ');

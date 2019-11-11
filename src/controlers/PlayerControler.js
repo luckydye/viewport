@@ -7,7 +7,7 @@ export class PlayerControler extends CameraControler {
 		super(...args);
 
 		this.sensivity = 0.00125;
-		this.speed = 0.01;
+		this.speed = 0.0003;
 		this.maxSpeed = 1;
 		this.weight = 0.85;
 		this.direction = new Vec();
@@ -48,6 +48,10 @@ export class PlayerControler extends CameraControler {
 			Math.max(Math.min(Math.tan(this.entity.rotation.x), 1), -1),
 			Math.cos(this.entity.rotation.y),
 		)
+
+		this.direction.x *= dt;
+		this.direction.y *= dt;
+		this.direction.z *= dt;
 
 		this.entity.velocity.x += (this.direction.z * camDirectionInv.x) + (this.direction.x * camDirection.z);
 		this.entity.velocity.y += (this.direction.z * camDirectionInv.y) + this.direction.y;

@@ -54,12 +54,9 @@ export class Resources {
 		return global.queue.size === 0;
 	}
 
-	static add(obj, startLoad) {
+	static add(obj) {
 		for (let key in obj) {
 			global.queue.add({ name: key, path: obj[key] });
-		}
-		if (startLoad === true) {
-			return Resources.load();
 		}
 	}
 
@@ -72,25 +69,31 @@ export class Resources {
 	}
 
 	static load() {
-		let loads = [];
-
-		for (let res of global.queue) {
-			const loading = Resources._fetch(global.resourceRoot + '/' + res.path).then(dataObj => {
-				const resource = res;
-				global.map.set(resource.name, dataObj);
-			});
-			loads.push(loading);
-		}
-
-		return Promise.all(loads).then(() => {
-			global.queue.clear();
-
-			if (!global.initLoaded && Resources.finished) {
-				global.initLoaded = true;
+		if(!global.progress) {
+			let loads = [];
+	
+			for (let res of global.queue) {
+				const loading = Resources._fetch(global.resourceRoot + '/' + res.path).then(dataObj => {
+					const resource = res;
+					global.map.set(resource.name, dataObj);
+					global.queue.delete(res);
+					return dataObj;
+				});
+				loads.push(loading);
 			}
 
-			logger.log('Resources loaded');
-		})
+			const progress = Promise.all(loads).then(() => {
+				if (!global.initLoaded && Resources.finished) {
+					global.initLoaded = true;
+				}
+	
+				global.progress = null;
+				logger.log('Resources loaded', Resources.finished);
+			})
+			global.progress = progress;
+		}
+
+		return global.progress;
 	}
 
 	static _fetch(path) {

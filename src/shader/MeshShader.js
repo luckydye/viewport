@@ -23,8 +23,7 @@ export default class MeshShader extends Shader {
         return `
             struct SceneProjection {
                 mat4 model;
-                mat4 view;
-                mat4 projection;
+                mat4 projectionView;
             };
         `;
     }
@@ -94,7 +93,7 @@ export default class MeshShader extends Shader {
         void main() {
             vec4 pos = scene.model * vec4(aPosition, 1.0);
         
-            gl_Position = scene.projection * scene.view * pos;
+            gl_Position = scene.projectionView * pos;
             gl_PointSize = 5.0;
 
             // set vert outputs
