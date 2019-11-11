@@ -11,6 +11,8 @@ import { Camera } from '../scene/Camera.js';
 import WorldShader from '../shader/WorldShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { vec3, mat4 } from 'gl-matrix';
+import { RenderPass } from './RenderPass.js';
+import { Cursor } from '../geo/Cursor.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -55,7 +57,9 @@ export class Renderer extends RendererContext {
 
 	onCreate() {
 
+		this.renderTarget = new Screen();
 		this.grid = new Grid();
+		this.cursor = new Cursor();
 
 		this.debug = Config.global.getValue('debug');
 		this.showGrid = Config.global.getValue('show.grid');
@@ -108,7 +112,6 @@ export class Renderer extends RendererContext {
 			})
 		];
 
-		this.renderTarget = new Screen();
 		this.compShader = new CompShader();
 	}
 
@@ -368,6 +371,7 @@ export class Renderer extends RendererContext {
 
 		if (this.showGrid) {
 			objects.push(this.grid);
+			objects.push(this.cursor);
 		}
 
 		this.info.verts = 0;
@@ -451,51 +455,4 @@ export class Renderer extends RendererContext {
 		}
 	}
 
-}
-
-export class RenderPass {
-
-	get buffer() {
-		return this.renderer.getBufferTexture(this.id);
-	}
-
-	get depthbuffer() {
-		return this.renderer.getBufferTexture(this.id + '.depth');
-	}
-
-	constructor(renderer, id, setup = {
-		resolution: null,
-		colorBuffer: true,
-		depthbuffer: true,
-	}) {
-		this.id = id;
-		this.sceneSetup = setup;
-		this.shader = setup.shaderOverwrite;
-		this.renderer = renderer;
-
-		this.resolution = setup.resolution || [];
-
-		this.width = this.resolution[0] || renderer.width;
-		this.height = this.resolution[1] || renderer.height;
-
-		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer);
-	}
-
-	resize(width, height) {
-		if (!this.resolution[0]) {
-			this.width = width;
-			this.height = height;
-
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height);
-		}
-	}
-
-	use() {
-		this.renderer.useFramebuffer(this.id);
-		this.renderer.viewport(this.width, this.height);
-
-		if (this.shader) {
-			this.renderer.useShader(this.shader);
-		}
-	}
 }
