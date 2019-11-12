@@ -46,6 +46,7 @@ export default class CompShader extends Shader {
         
         uniform sampler2D color;
         uniform sampler2D depth;
+        uniform sampler2D index;
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         

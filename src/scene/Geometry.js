@@ -1,6 +1,6 @@
 import { Transform, uuidv4, Vec } from "../Math.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
-import { mat4, glMatrix, quat } from 'gl-matrix';
+import { mat4, glMatrix, quat, vec3 } from 'gl-matrix';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -57,6 +57,8 @@ export class Geometry extends Transform {
 			this.materials.push(material);
 		}
 
+		this.parent = null;
+
 		this.indexArray = indecies;
 		this.vertArray = vertecies;
 		this.hidden = hidden;
@@ -67,6 +69,8 @@ export class Geometry extends Transform {
 
 	getState() {
 		return (
+			this.parent ? this.parent.uid : 0
+		) + (
 			this.position[0] +
 			this.position[1] +
 			this.position[2]
@@ -81,30 +85,35 @@ export class Geometry extends Transform {
 		) + this.scale;
 	}
 
+	getGlobalPosition() {
+		return this.parent ? vec3.add([], this.position, this.parent.getGlobalPosition()) : this.position;
+	}
+
+	getGlobalRotation() {
+		return this.parent ? vec3.add([], this.rotation, this.parent.getGlobalRotation()) : this.rotation;
+	}
+
 	updateModelMatrix() {
-		const state = this.getState();
+		const rotQuat = quat.create();
 
-		if(state != this.cache) {
-			const rotQuat = quat.create();
+		const position = this.getGlobalPosition();
+		const rotation = this.getGlobalRotation();
 
-			quat.fromEuler(rotQuat, 
-				this.rotation.x * ( 180 / Math.PI ),
-				this.rotation.y * ( 180 / Math.PI ),
-				this.rotation.z * ( 180 / Math.PI ),
-			);
+		quat.fromEuler(rotQuat, 
+			rotation[0] * ( 180 / Math.PI ),
+			rotation[1] * ( 180 / Math.PI ),
+			rotation[2] * ( 180 / Math.PI ),
+		);
 
-			mat4.fromRotationTranslationScaleOrigin(
-				this.modelMatrix,
-				rotQuat,
-				this.position,
-				[this.scale, this.scale, this.scale],
-				this.origin
-			);
+		mat4.fromRotationTranslationScaleOrigin(
+			this.modelMatrix,
+			rotQuat,
+			position,
+			[this.scale, this.scale, this.scale],
+			this.origin
+		);
 
-			mat4.translate(this.modelMatrix, this.modelMatrix, this.origin);
-		}
-
-		this.cache = state;
+		mat4.translate(this.modelMatrix, this.modelMatrix, this.origin);
 	}
 
 	onCreate(args) {

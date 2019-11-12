@@ -10,6 +10,7 @@ import { CursorControler } from '../src/controlers/CursorController.js';
 import { PlayerControler } from '../src/controlers/PlayerControler.js';
 import { Cube } from '../src/geo/Cube.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { Cursor } from '../src/geo/Cursor.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -71,29 +72,26 @@ export default class Viewport extends HTMLElement {
             tickrate: 128
         };
 
+        this.cursor = new Cursor();
         this.renderer = new Renderer(this.canvas);
-
         this.camera = new Camera({
             position: [0, -20, -20],
             rotation: [0.5, 0, 0],
             fov: 75
         });
-
         this.scene = new Scene([ this.camera ]);
 
-        this.selectedGeometry = null;
-
-        if(controllertype) {
-            new PlayerControler(this.camera, this);
-        }
-
-        // new CursorControler(this.camera, this);
+        this.controllerType = controllertype;
     }
 
     selectGeometry(geo) {
-        this.selectedGeometry = geo;
-        this.scene.add(this.cursor);
-        this.cursor.position = geo.position;
+        if(geo == null) {
+            this.cursor.parent = null;
+            this.scene.remove(this.cursor);
+        } else {
+            this.cursor.parent = geo;
+            this.scene.add(this.cursor);
+        }
     }
 
     setScene(scene) {
@@ -101,18 +99,44 @@ export default class Viewport extends HTMLElement {
         this.scene.add(this.camera);
     }
 
-    connectedCallback() {
+    init(canvas) {
+        if(this.controllerType) {
+            new this.controllerType(this.camera, this);
+        }
 
-        this.root.innerHTML = this.constructor.template;
-        this.root.appendChild(this.canvas);
+        // resolution
+        this.renderer.setResolution(this.clientWidth, this.clientHeight);
 
-        this.statsElement = this.shadowRoot.querySelector('.stats');
-
-        Resources.load().then(() => {
-            this.init(this.canvas);
-            this.render();
+        window.addEventListener('resize', () => {
+            this.renderer.setResolution(this.clientWidth, this.clientHeight);
         });
 
+        // selecting
+        const colorToIndex = color => {
+            return Math.round((color[0] / 255) * this.renderer.currentScene.objects.size);
+        }
+
+        this.addEventListener('mousedown', e => {
+            if(e.button === 0) {
+                const bounds = this.getBoundingClientRect();
+                const color = this.renderer.readPixelFromBuffer('index', 
+                    e.x - bounds.x, 
+                    bounds.height - (e.y - bounds.y)
+                );
+                
+                if(color[3] > 0) {
+                    const index = colorToIndex(color);
+                    this.selectGeometry([...this.renderer.currentScene.objects][index]);
+                } else {
+                    this.selectGeometry(null);
+                }
+            }
+        });
+
+        this.dispatchEvent(new Event('load'));
+    }
+
+    showViewAxis() {
         // axis
         this.axisDisplay = new Renderer(this.shadowRoot.querySelector('#axis'));
         this.axisDisplay.showGrid = false;
@@ -130,8 +154,18 @@ export default class Viewport extends HTMLElement {
         });
         axisScene.add(this.axis);
         this.axisDisplay.scene = axisScene;
+    }
 
-        // this.camera = this.scene.lightsource;
+    connectedCallback() {
+        this.root.innerHTML = this.constructor.template;
+        this.root.appendChild(this.canvas);
+
+        this.statsElement = this.shadowRoot.querySelector('.stats');
+
+        Resources.load().then(() => {
+            this.init(this.canvas);
+            this.render();
+        });
     }
 
     render() {
@@ -141,6 +175,7 @@ export default class Viewport extends HTMLElement {
         this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
 
         if(document.hidden) {
+            this.frame.accumulator = 0;
             return;
         }
 
@@ -159,31 +194,27 @@ export default class Viewport extends HTMLElement {
             camera: this.camera,
         });
 
-        this.axis.rotation.x = this.camera.rotation.x;
-        this.axis.rotation.y = this.camera.rotation.y;
-        this.axis.rotation.z = this.camera.rotation.z;
-        this.axisDisplay.draw(this.axisDisplay.scene);
-
         this.frame.lastFrame = currentFrame;
 
         this.renderer.info.cputime = (performance.now() - currentFrame).toFixed(1);
         this.renderer.info.fps = Math.round(1000 / delta);
 
+        // debug
         if(this.renderer.debug) {
-            this.statsElement.innerHTML = JSON.stringify(this.renderer.info, null, '  ');
+            const infoString = JSON.stringify(this.renderer.info, null, '  ');
+            this.statsElement.innerHTML = infoString.replace(/"/g, '')
+                                                    .replace(/,/g, '')
+                                                    .replace(/\{|\}/g, '');
+
+            if(this.axis) {
+                this.axis.rotation.x = this.camera.rotation.x;
+                this.axis.rotation.y = this.camera.rotation.y;
+                this.axis.rotation.z = this.camera.rotation.z;
+                this.axisDisplay.draw(this.axisDisplay.scene);
+            }
         } else if(!this.renderer.debug && this.statsElement.innerHTML != "") {
             this.statsElement.innerHTML = "";
         }
-    }
-
-    init(canvas) {
-        this.renderer.setResolution(this.clientWidth, this.clientHeight);
-
-        window.addEventListener('resize', () => {
-            this.renderer.setResolution(this.clientWidth, this.clientHeight);
-        });
-
-        this.dispatchEvent(new Event('load'));
     }
 
 }

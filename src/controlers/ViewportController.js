@@ -8,9 +8,13 @@ export class ViewportController extends EntityControler {
 
 		this.sensivity = 0.0033;
 
+		entity.position.x = 0;
+		entity.position.y = 0;
+		entity.position.z = 0;
+
 		this.angleY = 1.0;
 		this.angleX = 1.0;
-		this.distance = -1500;
+		this.distance = -5;
 
 		const down = e => {
 			if (this.locked) return;
@@ -30,7 +34,7 @@ export class ViewportController extends EntityControler {
 		const wheel = e => {
 			if (this.locked) return;
 			const dir = Math.sign(e.deltaY);
-			this.distance -= 100 * dir;
+			this.distance -= 1 * dir;
 			update();
 		}
 
@@ -38,6 +42,11 @@ export class ViewportController extends EntityControler {
 			if (this.rotating) {
 				this.angleY += e.movementX * this.sensivity;
 				this.angleX += e.movementY * this.sensivity;
+			}
+			if(this.moving) {
+				entity.position.y -= (e.movementY * -this.distance * 0.3) * this.sensivity * 2;
+				entity.position.x += (e.movementX * -this.distance * 0.3) * this.sensivity * Math.cos(entity.rotation.y) * 2;
+				entity.position.z += (e.movementX * -this.distance * 0.3) * this.sensivity * Math.sin(entity.rotation.y) * 2;
 			}
 			update();
 		}

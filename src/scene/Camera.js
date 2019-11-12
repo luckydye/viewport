@@ -96,8 +96,6 @@ export class Camera extends Entity {
 		this.viewMatrix = mat4.create();
 		this.projViewMatrix = mat4.create();
 
-		// this.modelMatrix = this.viewMatrix;
-
 		this.sensor = {
 			width: width,
 			height: height
@@ -125,6 +123,8 @@ export class Camera extends Entity {
 			}
 
 			mat4.identity(this.viewMatrix);
+			
+			mat4.translate(this.viewMatrix, this.viewMatrix, this.origin);
 
 			mat4.rotateX(this.viewMatrix, this.viewMatrix, this.rotation.x);
 			mat4.rotateY(this.viewMatrix, this.viewMatrix, this.rotation.y);

@@ -2,17 +2,13 @@ import { RendererContext } from './RendererContext.js';
 import CompShader from '../shader/CompShader.js';
 import { Logger } from '../Logger.js';
 import Config from '../Config.js';
-import { Vec } from '../Math.js';
 import { Geometry } from '../scene/Geometry.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
 import NormalShader from '../shader/NormalShader.js';
-import { Camera } from '../scene/Camera.js';
-import WorldShader from '../shader/WorldShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
-import { vec3, mat4 } from 'gl-matrix';
 import { RenderPass } from './RenderPass.js';
-import { Cursor } from '../geo/Cursor.js';
+import IndexShader from '../shader/IndexShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -59,7 +55,8 @@ export class Renderer extends RendererContext {
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
-		this.cursor = new Cursor();
+
+		this.compShader = new CompShader();
 
 		this.debug = Config.global.getValue('debug');
 		this.showGrid = Config.global.getValue('show.grid');
@@ -70,49 +67,58 @@ export class Renderer extends RendererContext {
 		this.background = [0, 0, 0, 0];
 		this.shadowMapSize = 4096;
 
-		this.currentRenderBufferSlot = 0;
-
 		this.vertexBuffers = new Map();
 		this.materialShaders = new Map();
 		this.textures = new Map();
 
+		this.currentRenderBufferSlot = 0;
+		this.currentScene = null;
+
 		this.info = {};
+
+		this.renderPasses = [];
 
 		const self = this;
 
-		this.currentScene = null;
-
-		this.renderPasses = [
-			new RenderPass(this, 'shadow', {
-				get camera() {
-					if(self.currentScene.lightsource) {
-						return self.currentScene.lightsource;
-					}
-				},
-				filter(geo) {
-					return !geo.guide && geo.material && geo.material.castShadows;
-				},
-				colorBuffer: false,
-				shaderOverwrite: new NormalShader(),
-				resolution: [this.shadowMapSize, this.shadowMapSize],
-				options: {
-					CULL_FACE: false
+		this.createRenderPass('shadow', {
+			get camera() {
+				if(self.currentScene.lightsource) {
+					return self.currentScene.lightsource;
 				}
-			}),
-			new RenderPass(this, 'color', {
-				filter(geo) {
-					return !geo.guide;
-				}
-			}),
-			new RenderPass(this, 'guides', {
-				filter(geo) {
-					return geo.guide && self.showGuides;
-				},
-				shaderOverwrite: new PrimitiveShader()
-			})
-		];
+			},
+			filter(geo) {
+				return !geo.guide && geo.material && geo.material.castShadows;
+			},
+			colorBuffer: false,
+			shaderOverwrite: new NormalShader(),
+			resolution: [this.shadowMapSize, this.shadowMapSize],
+			options: {
+				CULL_FACE: false
+			}
+		})
 
-		this.compShader = new CompShader();
+		this.createRenderPass('color', {
+			filter(geo) {
+				return !geo.guide;
+			}
+		})
+		
+		this.createRenderPass('index', {
+			filter(geo) {
+				return !geo.guide;
+			},
+			shaderOverwrite: new IndexShader(),
+			options: {
+				CULL_FACE: false
+			}
+		})
+
+		this.createRenderPass('guides', {
+			filter(geo) {
+				return geo.guide && self.showGuides;
+			},
+			shaderOverwrite: new PrimitiveShader()
+		})
 	}
 
 	updateViewport() {
@@ -147,7 +153,7 @@ export class Renderer extends RendererContext {
 		this.info.shaders = this.shaders.size;
 		this.info.materials = this.materialShaders.size;
 		this.info.textures = this.textures.size;
-		this.info.objects = this.vertexBuffers.size;
+		this.info.objects = this.vertexBuffers.size - 1;
 
 		if(this.currentScene !== scene) {
 			this.clearBuffers();
@@ -215,6 +221,7 @@ export class Renderer extends RendererContext {
 			this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
 			this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
 			this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
+			this.useTextureBuffer(this.getBufferTexture('index'), gl.TEXTURE_2D, 'index', this.nextRenderBufferSlot());
 		}
 
 		this.preComposition();
@@ -295,10 +302,16 @@ export class Renderer extends RendererContext {
 			this.initializeBuffersAndAttributes(buffer);
 		}
 
-		geo.updateModelMatrix();
+		const geoState = geo.getState();
+		if(geoState != geo.cache) {
+			geo.updateModelMatrix();
+		}
+		geo.cache = geoState;
 
 		if(this.currentScene) {
-			this.currentShader.setUniforms(this, { 'model': geo.modelMatrix }, 'scene');
+			this.currentShader.setUniforms(this, { 
+				'model': geo.modelMatrix 
+			}, 'scene');
 			this.currentShader.setUniforms(this, { 
 				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
 			});
@@ -371,7 +384,6 @@ export class Renderer extends RendererContext {
 
 		if (this.showGrid) {
 			objects.push(this.grid);
-			objects.push(this.cursor);
 		}
 
 		this.info.verts = 0;
@@ -387,7 +399,8 @@ export class Renderer extends RendererContext {
 				this.drawMesh(obj, shaderOverwrite);
 			}
 
-			this.info.verts += this.getGemoetryBuffer(obj).vertecies.length;
+			const geoBuffer = this.getGemoetryBuffer(obj);
+			this.info.verts += geoBuffer.vertecies.length / geoBuffer.elements;
 		}
 	}
 
