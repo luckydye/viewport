@@ -10,11 +10,6 @@ export class Material {
 
     get attributes() {
         return {
-            texture: this.texture,
-            specularMap: this.specularMap,
-            displacementMap: this.displacementMap,
-            normalMap: this.normalMap,
-
             diffuseColor: this.diffuseColor,
             transparency: this.transparency,
             specular: this.specular,
@@ -31,10 +26,10 @@ export class Material {
 
         this.shader = DefaultShader;
 
-        this.texture = new Texture();
-        this.specularMap = new Texture();
-        this.displacementMap = new Texture();
-        this.normalMap = new Texture();
+        this.texture = null;
+        this.specularMap = null;
+        this.displacementMap = null;
+        this.normalMap = null;
 
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;

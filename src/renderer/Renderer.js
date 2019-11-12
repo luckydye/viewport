@@ -238,8 +238,7 @@ export class Renderer extends RendererContext {
 
 	// use a Texture
 	useTexture(texture, uniformStr, slot) {
-
-		if(!texture.image) {
+		if(!texture || texture && !texture.image) {
 			this.emptyTexture = this.emptyTexture || Texture.EMPTY;
 			texture = this.emptyTexture;
 		}
@@ -270,6 +269,12 @@ export class Renderer extends RendererContext {
 				this.updateTextureBuffer(gltexture, material.displacementMap.image);
 			}
 		}
+
+		this.useTexture(material.texture, 'material.texture', 0);
+		this.useTexture(material.specularMap, 'material.specularMap', 1);
+		this.useTexture(material.normalMap, 'material.normalMap', 2);
+		this.useTexture(material.displacementMap, 'material.displacementMap', 3);
+		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 4);
 
 		this.currentShader.setUniforms(this, material.attributes, `material`);
 
@@ -364,8 +369,6 @@ export class Renderer extends RendererContext {
 						'shadowProjMat': lightSource.projMatrix,
 						'shadowViewMat': lightSource.viewMatrix,
 					});
-
-					this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 0);
 				}
 
 				this.currentShader.setUniforms(this, {

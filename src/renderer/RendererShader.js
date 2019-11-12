@@ -68,8 +68,6 @@ export class Shader {
 		const uniforms = this._uniforms;
 		const gl = renderer.gl;
 
-		let textures = 1;
-
 		for (let key in attributes) {
 			let opt = key;
 
@@ -101,9 +99,6 @@ export class Shader {
 					gl.uniform2fv(uniform, value);
 				}
 
-			} else if (value instanceof Texture) {
-				renderer.useTexture(value, opt, textures);
-				textures++;
 			} else {
 				const type = typeof value;
 				switch (type) {

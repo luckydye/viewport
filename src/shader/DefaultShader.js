@@ -19,10 +19,9 @@ export default class DefaultShader extends MeshShader {
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
 
+            uniform sampler2D shadowDepth;
             uniform Material material;
             uniform float materialIndex;
-
-            uniform sampler2D shadowDepth;
             uniform mat4 shadowProjMat;
             uniform mat4 shadowViewMat;
 
