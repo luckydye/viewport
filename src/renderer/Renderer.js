@@ -425,9 +425,7 @@ export class Renderer extends RendererContext {
 					this.applyMaterial(material);
 				}
 
-				this.currentShader.setUniforms({
-					'materialIndex': index,
-				});
+				this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, index);
 				
 				if (geo.instanced) {
 					this.drawGeoInstanced(geo);
@@ -439,8 +437,8 @@ export class Renderer extends RendererContext {
 			let matIndex = 0;
 
 			for(let mat of geo.materials) {
-				matIndex++;
 				drawWithMaterial(mat, matIndex);
+				matIndex++;
 
 				if(shaderOverwrite) break;
 			}

@@ -32,9 +32,10 @@ export default class MeshShader extends Shader {
         return `#version 300 es
             
             precision mediump float;
+            precision mediump int;
             
             layout(location = 0) in vec3 aPosition;
-            layout(location = 1) in vec2 aTexCoords;
+            layout(location = 1) in vec3 aTexCoords;
             layout(location = 2) in vec3 aNormal;
 
             ${MeshShader.structSceneProjection}
@@ -47,6 +48,7 @@ export default class MeshShader extends Shader {
             out vec3 vVertexPos;
             out vec3 primitiveColor;
             out float index;
+            flat out int materialIndex;
 
             ${str}
         `;
@@ -63,6 +65,7 @@ export default class MeshShader extends Shader {
         return `#version 300 es
 
             precision mediump float;
+            precision mediump int;
 
             in vec2 vTexCoords;
             in vec4 vTexelPos;
@@ -72,6 +75,7 @@ export default class MeshShader extends Shader {
             in vec3 vVertexPos;
             in vec3 primitiveColor;
             in float index;
+            flat in int materialIndex;
 
             ${MeshShader.structMaterial}
         
@@ -97,7 +101,8 @@ export default class MeshShader extends Shader {
             gl_PointSize = 5.0;
 
             // set vert outputs
-            vTexCoords = aTexCoords;
+            vTexCoords = vec2(aTexCoords.x, -aTexCoords.y);
+            materialIndex = int(aTexCoords.z);
             vViewPos = cameraPosition.xyz;
             vVertexPos = aPosition;
             vWorldPos = pos;

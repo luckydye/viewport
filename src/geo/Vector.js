@@ -16,7 +16,7 @@ export class Vector extends Geometry {
 		const vertArray = [];
 		for (let p of this.points) {
 			const { x, y, z } = p;
-			vertArray.push(x, y, z, 0, 0, ...this.color);
+			vertArray.push(x, y, z, 0, 0, 0, ...this.color);
 		}
 		return vertArray;
 	}

@@ -98,6 +98,7 @@ export class Loader {
 
                             uv ? uv[0] : 0,
                             uv ? uv[1] : 0,
+                            fface.material,
 
                             normal[0],
                             normal[1],
@@ -121,6 +122,7 @@ export class Loader {
 
                                 uv[0],
                                 uv[1],
+                                fface.material,
 
                                 normal[0],
                                 normal[1],
@@ -134,7 +136,6 @@ export class Loader {
         } catch (err) {
             console.error(err);
         }
-
 
         return vertecies;
     }

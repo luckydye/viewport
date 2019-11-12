@@ -8,6 +8,8 @@ export default class OBJFile extends File {
 
 		objData.materials = [];
 
+		let currentMaterial = null;
+
 		for (let line of lines) {
 			const data = line.split(" ");
 			const prefix = data[0];
@@ -47,10 +49,12 @@ export default class OBJFile extends File {
 					for (let c of coords) {
 						face.push(c.split('/').map(i => parseInt(i)));
 					}
+					face.material = objData.materials.indexOf(currentMaterial);
 					objData.faces.push(face);
 					break;
 
 				case "usemtl":
+					currentMaterial = data[1];
 					objData.materials.push(data[1]);
 					break;
 			}

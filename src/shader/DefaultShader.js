@@ -21,14 +21,14 @@ export default class DefaultShader extends MeshShader {
 
             uniform sampler2D shadowDepth;
             uniform Material material;
-            uniform float materialIndex;
+            uniform int currentMaterialIndex;
             uniform mat4 shadowProjMat;
             uniform mat4 shadowViewMat;
 
             vec2 TextureCoords() {
                 float scale = 1.0;
 
-                if(vTexCoords.x > materialIndex || vTexCoords.y > materialIndex) {
+                if (currentMaterialIndex != materialIndex) {
                     discard;
                 }
 
@@ -37,9 +37,9 @@ export default class DefaultShader extends MeshShader {
                     scale = (imageSize.x / material.textureScale);
                 }
 
-                vec2 displace = texture(material.displacementMap, vTexCoords).rg;
+                vec2 displace = texture(material.displacementMap, vTexCoords.xy).rg;
 
-                return (vTexCoords / scale) + displace.xy;
+                return (vTexCoords.xy / scale) + displace.xy;
             }
 
             vec4 getMappedValue(sampler2D image, vec4 value) {

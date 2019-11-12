@@ -26,8 +26,8 @@ export class Grid extends Guide {
 			if (x == 0) color = [.15, .15, 1];
 
 			dataArray.push(...[
-				w * x, 0, size, 0, 0, ...color,
-				w * x, 0, -size, 0, 0, ...color
+				w * x, 0, size, 0, 0, 0, ...color,
+				w * x, 0, -size, 0, 0, 0, ...color
 			])
 		}
 		for (let z = -s / 2; z <= s / 2; z++) {
@@ -35,8 +35,8 @@ export class Grid extends Guide {
 			if (z == 0) color = [1, .15, .15];
 
 			dataArray.push(...[
-				size, 0, w * z, 0, 0, ...color,
-				-size, 0, w * z, 0, 0, ...color
+				size, 0, w * z, 0, 0, 0, ...color,
+				-size, 0, w * z, 0, 0, 0, ...color
 			])
 		}
 		return dataArray;
