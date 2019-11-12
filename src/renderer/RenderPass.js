@@ -36,11 +36,16 @@ export class RenderPass {
 	}
 
 	use() {
-		this.renderer.useFramebuffer(this.id);
+		this.fbo.use();
+
 		this.renderer.viewport(this.width, this.height);
 
 		if (this.shader) {
 			this.renderer.useShader(this.shader);
 		}
+	}
+
+	finalize() {
+		this.fbo.finalize();
 	}
 }

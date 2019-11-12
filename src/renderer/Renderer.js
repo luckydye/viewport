@@ -183,6 +183,8 @@ export class Renderer extends RendererContext {
 
 				this.drawScene(scene, camera, pass.sceneSetup);
 
+				pass.finalize();
+
 				this.setOptions(this.options);
 			}
 			
