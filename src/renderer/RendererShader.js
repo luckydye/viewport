@@ -35,6 +35,9 @@ export class Shader {
 
 		this.drawmode = "TRIANGLES";
 
+		this.program = null;
+		this.gl = null;
+
 		this.initialized = false;
 
 		this.cache = {};
@@ -64,9 +67,9 @@ export class Shader {
 		return matched;
 	}
 
-	setUniforms(renderer, attributes, target) {
+	setUniforms(attributes, target) {
 		const uniforms = this._uniforms;
-		const gl = renderer.gl;
+		const gl = this.gl;
 
 		for (let key in attributes) {
 			let opt = key;

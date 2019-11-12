@@ -111,13 +111,34 @@ export default class Viewport extends HTMLElement {
             this.renderer.setResolution(this.clientWidth, this.clientHeight);
         });
 
-        // selecting
-        const colorToIndex = color => {
-            return Math.round((color[0] / 255) * this.renderer.currentScene.objects.size);
-        }
+        this.dispatchEvent(new Event('load'));
+    }
 
+    enableSelecting() {
+        this.selectedColor = null;
+
+        this.renderer.preComposition = () => {
+            const color = this.selectedColor;
+            if(color) {
+                this.renderer.compShader.setUniforms({
+                    'selected': [
+                        color[0] / 255,
+                        color[1] / 255,
+                        color[2] / 255,
+                    ]
+                });
+            } else {
+                this.renderer.compShader.setUniforms({
+                    'selected': [1, 0, 0]
+                });
+            }
+        }
+        
+        // selecting
         this.addEventListener('mousedown', e => {
             if(e.button === 0) {
+                this.selectedColor = null;
+
                 const bounds = this.getBoundingClientRect();
                 const color = this.renderer.readPixelFromBuffer('index', 
                     e.x - bounds.x, 
@@ -125,15 +146,17 @@ export default class Viewport extends HTMLElement {
                 );
                 
                 if(color[3] > 0) {
-                    const index = colorToIndex(color);
-                    this.selectGeometry([...this.renderer.currentScene.objects][index]);
+                    const index = color[0];
+                    const geo = [...this.renderer.currentScene.objects][index];
+                    if(geo.selectable) {
+                        this.selectedColor = color;
+                        this.selectGeometry(geo);
+                    }
                 } else {
                     this.selectGeometry(null);
                 }
             }
         });
-
-        this.dispatchEvent(new Event('load'));
     }
 
     showViewAxis() {

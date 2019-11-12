@@ -144,6 +144,7 @@ export class RendererContext {
 				shader._fragShader = this.compileShader(shader.source[1], gl.FRAGMENT_SHADER);
 
 				shader.program = this.createProgram(shader._vertShader, shader._fragShader);
+				shader.gl = gl;
 
 				shader._uniforms = this.getUniforms(shader.program);
 				shader._attributes = this.getAttributes(shader.program);

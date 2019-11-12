@@ -9,8 +9,6 @@ export default class CompShader extends Shader {
         layout(location = 0) in vec3 aPosition;
         layout(location = 1) in vec2 aTexCoords;
 
-        uniform float aspectRatio;
-
         out vec2 vTexCoords;
 
         void main() {
@@ -42,8 +40,8 @@ export default class CompShader extends Shader {
         
         in vec2 vTexCoords;
         
-        uniform vec3 cameraPosition;
-        
+        uniform vec3 selected;
+
         uniform sampler2D color;
         uniform sampler2D depth;
         uniform sampler2D index;
@@ -55,7 +53,13 @@ export default class CompShader extends Shader {
         void main() {
             vec4 color = texture(color, vTexCoords);
 
+            vec4 indexColor = texture(index, vTexCoords);
+
             oFragColor = color;
+
+            if(selected.rgb == indexColor.rgb) {
+                oFragColor *= 1.15;
+            }
             
             vec4 depth = texture(depth, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);

@@ -105,7 +105,7 @@ export class Renderer extends RendererContext {
 		
 		this.createRenderPass('index', {
 			filter(geo) {
-				return !geo.guide;
+				return !geo.guide && geo.selectable;
 			},
 			shaderOverwrite: new IndexShader(),
 			options: {
@@ -224,7 +224,7 @@ export class Renderer extends RendererContext {
 			this.useTextureBuffer(this.getBufferTexture('index'), gl.TEXTURE_2D, 'index', this.nextRenderBufferSlot());
 		}
 
-		this.preComposition();
+		this.preComposition(gl);
 
 		this.drawGeo(this.renderTarget);
 	}
@@ -276,10 +276,10 @@ export class Renderer extends RendererContext {
 		this.useTexture(material.displacementMap, 'material.displacementMap', 3);
 		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 4);
 
-		this.currentShader.setUniforms(this, material.attributes, `material`);
+		this.currentShader.setUniforms(material.attributes, `material`);
 
 		if(Object.keys(material.customUniforms).length > 0) {
-			this.currentShader.setUniforms(this, material.customUniforms);
+			this.currentShader.setUniforms(material.customUniforms);
 		}
 	}
 
@@ -314,11 +314,11 @@ export class Renderer extends RendererContext {
 		geo.cache = geoState;
 
 		if(this.currentScene) {
-			this.currentShader.setUniforms(this, { 
+			this.currentShader.setUniforms({ 
 				'model': geo.modelMatrix 
 			}, 'scene');
-			this.currentShader.setUniforms(this, { 
-				'objectIndex': [...this.currentScene.objects].indexOf(geo) / this.currentScene.objects.size,
+			this.currentShader.setUniforms({ 
+				'objectIndex': [...this.currentScene.objects].indexOf(geo) / 255,
 			});
 		}
 	}
@@ -348,7 +348,7 @@ export class Renderer extends RendererContext {
 		for (let [_, shader] of this.shaders) {
 			this.useShader(shader);
 
-			this.currentShader.setUniforms(this, {
+			this.currentShader.setUniforms({
 				'projectionView': camera.projViewMatrix,
 			}, 'scene');
 		}
@@ -365,13 +365,13 @@ export class Renderer extends RendererContext {
 				const lightSource = scene.lightsource;
 	
 				if(lightSource && camera !== lightSource) {
-					this.currentShader.setUniforms(this, {
+					this.currentShader.setUniforms({
 						'shadowProjMat': lightSource.projMatrix,
 						'shadowViewMat': lightSource.viewMatrix,
 					});
 				}
 
-				this.currentShader.setUniforms(this, {
+				this.currentShader.setUniforms({
 					'cameraPosition': [
 						camera.position.x + camera.origin.x,
 						camera.position.y + camera.origin.y,
@@ -425,7 +425,7 @@ export class Renderer extends RendererContext {
 					this.applyMaterial(material);
 				}
 
-				this.currentShader.setUniforms(this, {
+				this.currentShader.setUniforms({
 					'materialIndex': index,
 				});
 				
