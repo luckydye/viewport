@@ -54,7 +54,11 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
-    constructor(controllertype = ViewportController) {
+    constructor({
+        controllertype = ViewportController,
+        canvas = null,
+        offscreen = null
+    } = {}) {
         super();
 
         this.scheduler = new Scheduler();
@@ -62,7 +66,20 @@ export default class Viewport extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         this.root = this.shadowRoot;
 
-        this.canvas = document.createElement('canvas');
+        this.canvas = canvas;
+
+        if(offscreen) {
+            this.offscreen = true;
+        }
+
+        this.cursor = new Cursor();
+        this.renderer = new Renderer(offscreen || canvas);
+        this.camera = new Camera({
+            position: [0, -20, -20],
+            rotation: [0.5, 0, 0],
+            fov: 75
+        });
+        this.scene = new Scene([ this.camera ]);
 
         this.frame = {
             currentFrame: 0,
@@ -71,15 +88,6 @@ export default class Viewport extends HTMLElement {
             accumulator: 0,
             tickrate: 128
         };
-
-        this.cursor = new Cursor();
-        this.renderer = new Renderer(this.canvas);
-        this.camera = new Camera({
-            position: [0, -20, -20],
-            rotation: [0.5, 0, 0],
-            fov: 75
-        });
-        this.scene = new Scene([ this.camera ]);
 
         this.controllerType = controllertype;
     }
@@ -99,7 +107,7 @@ export default class Viewport extends HTMLElement {
         this.scene.add(this.camera);
     }
 
-    init(canvas) {
+    init() {
         if(this.controllerType) {
             new this.controllerType(this.camera, this);
         }
@@ -181,12 +189,14 @@ export default class Viewport extends HTMLElement {
 
     connectedCallback() {
         this.root.innerHTML = this.constructor.template;
-        this.root.appendChild(this.canvas);
+        if(this.canvas) {
+            this.root.appendChild(this.canvas);
+        }
 
         this.statsElement = this.shadowRoot.querySelector('.stats');
 
         Resources.load().then(() => {
-            this.init(this.canvas);
+            this.init();
             this.render();
         });
     }
