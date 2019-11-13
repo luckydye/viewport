@@ -236,16 +236,22 @@ export class RendererContext {
 		];
 		
 		let colorRenderbuffer = null;
+		let depthRenderbuffer = null;
 
 		if(colorAttatchment) {
 			
 			colorRenderbuffer = gl.createRenderbuffer();
+			depthRenderbuffer = gl.createRenderbuffer();
 
 			gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
 			gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.RGBA8, width, height);
 
+			gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
+			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
+
 			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
 			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderbuffer);
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderbuffer);
 
 			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
@@ -257,6 +263,7 @@ export class RendererContext {
 		
 		if(depthAttatchment) {
 			// depth
+
 			const depthTexture = this.createDepthTexture(width, height);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
@@ -271,25 +278,52 @@ export class RendererContext {
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
+		const debug = this.debug;
+
 		const fbo = {
 			framebuffers: framebuffers,
 			textures: textures,
 
 			use() {
 				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+
+				if(debug) {
+					const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+			
+					if(status !== gl.FRAMEBUFFER_COMPLETE) {
+						console.error('FRAMEBUFFER_INCOMPLETE');
+						debugger;
+					}
+					if(status === gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+						console.error('FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+						debugger;
+					}
+					if(status === gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+						console.error('FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+						debugger;
+					}
+					if(status === gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
+						console.error('FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+						debugger;
+					}
+					if(status === gl.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
+						console.error('FRAMEBUFFER_INCOMPLETE_MULTISAMPLE');
+						debugger;
+					}
+				}
 			},
 
 			finalize() {
 				// blit into the antialised renderbuffer
 				
-				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
-				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+				// gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+				// gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
 				
-				gl.blitFramebuffer(
-					0, 0, width, height,
-					0, 0, width, height,
-					gl.COLOR_BUFFER_BIT, gl.LINEAR
-				);
+				// gl.blitFramebuffer(
+				// 	0, 0, width, height,
+				// 	0, 0, width, height,
+				// 	gl.COLOR_BUFFER_BIT, gl.LINEAR
+				// );
 			}
 		}
 		
