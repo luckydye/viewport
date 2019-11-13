@@ -11,10 +11,7 @@ export default class MeshShader extends Shader {
                 sampler2D displacementMap;
                 sampler2D roughnessMap;
                 vec4 diffuseColor;
-                float specular;
-                float roughness;
-                float transparency;
-                float textureScale;
+                vec2 attributes;
             };
         `;
     }
@@ -116,7 +113,7 @@ export default class MeshShader extends Shader {
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
             void main() {
-                oFragColor = vec4(1.0, 0.0, 1.0, 1.0);
+                oFragColor = vec4(0.0, 1.0, 1.0, 1.0);
             }
         `;
     }

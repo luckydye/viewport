@@ -103,42 +103,44 @@ export class Camera extends Entity {
 	}
 
 	updateModelMatrix() {
+
 		const state = this.getState();
 
-		if(state != this.cache) {
-
-			if (this.perspective == Camera.ORTHGRAPHIC) {
-				mat4.ortho(
-					this.projMatrix, 
-					-this.sensor.width, this.sensor.width, 
-					-this.sensor.height, this.sensor.height,
-					this.nearplane, 
-					this.farplane
-				);
-			}
-	
-			if (this.perspective == Camera.PERSPECTIVE) {
-				const ar = this.sensor.width / this.sensor.height;
-				mat4.perspective(this.projMatrix, Math.PI / 180 * this.fov, ar, this.nearplane, this.farplane);
-			}
-
-			mat4.identity(this.viewMatrix);
-			
-			mat4.translate(this.viewMatrix, this.viewMatrix, this.origin);
-
-			mat4.rotateX(this.viewMatrix, this.viewMatrix, this.rotation.x);
-			mat4.rotateY(this.viewMatrix, this.viewMatrix, this.rotation.y);
-			mat4.rotateZ(this.viewMatrix, this.viewMatrix, this.rotation.z);
-			
-			mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
-
-			mat4.identity(this.modelMatrix);
-			mat4.invert(this.modelMatrix, this.viewMatrix);
-
-			mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
+		if(state != this.state) {
+			this.state = state;
+		} else {
+			return;
 		}
 
-		this.cache = state;
+		if (this.perspective == Camera.ORTHGRAPHIC) {
+			mat4.ortho(
+				this.projMatrix, 
+				-this.sensor.width, this.sensor.width, 
+				-this.sensor.height, this.sensor.height,
+				this.nearplane, 
+				this.farplane
+			);
+		}
+
+		if (this.perspective == Camera.PERSPECTIVE) {
+			const ar = this.sensor.width / this.sensor.height;
+			mat4.perspective(this.projMatrix, Math.PI / 180 * this.fov, ar, this.nearplane, this.farplane);
+		}
+
+		mat4.identity(this.viewMatrix);
+		
+		mat4.translate(this.viewMatrix, this.viewMatrix, this.origin);
+
+		mat4.rotateX(this.viewMatrix, this.viewMatrix, this.rotation.x);
+		mat4.rotateY(this.viewMatrix, this.viewMatrix, this.rotation.y);
+		mat4.rotateZ(this.viewMatrix, this.viewMatrix, this.rotation.z);
+		
+		mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
+
+		mat4.identity(this.modelMatrix);
+		mat4.invert(this.modelMatrix, this.viewMatrix);
+
+		mat4.multiply(this.projViewMatrix, this.projMatrix, this.viewMatrix);
 	}
 
 }

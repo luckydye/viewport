@@ -60,6 +60,8 @@ export class Geometry extends Transform {
 
 		this.parent = null;
 
+		this.matrixAutoUpdate = true;
+
 		this.indexArray = indecies;
 		this.vertArray = vertecies;
 		this.hidden = hidden;
@@ -67,11 +69,21 @@ export class Geometry extends Transform {
 		this.guide = guide;
 		this.uv = uv;
 		this.modelMatrix = mat4.create();
+
+		this.needsUpdate = true;
 	}
 
+	getGlobalPosition() {
+		return this.parent ? vec3.add([], this.position, this.parent.getGlobalPosition()) : this.position;
+	}
+
+	getGlobalRotation() {
+		return this.parent ? vec3.add([], this.rotation, this.parent.getGlobalRotation()) : this.rotation;
+	}
+	
 	getState() {
 		return (
-			this.parent ? this.parent.uid : 0
+			this.parent ? this.parent.state : 0
 		) + (
 			this.position[0] +
 			this.position[1] +
@@ -84,18 +96,20 @@ export class Geometry extends Transform {
 			this.origin[0] +
 			this.origin[1] +
 			this.origin[2]
-		) + this.scale;
-	}
-
-	getGlobalPosition() {
-		return this.parent ? vec3.add([], this.position, this.parent.getGlobalPosition()) : this.position;
-	}
-
-	getGlobalRotation() {
-		return this.parent ? vec3.add([], this.rotation, this.parent.getGlobalRotation()) : this.rotation;
+		) + (
+			this.scale
+		);
 	}
 
 	updateModelMatrix() {
+		const state = this.getState();
+
+		if(state != this.state) {
+			this.state = state;
+		} else {
+			return;
+		}
+
 		const rotQuat = quat.create();
 
 		const position = this.getGlobalPosition();
@@ -116,6 +130,8 @@ export class Geometry extends Transform {
 		);
 
 		mat4.translate(this.modelMatrix, this.modelMatrix, this.origin);
+
+		this.needsUpdate = false;
 	}
 
 	onCreate(args) {
@@ -138,11 +154,7 @@ class VertexBuffer {
 	}
 
 	get elements() {
-		let count = 0;
-		for (let key in this.attributes) {
-			count += this.attributes[key].size;
-		}
-		return count;
+		return this.attributeElements;
 	}
 
 	constructor(vertArray, indexArray, attributes) {
@@ -151,6 +163,12 @@ class VertexBuffer {
 		this.indecies = new Uint16Array(indexArray);
 
 		this.attributes = attributes;
+
+		this.attributeElements = 0;
+
+		for (let key in this.attributes) {
+			this.attributeElements += this.attributes[key].size;
+		}
 	}
 
 }

@@ -37,25 +37,25 @@ export class PlayerControler extends CameraControler {
 		if (this.checkKey("q")) this.pan(this.speed);
 		if (this.checkKey("y")) this.pan(-this.speed);
 
-		const camDirectionInv = new Vec(
+		const camDirectionInv = [
 			Math.sin(-this.entity.rotation.y),
 			Math.max(Math.min(Math.tan(this.entity.rotation.x), 1), -1),
 			Math.cos(-this.entity.rotation.y),
-		)
+		]
 
-		const camDirection = new Vec(
+		const camDirection = [
 			Math.sin(this.entity.rotation.y),
 			Math.max(Math.min(Math.tan(this.entity.rotation.x), 1), -1),
 			Math.cos(this.entity.rotation.y),
-		)
+		]
 
 		this.direction.x *= dt;
 		this.direction.y *= dt;
 		this.direction.z *= dt;
 
-		this.entity.velocity.x += (this.direction.z * camDirectionInv.x) + (this.direction.x * camDirection.z);
-		this.entity.velocity.y += (this.direction.z * camDirectionInv.y) + this.direction.y;
-		this.entity.velocity.z += (this.direction.z * camDirectionInv.z) + (this.direction.x * camDirection.x);
+		this.entity.velocity.x += (this.direction.z * camDirectionInv[0]) + (this.direction.x * camDirection[2]);
+		this.entity.velocity.y += (this.direction.z * camDirectionInv[1]) + this.direction.y;
+		this.entity.velocity.z += (this.direction.z * camDirectionInv[2]) + (this.direction.x * camDirection[0]);
 
 		this.entity.position.x += this.entity.velocity.x;
 		this.entity.position.y += this.entity.velocity.y;

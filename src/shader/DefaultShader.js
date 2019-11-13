@@ -5,10 +5,10 @@ export default class DefaultShader extends MeshShader {
     static defaultShading() {
         return `
             vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
-            float specular = getMappedValue(material.specularMap, vec4(material.specular)).r;
-            float roughness = getMappedValue(material.roughnessMap, vec4(material.roughness)).r;
+            float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
+            float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 
-            Specular(oFragColor, normal, specular, roughness);
+            // Specular(oFragColor, normal, specular, roughness);
 
             vec3 shadowColor = vec3(0.5, 0.5, 0.5);
 
@@ -30,11 +30,6 @@ export default class DefaultShader extends MeshShader {
 
                 if (currentMaterialIndex != materialIndex) {
                     discard;
-                }
-
-                if(material.textureScale > 0.0) {
-                    vec2 imageSize = vec2(textureSize(material.texture, 0));
-                    scale = (imageSize.x / material.textureScale);
                 }
 
                 vec2 displace = texture(material.displacementMap, vTexCoords.xy).rg;
@@ -114,7 +109,7 @@ export default class DefaultShader extends MeshShader {
                 color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
                 color = vec4(color.rgb, color.a + texcolor.a / 2.0);
 
-                oFragColor = vec4(color.rgb, color.a - material.transparency);
+                oFragColor = color;
 
                 ${this.defaultShading()}
             }

@@ -397,10 +397,6 @@ export class RendererContext {
 		return texture;
 	}
 
-	initializeMatterialAttributeBuffer(bufferInfo) {
-		
-	}
-
 	// prepare geometry buffers for draw
 	initializeBuffersAndAttributes(bufferInfo) {
 		const gl = this.gl;
@@ -474,12 +470,14 @@ export class RendererContext {
 		return data;
 	}
 
-	readPixelFromBuffer(nameOrFBO, x, y) {
-		const fbo = this.framebuffers.has(nameOrFBO) ? this.framebuffers.get(nameOrFBO) : nameOrFBO;;
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.framebuffers[1]);
-		const data = this.readPixel(x, y);
-		this.clearFramebuffer();
-		return data;
+	readPixelFromBuffer(nameFBO, x, y) {
+		const fbo = this.framebuffers.has(nameFBO) ? this.framebuffers.get(nameFBO) : null;
+		if(fbo) {
+			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.framebuffers[1]);
+			const data = this.readPixel(x, y);
+			this.clearFramebuffer();
+			return data;
+		}
 	}
 
 }

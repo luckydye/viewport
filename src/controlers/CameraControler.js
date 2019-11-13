@@ -9,15 +9,22 @@ export class CameraControler extends EntityControler {
 
 		const entity = this.entity;
 
+		let pointerlock = null;
+
 		const down = e => {
 			if (EntityControler.isMouseButton(e) == 2) {
 				this.unlock();
 				this.viewport.requestPointerLock();
+				pointerlock = true;
 			}
 		}
 
+		document.addEventListener('pointerlockchange', () => {
+			pointerlock = document.pointerLockElement;
+		}, false);
+
 		const move = e => {
-			if (document.pointerLockElement != null) {
+			if (pointerlock) {
 				entity.rotation.y += e.movementX * this.sensivity;
 				entity.rotation.x += e.movementY * this.sensivity;
 			}

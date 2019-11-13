@@ -9,6 +9,10 @@ export class Texture {
     get width() { return this.image.width; }
     get height() { return this.image.height; }
 
+    get isTexture() {
+        return true;
+    }
+
     constructor(image) {
 
         this.uid = uuidv4();

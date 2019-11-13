@@ -43,22 +43,30 @@ export class Shader {
 		this.cache = {};
 	}
 
-	cacheUniform(key, value, target) {
+	cacheUniform(key, value) {
 		let cache = this.cache;
 		let matched = false;
 
-		if(target) {
-			if(!this.cache[target]) {
-				this.cache[target] = {};
-			}
-			cache = this.cache[target];
-		}
-
-		if(value instanceof Texture) {
-			return false;
-
-		} else if(Array.isArray(value)) {
-			value = value.reduce((a,b) => a+b);
+		if(value.length && value.length <= 4) {
+			value = (value[0] || 0) + (value[1] || 0) + (value[2] || 0) + (value[3] || 0);
+		} else if(value.length && value.length > 4) {
+			value = (value[0] || 0) + 
+					(value[1] || 0) + 
+					(value[2] || 0) + 
+					(value[3] || 0) +
+					(value[4] || 0) +
+					(value[5] || 0) +
+					(value[6] || 0) +
+					(value[7] || 0) +
+					(value[8] || 0) +
+					(value[9] || 0) +
+					(value[10] || 0) +
+					(value[11] || 0) +
+					(value[12] || 0) +
+					(value[13] || 0) +
+					(value[14] || 0) +
+					(value[15] || 0) +
+					(value[16] || 0);
 		}
 		
 		matched = cache[key] === value;
@@ -81,7 +89,7 @@ export class Shader {
 			const value = attributes[key];
 			const uniform = uniforms[opt];
 
-			if(this.cacheUniform(key, value, target)) 
+			if(this.cacheUniform((target || "") + key, value)) 
 				continue;
 
 			if (Array.isArray(value)) {

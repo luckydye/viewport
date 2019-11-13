@@ -40,11 +40,8 @@ export default class CompShader extends Shader {
         
         in vec2 vTexCoords;
         
-        uniform vec3 selected;
-
         uniform sampler2D color;
         uniform sampler2D depth;
-        uniform sampler2D index;
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         
@@ -53,18 +50,12 @@ export default class CompShader extends Shader {
         void main() {
             vec4 color = texture(color, vTexCoords);
 
-            vec4 indexColor = texture(index, vTexCoords);
-
             oFragColor = color;
-
-            if(selected.rgb == indexColor.rgb) {
-                oFragColor *= 1.15;
-            }
             
             vec4 depth = texture(depth, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
 
-            if(guidesDepth.r < depth.r) {
+            if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
                 oFragColor = texture(guides, vTexCoords);
             }
         }`;

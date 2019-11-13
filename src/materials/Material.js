@@ -11,11 +11,24 @@ export class Material {
     get attributes() {
         return {
             diffuseColor: this.diffuseColor,
-            transparency: this.transparency,
-            specular: this.specular,
-            roughness: this.roughness,
-            textureScale: this.textureScale,
+            attributes: this.materialAttributes,
         };
+    }
+
+    set specular(val) {
+        this.materialAttributes[0] = val;
+    }
+
+    set roughness(val) {
+        this.materialAttributes[1] = val;
+    }
+
+    get specular() {
+        return this.materialAttributes[0];
+    }
+
+    get roughness() {
+        return this.materialAttributes[1];
     }
 
     constructor(attributes = {}) {
@@ -33,8 +46,8 @@ export class Material {
 
         this.diffuseColor = [1, 1, 1, 1];
         this.transparency = 0;
-        this.specular = 0.33;
-        this.roughness = 0.25;
+
+        this.materialAttributes = [0.33, 0.25];
 
         this.textureScale = 0;
 
