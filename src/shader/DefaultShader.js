@@ -10,7 +10,7 @@ export default class DefaultShader extends MeshShader {
 
             // Specular(oFragColor, normal, specular, roughness);
 
-            vec3 shadowColor = vec3(0.5, 0.5, 0.5);
+            vec3 shadowColor = vec3(0.65, 0.65, 0.7);
 
             Shading(oFragColor, normal, shadowColor);
         `;
