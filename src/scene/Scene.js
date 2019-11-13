@@ -1,4 +1,4 @@
-import { Vec, Transform } from '../Math.js';
+import { Vec, Transform, uuidv4 } from '../Math.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
 
@@ -14,6 +14,8 @@ export class Scene extends Transform {
 
 	constructor(objs = []) {
 		super();
+
+		this.uid = uuidv4();
 		
 		this.objects = new Set();
 		this.lastchange = Date.now();

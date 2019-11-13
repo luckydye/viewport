@@ -276,20 +276,20 @@ export class RendererContext {
 			textures: textures,
 
 			use() {
-				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
 			},
 
 			finalize() {
 				// blit into the antialised renderbuffer
 				
-				// gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
-				// gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
+				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers[FRAMEBUFFER.RENDERBUFFER]);
+				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers[FRAMEBUFFER.COLORBUFFER]);
 				
-				// gl.blitFramebuffer(
-				// 	0, 0, width, height,
-				// 	0, 0, width, height,
-				// 	gl.COLOR_BUFFER_BIT, gl.LINEAR
-				// );
+				gl.blitFramebuffer(
+					0, 0, width, height,
+					0, 0, width, height,
+					gl.COLOR_BUFFER_BIT, gl.LINEAR
+				);
 			}
 		}
 		
@@ -378,7 +378,7 @@ export class RendererContext {
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 

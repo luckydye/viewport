@@ -155,7 +155,7 @@ export default class Viewport extends HTMLElement {
                 
                 if(color[3] > 0) {
                     const index = color[0];
-                    const geo = [...this.renderer.currentScene.objects][index];
+                    const geo = [...this.scene.objects][index];
                     if(geo.selectable) {
                         this.selectedColor = color;
                         this.selectGeometry(geo);

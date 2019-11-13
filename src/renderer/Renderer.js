@@ -9,6 +9,7 @@ import NormalShader from '../shader/NormalShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RenderPass } from './RenderPass.js';
 import IndexShader from '../shader/IndexShader.js';
+import PostShader from '../shader/PostShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -45,18 +46,15 @@ export class Renderer extends RendererContext {
 		}
 	}
 
-	nextRenderBufferSlot() {
-		const slot = this.currentRenderBufferSlot;
-		this.currentRenderBufferSlot++;
-		return slot;
-	}
-
 	onCreate() {
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
 
 		this.compShader = new CompShader();
+		this.postShader = new PostShader();
+
+		this.compositionPass = this.createFramebuffer('comp', this.width, this.height);
 
 		this.debug = Config.global.getValue('debug');
 		this.showGrid = Config.global.getValue('show.grid');
@@ -71,8 +69,8 @@ export class Renderer extends RendererContext {
 		this.materialShaders = new Map();
 		this.textures = new Map();
 
-		this.currentRenderBufferSlot = 0;
 		this.currentScene = null;
+		this.lastSceneId = null;
 
 		this.info = {};
 
@@ -155,7 +153,10 @@ export class Renderer extends RendererContext {
 		this.info.textures = this.textures.size;
 		this.info.objects = this.vertexBuffers.size - 1;
 
-		if(this.currentScene !== scene) {
+		this.currentScene = scene;
+
+		if(this.lastSceneId !== scene.uid) {
+			this.lastSceneId = scene.uid;
 			this.clearBuffers();
 		}
 
@@ -164,8 +165,6 @@ export class Renderer extends RendererContext {
 		}
 		
 		if(this.renderPasses.length > 0) {
-
-			this.currentScene = scene;
 
 			for (let pass of this.renderPasses) {
 				pass.use();
@@ -214,18 +213,26 @@ export class Renderer extends RendererContext {
 
 		this.useShader(this.compShader);
 
-		this.currentRenderBufferSlot = 0;
-		if(this.currentRenderBufferSlot == 0) {
-			// push pass frame buffers to comp
-			this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', this.nextRenderBufferSlot());
-			this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', this.nextRenderBufferSlot());
-			this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', this.nextRenderBufferSlot());
-			this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', this.nextRenderBufferSlot());
-		}
+		// this.compositionPass.use();
+
+		this.clearFramebuffer();
 
 		this.preComposition(gl);
 
-		this.drawGeo(this.renderTarget);
+		this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', 0);
+		this.useTextureBuffer(this.getBufferTexture('color.depth'), gl.TEXTURE_2D, 'depth', 1);
+		this.useTextureBuffer(this.getBufferTexture('guides'), gl.TEXTURE_2D, 'guides', 2);
+		this.useTextureBuffer(this.getBufferTexture('guides.depth'), gl.TEXTURE_2D, 'guidesDepth', 3);
+
+		this.drawScreen();
+
+		// // post
+		// this.useShader(this.postShader);
+
+		// this.useTextureBuffer(this.compositionPass.textures.color, gl.TEXTURE_2D, 'comp', 0);
+		// this.useTextureBuffer(this.getBufferTexture('color'), gl.TEXTURE_2D, 'color', 1);
+		
+		// this.drawScreen();
 	}
 
 	prepareTexture(texture) {
@@ -295,7 +302,6 @@ export class Renderer extends RendererContext {
 		shaderOverwrite: null,
 	}) {
 		
-		this.currentScene = scene;
 		this.currentCamera = camera;
 
 		const filter = setup.filter;
@@ -409,11 +415,11 @@ export class Renderer extends RendererContext {
 			this.initializeBuffersAndAttributes(buffer);
 		}
 
-		if(geo.matrixAutoUpdate || geo.needsUpdate) {
-			geo.updateModelMatrix();
-		}
-
 		if(this.currentScene) {
+			if(geo.matrixAutoUpdate || geo.needsUpdate) {
+				geo.updateModelMatrix();
+			}
+
 			this.currentShader.setUniforms({ 
 				'model': geo.modelMatrix 
 			}, 'scene');
@@ -444,6 +450,11 @@ export class Renderer extends RendererContext {
 		} else {
 			gl.drawArrays(gl[this.currentShader.drawmode], 0, buffer.vertecies.length / buffer.elements);
 		}
+	}
+
+	drawScreen() {
+		this.currentScene = null;
+		this.drawGeo(this.renderTarget);
 	}
 
 }
