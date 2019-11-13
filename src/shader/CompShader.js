@@ -43,7 +43,7 @@ export default class CompShader extends Shader {
                 oFragColor = texture(guides, vTexCoords);
             }
 
-            oFragColor.rgb += min(pow(depth.r, 150.0), 0.33);
+            oFragColor.rgb += min(pow(depth.r, 200.0), 0.25);
         }`;
     }
 

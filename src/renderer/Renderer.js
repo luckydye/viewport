@@ -13,6 +13,7 @@ import PostShader from '../shader/PostShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
+Config.global.define('debuglevel', 0, 0);
 
 const logger = new Logger('Renderer'), log = logger.log;
 
@@ -57,6 +58,7 @@ export class Renderer extends RendererContext {
 		this.compositionPass = this.createFramebuffer('comp', this.width, this.height);
 
 		this.debug = Config.global.getValue('debug');
+		this.debugLevel = Config.global.getValue('debuglevel');
 		this.showGrid = Config.global.getValue('show.grid');
 		this.showGuides = true;
 		this.clearPass = true;
