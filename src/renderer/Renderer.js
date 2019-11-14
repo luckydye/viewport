@@ -10,6 +10,7 @@ import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RenderPass } from './RenderPass.js';
 import IndexShader from '../shader/IndexShader.js';
 import PostShader from '../shader/PostShader.js';
+import SSAOShader from '../shader/SSAOShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -52,7 +53,7 @@ export class Renderer extends RendererContext {
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
 
-		this.compShader = new CompShader();
+		this.compShader = new SSAOShader();
 		this.postShader = new PostShader();
 
 		this.compositionPass = this.createFramebuffer('comp', this.width, this.height);

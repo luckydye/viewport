@@ -54,6 +54,8 @@ export class RendererContext {
 		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
 		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
 
+		this.MULTISAMPLING_SAMPLES = 2;
+
 		// enable gl options
 		this.setOptions(this.options);
 	}
@@ -239,10 +241,10 @@ export class RendererContext {
 		depthRenderbuffer = gl.createRenderbuffer();
 
 		gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
-		gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.RGBA8, width, height);
+		gl.renderbufferStorageMultisample(gl.RENDERBUFFER, this.MULTISAMPLING_SAMPLES, gl.RGBA8, width, height);
 
 		gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
-		gl.renderbufferStorageMultisample(gl.RENDERBUFFER, 4, gl.DEPTH_COMPONENT24, width, height);
+		gl.renderbufferStorageMultisample(gl.RENDERBUFFER, this.MULTISAMPLING_SAMPLES, gl.DEPTH_COMPONENT16, width, height);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers.DRAW);
 		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderbuffer);
@@ -358,7 +360,7 @@ export class RendererContext {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, w, h, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT16, w, h, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
 
 		gl.bindTexture(gl.TEXTURE_2D, null);
 
