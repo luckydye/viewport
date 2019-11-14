@@ -121,6 +121,9 @@ export class Camera extends Entity {
 				this.farplane
 			);
 		}
+		
+		const position = this.getGlobalPosition();
+		const rotation = this.getGlobalRotation();
 
 		if (this.perspective == Camera.PERSPECTIVE) {
 			const ar = this.sensor.width / this.sensor.height;
@@ -135,7 +138,7 @@ export class Camera extends Entity {
 		mat4.rotateY(this.viewMatrix, this.viewMatrix, this.rotation.y);
 		mat4.rotateZ(this.viewMatrix, this.viewMatrix, this.rotation.z);
 		
-		mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
+		mat4.translate(this.viewMatrix, this.viewMatrix, position);
 
 		mat4.identity(this.modelMatrix);
 		mat4.invert(this.modelMatrix, this.viewMatrix);

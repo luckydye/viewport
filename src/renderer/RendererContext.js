@@ -51,6 +51,9 @@ export class RendererContext {
 		this.getContext(canvas);
 		this.onCreate();
 
+		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
+		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
+
 		// enable gl options
 		this.setOptions(this.options);
 	}
@@ -406,8 +409,8 @@ export class RendererContext {
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.TEXTURE_MAG_FILTER);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.TEXTURE_MIN_FILTER);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
