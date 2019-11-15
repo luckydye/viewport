@@ -23,8 +23,8 @@ export class Scene extends Transform {
 		this.add(objs);
 
 		this.add(new Spotlight({
-			position: [8, -30, 0],
-			rotation: [(3.14 / 2) - 0.5, -0.1, -0.33],
+			position: [0, -20, 0],
+			rotation: [90 * Math.PI / 180, 0, 0],
 		}));
 	}
 

@@ -95,7 +95,7 @@ export default class MeshShader extends Shader {
             vec4 pos = scene.model * vec4(aPosition, 1.0);
         
             gl_Position = scene.projectionView * pos;
-            gl_PointSize = 5.0;
+            gl_PointSize = 2.0;
 
             // set vert outputs
             vTexCoords = vec2(aTexCoords.x, -aTexCoords.y);
@@ -103,7 +103,7 @@ export default class MeshShader extends Shader {
             vViewPos = cameraPosition.xyz;
             vVertexPos = aPosition;
             vWorldPos = pos;
-            vNormal = (vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
+            vNormal = normalize(vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
             primitiveColor = aNormal;
             index = objectIndex;
             vTexelPos = gl_Position;

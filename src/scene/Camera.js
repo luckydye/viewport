@@ -22,17 +22,17 @@ export class Camera extends Entity {
 		const w = this.sensor.width;
 		const vertArray = [
 			// farplane
-			w, w, -this.farplane, 1, 1, 0,  1, 1, 1,
-			-w, w, -this.farplane, 1, 1, 0, 1, 1, 1,
+			w, w, -s, 1, 1, 0,  1, 1, 1,
+			-w, w, -s, 1, 1, 0, 1, 1, 1,
 
-			-w, w, -this.farplane, 1, 1, 0, 1, 1, 1,
-			-w, -w, -this.farplane, 1, 1, 0, 1, 1, 1,
+			-w, w, -s, 1, 1, 0, 1, 1, 1,
+			-w, -w, -s, 1, 1, 0, 1, 1, 1,
 
-			-w, -w, -this.farplane, 1, 1, 0, 1, 1, 1,
-			w, -w, -this.farplane, 1, 1, 0, 1, 1, 1,
+			-w, -w, -s, 1, 1, 0, 1, 1, 1,
+			w, -w, -s, 1, 1, 0, 1, 1, 1,
 
-			w, -w, -this.farplane, 1, 1, 0, 1, 1, 1,
-			w, w, -this.farplane, 1, 1, 0, 1, 1, 1,
+			w, -w, -s, 1, 1, 0, 1, 1, 1,
+			w, w, -s, 1, 1, 0, 1, 1, 1,
 
 			// nearplane
 			s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
@@ -55,16 +55,16 @@ export class Camera extends Entity {
 			0, 0, -this.farplane, 0, 0, 0, 1, 0, 0,
 
 			-s, -s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w, -w, -this.farplane, 0, 0, 0, 1, 1, 1,
+			-w, -w, -s, 0, 0, 0, 1, 1, 1,
 
 			-s, s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w, w, -this.farplane, 0, 0, 0, 1, 1, 1,
+			-w, w, -s, 0, 0, 0, 1, 1, 1,
 
 			s, s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w, w, -this.farplane, 0, 0, 0, 1, 1, 1,
+			w, w, -s, 0, 0, 0, 1, 1, 1,
 
 			s, -s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w, -w, -this.farplane, 0, 0, 0, 1, 1, 1,
+			w, -w, -s, 0, 0, 0, 1, 1, 1,
 		]
 		return vertArray;
 	}

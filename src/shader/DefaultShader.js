@@ -96,7 +96,9 @@ export default class DefaultShader extends MeshShader {
                 vec3 ambientLight = vec3(0.5);
                 finalColor.rgb *= vec3(diffuse * (vec3(1.0) - ambientLight) + ambientLight);
 
-                if(illuminated < 1.0) {
+                float listDist = vertex_relative_to_light.z;
+
+                if(illuminated < 1.0 && listDist > 0.01) {
                     finalColor.rgb *= shadowColor;
                 }
             }

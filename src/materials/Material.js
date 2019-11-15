@@ -35,8 +35,6 @@ export class Material {
         
         this.uid = uuidv4();
         
-        this.index = 0;
-
         this.shader = DefaultShader;
 
         this.texture = null;
