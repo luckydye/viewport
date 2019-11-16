@@ -10,6 +10,7 @@ export class Vector extends Geometry {
 		args.points = args.points || [];
 		this.points = args.points;
 		this.color = [1, 1, 1];
+		this.name = "Vector";
 	}
 
 	get vertecies() {

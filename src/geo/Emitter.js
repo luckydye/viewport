@@ -34,6 +34,8 @@ export class Particle extends Geometry {
     constructor(origin) {
         super();
 
+        this.name = "Emitter";
+
         this.base = origin;
         this.age = 0;
         this.position = new Vec();

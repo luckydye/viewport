@@ -6,6 +6,8 @@ export class Entity extends Geometry {
     constructor(args) {
         super(args);
 
+        this.name = "Entity";
+
         this.velocity = new Vec();
         this.traits = new Set();
     }

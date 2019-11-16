@@ -34,6 +34,8 @@ export class Geometry extends Transform {
 	constructor(args = {}) {
 		super(args);
 
+		this.name = "Geometry";
+
 		this.instanced = false;
 		this.instances = 0;
 
@@ -114,6 +116,7 @@ export class Geometry extends Transform {
 
 		const position = this.getGlobalPosition();
 		const rotation = this.getGlobalRotation();
+		const scale = Array.isArray(this.scale) ? this.scale : [this.scale, this.scale, this.scale];
 
 		quat.fromEuler(rotQuat, 
 			rotation[0] * ( 180 / Math.PI ),
@@ -125,7 +128,7 @@ export class Geometry extends Transform {
 			this.modelMatrix,
 			rotQuat,
 			position,
-			[this.scale, this.scale, this.scale],
+			scale,
 			this.origin
 		);
 

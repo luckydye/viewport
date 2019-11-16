@@ -5,6 +5,8 @@ export class Cursor extends Guide {
 
 	onCreate(args) {
 		super.onCreate(args);
+
+		this.name = "Cursor";
 		
 		this.scale = 1;
 	}

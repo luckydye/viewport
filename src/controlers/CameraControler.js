@@ -11,17 +11,22 @@ export class CameraControler extends EntityControler {
 
 		let pointerlock = null;
 
+		document.addEventListener('contextmenu', e => { e.preventDefault(); });
+
 		const down = e => {
-			if (EntityControler.isMouseButton(e) == 2) {
+			if (EntityControler.isMouseButton(e) == 1) {
 				this.unlock();
 				this.viewport.requestPointerLock();
 				pointerlock = true;
 			}
 		}
 
-		document.addEventListener('pointerlockchange', () => {
-			pointerlock = document.pointerLockElement;
-		}, false);
+		const up = e => {
+			if(pointerlock) {
+				document.exitPointerLock();
+				pointerlock = false;
+			}
+		}
 
 		const move = e => {
 			if (pointerlock) {
@@ -31,6 +36,7 @@ export class CameraControler extends EntityControler {
 		}
 
 		this.viewport.addEventListener("mousedown", down);
+		this.viewport.addEventListener("mouseup", up);
 		this.viewport.addEventListener("mousemove", move);
 	}
 

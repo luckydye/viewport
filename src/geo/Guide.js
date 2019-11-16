@@ -5,6 +5,7 @@ import { Geometry } from "../scene/Geometry.js";
 export class Guide extends Geometry {
 
 	onCreate(args) {
+		this.name = "Guide";
 		args.guide = true;
 		args.material = new PrimitivetMaterial();
 	}

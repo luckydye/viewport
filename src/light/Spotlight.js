@@ -6,6 +6,8 @@ export class Spotlight extends Camera {
 	constructor(args) {
 		super(args);
 
+		this.name = "Spotlight";
+
 		this.perspective = Camera.ORTHGRAPHIC;
 		this.farplane = 1000;
 		this.nearplane = 1;

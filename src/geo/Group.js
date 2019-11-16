@@ -28,6 +28,7 @@ export class Group extends Geometry {
 	onCreate(args) {
 		args.objects = args.objects || [];
 		this.objects = args.objects;
+		this.name = "Group";
 	}
 
 	add(geo) {

@@ -86,6 +86,8 @@ export class Camera extends Entity {
 
 		this.hidden = true;
 
+		this.name = "Camera";
+
 		this.fov = fov;
 		this.farplane = farplane;
 		this.nearplane = nearplane;

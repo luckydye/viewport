@@ -3,6 +3,7 @@ import { Geometry } from "../scene/Geometry.js";
 export class Cube extends Geometry {
 
 	onCreate(args) {
+		this.name = "Cube";
 		this.vertsPerFace = 6;
 		this.visible = {
 			TOP: true,

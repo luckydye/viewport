@@ -20,6 +20,7 @@ export class Plane extends Geometry {
 	onCreate(args) {
 		args.drawmoed = "TRIANGLES";
 
+		this.name = "Plane";
 		this.width = args.width;
 		this.height = args.height;
 	}

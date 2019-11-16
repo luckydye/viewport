@@ -96,9 +96,11 @@ export default class Viewport extends HTMLElement {
         if(geo == null) {
             this.cursor.parent = null;
             this.scene.remove(this.cursor);
+            this.dispatchEvent(new Event('select'));
         } else {
             this.cursor.parent = geo;
             this.scene.add(this.cursor);
+            this.dispatchEvent(new Event('select'));
         }
     }
 

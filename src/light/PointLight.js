@@ -10,6 +10,8 @@ export class Pointlight extends Cube {
 	onCreate(args) {
 		super.onCreate(args);
 
+		this.name = "Pointlight";
+
 		const {
 			intensity = 0.5,
 			color = [1, 1, 1],

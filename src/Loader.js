@@ -4,6 +4,9 @@ import { Texture } from "./materials/Texture.js";
 import { Logger } from "./Logger.js";
 import { Scene } from "./scene/Scene.js";
 import { vec3 } from 'gl-matrix';
+import { Geometry } from './scene/Geometry.js';
+import DefaultMaterial from './materials/DefaultMaterial.js';
+import { Plane } from './geo/Plane.js';
 
 // import * as Geometry from './geo/*.*';
 // import * as Camera from './camera/*.*';
@@ -144,66 +147,47 @@ export class Loader {
     static loadBspFile(bspFile) {
         console.log(bspFile);
 
-        const planes = bspFile.planes;
-        const edges = bspFile.edges;
-        const surfedges = bspFile.surfedges;
-        const vertecies = bspFile.vertecies;
+        const meshData = bspFile.convertToMesh();
 
-        const faces = bspFile.faces;
+        const vertexData = {
+            vertecies: meshData.vertecies.map(vert => ([
+                ...vert.vertex,
+                ...vert.uv,
+                ...vert.normal
+            ])).flat(),
+            indecies: meshData.indecies
+        };
+        
+        const geometry = [];
 
-        const vertexResultArray = [];
-        const indexResultArray = [];
+        const entityMaterial = new DefaultMaterial();
 
-        let currentVertexIndex = 0;
-
-        for(let face of faces) {
-            const plane = planes[face.planenum];
-
-            const faces = face.side;
-            const normal = plane.normal;
-
-            const faceSurfedges = surfedges.slice(face.firstedge, face.firstedge + face.numedges);
-
-            const faceEdges = faceSurfedges.map(surfEdge => {
-                let edge = edges[Math.abs(surfEdge.edge)].v;
-                if(surfEdge.edge < 0) {
-                    edge = edge.reverse();
-                }
-                return edge;
-            });
-
-            const verts = [];
-            const indexes = [];
-
-            for(let edge of faceEdges) {
-                let vertIndecies = edge;
-                verts.push(vertecies[vertIndecies[0]]);
+        for(let entity of bspFile.entities) {
+            if(entity.origin) {
+                geometry.push(new Plane({
+                    material: entityMaterial,
+                    position: [
+                        entity.origin[0] * -0.01,
+                        entity.origin[2] * 0.01,
+                        entity.origin[1] * 0.01,
+                    ],
+                    scale: [0.2, 0.2, 0.2],
+                }));
             }
-
-            const numberOfIndecies = (verts.length - 2) * 3;
-
-            for(let i = 0; i < numberOfIndecies / 3; i++) {
-                indexes.push(currentVertexIndex + 0);
-                indexes.push(currentVertexIndex + 1 + i);
-                indexes.push(currentVertexIndex + 2 + i);
-            }
-
-            currentVertexIndex += verts.length;
-
-            const parsedVertecies = verts.map(v => [
-                v.x, v.z, v.y, 
-                0, 1, 0, 
-                normal[0], normal[2], normal[1]
-            ]);
-
-            vertexResultArray.push(...parsedVertecies.flat());
-            indexResultArray.push(...indexes.flat());
         }
 
-        return {
-            indecies: indexResultArray,
-            vertecies: vertexResultArray
-        };
+        const map = new Geometry({
+            vertecies: vertexData.vertecies,
+            indecies: vertexData.indecies,
+            material: new DefaultMaterial(),
+            scale: [-0.01, 0.01, 0.01],
+            rotation: [0, 0, 0],
+            position: [0, 0, 0],
+        });
+
+        geometry.push(map);
+
+        return geometry;
     }
 
     static createMatFromJson(name, json) {
