@@ -62,7 +62,7 @@ export class Geometry extends Transform {
 
 		this.parent = null;
 
-		this.matrixAutoUpdate = true;
+		this.matrixAutoUpdate = false;
 
 		this.indexArray = indecies;
 		this.vertArray = vertecies;

@@ -146,7 +146,7 @@ export default class Viewport extends HTMLElement {
         
         // selecting
         this.addEventListener('mousedown', e => {
-            if(e.button === 0) {
+            if(e.button === 2) {
                 this.selectedColor = null;
 
                 const bounds = this.getBoundingClientRect();

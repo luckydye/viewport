@@ -7,6 +7,7 @@ import { vec3 } from 'gl-matrix';
 import { Geometry } from './scene/Geometry.js';
 import DefaultMaterial from './materials/DefaultMaterial.js';
 import { Plane } from './geo/Plane.js';
+import { Group } from './geo/Group.js';
 
 // import * as Geometry from './geo/*.*';
 // import * as Camera from './camera/*.*';
@@ -160,11 +161,12 @@ export class Loader {
         
         const geometry = [];
 
+        // enitites
         const entityMaterial = new DefaultMaterial();
-
+        const entityGroup = new Group();
         for(let entity of bspFile.entities) {
             if(entity.origin) {
-                geometry.push(new Plane({
+                entityGroup.add(new Plane({
                     material: entityMaterial,
                     position: [
                         entity.origin[0] * -0.01,
@@ -175,6 +177,26 @@ export class Loader {
                 }));
             }
         }
+        geometry.push(entityGroup);
+
+        // props
+        const propsMaterial = new DefaultMaterial();
+        const propsGroup = new Group();
+
+        for(let props of bspFile.gamelumps.sprp) {
+            if(props.Origin) {
+                propsGroup.add(new Plane({
+                    material: propsMaterial,
+                    position: [
+                        props.Origin[0] * -0.01,
+                        props.Origin[2] * 0.01,
+                        props.Origin[1] * 0.01,
+                    ],
+                    scale: [0.2, 0.2, 0.2],
+                }));
+            }
+        }
+        geometry.push(propsGroup);
 
         const map = new Geometry({
             vertecies: vertexData.vertecies,
