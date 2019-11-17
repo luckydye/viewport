@@ -21,6 +21,9 @@ export default class Viewport extends HTMLElement {
                     display: block;
                     position: relative;
                 }
+                :host([active]) .crosshair {
+                    display: block;
+                }
                 canvas {
                     width: 100%;
                     height: 100%;
@@ -45,8 +48,28 @@ export default class Viewport extends HTMLElement {
                     right: 10px;
                     pointer-events: none;
                 }
+                .crosshair {
+                    display: none;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 0;
+                    height: 0;
+                }
+                svg {
+                    stroke: white;
+                    transform: translate(-50%, -50%);
+                    stroke-width: 1px;
+                }
             </style>
 
+            <span class="crosshair">
+                <svg width="13px" height="13px">
+                    <line x1="0" y1="6.5" x2="13" y2="6.5"/>
+                    <line x1="6.6" y1="0" x2="6.6" y2="13"/>
+                </svg>
+            </span>
             <div class="axis">
                 <canvas id="axis" width="50px" height="50px"></canvas>
             </div>

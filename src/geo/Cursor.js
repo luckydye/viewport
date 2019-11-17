@@ -9,6 +9,8 @@ export class Cursor extends Guide {
 		this.name = "Cursor";
 		
 		this.scale = 1;
+
+		this.matrixAutoUpdate = true;
 	}
 
 	get vertecies() {

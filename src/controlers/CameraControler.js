@@ -18,6 +18,7 @@ export class CameraControler extends EntityControler {
 				this.unlock();
 				this.viewport.requestPointerLock();
 				pointerlock = true;
+				this.viewport.setAttribute('active', '');
 			}
 		}
 
@@ -25,6 +26,7 @@ export class CameraControler extends EntityControler {
 			if(pointerlock) {
 				document.exitPointerLock();
 				pointerlock = false;
+				this.viewport.removeAttribute('active');
 			}
 		}
 
