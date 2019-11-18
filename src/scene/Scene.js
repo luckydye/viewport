@@ -30,7 +30,11 @@ export class Scene extends Transform {
 
 	add(obj) {
 		if (Array.isArray(obj)) {
-			obj.forEach(o => this.objects.add(o));
+			obj.forEach(o => {
+				if(o) {
+					this.objects.add(o);
+				}
+			});
 		} else {
 			this.objects.add(obj);
 		}
