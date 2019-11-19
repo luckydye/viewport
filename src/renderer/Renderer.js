@@ -133,7 +133,9 @@ export class Renderer extends RendererContext {
 
 		this.updateViewport();
 
-		logger.log(`Resolution set to ${this.width}x${this.height}`);
+		if(this.debug) {
+			logger.log(`Resolution set to ${this.width}x${this.height}`);
+		}
 	}
 
 	createRenderPass(name, setup = {}) {
