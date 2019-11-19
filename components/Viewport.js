@@ -142,6 +142,7 @@ export default class Viewport extends HTMLElement {
 
         window.addEventListener('resize', () => {
             this.renderer.setResolution(this.clientWidth, this.clientHeight);
+            this.camera.position.y += 0.001;
         });
 
         this.dispatchEvent(new Event('load'));
