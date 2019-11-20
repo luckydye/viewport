@@ -1,6 +1,7 @@
 import { Vec, Transform, uuidv4 } from '../Math.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
+import { Entity } from './Entity.js';
 
 export class Scene extends Transform {
 
@@ -63,7 +64,7 @@ export class Scene extends Transform {
 
 	update(ms) {
 		for (let obj of this.objects) {
-			if (obj.update) {
+			if (obj instanceof Entity) {
 				obj.update(ms);
 			}
 		}

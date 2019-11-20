@@ -403,9 +403,9 @@ export class Renderer extends RendererContext {
 							'shadowProjMat': lightSource.projMatrix,
 							'shadowViewMat': lightSource.viewMatrix,
 						});
-
-						this.applyMaterial(material);
 					}
+
+					this.applyMaterial(material);
 
 					this.currentShader.setUniforms({
 						'cameraPosition': [
@@ -457,15 +457,12 @@ export class Renderer extends RendererContext {
 
 			const shaderObjectCache = this.currentShader.cache.objects;
 
-			if (geo.matrixAutoUpdate || geo.lastUpdate == 1) {
-				geo.lastUpdate++;
+			if (geo.matrixAutoUpdate || shaderObjectCache[geo.uid] != geo.lastUpdate) {
 				geo.updateModelMatrix();
 			}
 
 			if (Object.keys(shaderObjectCache).length > 1 ||
-				geo.matrixAutoUpdate || 
 				shaderObjectCache[geo.uid] != geo.lastUpdate) {
-
 				shaderObjectCache[geo.uid] = geo.lastUpdate;
 
 				this.currentShader.setUniforms({ 

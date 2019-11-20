@@ -74,6 +74,10 @@ export class Geometry extends Transform {
 		this.modelMatrix = mat4.create();
 	}
 
+	update() {
+		this.lastUpdate = Date.now();
+	}
+
 	getGlobalPosition() {
 		return this.parent ? vec3.add([], this.position, this.parent.getGlobalPosition()) : this.position;
 	}
