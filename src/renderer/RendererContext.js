@@ -24,7 +24,7 @@ export class RendererContext {
 	}
 
 	constructor(canvas, contextOptions = {
-		alpha: false,
+		alpha: true,
 		premultipliedAlpha: false,
 		antialias: false,
 		preserveDrawingBuffer: false, // possible if using a offscreen canvas

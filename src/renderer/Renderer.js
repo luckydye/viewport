@@ -9,7 +9,6 @@ import NormalShader from '../shader/NormalShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RenderPass } from './RenderPass.js';
 import IndexShader from '../shader/IndexShader.js';
-import PostShader from '../shader/PostShader.js';
 import SSAOShader from '../shader/SSAOShader.js';
 
 Config.global.define('show.grid', false, false);
@@ -61,12 +60,22 @@ export class Renderer extends RendererContext {
 		}
 	}
 
+	get showGrid() {
+		return Config.global.getValue('show.grid');
+	}
+
+	get debugLevel() {
+		return Config.global.getValue('debuglevel');
+	}
+
 	onCreate() {
+		this.debug = Config.global.getValue('debug');
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
 
-		this.compShader = new SSAOShader();
+		// this.compShader = new SSAOShader();
+		this.compShader = new CompShader();
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -78,9 +87,6 @@ export class Renderer extends RendererContext {
 
 		this.MAX_TEXTURE_UINTS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
 
-		this.debug = Config.global.getValue('debug');
-		this.debugLevel = Config.global.getValue('debuglevel');
-		this.showGrid = Config.global.getValue('show.grid');
 		this.showGuides = true;
 		this.clearPass = true;
 

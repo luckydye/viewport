@@ -11,6 +11,7 @@ import { PlayerControler } from '../src/controlers/PlayerControler.js';
 import { Cube } from '../src/geo/Cube.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Cursor } from '../src/geo/Cursor.js';
+import Config from '../src/Config.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -81,6 +82,9 @@ export default class Viewport extends HTMLElement {
         controllertype = ViewportController,
     } = {}) {
         super();
+        
+        Config.global.load();
+        Config.global.save();
 
         this.scheduler = new Scheduler();
 
@@ -185,26 +189,6 @@ export default class Viewport extends HTMLElement {
                 }
             }
         });
-    }
-
-    showViewAxis() {
-        // axis
-        this.axisDisplay = new Renderer(this.shadowRoot.querySelector('#axis'));
-        this.axisDisplay.showGrid = false;
-        this.axisDisplay.renderPasses.splice(0, 2);
-        this.axisDisplay.renderPasses.splice(1, 1);
-        this.axisDisplay.background = [0, 0, 0, 0];
-        const axisScene = new Scene([ 
-            new Camera({ 
-                position: [0, 0, -20],
-                perspective: Camera.ORTHGRAPHIC
-            }) 
-        ]);
-        this.axis = new Guide({
-            scale: 0.25,
-        });
-        axisScene.add(this.axis);
-        this.axisDisplay.scene = axisScene;
     }
 
     connectedCallback() {

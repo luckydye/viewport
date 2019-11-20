@@ -63,7 +63,5 @@ window.addEventListener('load', () => {
         document.body.appendChild(viewport);
         
         viewport.scene.add(geo);
-
-        viewport.renderer.debug = true;
     })
 })

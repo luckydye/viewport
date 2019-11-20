@@ -11,6 +11,10 @@ export default class Config {
         return this[name].value;
     }
 
+    hasValue(name) {
+        return this[name];
+    }
+
     setValue(name, value) {
         if (!this[name]) this.define(name, value);
         this[name].value = value;
