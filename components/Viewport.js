@@ -79,8 +79,6 @@ export default class Viewport extends HTMLElement {
 
     constructor({
         controllertype = ViewportController,
-        canvas = null,
-        offscreen = null
     } = {}) {
         super();
 
@@ -89,14 +87,10 @@ export default class Viewport extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         this.root = this.shadowRoot;
 
-        this.canvas = canvas;
-
-        if(offscreen) {
-            this.offscreen = true;
-        }
+        this.canvas = document.createElement('canvas');
 
         this.cursor = new Cursor();
-        this.renderer = new Renderer(offscreen || canvas);
+        this.renderer = new Renderer(this.canvas);
         this.camera = new Camera({
             position: [0, -20, -20],
             rotation: [0.5, 0, 0],
@@ -215,9 +209,7 @@ export default class Viewport extends HTMLElement {
 
     connectedCallback() {
         this.root.innerHTML = this.constructor.template;
-        if(this.canvas) {
-            this.root.appendChild(this.canvas);
-        }
+        this.root.appendChild(this.canvas);
 
         this.statsElement = this.shadowRoot.querySelector('.stats');
 

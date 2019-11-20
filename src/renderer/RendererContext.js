@@ -24,11 +24,11 @@ export class RendererContext {
 	}
 
 	constructor(canvas, contextOptions = {
-		alpha: true,
+		alpha: false,
 		premultipliedAlpha: false,
 		antialias: false,
-		preserveDrawingBuffer: false,
-		desynchronized: true, // for non antiliase canvas on chrome to false
+		preserveDrawingBuffer: false, // possible if using a offscreen canvas
+		desynchronized: false, // for non antiliase canvas on chrome to false
 	}) {
 		if (!canvas) throw "RendererContext: Err: no canvas";
 
@@ -221,7 +221,7 @@ export class RendererContext {
 	}
 
 	// create webgl framebuffer objects
-	createFramebuffer(name, width, height, depthAttatchment = true, colorAttatchment = true) {
+	createFramebuffer(name, width, height, depthAttatchment = true, colorAttatchment = true, antialiasing = true) {
 		const gl = this.gl;
 
 		let textures = {
@@ -281,48 +281,54 @@ export class RendererContext {
 			textures: textures,
 
 			use() {
-				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers.DRAW);
-
-				if(debug && debugLevel > 1) {
-					const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-			
-					if(status === gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-						console.error('FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+				if(antialiasing) {
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers.DRAW);
+	
+					if(debug && debugLevel > 1) {
+						const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+				
+						if(status === gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+							console.error('FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+						}
+						if(status === gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+							console.error('FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+						}
+						if(status === gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
+							console.error('FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+						}
+						if(status === gl.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
+							console.error('FRAMEBUFFER_INCOMPLETE_MULTISAMPLE');
+						}
+						if(status !== gl.FRAMEBUFFER_COMPLETE) {
+							console.error('FRAMEBUFFER_INCOMPLETE');
+						}
 					}
-					if(status === gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
-						console.error('FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
-					}
-					if(status === gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
-						console.error('FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
-					}
-					if(status === gl.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
-						console.error('FRAMEBUFFER_INCOMPLETE_MULTISAMPLE');
-					}
-					if(status !== gl.FRAMEBUFFER_COMPLETE) {
-						console.error('FRAMEBUFFER_INCOMPLETE');
-					}
+				} else {
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers.OUTPUT);
 				}
 			},
 
 			finalize() {
-				// blit into the output framebuffer
-				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers.DRAW);
-				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers.OUTPUT);
-				
-				if(colorAttatchment) {
-					gl.blitFramebuffer(
-						0, 0, width, height,
-						0, 0, width, height,
-						gl.COLOR_BUFFER_BIT, gl.LINEAR
-					);
-				}
-				
-				if(depthAttatchment) {
-					gl.blitFramebuffer(
-						0, 0, width, height,
-						0, 0, width, height,
-						gl.DEPTH_BUFFER_BIT, gl.NEAREST
-					);
+				if(antialiasing) {
+					// blit into the output framebuffer
+					gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffers.DRAW);
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffers.OUTPUT);
+					
+					if(colorAttatchment) {
+						gl.blitFramebuffer(
+							0, 0, width, height,
+							0, 0, width, height,
+							gl.COLOR_BUFFER_BIT, gl.LINEAR
+						);
+					}
+					
+					if(depthAttatchment) {
+						gl.blitFramebuffer(
+							0, 0, width, height,
+							0, 0, width, height,
+							gl.DEPTH_BUFFER_BIT, gl.NEAREST
+						);
+					}
 				}
 			}
 		}

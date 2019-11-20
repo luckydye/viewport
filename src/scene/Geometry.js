@@ -63,6 +63,7 @@ export class Geometry extends Transform {
 		this.parent = null;
 
 		this.matrixAutoUpdate = false;
+		this.lastUpdate = 1;
 
 		this.indexArray = indecies;
 		this.vertArray = vertecies;
@@ -71,8 +72,6 @@ export class Geometry extends Transform {
 		this.guide = guide;
 		this.uv = uv;
 		this.modelMatrix = mat4.create();
-
-		this.needsUpdate = true;
 	}
 
 	getGlobalPosition() {
@@ -133,8 +132,6 @@ export class Geometry extends Transform {
 		);
 
 		mat4.translate(this.modelMatrix, this.modelMatrix, this.origin);
-
-		this.needsUpdate = false;
 	}
 
 	onCreate(args) {

@@ -12,6 +12,7 @@ export class RenderPass {
 		resolution: null,
 		colorBuffer: true,
 		depthbuffer: true,
+		antialiasing: true,
 	}) {
 		this.id = id;
 		this.sceneSetup = setup;
@@ -23,7 +24,7 @@ export class RenderPass {
 		this.width = this.resolution[0] || renderer.width;
 		this.height = this.resolution[1] || renderer.height;
 
-		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer);
+		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer, setup.antialiasing);
 	}
 
 	resize(width, height) {

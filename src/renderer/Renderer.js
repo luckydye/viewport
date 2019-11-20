@@ -72,8 +72,12 @@ export class Renderer extends RendererContext {
 		this.materialShaders = new Map();
 		this.textures = new Map();
 
-		this.currentScene = null;
 		this.lastSceneId = null;
+
+		this.currentScene = null;
+		this.currentCamera = null;
+		this.currentRenderPass = 0;
+		this.currentObjectId = 0;
 
 		this.info = {};
 
@@ -83,14 +87,13 @@ export class Renderer extends RendererContext {
 
 		this.createRenderPass('shadow', {
 			get camera() {
-				if(self.currentScene.lightsource) {
-					return self.currentScene.lightsource;
-				}
+				return self.currentScene.lightsource;
 			},
 			filter(geo) {
 				return !geo.guide && geo.material && geo.material.castShadows;
 			},
 			colorBuffer: false,
+			antialiasing: false,
 			shaderOverwrite: new NormalShader(),
 			resolution: [this.shadowMapSize, this.shadowMapSize],
 			options: {
@@ -104,15 +107,16 @@ export class Renderer extends RendererContext {
 			}
 		})
 		
-		this.createRenderPass('index', {
-			filter(geo) {
-				return !geo.guide && geo.selectable;
-			},
-			shaderOverwrite: new IndexShader(),
-			options: {
-				CULL_FACE: false
-			}
-		})
+		// TODO: Draw index buffer when needed
+		// this.createRenderPass('index', {
+		// 	filter(geo) {
+		// 		return !geo.guide && geo.selectable;
+		// 	},
+		// 	shaderOverwrite: new IndexShader(),
+		// 	options: {
+		// 		CULL_FACE: false
+		// 	}
+		// })
 
 		this.createRenderPass('guides', {
 			filter(geo) {
@@ -151,12 +155,14 @@ export class Renderer extends RendererContext {
 	}
 
 	draw(scene, setup = {}) {
-		this.info.passes = this.renderPasses.length;
-		this.info.debug = this.debug;
-		this.info.shaders = this.shaders.size;
-		this.info.materials = this.materialShaders.size;
-		this.info.textures = this.textures.size;
-		this.info.objects = this.vertexBuffers.size - 1;
+		if(this.debug) {
+			this.info.passes = this.renderPasses.length;
+			this.info.debug = this.debug;
+			this.info.shaders = this.shaders.size;
+			this.info.materials = this.materialShaders.size;
+			this.info.textures = this.textures.size;
+			this.info.objects = this.vertexBuffers.size - 1;
+		}
 
 		this.currentScene = scene;
 
@@ -170,6 +176,8 @@ export class Renderer extends RendererContext {
 		}
 		
 		if(this.renderPasses.length > 0) {
+
+			this.currentRenderPass = 0;
 
 			for (let pass of this.renderPasses) {
 				pass.use();
@@ -190,6 +198,8 @@ export class Renderer extends RendererContext {
 				pass.finalize();
 
 				this.setOptions(this.options);
+
+				this.currentRenderPass++;
 			}
 			
 			this.clearFramebuffer();
@@ -285,10 +295,14 @@ export class Renderer extends RendererContext {
 		this.useTexture(material.specularMap, 'material.specularMap', 1);
 		this.useTexture(material.normalMap, 'material.normalMap', 2);
 		this.useTexture(material.displacementMap, 'material.displacementMap', 3);
-		
-		this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 4);
 
-		this.currentShader.setUniforms(material.attributes, `material`);
+		const shaderMaterialCache = this.currentShader.cache.material;
+
+		if(shaderMaterialCache.material != material.lastUpdate) {
+			shaderMaterialCache.material = material.lastUpdate;
+
+			this.currentShader.setUniforms(material.attributes, `material`);
+		}
 
 		if(Object.keys(material.customUniforms).length > 0) {
 			this.currentShader.setUniforms(material.customUniforms);
@@ -333,13 +347,19 @@ export class Renderer extends RendererContext {
 			}
 		}
 
+		this.currentObjectId = 0;
+
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
 				this.drawMesh(obj, shaderOverwrite);
 			}
 
-			const geoBuffer = this.getGemoetryBuffer(obj);
-			this.info.verts += geoBuffer.vertecies.length / geoBuffer.elements;
+			if(this.debug) {
+				const geoBuffer = this.getGemoetryBuffer(obj);
+				this.info.verts += geoBuffer.vertecies.length / geoBuffer.elements;
+			}
+
+			this.currentObjectId++;
 		}
 	}
 
@@ -356,6 +376,7 @@ export class Renderer extends RendererContext {
 			let matIndex = 0;
 
 			const camera = this.currentCamera;
+			const lightSource = this.currentScene.lightsource;
 
 			for(let material of geo.materials) {
 
@@ -365,9 +386,14 @@ export class Renderer extends RendererContext {
 
 					this.applyMaterial(material);
 
-					const lightSource = this.currentScene.lightsource;
-		
-					if(lightSource && camera !== lightSource) {
+					this.useTextureBuffer(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, 'shadowDepth', 4);
+					
+					const shaderCache = this.currentShader.cache;
+					if (lightSource && camera !== lightSource && 
+						shaderCache.lightSource != lightSource.lastUpdate) {
+
+						shaderCache.lightSource = lightSource.lastUpdate;
+							
 						this.currentShader.setUniforms({
 							'shadowProjMat': lightSource.projMatrix,
 							'shadowViewMat': lightSource.viewMatrix,
@@ -421,16 +447,28 @@ export class Renderer extends RendererContext {
 		}
 
 		if(this.currentScene) {
-			if(geo.matrixAutoUpdate || geo.needsUpdate) {
+
+			const shaderObjectCache = this.currentShader.cache.objects;
+
+			if (geo.matrixAutoUpdate || geo.lastUpdate == 1) {
+				geo.lastUpdate++;
 				geo.updateModelMatrix();
 			}
 
-			this.currentShader.setUniforms({ 
-				'model': geo.modelMatrix 
-			}, 'scene');
-			this.currentShader.setUniforms({ 
-				'objectIndex': [...this.currentScene.objects].indexOf(geo) / 255,
-			});
+			if (Object.keys(shaderObjectCache).length > 1 ||
+				geo.matrixAutoUpdate || 
+				shaderObjectCache[geo.uid] != geo.lastUpdate) {
+
+				shaderObjectCache[geo.uid] = geo.lastUpdate;
+
+				this.currentShader.setUniforms({ 
+					'model': geo.modelMatrix 
+				}, 'scene');
+
+				this.currentShader.setUniforms({ 
+					'objectIndex': this.currentObjectId,
+				});
+			}
 		}
 	}
 

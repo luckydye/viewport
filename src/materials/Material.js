@@ -58,6 +58,8 @@ export class Material {
         for (let attrb in attributes) {
             this[attrb] = attributes[attrb];
         }
+
+        this.lastUpdate = 1;
     }
 
 }

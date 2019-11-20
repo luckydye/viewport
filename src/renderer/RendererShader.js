@@ -40,7 +40,10 @@ export class Shader {
 
 		this.initialized = false;
 
-		this.cache = {};
+		this.cache = {
+			material: {},
+			objects: {}
+		};
 	}
 
 	cacheUniform(key, value) {

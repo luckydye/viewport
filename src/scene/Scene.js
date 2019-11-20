@@ -9,13 +9,18 @@ export class Scene extends Transform {
 	}
 
 	get lightsource() {
-		return this.getObjectsByConstructor(Spotlight)[0];
+		if(!this._lightsource) {
+			this._lightsource = [...this.objects].filter(obj => obj.isLight)[0];
+		}
+		return this._lightsource;
 	}
 
 	constructor(objs = []) {
 		super();
 
 		this.uid = uuidv4();
+
+		this._lightsource = null;
 		
 		this.objects = new Set();
 		this.lastchange = Date.now();
