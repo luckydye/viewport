@@ -66,7 +66,7 @@ export class Renderer extends RendererContext {
 
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
-		this.shadowMapSize = 4096;
+		this.shadowMapSize = 3072;
 
 		this.vertexBuffers = new Map();
 		this.materialShaders = new Map();
@@ -296,13 +296,7 @@ export class Renderer extends RendererContext {
 		this.useTexture(material.normalMap, 'material.normalMap', 2);
 		this.useTexture(material.displacementMap, 'material.displacementMap', 3);
 
-		const shaderMaterialCache = this.currentShader.cache.material;
-
-		if(shaderMaterialCache.material != material.lastUpdate) {
-			shaderMaterialCache.material = material.lastUpdate;
-
-			this.currentShader.setUniforms(material.attributes, `material`);
-		}
+		this.currentShader.setUniforms(material.attributes, `material`);
 
 		if(Object.keys(material.customUniforms).length > 0) {
 			this.currentShader.setUniforms(material.customUniforms);
