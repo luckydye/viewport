@@ -2,10 +2,6 @@ import { uuidv4 } from '../Math';
 
 export class Texture {
 
-    static get EMPTY() {
-        return new Texture();
-    }
-
     get width() { return this.image.width; }
     get height() { return this.image.height; }
 

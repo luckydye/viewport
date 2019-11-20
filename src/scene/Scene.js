@@ -74,18 +74,7 @@ export class Scene extends Transform {
 	}
 
 	getRenderableObjects(camera) {
-
-		let arr = [...this.objects].filter(obj => {
-
-			const dist = Math.sqrt(
-				Math.pow(-camera.position.x - (this.origin.x + obj.position.x), 2) +
-				Math.pow(-camera.position.z - (this.origin.z + obj.position.z), 2)
-			);
-
-			return !obj.hidden && dist < camera.farplane;
-		});
-
-		arr = arr.sort((a, b) => {
+		return [...this.objects].filter(obj => !obj.hidden).sort((a, b) => {
 
 			const distA = Math.sqrt(
 				Math.pow(-camera.position.x - (this.origin.x + a.position.x), 2) +
@@ -99,8 +88,6 @@ export class Scene extends Transform {
 
 			return distB - distA;
 		});
-
-		return arr;
 	}
 
 }

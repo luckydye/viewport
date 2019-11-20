@@ -62,4 +62,8 @@ export class Material {
         this.lastUpdate = 1;
     }
 
+    update() {
+        this.lastUpdate = Date.now();
+    }
+
 }

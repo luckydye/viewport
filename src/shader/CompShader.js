@@ -36,14 +36,14 @@ export default class CompShader extends Shader {
 
             oFragColor = finalColor;
             
-            vec4 depth = texture(depth, vTexCoords);
-            vec4 guidesDepth = texture(guidesDepth, vTexCoords);
+            // vec4 depth = texture(depth, vTexCoords);
+            // vec4 guidesDepth = texture(guidesDepth, vTexCoords);
 
-            if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
-                oFragColor += texture(guides, vTexCoords);
-            }
+            // if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
+            //     oFragColor += texture(guides, vTexCoords);
+            // }
 
-            oFragColor.rgb += min(pow(depth.r, 100.0), 0.25);
+            // oFragColor.rgb += min(pow(depth.r, 100.0), 0.25);
         }`;
     }
 

@@ -54,7 +54,7 @@ export class RendererContext {
 		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
 		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
 
-		this.MULTISAMPLING_SAMPLES = 2;
+		this.MULTISAMPLING_SAMPLES = 4;
 
 		// enable gl options
 		this.setOptions(this.options);
@@ -110,15 +110,22 @@ export class RendererContext {
 		}
 	}
 
-	// use webgl texture
-	useTextureBuffer(gltexture, type, uniformStr, slot) {
+	setTexture(gltexture, type, slot, uniformStr) {
+		this.gl.activeTexture(this.gl["TEXTURE" + slot]);
+		this.gl.bindTexture(type, gltexture);
+
 		if (uniformStr) {
-			this.gl.activeTexture(this.gl["TEXTURE" + slot]);
-			this.gl.bindTexture(type, gltexture);
-			this.gl.uniform1i(this.currentShader.uniforms[uniformStr], slot);
-		} else {
-			this.gl.bindTexture(type, gltexture);
+			this.pushTexture(slot, uniformStr);
 		}
+	}
+
+	pushTexture(textureUnitSlot, uniformStr) {
+		this.gl.uniform1i(this.currentShader.uniforms[uniformStr], textureUnitSlot);
+	}
+
+	// use webgl texture
+	useTextureBuffer(gltexture, type) {
+		this.gl.bindTexture(type, gltexture);
 	}
 
 	// use framebuffer
@@ -401,11 +408,6 @@ export class RendererContext {
 		} else {
 			console.warn('tried to update emtpy texture');
 		}
-	}
-
-	// clear webgl texture
-	clearTextureBuffer() {
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 
 	// create webgl texture

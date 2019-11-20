@@ -8,7 +8,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "parcel watch ./test/index.html --public-url ."
+    "start": "parcel watch ./test/index.html --public-url ."
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "gl-matrix": "^3.0.0"
+    "gl-matrix": "^3.1.0"
   }
 }
