@@ -418,8 +418,8 @@ export class RendererContext {
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.TEXTURE_MAG_FILTER);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.TEXTURE_MIN_FILTER);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
@@ -434,6 +434,19 @@ export class RendererContext {
 		}
 
 		return texture;
+	}
+
+	// update geometry buffer with DYNAMIC_DRAW
+	updateBuffer(bufferInfo) {
+		const gl = this.gl;
+		
+		this.useVAO(buffer.vao);
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.DYNAMIC_DRAW);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo.vertexBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.DYNAMIC_DRAW);
 	}
 
 	// prepare geometry buffers for draw
