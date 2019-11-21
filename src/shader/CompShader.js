@@ -41,6 +41,8 @@ export default class CompShader extends Shader {
 
             if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
                 oFragColor += texture(guides, vTexCoords);
+            } else {
+                oFragColor += texture(guides, vTexCoords) * 0.075;
             }
 
             oFragColor.rgb += min(pow(depth.r, 100.0), 0.25);
