@@ -436,6 +436,41 @@ export class RendererContext {
 		return texture;
 	}
 
+	// create compressed webgl texture
+	createCompressedTexture(texture) {
+		const gl = this.gl;
+
+		const ext = (
+			gl.getExtension('WEBGL_compressed_texture_s3tc') ||
+			gl.getExtension('MOZ_WEBGL_compressed_texture_s3tc') ||
+			gl.getExtension('WEBKIT_WEBGL_compressed_texture_s3tc')
+		);
+
+		const dataType = {
+			'DXT1': ext.COMPRESSED_RGB_S3TC_DXT1_EXT,
+			'DXT1_ONEBITALPHA': ext.COMPRESSED_RGBA_S3TC_DXT1_EXT,
+			'DXT3': ext.COMPRESSED_RGBA_S3TC_DXT3_EXT,
+			'DXT5': ext.COMPRESSED_RGBA_S3TC_DXT5_EXT,
+		}
+		
+		const texBuffer = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texBuffer);
+
+		const format = dataType[texture.format.type];
+
+		if(format) {
+			gl.compressedTexImage2D(gl.TEXTURE_2D, 0, format, 
+				texture.width, texture.height, 0, new Uint8Array(texture.data)); 
+		}
+		
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+		return texBuffer;
+	}
+
 	// update geometry buffer with DYNAMIC_DRAW
 	updateBuffer(bufferInfo) {
 		const gl = this.gl;

@@ -79,8 +79,8 @@ export class Renderer extends RendererContext {
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
 
-		// this.compShader = new SSAOShader();
-		this.compShader = new CompShader();
+		this.compShader = new SSAOShader();
+		// this.compShader = new CompShader();
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -177,7 +177,7 @@ export class Renderer extends RendererContext {
 	clearBuffers() {
 		this.vertexBuffers = new Map();
 		this.materialShaders = new Map();
-		this.textures = new Map();
+		this.textures = {};
 	}
 
 	draw(scene, setup = {}) {
@@ -186,7 +186,7 @@ export class Renderer extends RendererContext {
 			this.info.debug = this.debug;
 			this.info.shaders = this.shaders.size;
 			this.info.materials = this.materialShaders.size;
-			this.info.textures = this.textures.size;
+			this.info.textures = Object.keys(this.textures).length;
 			this.info.objects = this.vertexBuffers.size - 1;
 		}
 
@@ -270,7 +270,15 @@ export class Renderer extends RendererContext {
 
 	prepareTexture(texture) {
 		if(!this.textures[texture.uid]) {
-			this.textures[texture.uid] = this.createTexture(texture.image);
+			let newTexture = null;
+
+			if(texture.format) {
+				newTexture = this.createCompressedTexture(texture);
+			} else {
+				newTexture = this.createTexture(texture.image);
+			}
+
+			this.textures[texture.uid] = newTexture;
 		}
 		return this.textures[texture.uid];
 	}

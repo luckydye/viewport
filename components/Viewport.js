@@ -61,19 +61,23 @@ export default class Viewport extends HTMLElement {
                 svg {
                     stroke: white;
                     transform: translate(-50%, -50%);
-                    stroke-width: 1px;
+                    stroke-width: 0.5px;
                 }
             </style>
 
             <span class="crosshair">
-                <svg width="13px" height="13px">
-                    <line x1="0" y1="6.5" x2="13" y2="6.5"/>
-                    <line x1="6.6" y1="0" x2="6.6" y2="13"/>
+                <svg width="21px" height="21px">
+                    <line class="st0" x1="10" y1="0" x2="10" y2="8"/>
+                    <line class="st0" x1="10" y1="12" x2="10" y2="20"/>
+                    <line class="st0" x1="20" y1="10" x2="12" y2="10"/>
+                    <line class="st0" x1="8" y1="10" x2="0" y2="10"/>
                 </svg>
             </span>
+
             <div class="axis">
                 <canvas id="axis" width="50px" height="50px"></canvas>
             </div>
+            
             <pre class="stats"></pre>
         `;
     }
