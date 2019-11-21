@@ -14,6 +14,7 @@ import SSAOShader from '../shader/SSAOShader.js';
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
 Config.global.define('debuglevel', 0, 0);
+Config.global.define('wireframe', false, false);
 
 const logger = new Logger('Renderer'), log = logger.log;
 
@@ -66,6 +67,10 @@ export class Renderer extends RendererContext {
 
 	get debugLevel() {
 		return Config.global.getValue('debuglevel');
+	}
+
+	get drawWireframe() {
+		return Config.global.getValue('wireframe');
 	}
 
 	onCreate() {
@@ -144,7 +149,7 @@ export class Renderer extends RendererContext {
 
 		this.createRenderPass('guides', {
 			filter(geo) {
-				return geo.guide && self.showGuides;
+				return (geo.guide || self.drawWireframe) && self.showGuides;
 			},
 			shaderOverwrite: new PrimitiveShader()
 		})

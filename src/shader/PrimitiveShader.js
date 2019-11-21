@@ -5,7 +5,7 @@ export default class PrimitiveShader extends MeshShader {
     constructor() {
         super();
 
-        this.drawmode = "LINES";
+        this.drawmode = "LINE_STRIP";
     }
 
     static fragmentSource() {
