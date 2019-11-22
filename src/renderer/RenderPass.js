@@ -19,20 +19,22 @@ export class RenderPass {
 		this.shader = setup.shaderOverwrite;
 		this.renderer = renderer;
 
-		this.resolution = setup.resolution || [];
+		this.resolution = setup.resolution;
 
-		this.width = this.resolution[0] || renderer.width;
-		this.height = this.resolution[1] || renderer.height;
+		this.width = this.resolution ? this.resolution[0] : renderer.width;
+		this.height = this.resolution ? this.resolution[1] : renderer.height;
 
 		this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer, setup.antialiasing);
 	}
 
 	resize(width, height) {
-		if (!this.resolution[0]) {
+		if (!this.resolution) {
 			this.width = width;
 			this.height = height;
 
-			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height);
+			const setup = this.sceneSetup;
+
+			this.fbo = this.renderer.createFramebuffer(this.id, this.width, this.height, setup.depthbuffer, setup.colorBuffer, setup.antialiasing);
 		}
 	}
 

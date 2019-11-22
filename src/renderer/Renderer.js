@@ -158,10 +158,11 @@ export class Renderer extends RendererContext {
 	setResolution(width, height) {
 		super.setResolution(width, height);
 
+		this.initialRender = true;
+
 		for (let pass of this.renderPasses) {
 			pass.resize(this.width, this.height);
 		}
-		this.updateTextures();
 
 		if(this.debug) {
 			logger.log(`Resolution set to ${this.width}x${this.height}`);
@@ -228,6 +229,8 @@ export class Renderer extends RendererContext {
 			
 			this.clearFramebuffer();
 
+			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP);
+
 			if(this.initialRender) {
 				this.updateTextures();
 			}
@@ -251,8 +254,6 @@ export class Renderer extends RendererContext {
 		this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
 		this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
 		this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
-
-		this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP);
 	}
 
 	compositeRenderPasses() {
