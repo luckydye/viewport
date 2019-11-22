@@ -111,7 +111,7 @@ export default class Viewport extends HTMLElement {
             nextFrame: 0,
             lastFrame: 0,
             accumulator: 0,
-            tickrate: 128
+            tickrate: 1000 / 64
         };
 
         this.controllerType = controllertype;
@@ -222,8 +222,8 @@ export default class Viewport extends HTMLElement {
 
         this.renderer.info.drawtime = this.frame.accumulator.toFixed(1);
 
-        if (this.frame.accumulator >= (1000 / this.frame.tickrate)) {
-            this.frame.accumulator = 0;
+        while (this.frame.accumulator >= this.frame.tickrate) {
+            this.frame.accumulator -= this.frame.tickrate;
 
             this.scene.update(this.frame.tickrate);
             this.scheduler.run(this.frame.tickrate);
