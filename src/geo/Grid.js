@@ -23,7 +23,7 @@ export class Grid extends Guide {
 		const dataArray = [];
 		const size = w * (s / 2);
 		for (let x = -s / 2; x <= s / 2; x++) {
-			let color = [0.5, 0.5, 0.5];
+			let color = [0.0, 0.0, 0.0];
 			if (x == 0) color = [.15, .15, 1];
 
 			dataArray.push(...[
@@ -32,7 +32,7 @@ export class Grid extends Guide {
 			])
 		}
 		for (let z = -s / 2; z <= s / 2; z++) {
-			let color = [0.5, 0.5, 0.5];
+			let color = [0.0, 0.0, 0.0];
 			if (z == 0) color = [1, .15, .15];
 
 			dataArray.push(...[

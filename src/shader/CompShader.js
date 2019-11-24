@@ -39,7 +39,7 @@ export default class CompShader extends Shader {
             vec4 depth = texture(depth, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
 
-            if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
+            if(guidesDepth.r > 0.0 && guidesDepth.r <= depth.r) {
                 oFragColor += texture(guides, vTexCoords);
             } else {
                 oFragColor += texture(guides, vTexCoords) * 0.075;

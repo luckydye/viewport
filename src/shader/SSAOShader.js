@@ -133,7 +133,7 @@ export default class SSAOShader extends CompShader {
                 oFragColor = vec4(color * aoResult, 1.0);
                 oFragColor.rgb += min(pow(depth, 150.0), 0.25);
                 
-                if(guidesDepth.r > 0.0 && guidesDepth.r < depth) {
+                if(guidesDepth.r > 0.0 && guidesDepth.r <= depth) {
                     oFragColor = texture(guides, vTexCoords);
                 }
             }

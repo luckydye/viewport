@@ -151,6 +151,7 @@ export class Renderer extends RendererContext {
 			filter(geo) {
 				return (geo.guide || self.drawWireframe) && self.showGuides;
 			},
+			antialiasing: false,
 			shaderOverwrite: new PrimitiveShader()
 		})
 	}
