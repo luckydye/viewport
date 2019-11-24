@@ -98,7 +98,7 @@ export default class MeshShader extends Shader {
             gl_PointSize = 2.0;
 
             // set vert outputs
-            vTexCoords = vec2(aTexCoords.x, -aTexCoords.y);
+            vTexCoords = vec2(aTexCoords.x, aTexCoords.y);
             materialIndex = int(aTexCoords.z);
             vViewPos = cameraPosition.xyz;
             vVertexPos = aPosition;
