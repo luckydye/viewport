@@ -8,11 +8,23 @@ export default class DefaultShader extends MeshShader {
             float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
             float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 
-            // Specular(oFragColor, normal, specular, roughness);
+            Specular(oFragColor, normal, specular, roughness);
 
-            vec3 shadowColor = vec3(0.65, 0.65, 0.7);
+            vec3 shadowColor = vec3(
+                50.0 / 255.0, // r
+                50.0 / 255.0, // g
+                75.0 / 255.0  // b
+            );
+            vec3 lightColor = vec3(
+                255.0 / 255.0, // r
+                220.0 / 255.0, // g
+                200.0 / 255.0  // b
+            );
 
-            Shading(oFragColor, normal, shadowColor);
+            lightColor += 0.25;
+            lightColor *= 1.125;
+
+            Shading(oFragColor, normal, shadowColor, lightColor);
         `;
     }
 
@@ -70,7 +82,7 @@ export default class DefaultShader extends MeshShader {
                 finalColor += vec4(vec3(1., .0, .0) * fresnel, 0.0);
             }
 
-            void Shading(out vec4 finalColor, vec3 normal, vec3 shadowColor) {
+            void Shading(out vec4 finalColor, vec3 normal, vec3 shadowColor, vec3 lightColor) {
 
                 vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * vWorldPos;
                 vec3 light_pos = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
@@ -100,6 +112,8 @@ export default class DefaultShader extends MeshShader {
 
                 if(illuminated < 1.0 && listDist > 0.01) {
                     finalColor.rgb *= shadowColor;
+                } else {
+                    finalColor.rgb *= lightColor;
                 }
             }
 
