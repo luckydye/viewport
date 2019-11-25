@@ -24,6 +24,11 @@ window.addEventListener('load', () => {
             position: [4, 2, 4],
             scale: 2
         }),
+        new Plane({
+            material: new DefaultMaterial(),
+            rotation: [-90 * Math.PI / 180, 0, 0],
+            scale: 10
+        })
     ];
     
     viewport.scene.add(geo);
@@ -60,5 +65,5 @@ window.addEventListener('load', () => {
         geo[1].rotation.x = performance.now() / 1000 % 1 * 5;
         geo[1].update();
 
-    }, 1000 / 15);
+    }, 1000 / 60);
 })

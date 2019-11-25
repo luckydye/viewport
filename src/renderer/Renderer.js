@@ -135,15 +135,15 @@ export class Renderer extends RendererContext {
 			filter(geo) { return !geo.guide; }
 		});
 
-		// this.createRenderPass('normal', {
-		// 	filter(geo) { return !geo.guide; },
-		// 	shaderOverwrite: new NormalShader(),
-		// });
+		this.createRenderPass('normal', {
+			filter(geo) { return !geo.guide; },
+			shaderOverwrite: new NormalShader(),
+		});
 
-		// this.createRenderPass('world', {
-		// 	filter(geo) { return !geo.guide; },
-		// 	shaderOverwrite: new WorldShader(),
-		// });
+		this.createRenderPass('world', {
+			filter(geo) { return !geo.guide; },
+			shaderOverwrite: new WorldShader(),
+		});
 		
 		// TODO: Draw index buffer when needed
 		// this.createRenderPass('index', {
@@ -229,10 +229,6 @@ export class Renderer extends RendererContext {
 			}
 			
 			this.clearFramebuffer();
-
-			if(this.initialRender) {
-				this.updateTextures();
-			}
 			
 			this.compositeRenderPasses();
 
@@ -244,29 +240,35 @@ export class Renderer extends RendererContext {
 		this.initialRender = false;
 	}
 
-	updateTextures() {
-		this.useShader(this.compShader);
-
-		this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
-
-		this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
-		this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
-		this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
-		this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
-		this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
-		this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
-		this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
-	}
-
 	compositeRenderPasses() {
 		const gl = this.gl;
+
+		this.useShader(this.compShader);
+
+		if(this.initialRender) {
+			this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
+
+			this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
+			this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
+			this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
+			this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
+			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
+			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
+			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
+		}
+		
+		const lightSource = this.currentScene.lightsource;
+
+		this.currentShader.setUniforms({
+			'shadowProjMat': lightSource.projMatrix,
+			'shadowViewMat': lightSource.viewMatrix,
+		});
 
 		if(this.clearPass) {
 			gl.clearColor(...this.background);
 			this.clear();
 		}
 
-		this.useShader(this.compShader);
 		this.clearFramebuffer();
 		this.drawScreen();
 	}
@@ -364,12 +366,6 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.useShader(shaderOverwrite || this.meshShader);
-
-		this.currentShader.setUniforms({
-			'projectionView': this.currentCamera.projViewMatrix,
-		}, 'scene');
-
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
 				this.drawMesh(obj, shaderOverwrite);
@@ -390,7 +386,7 @@ export class Renderer extends RendererContext {
 	}
 
 	drawMesh(geo, shaderOverwrite) {
-		if (geo.material) {
+		if (geo.material || shaderOverwrite) {
 
 			let matIndex = 0;
 
@@ -398,6 +394,10 @@ export class Renderer extends RendererContext {
 				const shader = this.meshShader;
 				this.useShader(shader);
 				this.setupGemoetry(geo);
+
+				this.currentShader.setUniforms({
+					'projectionView': this.currentCamera.projViewMatrix,
+				}, 'scene');
 
 				for(let material of geo.materials) {
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
@@ -408,6 +408,12 @@ export class Renderer extends RendererContext {
 					matIndex++;
 				}
 			} else {
+				this.useShader(shaderOverwrite);
+
+				this.currentShader.setUniforms({
+					'projectionView': this.currentCamera.projViewMatrix,
+				}, 'scene');
+
 				this.setupGemoetry(geo);
 				this.drawGeo(geo);
 			}

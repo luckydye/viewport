@@ -20,7 +20,7 @@ export class Group extends Geometry {
 
 				vertex[0] = verts[vert + 0];
 				vertex[1] = verts[vert + 1];
-				vertex[2] = verts[vert + 2];
+				vertex[2] = verts[vert + 2]; 
 				vertex[3] = 1;
 
 				vertex = vec4.transformMat4(vertex, vertex, obj.modelMatrix);
@@ -53,9 +53,7 @@ export class Group extends Geometry {
 
 		for (let obj of this.objects) {
 			const buffer = obj.createBuffer();
-			
 			indexArray.push(...buffer.indecies.map(i => i + offset));
-
 			offset += buffer.vertecies.length / 9;
 		}
 

@@ -34,8 +34,8 @@ export default class Viewport extends HTMLElement {
                 }
                 .stats {
                     position: absolute;
-                    bottom: 20px;
-                    left: 20px;
+                    top: 0px;
+                    left: 10px;
                     z-index: 10000;
                     color: white;
                     opacity: 0.75;

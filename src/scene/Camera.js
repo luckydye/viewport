@@ -85,6 +85,7 @@ export class Camera extends Entity {
 		super(args);
 
 		this.hidden = true;
+		this.guide = true;
 
 		this.name = "Camera";
 

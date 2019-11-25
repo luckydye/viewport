@@ -107,7 +107,7 @@ export class Console extends HTMLElement {
             <style>
                 :host {
                     position: fixed;
-                    top: 15px;
+                    bottom: 15px;
                     left: 15px;
                     background: rgba(27, 27, 27, 0.9);
                     display: flex;
