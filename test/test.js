@@ -1,67 +1,64 @@
+import '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
-import Config from '../src/Config.js';
-import { Cube } from '../src/geo/Cube.js';
-import { Plane } from '../src/geo/Plane.js';
-import { Loader } from '../src/Loader.js';
-import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { PlayerControler } from '../src/controlers/PlayerControler.js';
 import { Resources } from '../src/Resources.js';
-import { Texture } from '../src/materials/Texture.js';
-
-Config.global.load();
-Config.global.save();
-
-const img = new Image();
-img.src = "./image.jpg";
+import { Cube } from '../src/geo/Cube.js';
+import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { Plane } from '../src/geo/Plane.js';
+import { Group } from '../src/geo/Group.js';
 
 window.addEventListener('load', () => {
-    Resources.load().then(() => {
 
-        const sh = new DefaultMaterial({
-            diffuseColor: [1, 1, 1, 1],
-            // texture: new Texture(img)
-        });
+    const viewport = new Viewport({ controllertype: PlayerControler });
+    document.body.appendChild(viewport);
 
-        const geo = [
-            new Cube({
-                material: sh,
-                position: [0, 2, 0],
-                vertecies: Loader.loadObjFile(Resources.get('tree')),
-                scale: 2
-            }),
-            new Cube({
-                material: sh,
-                position: [4, 2, 4],
-                vertecies: Loader.loadObjFile(Resources.get('tree')),
-                scale: 2
-            }),
-            new Plane({
-                material: new DefaultMaterial({
-                    diffuseColor: [0.4, 0.65, 0.4, 1]
-                }),
-                position: [0, -0.01, 0],
-                rotation: [-Math.PI / 2, 0, 0],
-                scale: 10
-            })
-        ];
+    const geo = [
+        new Cube({
+            material: new DefaultMaterial(),
+            position: [0, 2, 0],
+            scale: 2
+        }),
+        new Cube({
+            material: new DefaultMaterial(),
+            position: [4, 2, 4],
+            scale: 2
+        }),
+    ];
+    
+    viewport.scene.add(geo);
 
-        setInterval(() => {
+    const group1 = new Group();
+    const group2 = new Group();
 
-            geo[0].material.diffuseColor[0] = performance.now() / 1000 % 1;
-            geo[0].material.diffuseColor[1] = performance.now() / 100 % 1;
-            geo[0].material.update();
+    setTimeout(() => {
+        group1.add(geo[0]);
+        group1.add(geo[1]);
+        group1.position.x -= 4;
+        viewport.scene.add(group1);
+    }, 1000);
 
-            geo[0].position.y = performance.now() / 1000 % 1 * 5;
-            geo[0].update();
+    setTimeout(() => {
+        group2.add(geo[0]);
+        group2.add(geo[1]);
+        group2.position.x -= 8;
+        group2.scale = 2;
+        viewport.scene.add(group2);
+    }, 2216);
 
-            geo[1].rotation.x = performance.now() / 1000 % 1 * 5;
-            geo[1].update();
+    viewport.enableCameraSaveState();
 
-        }, 1000 / 15);
+    setInterval(() => {
 
-        const viewport = new Viewport();
-        document.body.appendChild(viewport);
-        
-        viewport.scene.add(geo);
-    })
+        geo[0].material.diffuseColor[0] = performance.now() / 1000 % 1;
+        geo[0].material.diffuseColor[1] = performance.now() / 100 % 1;
+        geo[0].material.update();
+
+        geo[0].position.y = performance.now() / 1000 % 1 * 5;
+        geo[0].update();
+
+        geo[1].rotation.x = performance.now() / 1000 % 1 * 5;
+        geo[1].update();
+
+    }, 1000 / 15);
 })

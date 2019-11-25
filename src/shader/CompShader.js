@@ -26,6 +26,7 @@ export default class CompShader extends Shader {
         
         uniform sampler2D color;
         uniform sampler2D depth;
+        uniform sampler2D shadow;
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         uniform sampler2D normal;
@@ -48,6 +49,8 @@ export default class CompShader extends Shader {
             }
 
             oFragColor.rgb += min(pow(depth.r, 100.0), 0.25);
+
+            // oFragColor = texture(shadow, vTexCoords);
         }`;
     }
 

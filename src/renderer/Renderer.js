@@ -106,8 +106,6 @@ export class Renderer extends RendererContext {
 
 		this.currentScene = null;
 		this.currentCamera = null;
-		this.currentRenderPass = 0;
-		this.currentObjectId = 0;
 
 		this.info = {};
 
@@ -117,35 +115,35 @@ export class Renderer extends RendererContext {
 
 		const self = this;
 
-		// this.createRenderPass('shadow', {
-		// 	get camera() {
-		// 		return self.currentScene.lightsource;
-		// 	},
-		// 	filter(geo) {
-		// 		return !geo.guide && geo.material && geo.material.castShadows;
-		// 	},
-		// 	colorBuffer: false,
-		// 	antialiasing: false,
-		// 	shaderOverwrite: new NormalShader(),
-		// 	resolution: [this.shadowMapSize, this.shadowMapSize],
-		// 	options: {
-		// 		CULL_FACE: false
-		// 	}
-		// })
+		this.createRenderPass('shadow', {
+			get camera() {
+				return self.currentScene.lightsource;
+			},
+			filter(geo) {
+				return !geo.guide && geo.material && geo.material.castShadows;
+			},
+			colorBuffer: false,
+			antialiasing: false,
+			shaderOverwrite: new NormalShader(),
+			resolution: [this.shadowMapSize, this.shadowMapSize],
+			options: {
+				CULL_FACE: false
+			}
+		})
 
 		this.createRenderPass('color', {
 			filter(geo) { return !geo.guide; }
 		});
 
-		this.createRenderPass('normal', {
-			filter(geo) { return !geo.guide; },
-			shaderOverwrite: new NormalShader(),
-		});
+		// this.createRenderPass('normal', {
+		// 	filter(geo) { return !geo.guide; },
+		// 	shaderOverwrite: new NormalShader(),
+		// });
 
-		this.createRenderPass('world', {
-			filter(geo) { return !geo.guide; },
-			shaderOverwrite: new WorldShader(),
-		});
+		// this.createRenderPass('world', {
+		// 	filter(geo) { return !geo.guide; },
+		// 	shaderOverwrite: new WorldShader(),
+		// });
 		
 		// TODO: Draw index buffer when needed
 		// this.createRenderPass('index', {
@@ -209,15 +207,8 @@ export class Renderer extends RendererContext {
 			this.lastSceneId = scene.uid;
 			this.clearBuffers();
 		}
-
-		if(!scene) {
-			logger.error('No scene');
-		}
 		
 		if(this.renderPasses.length > 0) {
-
-			this.currentRenderPass = 0;
-
 			for (let pass of this.renderPasses) {
 				pass.use();
 
@@ -235,13 +226,9 @@ export class Renderer extends RendererContext {
 				this.setOptions(this.options);
 
 				pass.finalize();
-
-				this.currentRenderPass++;
 			}
 			
 			this.clearFramebuffer();
-
-			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP);
 
 			if(this.initialRender) {
 				this.updateTextures();
@@ -262,6 +249,7 @@ export class Renderer extends RendererContext {
 
 		this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
 
+		this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 		this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
 		this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
 		this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
@@ -299,8 +287,7 @@ export class Renderer extends RendererContext {
 	}
 
 	// give material attributes to shader
-	applyTextures(material) {
-
+	applyMaterial(material) {
 		// update textures
 		if (material && material.animated) {
 			if (material.texture && material.texture.image) {
@@ -327,21 +314,18 @@ export class Renderer extends RendererContext {
 			this.pushTexture(material.normalMap ? TEXTURE.MESH_NORMAL_MAP : TEXTURE.EMPTY, 'material.normalMap');
 			this.pushTexture(material.displacementMap ? TEXTURE.MESH_DISPLACEMENT_MAP : TEXTURE.EMPTY, 'material.displacementMap');
 
-			this.pushTexture(TEXTURE.SHADOW_MAP, 'shadowDepth');
+			this.currentShader.setUniforms(material.attributes, 'material');
 		}
 
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}
-
 		if(material.specularMap) {
 			this.setTexture(this.prepareTexture(material.specularMap), this.gl.TEXTURE_2D, TEXTURE.MESH_SPECULAR_MAP);
 		}
-
 		if(material.normalMap) {
 			this.setTexture(this.prepareTexture(material.normalMap), this.gl.TEXTURE_2D, TEXTURE.MESH_NORMAL_MAP);
 		}
-		
 		if(material.displacementMap) {
 			this.setTexture(this.prepareTexture(material.displacementMap), this.gl.TEXTURE_2D, TEXTURE.MESH_DISPLACEMENT_MAP);
 		}
@@ -354,22 +338,17 @@ export class Renderer extends RendererContext {
 		return this.vertexBuffers.get(geo.uid);
 	}
 
-	drawScene(scene, camera, setup = {
-		filter: null,
-		shaderOverwrite: null,
-	}) {
-		
+	drawScene(scene, camera, {
+		filter = null,
+		shaderOverwrite = null,
+	} = {}) {
 		this.currentCamera = camera;
-
-		const filter = setup.filter;
-		const shaderOverwrite = setup.shaderOverwrite;
 
 		if(!camera) return;
 
 		camera.updateModelMatrix();
 
 		const objects = scene.getRenderableObjects(camera);
-
 		const materials = objects.map(obj => obj.materials).flat();
 		this.materials = materials;
 
@@ -385,7 +364,11 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		this.currentObjectId = 0;
+		this.useShader(shaderOverwrite || this.meshShader);
+
+		this.currentShader.setUniforms({
+			'projectionView': this.currentCamera.projViewMatrix,
+		}, 'scene');
 
 		for (let obj of objects) {
 			if (filter && filter(obj) || !filter) {
@@ -396,8 +379,6 @@ export class Renderer extends RendererContext {
 				const geoBuffer = this.getGemoetryBuffer(obj);
 				this.info.verts += geoBuffer.vertecies.length / geoBuffer.elements;
 			}
-
-			this.currentObjectId++;
 		}
 	}
 
@@ -413,21 +394,15 @@ export class Renderer extends RendererContext {
 
 			let matIndex = 0;
 
-			this.currentShader.setUniforms({
-				'projectionView': this.currentCamera.projViewMatrix,
-			}, 'scene');
-
 			if (!shaderOverwrite) {
 				const shader = this.meshShader;
 				this.useShader(shader);
-				
 				this.setupGemoetry(geo);
 
 				for(let material of geo.materials) {
-					this.applyTextures(material);
-
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
-					
+
+					this.applyMaterial(material);
 					this.drawGeo(geo);
 
 					matIndex++;
@@ -441,7 +416,6 @@ export class Renderer extends RendererContext {
 	}
 
 	setupGemoetry(geo) {
-		
 		const buffer = this.getGemoetryBuffer(geo);
 
 		if (!buffer.vao) {
@@ -458,9 +432,13 @@ export class Renderer extends RendererContext {
 				geo.updateModelMatrix();
 			}
 
-			this.currentShader.setUniforms({ 
-				'model': geo.modelMatrix 
-			}, 'scene');
+			if (Object.keys(shaderObjectCache).length > 1 ||
+				shaderObjectCache[geo.uid] != geo.lastUpdate) {
+
+				this.currentShader.setUniforms({ 
+					'model': geo.modelMatrix 
+				}, 'scene');
+			}
 		}
 	}
 

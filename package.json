@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "gl-matrix": "^3.1.0"
+    "gl-matrix": "^3.1.0",
+    "lit-html": "^1.1.2"
   }
 }

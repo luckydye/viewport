@@ -53,6 +53,7 @@ export class Group extends Geometry {
 
 		for (let obj of this.objects) {
 			const buffer = obj.createBuffer();
+			
 			indexArray.push(...buffer.indecies.map(i => i + offset));
 
 			offset += buffer.vertecies.length / 9;
