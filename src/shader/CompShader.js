@@ -28,6 +28,8 @@ export default class CompShader extends Shader {
         uniform sampler2D depth;
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
+        uniform sampler2D normal;
+        uniform sampler2D world;
 
         out vec4 oFragColor;
 

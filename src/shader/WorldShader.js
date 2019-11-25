@@ -5,7 +5,7 @@ export default class WorldShader extends MeshShader {
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
             void main() {
-                oFragColor = vec4(vec3(index), 1.0);
+                oFragColor = vec4(vWorldPos.rgb, 1.0);
             }
         `;
     }

@@ -220,10 +220,13 @@ export class RendererContext {
 		this.gl.bindVertexArray(VAO);
 	}
 
-	// create vertex array object
-	createVAO() {
+	// create vertex array object for buffer
+	createVAO(buffer) {
 		const VAO = this.gl.createVertexArray();
 		this.gl.bindVertexArray(VAO);
+
+		this.initializeBuffersAndAttributes(buffer);
+
 		return VAO;
 	}
 

@@ -112,8 +112,30 @@ export default class MeshShader extends Shader {
 
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
+
+            uniform Material material;
+            uniform int currentMaterialIndex;
+            
+            vec2 TextureCoords() {
+                float scale = 1.0;
+
+                if (currentMaterialIndex != materialIndex) {
+                    discard;
+                }
+
+                vec2 displace = texture(material.displacementMap, vTexCoords.xy).rg;
+
+                return (vTexCoords.xy / scale) + displace.xy;
+            }
+
             void main() {
-                oFragColor = vec4(0.0, 1.0, 1.0, 1.0);
+                vec4 color = material.diffuseColor;
+                vec4 texcolor = texture(material.texture, TextureCoords());
+
+                color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
+                color = vec4(color.rgb, color.a + texcolor.a / 2.0);
+
+                oFragColor = color;
             }
         `;
     }
