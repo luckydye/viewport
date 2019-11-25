@@ -30,7 +30,7 @@ export default class CompShader extends Shader {
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         uniform sampler2D normal;
-        uniform sampler2D world;
+        uniform sampler2D lighting;
 
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
@@ -42,27 +42,43 @@ export default class CompShader extends Shader {
             vec3 lightDir = normalize((vec4(1.0) * shadowViewMat).xyz);
             float diffuse = max(dot(norm, lightDir), 0.0);
 
-            vec3 ambientLight = vec3(0.5);
-            finalColor.rgb *= vec3(diffuse * (vec3(1.0) - ambientLight) + ambientLight);
+            vec3 shadowColor = vec3(
+                50.0 / 255.0, // r
+                50.0 / 255.0, // g
+                75.0 / 255.0  // b
+            );
+
+            vec3 ambientLight = vec3(0.75);
+            finalColor.rgb *= (vec3(diffuse) * shadowColor) + ambientLight;
+        }
+
+        vec2 rand( vec2 coord ) {
+            vec2 noise;
+            float nx = dot ( coord, vec2( 12.9898, 78.233 ) );
+            float ny = dot ( coord, vec2( 12.9898, 78.233 ) * 2.0 );
+            noise = clamp( fract ( 43758.5453 * sin( vec2( nx, ny ) ) ), 0.0, 1.0 );
+            return ( noise * 2.0  - 1.0 ) * 0.0003;
         }
 
         void main() {
-            vec4 world = texture(world, vTexCoords);
+            vec4 lighting = texture(lighting, vTexCoords);
             vec4 normal = texture(normal, vTexCoords);
             vec4 guides = texture(guides, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
             vec4 finalColor = texture(color, vTexCoords);
             vec4 depth = texture(depth, vTexCoords);
-            
-            Shading(finalColor, normal.rgb);
 
             finalColor.rgb += min(pow(depth.r - 0.05, 100.0), 0.25);
 
-            if(guidesDepth.r > 0.0 && guidesDepth.r <= depth.r) {
-                finalColor += guides;
-            }
-
             oFragColor = finalColor;
+            oFragColor *= lighting;
+            
+            Shading(oFragColor, normal.rgb);
+
+            // guides
+            if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
+                oFragColor = guides;
+            }
         }`;
     }
 

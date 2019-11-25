@@ -26,6 +26,7 @@ window.addEventListener('load', () => {
         }),
         new Plane({
             material: new DefaultMaterial(),
+            position: [0, -0.1, 0],
             rotation: [-90 * Math.PI / 180, 0, 0],
             scale: 10
         })

@@ -11,6 +11,8 @@ import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
 import WorldShader from '../shader/WorldShader.js';
 import CompShader from '../shader/CompShader.js';
+import LightingShader from '../shader/LightingShader.js';
+import IndexShader from '../shader/IndexShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -46,11 +48,12 @@ const TEXTURE = {
 	FRAME_GUIDES_DEPTH: 4,
 	FRAME_NORMAL: 5,
 	FRAME_WORLD: 6,
-	SHADOW_MAP: 7,
-	MESH_TEXTURE: 8,
-	MESH_SPECULAR_MAP: 9,
-	MESH_DISPLACEMENT_MAP: 10,
-	MESH_NORMAL_MAP: 11,
+	FRAME_INDEX: 7,
+	SHADOW_MAP: 8,
+	MESH_TEXTURE: 9,
+	MESH_SPECULAR_MAP: 10,
+	MESH_DISPLACEMENT_MAP: 11,
+	MESH_NORMAL_MAP: 12,
 }
 
 export class Renderer extends RendererContext {
@@ -140,9 +143,9 @@ export class Renderer extends RendererContext {
 			shaderOverwrite: new NormalShader(),
 		});
 
-		this.createRenderPass('world', {
+		this.createRenderPass('lighting', {
 			filter(geo) { return !geo.guide; },
-			shaderOverwrite: new WorldShader(),
+			shaderOverwrite: new LightingShader(),
 		});
 		
 		// TODO: Draw index buffer when needed
@@ -253,7 +256,7 @@ export class Renderer extends RendererContext {
 			this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
 			this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
 			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
-			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
+			this.setTexture(this.getBufferTexture('lighting'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'lighting');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 		}
 		
@@ -413,6 +416,17 @@ export class Renderer extends RendererContext {
 				this.currentShader.setUniforms({
 					'projectionView': this.currentCamera.projViewMatrix,
 				}, 'scene');
+
+				if(shaderOverwrite instanceof LightingShader) {
+					const lightSource = this.currentScene.lightsource;
+
+					this.currentShader.setUniforms({
+						'shadowProjMat': lightSource.projMatrix,
+						'shadowViewMat': lightSource.viewMatrix,
+					});
+
+					this.pushTexture(TEXTURE.SHADOW_MAP, 'shadow');
+				}
 
 				this.setupGemoetry(geo);
 				this.drawGeo(geo);
