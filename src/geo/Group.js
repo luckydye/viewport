@@ -1,4 +1,5 @@
 import { Geometry } from "../scene/Geometry.js";
+import { vec4 } from 'gl-matrix';
 
 export class Group extends Geometry {
 
@@ -12,13 +13,22 @@ export class Group extends Geometry {
 			materials.add(obj.material);
 			const matIndex = [...materials].indexOf(obj.material);
 
-			const scale = Array.isArray(obj.scale) ? obj.scale : [obj.scale, obj.scale, obj.scale];
-			
+			obj.updateModelMatrix();
+
 			for(let vert = 0; vert < verts.length; vert += 9) {
+				let vertex = vec4.create();
+
+				vertex[0] = verts[vert + 0];
+				vertex[1] = verts[vert + 1];
+				vertex[2] = verts[vert + 2];
+				vertex[3] = 1;
+
+				vertex = vec4.transformMat4(vertex, vertex, obj.modelMatrix);
+				
 				vertArray.push(
-					verts[vert + 0] * obj.scale[0] + obj.position.x,
-					verts[vert + 1] * obj.scale[1] + obj.position.y,
-					verts[vert + 2] * obj.scale[2] + obj.position.z,
+					vertex[0],
+					vertex[1],
+					vertex[2],
 	
 					verts[vert + 3],
 					verts[vert + 4],
@@ -38,16 +48,16 @@ export class Group extends Geometry {
 
 	get indecies() {
 		const indexArray = [];
+
 		let offset = 0;
+
 		for (let obj of this.objects) {
 			const buffer = obj.createBuffer();
-			const indecies = buffer.indecies.map(i => {
-				return i + offset;
-			});
-			indexArray.push(...indecies);
+			indexArray.push(...buffer.indecies.map(i => i + offset));
 
-			offset = buffer.vertecies.length / buffer.vertsPerElement;
+			offset += buffer.vertecies.length / 9;
 		}
+
 		return indexArray;
 	}
 

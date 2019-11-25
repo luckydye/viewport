@@ -420,13 +420,14 @@ export class Renderer extends RendererContext {
 			if (!shaderOverwrite) {
 				const shader = this.meshShader;
 				this.useShader(shader);
+				
+				this.setupGemoetry(geo);
 
 				for(let material of geo.materials) {
 					this.applyTextures(material);
 
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
 					
-					this.setupGemoetry(geo);
 					this.drawGeo(geo);
 
 					matIndex++;
