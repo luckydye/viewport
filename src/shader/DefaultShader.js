@@ -2,32 +2,6 @@ import MeshShader from './MeshShader.js';
 
 export default class DefaultShader extends MeshShader {
 
-    static defaultShading() {
-        return `
-            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
-            float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
-            float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
-
-            Specular(oFragColor, normal, specular, roughness);
-
-            vec3 shadowColor = vec3(
-                50.0 / 255.0, // r
-                50.0 / 255.0, // g
-                75.0 / 255.0  // b
-            );
-            vec3 lightColor = vec3(
-                255.0 / 255.0, // r
-                220.0 / 255.0, // g
-                200.0 / 255.0  // b
-            );
-
-            lightColor += 0.25;
-            lightColor *= 1.125;
-
-            Shading(oFragColor, normal, shadowColor, lightColor);
-        `;
-    }
-
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
 
@@ -105,8 +79,7 @@ export default class DefaultShader extends MeshShader {
                 vec3 lightDir = normalize((vec4(1.0) * shadowViewMat).xyz);
                 float diffuse = max(dot(norm, lightDir), 0.0);
 
-                vec3 ambientLight = vec3(0.5);
-                finalColor.rgb *= vec3(diffuse * (vec3(1.0) - ambientLight) + ambientLight);
+                finalColor.rgb *= 0.95 + diffuse;
 
                 float listDist = vertex_relative_to_light.z;
 
@@ -127,7 +100,24 @@ export default class DefaultShader extends MeshShader {
 
                 oFragColor = color;
 
-                ${this.defaultShading()}
+                vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
+                float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
+                float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
+    
+                Specular(oFragColor, normal, specular, roughness);
+    
+                vec3 shadowColor = vec3(
+                    50.0 / 255.0, // r
+                    50.0 / 255.0, // g
+                    70.0 / 255.0  // b
+                );
+                vec3 lightColor = vec3(
+                    255.0 / 255.0, // r
+                    240.0 / 255.0, // g
+                    200.0 / 255.0  // b
+                );
+    
+                Shading(oFragColor, normal, shadowColor, lightColor);
             }
         `;
     }

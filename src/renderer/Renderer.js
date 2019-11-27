@@ -86,7 +86,7 @@ export class Renderer extends RendererContext {
 		this.grid = new Grid();
 
 		this.meshShader = new MeshShader();
-		this.compShader = new CompShader();
+		this.compShader = new SSAOShader();
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -138,15 +138,15 @@ export class Renderer extends RendererContext {
 			filter(geo) { return !geo.guide; }
 		});
 
-		this.createRenderPass('normal', {
-			filter(geo) { return !geo.guide; },
-			shaderOverwrite: new NormalShader(),
-		});
+		// this.createRenderPass('normal', {
+		// 	filter(geo) { return !geo.guide; },
+		// 	shaderOverwrite: new NormalShader(),
+		// });
 
-		this.createRenderPass('lighting', {
-			filter(geo) { return !geo.guide; },
-			shaderOverwrite: new LightingShader(),
-		});
+		// this.createRenderPass('lighting', {
+		// 	filter(geo) { return !geo.guide; },
+		// 	shaderOverwrite: new LightingShader(),
+		// });
 		
 		// TODO: Draw index buffer when needed
 		// this.createRenderPass('index', {
@@ -239,8 +239,6 @@ export class Renderer extends RendererContext {
 			this.clear();
 			this.drawScene(scene, setup.camera || scene.cameras[0], setup);
 		}
-
-		this.initialRender = false;
 	}
 
 	compositeRenderPasses() {
@@ -258,14 +256,9 @@ export class Renderer extends RendererContext {
 			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
 			this.setTexture(this.getBufferTexture('lighting'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'lighting');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
-		}
-		
-		const lightSource = this.currentScene.lightsource;
 
-		this.currentShader.setUniforms({
-			'shadowProjMat': lightSource.projMatrix,
-			'shadowViewMat': lightSource.viewMatrix,
-		});
+			// this.initialRender = false;
+		}
 
 		if(this.clearPass) {
 			gl.clearColor(...this.background);
@@ -318,8 +311,17 @@ export class Renderer extends RendererContext {
 			this.pushTexture(material.specularMap ? TEXTURE.MESH_SPECULAR_MAP : TEXTURE.EMPTY, 'material.specularMap');
 			this.pushTexture(material.normalMap ? TEXTURE.MESH_NORMAL_MAP : TEXTURE.EMPTY, 'material.normalMap');
 			this.pushTexture(material.displacementMap ? TEXTURE.MESH_DISPLACEMENT_MAP : TEXTURE.EMPTY, 'material.displacementMap');
+			
+			this.pushTexture(TEXTURE.SHADOW_MAP, 'shadowDepth');
 
 			this.currentShader.setUniforms(material.attributes, 'material');
+			
+			const lightSource = this.currentScene.lightsource;
+
+			this.currentShader.setUniforms({
+				'shadowProjMat': lightSource.projMatrix,
+				'shadowViewMat': lightSource.viewMatrix,
+			});
 		}
 
 		if(material.texture) {
@@ -394,7 +396,7 @@ export class Renderer extends RendererContext {
 			let matIndex = 0;
 
 			if (!shaderOverwrite) {
-				const shader = this.meshShader;
+				const shader = this.getMaterialShader(geo.material);
 				this.useShader(shader);
 				this.setupGemoetry(geo);
 
@@ -416,17 +418,6 @@ export class Renderer extends RendererContext {
 				this.currentShader.setUniforms({
 					'projectionView': this.currentCamera.projViewMatrix,
 				}, 'scene');
-
-				if(shaderOverwrite instanceof LightingShader) {
-					const lightSource = this.currentScene.lightsource;
-
-					this.currentShader.setUniforms({
-						'shadowProjMat': lightSource.projMatrix,
-						'shadowViewMat': lightSource.viewMatrix,
-					});
-
-					this.pushTexture(TEXTURE.SHADOW_MAP, 'shadow');
-				}
 
 				this.setupGemoetry(geo);
 				this.drawGeo(geo);
