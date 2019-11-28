@@ -109,7 +109,7 @@ export class Console extends HTMLElement {
                     position: fixed;
                     bottom: 15px;
                     left: 15px;
-                    background: rgba(27, 27, 27, 0.9);
+                    background: rgba(27, 27, 27, 0.75);
                     display: flex;
                     flex-direction: column;
                     display: none;

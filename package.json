@@ -8,7 +8,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "parcel watch ./test/index.html --public-url ."
+    "test": "parcel watch ./test/index.html --public-url .",
+    "dev": "parcel watch ./hagame/index.html --public-url ."
   },
   "repository": {
     "type": "git",

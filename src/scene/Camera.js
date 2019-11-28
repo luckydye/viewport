@@ -17,54 +17,61 @@ export class Camera extends Entity {
 		return "perspective";
 	}
 
+	get aspectRatio() {
+		return this.sensor.width / this.sensor.height;
+	}
+
 	get vertecies() {
-		const s = 1;
-		const w = this.sensor.width;
+		const s = [1, 1 / this.aspectRatio];
+		const w = [this.sensor.width, this.sensor.height];
+		// const w = 10;
+		const depth = this.perspective == Camera.ORTHGRAPHIC ? 0 : this.farplane;
+		
 		const vertArray = [
 			// farplane
-			w, w, -s, 1, 1, 0,  1, 1, 1,
-			-w, w, -s, 1, 1, 0, 1, 1, 1,
+			w[0], w[1], -depth, 1, 1, 0,  1, 1, 1,
+			-w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
 
-			-w, w, -s, 1, 1, 0, 1, 1, 1,
-			-w, -w, -s, 1, 1, 0, 1, 1, 1,
+			-w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
+			-w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
 
-			-w, -w, -s, 1, 1, 0, 1, 1, 1,
-			w, -w, -s, 1, 1, 0, 1, 1, 1,
+			-w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
+			w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
 
-			w, -w, -s, 1, 1, 0, 1, 1, 1,
-			w, w, -s, 1, 1, 0, 1, 1, 1,
+			w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
+			w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
 
 			// nearplane
-			s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
-			-s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
+			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
+			-s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
 
-			-s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
-			-s, -s, -this.nearplane, 1, 1, 0, 1, 1, 1,
+			-s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
+			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
 
-			-s, -s, -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s, -s, -this.nearplane, 1, 1, 0, 1, 1, 1,
+			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
+			s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
 
-			s, -s, -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
+			s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
+			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
 
-			-s, -s, -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s, s, -this.nearplane, 1, 1, 0, 1, 1, 1,
+			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
+			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
 
 
 			0, 0, -this.nearplane, 0, 0, 0, 1, 0, 0,
 			0, 0, -this.farplane, 0, 0, 0, 1, 0, 0,
 
-			-s, -s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w, -w, -s, 0, 0, 0, 1, 1, 1,
+			-s[0], -s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
+			-w[0], -w[1], -depth, 0, 0, 0, 1, 1, 1,
 
-			-s, s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w, w, -s, 0, 0, 0, 1, 1, 1,
+			-s[0], s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
+			-w[0], w[1], -depth, 0, 0, 0, 1, 1, 1,
 
-			s, s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w, w, -s, 0, 0, 0, 1, 1, 1,
+			s[0], s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
+			w[0], w[1], -depth, 0, 0, 0, 1, 1, 1,
 
-			s, -s, -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w, -w, -s, 0, 0, 0, 1, 1, 1,
+			s[0], -s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
+			w[0], -w[1], -depth, 0, 0, 0, 1, 1, 1,
 		]
 		return vertArray;
 	}
