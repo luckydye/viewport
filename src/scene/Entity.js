@@ -7,20 +7,27 @@ export class Entity extends Geometry {
         super(args);
 
         this.name = "Entity";
+        this.matrixAutoUpdate = true;
+
+        this.hitboxGeometry = null;
 
         this.velocity = new Vec();
-        this.traits = new Set();
+        this.traits = new Set(args.traits || []);
     }
 
-    onCreate(args) {
-
+    createBuffer() {
+        for (let trait of this.traits) {
+            trait.onCreate(this);
+        }
+        
+        return super.createBuffer();
     }
 
     update(ms = 0) {
         super.update(ms);
 
         for (let trait of this.traits) {
-            trait(ms);
+            trait.onUpdate(ms);
         }
     }
 

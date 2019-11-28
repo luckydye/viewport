@@ -24,7 +24,11 @@ export class EntityControler {
 		if (!entity) error("No entity");
 
 		if (entity instanceof Entity) {
-			entity.addTrait(this.update.bind(this));
+			entity.addTrait({
+				onUpdate: (ms) => {
+					this.update(ms);
+				}
+			});
 		}
 
 		this.locked = false;

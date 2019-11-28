@@ -24,7 +24,7 @@ export class PlayerControler extends CameraControler {
 		this.direction.x = dir;
 	}
 
-	update(dt) {
+	update(dt = 0) {
 		const entity = this.entity;
 
 		if (this.checkKey("w")) this.move(this.speed);

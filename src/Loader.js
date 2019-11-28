@@ -99,7 +99,7 @@ export class Loader {
 
                             uv ? uv[0] : 0,
                             uv ? uv[1] : 0,
-                            fface.material,
+                            0,
 
                             normal[0],
                             normal[1],

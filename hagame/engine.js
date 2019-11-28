@@ -8,10 +8,14 @@ import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Texture } from '../src/materials/Texture.js';
 import { Resources } from '../src/Resources.js';
 import { Camera } from '../src/scene/Camera.js';
+import { Entity } from '../src/scene/Entity.js';
+import { Loader } from '../src/Loader.js';
+import Collider from '../src/traits/Collider.js';
 
 Resources.add({
     'noise': "textures/noise.jpg",
     'norm': "textures/norm.png",
+    'teapot': "models/teapot.obj",
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -30,11 +34,15 @@ function init() {
     const noise = Resources.get('noise');
     const norm = Resources.get('norm');
 
+    const teapo = Loader.loadObjFile(Resources.get('teapot'));
+
     const geo = [
-        new Cube({
+        new Entity({
             material: new DefaultMaterial(),
-            position: [0, 2, 0],
-            scale: 2
+            position: [0, 4, 0],
+            scale: 1,
+            vertecies: teapo,
+            traits: [ Collider ]
         }),
         new Plane({
             material: new DefaultMaterial({

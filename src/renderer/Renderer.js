@@ -11,10 +11,12 @@ import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
 import WorldShader from '../shader/WorldShader.js';
 
-Config.global.define('show.grid', false, false);
-Config.global.define('debug', false, false);
-Config.global.define('debuglevel', 0, 0);
-Config.global.define('wireframe', false, false);
+const renderConfig = Config.global;
+
+renderConfig.define('show.grid', false, false);
+renderConfig.define('debug', false, false);
+renderConfig.define('debuglevel', 0, 0);
+renderConfig.define('wireframe', false, false);
 
 const logger = new Logger('Renderer'), log = logger.log;
 
@@ -66,19 +68,19 @@ export class Renderer extends RendererContext {
 	}
 
 	get showGrid() {
-		return Config.global.getValue('show.grid');
+		return renderConfig.getValue('show.grid');
 	}
 
 	get debugLevel() {
-		return Config.global.getValue('debuglevel');
+		return renderConfig.getValue('debuglevel');
 	}
 
 	get drawWireframe() {
-		return Config.global.getValue('wireframe');
+		return renderConfig.getValue('wireframe');
 	}
 
 	onCreate() {
-		this.debug = Config.global.getValue('debug');
+		this.debug = renderConfig.getValue('debug');
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
