@@ -195,6 +195,7 @@ export class Renderer extends RendererContext {
 
 	draw(scene, setup = {}) {
 		if(this.debug) {
+			this.info.resolution = `${this.width}x${this.height}`;
 			this.info.passes = this.renderPasses.length;
 			this.info.debug = this.debug;
 			this.info.shaders = this.shaders.size;
@@ -209,6 +210,11 @@ export class Renderer extends RendererContext {
 			this.lastSceneId = scene.uid;
 			this.clearBuffers();
 		}
+
+		if(this.currentCamera) {
+			this.currentCamera.sensor.width = this.width;
+			this.currentCamera.sensor.height = this.height;
+		}
 		
 		if(this.renderPasses.length > 0) {
 			for (let pass of this.renderPasses) {
@@ -218,11 +224,6 @@ export class Renderer extends RendererContext {
 				this.clear();
 
 				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
-
-				if(!camera.isLight) {
-					camera.sensor.width = this.width;
-					camera.sensor.height = this.height;
-				}
 
 				this.drawScene(scene, camera, pass.sceneSetup);
 				this.setOptions(this.options);
@@ -365,7 +366,7 @@ export class Renderer extends RendererContext {
 
 		if(!camera) return;
 
-		camera.updateModelMatrix();
+		camera.update();
 
 		const objects = scene.getRenderableObjects(camera);
 		const materials = objects.map(obj => obj.materials).flat();
@@ -454,7 +455,7 @@ export class Renderer extends RendererContext {
 			const shaderObjectCache = this.currentShader.cache.objects;
 
 			if (geo.matrixAutoUpdate || shaderObjectCache[geo.uid] != geo.lastUpdate) {
-				geo.updateModelMatrix();
+				geo.update();
 			}
 
 			if (Object.keys(shaderObjectCache).length > 1 ||

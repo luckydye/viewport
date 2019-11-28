@@ -79,7 +79,6 @@ export class RendererContext {
 	setResolution(width, height) {
 		this.gl.canvas.width = width;
 		this.gl.canvas.height = height;
-		this.viewport(this.width, this.height);
 	}
 
 	// clear framebuffer

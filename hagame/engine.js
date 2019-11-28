@@ -22,6 +22,9 @@ function init() {
     const viewport = new Viewport({ controllertype: PlayerControler });
     document.body.appendChild(viewport);
 
+    const preview = new Viewport({ controllertype: null });
+    document.body.appendChild(preview);
+
     viewport.enableCameraSaveState();
 
     const noise = Resources.get('noise');
@@ -45,9 +48,15 @@ function init() {
     ];
 
     const camera = new Camera();
+
+    camera.position.z = -10;
+    camera.position.y = -2;
     
     camera.hidden = false;
 
     viewport.scene.add(camera);
     viewport.scene.add(geo);
+
+    preview.scene = viewport.scene;
+    preview.camera = camera;
 }

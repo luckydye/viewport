@@ -75,6 +75,7 @@ export class Geometry extends Transform {
 	}
 
 	update() {
+		this.updateModelMatrix();
 		this.lastUpdate = Date.now();
 	}
 
@@ -103,7 +104,11 @@ export class Geometry extends Transform {
 			this.origin[2]
 		) + (
 			this.scale
-		);
+		) + this.lastUpdate;
+	}
+
+	updateVertexBuffer() {
+		this.uid = Date.now() + Math.random();
 	}
 
 	updateModelMatrix() {

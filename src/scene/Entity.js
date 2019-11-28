@@ -16,7 +16,9 @@ export class Entity extends Geometry {
 
     }
 
-    update(ms) {
+    update(ms = 0) {
+        super.update(ms);
+
         for (let trait of this.traits) {
             trait(ms);
         }
