@@ -89,7 +89,7 @@ export default class MeshShader extends Shader {
 
         uniform float objectIndex;
         
-        uniform vec3 cameraPosition;
+        uniform vec3 viewPosition;
         
         void main() {
             vec4 pos = scene.model * vec4(aPosition, 1.0);
@@ -100,7 +100,7 @@ export default class MeshShader extends Shader {
             // set vert outputs
             vTexCoords = vec2(aTexCoords.x, aTexCoords.y);
             materialIndex = int(aTexCoords.z);
-            vViewPos = cameraPosition.xyz;
+            vViewPos = viewPosition;
             vVertexPos = aPosition;
             vWorldPos = pos;
             vNormal = normalize(vec4(aNormal, 0.0) * inverse(scene.model)).xyz;

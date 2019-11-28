@@ -37,21 +37,6 @@ export default class CompShader extends Shader {
 
         out vec4 oFragColor;
 
-        void Shading(out vec4 finalColor, vec3 normal) {
-            vec3 norm = normalize(normal);
-            vec3 lightDir = normalize((vec4(1.0) * shadowViewMat).xyz);
-            float diffuse = max(dot(norm, lightDir), 0.0);
-
-            vec3 shadowColor = vec3(
-                50.0 / 255.0, // r
-                50.0 / 255.0, // g
-                75.0 / 255.0  // b
-            );
-
-            vec3 ambientLight = vec3(0.75);
-            finalColor.rgb *= (vec3(diffuse) * shadowColor) + ambientLight;
-        }
-
         vec2 rand( vec2 coord ) {
             vec2 noise;
             float nx = dot ( coord, vec2( 12.9898, 78.233 ) );
@@ -61,20 +46,16 @@ export default class CompShader extends Shader {
         }
 
         void main() {
-            vec4 lighting = texture(lighting, vTexCoords);
             vec4 normal = texture(normal, vTexCoords);
             vec4 guides = texture(guides, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
-            vec4 finalColor = texture(color, vTexCoords);
+            vec4 color = texture(color, vTexCoords);
             vec4 depth = texture(depth, vTexCoords);
 
-            finalColor.rgb += min(pow(depth.r - 0.05, 100.0), 0.25);
+            // finalColor.rgb += min(pow(depth.r - 0.05, 100.0), 0.25);
 
-            oFragColor = finalColor;
-            oFragColor *= lighting;
+            oFragColor = color;
             
-            Shading(oFragColor, normal.rgb);
-
             // guides
             if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
                 oFragColor = guides;

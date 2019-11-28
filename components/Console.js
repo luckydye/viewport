@@ -1,5 +1,5 @@
 import { render, html } from 'lit-html';
-import Config from '../src/Config';
+import Config from '../src/Config.js';
 
 // An ui interface for the Config class (global config)
 

@@ -52,6 +52,8 @@ window.addEventListener('load', () => {
         viewport.scene.add(group2);
     }, 2216);
 
+    viewport.scene.lightsource.hidden = false;
+
     viewport.enableCameraSaveState();
 
     setInterval(() => {

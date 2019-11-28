@@ -44,7 +44,7 @@ export class RendererContext {
 
 		this.options = {
 			DEPTH_TEST: true,
-			CULL_FACE: true,
+			CULL_FACE: false,
 			BLEND: true,
 		}
 
@@ -414,17 +414,23 @@ export class RendererContext {
 	}
 
 	// create webgl texture
-	createTexture(image, noMipmap) {
+	createTexture(image, {
+		mipmaps = true,
+		TEXTURE_WRAP_S = "REPEAT",
+		TEXTURE_WRAP_T = "REPEAT",
+		TEXTURE_MAG_FILTER = "LINEAR",
+		TEXTURE_MIN_FILTER = "NEAREST_MIPMAP_LINEAR",
+	} = {}) {
 		const gl = this.gl;
 
 		const texture = gl.createTexture();
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.gl[TEXTURE_MAG_FILTER]);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.gl[TEXTURE_MIN_FILTER]);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.gl[TEXTURE_WRAP_S]);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.gl[TEXTURE_WRAP_T]);
 
 		if (image) {
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -432,7 +438,7 @@ export class RendererContext {
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
 		}
 
-		if (!noMipmap) {
+		if (mipmaps) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 

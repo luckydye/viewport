@@ -42,12 +42,7 @@ export default class Viewport extends HTMLElement {
                     pointer-events: none;
                     user-select: none;
                     margin: 0;
-                }
-                .axis {
-                    position: absolute;
-                    bottom: 10px;
-                    right: 10px;
-                    pointer-events: none;
+                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
                 }
                 .crosshair {
                     display: none;
@@ -73,10 +68,6 @@ export default class Viewport extends HTMLElement {
                     <line class="st0" x1="8" y1="10" x2="0" y2="10"/>
                 </svg>
             </span>
-
-            <div class="axis">
-                <canvas id="axis" width="50px" height="50px"></canvas>
-            </div>
             
             <pre class="stats"></pre>
         `;
@@ -265,13 +256,6 @@ export default class Viewport extends HTMLElement {
             this.statsElement.innerHTML = infoString.replace(/"/g, '')
                                                     .replace(/,/g, '')
                                                     .replace(/\{|\}/g, '');
-
-            if(this.axis) {
-                this.axis.rotation.x = this.camera.rotation.x;
-                this.axis.rotation.y = this.camera.rotation.y;
-                this.axis.rotation.z = this.camera.rotation.z;
-                this.axisDisplay.draw(this.axisDisplay.scene);
-            }
         } else if(!this.renderer.debug && this.statsElement.innerHTML != "") {
             this.statsElement.innerHTML = "";
         }

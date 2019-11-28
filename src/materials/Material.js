@@ -42,18 +42,12 @@ export class Material {
         this.displacementMap = null;
         this.normalMap = null;
 
-        this.diffuseColor = [1, 1, 1, 1];
+        this.diffuseColor = [1, 0, 1, 1];
         this.transparency = 0;
 
-        this.materialAttributes = [0.33, 0.25];
-
-        this.textureScale = 0;
+        this.materialAttributes = [0.33, 0.33];
 
         this.castShadows = true;
-
-        this.scaleUniform = false;
-
-        this.customUniforms = {};
 
         for (let attrb in attributes) {
             this[attrb] = attributes[attrb];

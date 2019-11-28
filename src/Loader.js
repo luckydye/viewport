@@ -9,10 +9,6 @@ import DefaultMaterial from './materials/DefaultMaterial.js';
 import { Plane } from './geo/Plane.js';
 import { Group } from './geo/Group.js';
 
-// import * as Geometry from './geo/*.*';
-// import * as Camera from './camera/*.*';
-// import * as Light from './light/*.*';
-
 const logger = new Logger('Loader');
 
 export class Loader {

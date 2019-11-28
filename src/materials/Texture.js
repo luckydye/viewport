@@ -1,6 +1,13 @@
-import { uuidv4 } from '../Math';
+import { uuidv4 } from '../Math.js';
+
+const PLACEHOLDER = new Image();
+PLACEHOLDER.src = "/res/textures/placeholder.png";
 
 export class Texture {
+
+    static get PLACEHOLDER() {
+        return PLACEHOLDER;
+    }
 
     get width() { 
         return this.image ? this.image.width : this.format.width;
@@ -17,9 +24,15 @@ export class Texture {
     constructor(image, format = { type: "RAW" }) {
 
         this.uid = uuidv4();
+        this.animated = false;
 
         this.type = "TEXTURE_2D";
-        this.animated = false;
+
+        this.wrap_s = "REPEAT";
+        this.wrap_t = "REPEAT";
+
+        this.mag_filter = "LINEAR";
+        this.min_filter = "NEAREST_MIPMAP_LINEAR";
 
         if(image instanceof ArrayBuffer) {
             this.format = format;

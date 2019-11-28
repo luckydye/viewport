@@ -3,16 +3,13 @@ import { Grid } from '../geo/Grid.js';
 import { Logger } from '../Logger.js';
 import { Texture } from '../materials/Texture.js';
 import { Geometry } from '../scene/Geometry.js';
+import CompShader from '../shader/CompShader.js';
 import MeshShader from '../shader/MeshShader.js';
 import NormalShader from '../shader/NormalShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
-import SSAOShader from '../shader/SSAOShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
 import WorldShader from '../shader/WorldShader.js';
-import CompShader from '../shader/CompShader.js';
-import LightingShader from '../shader/LightingShader.js';
-import IndexShader from '../shader/IndexShader.js';
 
 Config.global.define('show.grid', false, false);
 Config.global.define('debug', false, false);
@@ -54,6 +51,7 @@ const TEXTURE = {
 	MESH_SPECULAR_MAP: 10,
 	MESH_DISPLACEMENT_MAP: 11,
 	MESH_NORMAL_MAP: 12,
+	PLACEHOLDER: 13,
 }
 
 export class Renderer extends RendererContext {
@@ -86,7 +84,7 @@ export class Renderer extends RendererContext {
 		this.grid = new Grid();
 
 		this.meshShader = new MeshShader();
-		this.compShader = new SSAOShader();
+		this.compShader = new CompShader();
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -95,6 +93,7 @@ export class Renderer extends RendererContext {
 		this.compositionPass = this.createFramebuffer('comp', this.width, this.height);
 
 		this.emptyTexture = this.prepareTexture(new Texture());
+		this.placeholderTexture = this.prepareTexture(new Texture(Texture.PLACEHOLDER));
 
 		this.MAX_TEXTURE_UINTS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
 
@@ -143,9 +142,9 @@ export class Renderer extends RendererContext {
 		// 	shaderOverwrite: new NormalShader(),
 		// });
 
-		// this.createRenderPass('lighting', {
+		// this.createRenderPass('world', {
 		// 	filter(geo) { return !geo.guide; },
-		// 	shaderOverwrite: new LightingShader(),
+		// 	shaderOverwrite: new WorldShader(),
 		// });
 		
 		// TODO: Draw index buffer when needed
@@ -248,16 +247,17 @@ export class Renderer extends RendererContext {
 
 		if(this.initialRender) {
 			this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
+			this.setTexture(this.placeholderTexture, this.gl.TEXTURE_2D, TEXTURE.PLACEHOLDER);
 
 			this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
 			this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
 			this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
 			this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
 			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
-			this.setTexture(this.getBufferTexture('lighting'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'lighting');
+			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 
-			// this.initialRender = false;
+			this.initialRender = false;
 		}
 
 		if(this.clearPass) {
@@ -276,7 +276,12 @@ export class Renderer extends RendererContext {
 			if(texture.format) {
 				newTexture = this.createCompressedTexture(texture);
 			} else {
-				newTexture = this.createTexture(texture.image);
+				newTexture = this.createTexture(texture.image, {
+					TEXTURE_WRAP_S: texture.wrap_s,
+					TEXTURE_WRAP_T: texture.wrap_t,
+					TEXTURE_MAG_FILTER: texture.mag_filter,
+					TEXTURE_MIN_FILTER: texture.min_filter,
+				});
 			}
 
 			this.textures[texture.uid] = newTexture;
@@ -302,28 +307,6 @@ export class Renderer extends RendererContext {
 			}
 		}
 
-		const shaderCache = this.currentShader.cache;
-
-		if(shaderCache.material != material.lastUpdate) {
-			shaderCache.material = material.lastUpdate;
-
-			this.pushTexture(material.texture ? TEXTURE.MESH_TEXTURE : TEXTURE.EMPTY, 'material.texture');
-			this.pushTexture(material.specularMap ? TEXTURE.MESH_SPECULAR_MAP : TEXTURE.EMPTY, 'material.specularMap');
-			this.pushTexture(material.normalMap ? TEXTURE.MESH_NORMAL_MAP : TEXTURE.EMPTY, 'material.normalMap');
-			this.pushTexture(material.displacementMap ? TEXTURE.MESH_DISPLACEMENT_MAP : TEXTURE.EMPTY, 'material.displacementMap');
-			
-			this.pushTexture(TEXTURE.SHADOW_MAP, 'shadowDepth');
-
-			this.currentShader.setUniforms(material.attributes, 'material');
-			
-			const lightSource = this.currentScene.lightsource;
-
-			this.currentShader.setUniforms({
-				'shadowProjMat': lightSource.projMatrix,
-				'shadowViewMat': lightSource.viewMatrix,
-			});
-		}
-
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}
@@ -336,6 +319,35 @@ export class Renderer extends RendererContext {
 		if(material.displacementMap) {
 			this.setTexture(this.prepareTexture(material.displacementMap), this.gl.TEXTURE_2D, TEXTURE.MESH_DISPLACEMENT_MAP);
 		}
+
+		const shaderCache = this.currentShader.cache;
+
+		if(shaderCache.material[material.uid] != material.lastUpdate) {
+			shaderCache.material[material.uid] = material.lastUpdate;
+
+			this.pushTexture(material.texture ? TEXTURE.MESH_TEXTURE : TEXTURE.PLACEHOLDER, 'material.texture');
+			this.pushTexture(material.specularMap ? TEXTURE.MESH_SPECULAR_MAP : TEXTURE.EMPTY, 'material.specularMap');
+			this.pushTexture(material.normalMap ? TEXTURE.MESH_NORMAL_MAP : TEXTURE.EMPTY, 'material.normalMap');
+			this.pushTexture(material.displacementMap ? TEXTURE.MESH_DISPLACEMENT_MAP : TEXTURE.EMPTY, 'material.displacementMap');
+			
+			this.pushTexture(TEXTURE.SHADOW_MAP, 'shadowDepth');
+
+			this.currentShader.setUniforms(material.attributes, 'material');
+		}
+
+		const lightSource = this.currentScene.lightsource;
+		this.currentShader.setUniforms({
+			'shadowProjMat': lightSource.projMatrix,
+			'shadowViewMat': lightSource.viewMatrix,
+		});
+
+		this.currentShader.setUniforms({
+			'viewPosition': [
+				-this.currentCamera.position.x,
+				-this.currentCamera.position.y,
+				-this.currentCamera.position.z,
+			]
+		});
 	}
 
 	getGemoetryBuffer(geo) {
@@ -423,13 +435,15 @@ export class Renderer extends RendererContext {
 				this.drawGeo(geo);
 			}
 			
+		} else {
+			this.getGemoetryBuffer(geo);
 		}
 	}
 
 	setupGemoetry(geo) {
 		const buffer = this.getGemoetryBuffer(geo);
 
-		if (!buffer.vao) {
+		if (!buffer.vao) {			
 			buffer.vao = this.createVAO(buffer);
 		}
 
