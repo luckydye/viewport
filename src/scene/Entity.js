@@ -13,12 +13,18 @@ export class Entity extends Geometry {
 
         this.weight = 0.99;
         this.velocity = new Vec();
-        this.traits = new Set(args.traits || []);
+        this.traits = new Set();
+
+        if(args.traits) {
+            for(let trait of args.traits) {
+                this.addTrait(trait);
+            }
+        }
     }
 
     createBuffer() {
         for (let trait of this.traits) {
-            trait.onCreate(this);
+            if(trait.onCreate) trait.onCreate(this);
         }
         
         return super.createBuffer();
@@ -28,23 +34,27 @@ export class Entity extends Geometry {
         super.update(ms);
 
         for (let trait of this.traits) {
-            trait.onUpdate(this, ms);
+            if(trait.onUpdate) trait.onUpdate(this, ms);
         }
 
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
 		this.position.z += this.velocity.z;
 		this.position[3] = 1;
+    }
 
-		let resistance = this.weight;
-
-		this.velocity.x *= resistance;
-		this.velocity.y *= resistance;
-		this.velocity.z *= resistance;
+    hasTrait(trait) {
+        return this.traits.has(trait);
     }
 
     addTrait(trait) {
         this.traits.add(trait);
+
+        if(trait.methods) {
+            for(let key in trait.methods) {
+                this[key] = trait.methods[key];
+            }
+        }
     }
 
     removeTrait(trait) {
