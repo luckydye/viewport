@@ -5,7 +5,9 @@ export default class DefaultShader extends MeshShader {
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
 
+        uniform SceneProjection scene;
         uniform Material material;
+        
         uniform int currentMaterialIndex;
         
         uniform sampler2D shadowDepth;
@@ -105,7 +107,13 @@ export default class DefaultShader extends MeshShader {
 
             oFragColor = color;
 
-            vec3 normal = getMappedValue(material.normalMap, vec4(vNormal, 1.0)).xyz;
+            vec3 normal = vNormal;
+            vec4 normalMap = texture(material.normalMap, TextureCoords());
+
+            if(normalMap.a > 0.0) {
+                normal = vNormal.xyz + normalize(vec4(normalMap.xyz, 0.0) * inverse(scene.model)).xyz;
+            }
+
             float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
             float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 

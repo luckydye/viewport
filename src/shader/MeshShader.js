@@ -74,6 +74,7 @@ export default class MeshShader extends Shader {
             in float index;
             flat in int materialIndex;
 
+            ${MeshShader.structSceneProjection}
             ${MeshShader.structMaterial}
         
             out vec4 oFragColor;

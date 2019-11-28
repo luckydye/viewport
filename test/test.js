@@ -17,6 +17,9 @@ window.addEventListener('load', () => {
     const noise = new Image();
     noise.src = "/res/textures/noise.jpg";
 
+    const norm = new Image();
+    norm.src = "/res/textures/norm.png";
+
     const geo = [
         new Cube({
             material: new DefaultMaterial(),
@@ -30,8 +33,8 @@ window.addEventListener('load', () => {
         }),
         new Plane({
             material: new DefaultMaterial({
+                normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
-                displacementMap: new Texture(noise),
             }),
             position: [0, -0.1, 0],
             rotation: [-90 * Math.PI / 180, 0, 0],
