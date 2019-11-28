@@ -13,11 +13,13 @@ import Collider from '../src/traits/Collider.js';
 import Player from '../src/traits/Player.js';
 import RigidBody from '../src/traits/RigidBody.js';
 import Follow from '../src/traits/Follow.js';
+import { Geometry } from '../src/scene/Geometry.js';
 
 Resources.add({
     'noise': "textures/noise.jpg",
     'norm': "textures/norm.png",
     'teapot': "models/teapot.obj",
+    'ground': "models/ground.obj",
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -32,6 +34,7 @@ function init() {
     const norm = Resources.get('norm');
 
     const teapo = Loader.loadObjFile(Resources.get('teapot'));
+    const ground = Loader.loadObjFile(Resources.get('ground'));
 
     const geo = [
         new Entity({
@@ -44,14 +47,25 @@ function init() {
             vertecies: teapo,
             traits: [ RigidBody, Player, Collider ]
         }),
-        new Plane({
+        new Geometry({
             material: new DefaultMaterial({
                 normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
             }),
-            position: [0, -0.1, 0],
-            rotation: [-90 * Math.PI / 180, 0, 0],
-            scale: 10
+            vertecies: ground,
+            position: [5, -2, 0],
+            rotation: [0, 0, 0],
+            scale: 2
+        }),
+        new Geometry({
+            material: new DefaultMaterial({
+                normalMap: new Texture(norm),
+                specularMap: new Texture(noise),
+            }),
+            vertecies: ground,
+            position: [-18, -2, 0],
+            rotation: [0, 0, 0],
+            scale: 2
         })
     ];
 
