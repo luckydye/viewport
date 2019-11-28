@@ -459,10 +459,10 @@ export class Renderer extends RendererContext {
 
 			if (Object.keys(shaderObjectCache).length > 1 ||
 				shaderObjectCache[geo.uid] != geo.lastUpdate) {
+				
+				shaderObjectCache[geo.uid] = geo.lastUpdate;
 
-				this.currentShader.setUniforms({ 
-					'model': geo.modelMatrix 
-				}, 'scene');
+				this.currentShader.setUniforms({ 'model': geo.modelMatrix }, 'scene');
 			}
 		}
 	}

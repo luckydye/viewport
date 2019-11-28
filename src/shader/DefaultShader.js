@@ -42,7 +42,7 @@ export default class DefaultShader extends MeshShader {
 
             vec3 reflectDir = reflect(-lightDir, norm);
 
-            float specular = pow(max(dot(viewDir, reflectDir), 0.0), roughness * 32.0);
+            float specular = pow(max(dot(viewDir, reflectDir), 0.0), 16.0 / roughness);
 
             finalColor.rgb += specular * strength;
         }
@@ -125,7 +125,7 @@ export default class DefaultShader extends MeshShader {
 
             if(!inShadow) {
                 Shading(oFragColor, normal, shadowColor, lightColor);
-                Specular(oFragColor, normal, lightColor - specular, roughness);
+                Specular(oFragColor, normal, lightColor * specular, roughness);
             }
         }
         `;

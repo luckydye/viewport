@@ -7,11 +7,15 @@ import { Cube } from '../src/geo/Cube.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Plane } from '../src/geo/Plane.js';
 import { Group } from '../src/geo/Group.js';
+import { Texture } from '../src/materials/Texture.js';
 
 window.addEventListener('load', () => {
 
     const viewport = new Viewport({ controllertype: PlayerControler });
     document.body.appendChild(viewport);
+
+    const noise = new Image();
+    noise.src = "/res/textures/noise.jpg";
 
     const geo = [
         new Cube({
@@ -25,7 +29,10 @@ window.addEventListener('load', () => {
             scale: 2
         }),
         new Plane({
-            material: new DefaultMaterial(),
+            material: new DefaultMaterial({
+                specularMap: new Texture(noise),
+                displacementMap: new Texture(noise),
+            }),
             position: [0, -0.1, 0],
             rotation: [-90 * Math.PI / 180, 0, 0],
             scale: 10
