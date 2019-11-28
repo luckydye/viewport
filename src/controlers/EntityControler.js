@@ -25,7 +25,7 @@ export class EntityControler {
 
 		if (entity instanceof Entity) {
 			entity.addTrait({
-				onUpdate: (ms) => {
+				onUpdate: (entity, ms) => {
 					this.update(ms);
 				}
 			});

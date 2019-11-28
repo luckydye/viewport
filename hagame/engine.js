@@ -11,6 +11,7 @@ import { Camera } from '../src/scene/Camera.js';
 import { Entity } from '../src/scene/Entity.js';
 import { Loader } from '../src/Loader.js';
 import Collider from '../src/traits/Collider.js';
+import RigidBody from '../src/traits/RigidBody.js';
 
 Resources.add({
     'noise': "textures/noise.jpg",
@@ -42,7 +43,7 @@ function init() {
             position: [0, 4, 0],
             scale: 1,
             vertecies: teapo,
-            traits: [ Collider ]
+            traits: [ RigidBody ]
         }),
         new Plane({
             material: new DefaultMaterial({

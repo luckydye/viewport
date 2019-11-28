@@ -11,6 +11,7 @@ export class Entity extends Geometry {
 
         this.hitboxGeometry = null;
 
+        this.weight = 0.99;
         this.velocity = new Vec();
         this.traits = new Set(args.traits || []);
     }
@@ -27,8 +28,19 @@ export class Entity extends Geometry {
         super.update(ms);
 
         for (let trait of this.traits) {
-            trait.onUpdate(ms);
+            trait.onUpdate(this, ms);
         }
+
+		this.position.x += this.velocity.x;
+		this.position.y += this.velocity.y;
+		this.position.z += this.velocity.z;
+		this.position[3] = 1;
+
+		let resistance = this.weight;
+
+		this.velocity.x *= resistance;
+		this.velocity.y *= resistance;
+		this.velocity.z *= resistance;
     }
 
     addTrait(trait) {

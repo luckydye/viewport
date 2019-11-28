@@ -4,8 +4,8 @@ export default  {
         
     },
 
-    onUpdate: (ms) => {
-
+    onUpdate: (entity, ms) => {
+        entity.velocity.y -= 1;
     }
 
 }
