@@ -53,6 +53,21 @@ export default class DefaultShader extends MeshShader {
             return clamp(value, 0.0, 1.0);
         }
 
+        vec3 rgb2hsb( in vec3 c ){
+            vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+            vec4 p = mix(vec4(c.bg, K.wz),
+                         vec4(c.gb, K.xy),
+                         step(c.b, c.g));
+            vec4 q = mix(vec4(p.xyw, c.r),
+                         vec4(c.r, p.yzx),
+                         step(p.x, c.r));
+            float d = q.x - min(q.w, q.y);
+            float e = 1.0e-10;
+            return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
+                        d / (q.x + e),
+                        q.x);
+        }
+
         void Fresnel(out vec4 finalColor, vec3 normal) {
             vec3 viewDir = normalize(vViewPos - vWorldPos.xyz);
             float fresnel = dot(normal, viewDir);
@@ -71,9 +86,13 @@ export default class DefaultShader extends MeshShader {
             finalColor.rgb *= 0.75 + diffuse;
         }
 
-        bool Shadows(out vec4 finalColor, vec3 shadowColor, vec3 lightColor) {
+        bool Shadows(out vec4 finalColor, vec3 normal, vec3 shadowColor, vec3 lightColor) {
 
-            vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * vWorldPos;
+            vec4 pos = vWorldPos;
+
+            pos.xyz += normalize(normal) * 0.2;
+
+            vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * pos;
             vec3 light_pos = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
 
             vec3 vertex_relative_to_light = light_pos * 0.5 + 0.5;
@@ -129,7 +148,7 @@ export default class DefaultShader extends MeshShader {
                 200.0 / 255.0  // b
             );
 
-            bool inShadow = Shadows(oFragColor, shadowColor, lightColor);
+            bool inShadow = Shadows(oFragColor, normal, shadowColor, lightColor);
 
             if(!inShadow) {
                 Shading(oFragColor, normal, shadowColor, lightColor);
