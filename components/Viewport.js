@@ -168,9 +168,11 @@ export default class Viewport extends HTMLElement {
         let selectedObject = null;
         let direction = "x";
         
+        this.addEventListener("mousemove", e => move(e));
+        
         // selecting
-        this.addEventListener('mousedown', e => {
-            if(e.button === 0) {
+        window.addEventListener('mouseup', e => {
+            if(e.button === 0 && !moving) {
                 this.selectedColor = null;
 
                 const bounds = this.getBoundingClientRect();
@@ -189,14 +191,6 @@ export default class Viewport extends HTMLElement {
                     if(geo && geo.selectable) {
                         this.selectedColor = color;
 
-                        if(guideColor[0] > 10) {
-                            direction = "x";
-                        } else if(guideColor[1] > 10) {
-                            direction = "y";
-                        } else if(guideColor[2] > 10) {
-                            direction = "z";
-                        }
-
                         const guided = (guideColor[0] + guideColor[1] + guideColor[2]) / 3;
                         
                         if(geo !== this.cursor && guided < 42) {
@@ -213,26 +207,57 @@ export default class Viewport extends HTMLElement {
                 moving = true;
                 selectedObject = this.selected;
             }
+
+            moving = false;
+        });
+        
+        this.addEventListener('mousedown', e => {
+            if(e.button === 0 && selectedObject) {
+                this.selectedColor = null;
+
+                const bounds = this.getBoundingClientRect();
+                const guideColor = this.renderer.readPixelFromBuffer('guides', 
+                    e.x - bounds.x, 
+                    bounds.height - (e.y - bounds.y)
+                );
+
+                if(guideColor[0] > 10) {
+                    direction = "x";
+                } else if(guideColor[1] > 10) {
+                    direction = "y";
+                } else if(guideColor[2] > 10) {
+                    direction = "z";
+                }
+
+                const guided = (guideColor[0] + guideColor[1] + guideColor[2]) / 3;
+                if(guided > 42) {
+                    moving = true;
+                    selectedObject = this.selected;
+                }
+            }
         });
 
         // moveing
     
-        const up = e => {
-            moving = false;
-        }
-    
         const move = e => {
             if (moving && selectedObject) {
                 const depth = Math.sqrt(
-                    Math.pow(-selectedObject.position.x - this.camera.position.x, 2),
-                    Math.pow(-selectedObject.position.y - this.camera.position.y, 2),
-                    Math.pow(-selectedObject.position.z - this.camera.position.z, 2),
+                    Math.pow(selectedObject.position.x - this.camera.position.x, 2),
+                    Math.pow(selectedObject.position.y - this.camera.position.y, 2),
+                    Math.pow(selectedObject.position.z - this.camera.position.z, 2),
                 ) + 1 * 10;
 
-                const movement = (-e.movementX + -e.movementY) / 2;
+                let movement = (e.movementX + e.movementY) / 2;
+                const rot = this.camera.rotation.y / (Math.PI / 2);
 
-                if(direction == "x" || direction == "z") {
+                if(direction == "x") {
+                    if(rot < 1) movement *= -1;
                     selectedObject.position[direction] -= (movement / 500) * depth;
+
+                } else if(direction == "z") {
+                    if(rot > 2) movement *= -1;
+                    selectedObject.position[direction] += (movement / 500) * depth;
+                    
                 } else if(direction == "y") {
                     selectedObject.position[direction] -= (movement / 500) * depth;
                 }
@@ -241,9 +266,6 @@ export default class Viewport extends HTMLElement {
                 this.cursor.update();
             }
         }
-    
-        this.addEventListener("mousemove", e => move(e));
-        window.addEventListener("mouseup", up);
     }
 
     connectedCallback() {
