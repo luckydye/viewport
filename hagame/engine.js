@@ -52,21 +52,23 @@ function init() {
                 normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
             }),
+            hitbox: [-3, 10, 3, -10],
             vertecies: ground,
             position: [5, -2, 0],
             rotation: [0, 0, 0],
             scale: 2
         }),
-        new Geometry({
-            material: new DefaultMaterial({
-                normalMap: new Texture(norm),
-                specularMap: new Texture(noise),
-            }),
-            vertecies: ground,
-            position: [-18, -2, 0],
-            rotation: [0, 0, 0],
-            scale: 2
-        })
+        // new Geometry({
+        //     material: new DefaultMaterial({
+        //         normalMap: new Texture(norm),
+        //         specularMap: new Texture(noise),
+        //     }),
+        //     hitbox: [-1, 1, 1, -1],
+        //     vertecies: ground,
+        //     position: [-18, -2, 0],
+        //     rotation: [0, 0, 0],
+        //     scale: 2
+        // })
     ];
 
     const camera = new Camera({

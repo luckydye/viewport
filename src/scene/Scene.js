@@ -2,6 +2,7 @@ import { Vec, Transform, uuidv4 } from '../Math.js';
 import { Spotlight } from '../light/Spotlight.js';
 import { Camera } from './Camera.js';
 import { Entity } from './Entity.js';
+import { Guide } from '../geo/Guide.js';
 
 export class Scene extends Transform {
 
@@ -39,6 +40,33 @@ export class Scene extends Transform {
 			obj.forEach(o => {
 				if(o) {
 					this.objects.add(o);
+
+					if(o.hitbox) {
+						const top = o.hitbox[0] + o.position.y;
+						const right = o.hitbox[1] + o.position.x;
+						const bottom = o.hitbox[2] + o.position.y;
+						const left = o.hitbox[3] + o.position.x;
+
+						// this.objects.add(new Guide({
+						// 	position: [top, left],
+						// 	scale: 0.75,
+						// }))
+
+						// this.objects.add(new Guide({
+						// 	position: [top, right],
+						// 	scale: 0.75,
+						// }))
+
+						// this.objects.add(new Guide({
+						// 	position: [bottom, left],
+						// 	scale: 0.75,
+						// }))
+
+						// this.objects.add(new Guide({
+						// 	position: [bottom, right],
+						// 	scale: 0.75,
+						// }))
+					}
 				}
 			});
 		} else {
@@ -67,7 +95,34 @@ export class Scene extends Transform {
 			if (obj instanceof Entity) {
 				obj.update(ms);
 			}
+
+			if(obj.hitbox) {
+				for (let obj2 of this.objects) {
+					if (obj2 instanceof Entity) {
+						if(obj2.collider) {
+							if(this.intersects(obj, obj2)) {
+								obj2.intersects(obj);
+							}
+						}
+					}
+				}
+			}
 		}
+	}
+
+	intersects(geo, entity) {
+		const top = geo.hitbox[0] + geo.position.y;
+		const right = geo.hitbox[1] + geo.position.x;
+		const bottom = geo.hitbox[2] + geo.position.y;
+		const left = geo.hitbox[3] + geo.position.x;
+
+		if (entity.position.x > left && entity.position.x < right &&
+			entity.position.y > top && entity.position.y < bottom) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	getObjectsByConstructor(objectConstructor) {

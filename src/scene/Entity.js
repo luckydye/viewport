@@ -43,6 +43,12 @@ export class Entity extends Geometry {
 		this.position[3] = 1;
     }
 
+    intersects(collider) {
+        for (let trait of this.traits) {
+            if(trait.onIntersect) trait.onIntersect(this, collider);
+        }
+    }
+
     hasTrait(trait) {
         return this.traits.has(trait);
     }

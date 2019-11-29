@@ -222,7 +222,7 @@ export default class Viewport extends HTMLElement {
         const currentFrame = performance.now();
         const delta = currentFrame - this.frame.lastFrame;
         
-        this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
+        requestAnimationFrame(this.render.bind(this));
 
         if(document.hidden) {
             this.frame.accumulator = 0;

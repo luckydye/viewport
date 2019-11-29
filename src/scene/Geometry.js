@@ -51,6 +51,7 @@ export class Geometry extends Transform {
 			hidden = false,
 			selectable = true,
 			guide = false,
+			hitbox = null,
 			uv = [0, 0],
 		} = args;
 
@@ -64,6 +65,8 @@ export class Geometry extends Transform {
 
 		this.matrixAutoUpdate = false;
 		this.lastUpdate = 1;
+
+		this.hitbox = hitbox;
 
 		this.indexArray = indecies;
 		this.vertArray = vertecies;
