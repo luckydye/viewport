@@ -115,7 +115,7 @@ export class Raycast extends Vec {
 	constructor(camera, x, y) {
 		super();
 
-		const camPos = camera.worldPosition;
+		const camPos = camera.position;
 		const width = camera.sensor.width;
 		const height = camera.sensor.height;
 

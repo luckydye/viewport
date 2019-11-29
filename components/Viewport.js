@@ -1,17 +1,12 @@
+import Config from '../src/Config.js';
+import { ViewportController } from '../src/controlers/ViewportController.js';
+import { Cursor } from '../src/geo/Cursor.js';
 import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/Resources.js";
+import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
-import { Camera } from '../src/scene/Camera.js';
-import { ViewportController } from '../src/controlers/ViewportController.js';
-import { Guide } from '../src/geo/Guide.js';
-import PrimitivetMaterial from '../src/materials/PrimitiveMaterial.js';
-import { CursorControler } from '../src/controlers/CursorController.js';
-import { PlayerControler } from '../src/controlers/PlayerControler.js';
-import { Cube } from '../src/geo/Cube.js';
-import DefaultMaterial from '../src/materials/DefaultMaterial.js';
-import { Cursor } from '../src/geo/Cursor.js';
-import Config from '../src/Config.js';
+import { Vec, Raycast, Transform } from '../src/Math.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -112,7 +107,7 @@ export default class Viewport extends HTMLElement {
         this.controllerType = controllertype;
     }
 
-    selectGeometry(geo) {
+    selectGeometry(geo, color) {
         if(geo == null) {
             this.cursor.parent = null;
             this.scene.remove(this.cursor);
@@ -168,6 +163,10 @@ export default class Viewport extends HTMLElement {
 
     enableSelecting() {
         this.selectedColor = null;
+    
+        let moving = false;
+        let selectedObject = null;
+        let direction = "x";
         
         // selecting
         this.addEventListener('mousedown', e => {
@@ -179,19 +178,72 @@ export default class Viewport extends HTMLElement {
                     e.x - bounds.x, 
                     bounds.height - (e.y - bounds.y)
                 );
-                
+                const guideColor = this.renderer.readPixelFromBuffer('guides', 
+                    e.x - bounds.x, 
+                    bounds.height - (e.y - bounds.y)
+                );
+
                 if(color[3] > 0) {
                     const index = color[0];
                     const geo = [...this.scene.objects][index];
-                    if(geo.selectable) {
+                    if(geo && geo.selectable) {
                         this.selectedColor = color;
-                        this.selectGeometry(geo);
+
+                        if(guideColor[0] > 10) {
+                            direction = "x";
+                        } else if(guideColor[1] > 10) {
+                            direction = "y";
+                        } else if(guideColor[2] > 10) {
+                            direction = "z";
+                        }
+
+                        const guided = (guideColor[0] + guideColor[1] + guideColor[2]) / 3;
+                        
+                        if(geo !== this.cursor && guided < 42) {
+                            this.selectGeometry(geo);
+                        }
+
+                    } else {
+                        this.selectGeometry(null);
                     }
                 } else {
                     this.selectGeometry(null);
                 }
+                        
+                moving = true;
+                selectedObject = this.selected;
             }
         });
+
+        // moveing
+    
+        const up = e => {
+            moving = false;
+        }
+    
+        const move = e => {
+            if (moving && selectedObject) {
+                const depth = Math.sqrt(
+                    Math.pow(-selectedObject.position.x - this.camera.position.x, 2),
+                    Math.pow(-selectedObject.position.y - this.camera.position.y, 2),
+                    Math.pow(-selectedObject.position.z - this.camera.position.z, 2),
+                ) + 1 * 10;
+
+                const movement = (-e.movementX + -e.movementY) / 2;
+
+                if(direction == "x" || direction == "z") {
+                    selectedObject.position[direction] -= (movement / 500) * depth;
+                } else if(direction == "y") {
+                    selectedObject.position[direction] -= (movement / 500) * depth;
+                }
+
+                selectedObject.update();
+                this.cursor.update();
+            }
+        }
+    
+        this.addEventListener("mousemove", e => move(e));
+        window.addEventListener("mouseup", up);
     }
 
     connectedCallback() {
