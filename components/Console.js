@@ -106,25 +106,17 @@ export class Console extends HTMLElement {
         const template = html`
             <style>
                 :host {
-                    position: fixed;
-                    bottom: 15px;
-                    left: 15px;
                     background: rgba(27, 27, 27, 0.75);
                     display: flex;
                     flex-direction: column;
-                    display: none;
                     color: #eee;
                     overflow: hidden;
                     z-index: 1000;
                     backdrop-filter: blur(4px);
-                }
-                :host([open]) {
-                    display: block;
+                    user-select: text;
                 }
                 .log {
-                    min-height: 200px;
-                    max-height: 200px;
-                    width: 650px;
+                    width: 100%;
                     display: flex;
                     flex-direction: column;
                     overflow: auto;
@@ -148,6 +140,25 @@ export class Console extends HTMLElement {
                     font-family: monospace;
                     width: 100%;
                     box-sizing: border-box;
+                }
+                ::-webkit-scrollbar {
+                    width: 12px;
+                    margin: 0 4px;
+                    margin-left: 2px;
+                }
+                ::-webkit-scrollbar-button {
+                    display: none;
+                }
+                ::-webkit-scrollbar-track-piece  {
+                    background: var(--gyro-level2-bg);
+                }
+                ::-webkit-scrollbar-thumb {
+                    background: var(--gyro-level4-bg);
+                    border-radius: 5px;
+                    border: 2px solid var(--gyro-level2-bg);
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background: var(--gyro-highlight);
                 }
             </style>
             <div class="log">
