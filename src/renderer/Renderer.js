@@ -136,23 +136,13 @@ export class Renderer extends RendererContext {
 		this.createRenderPass('color', {
 			filter(geo) { return !geo.guide; }
 		});
-
-		// this.createRenderPass('normal', {
-		// 	filter(geo) { return !geo.guide; },
-		// 	shaderOverwrite: new NormalShader(),
-		// });
-
-		// this.createRenderPass('world', {
-		// 	filter(geo) { return !geo.guide; },
-		// 	shaderOverwrite: new WorldShader(),
-		// });
 		
-		// TODO: Draw index buffer when needed
 		if(this.indexPass) {
 			this.createRenderPass('index', {
 				filter(geo) {
-					return !geo.guide && geo.selectable;
+					return !geo.guide && geo.selectable || geo.selectable;
 				},
+				antialiasing: false,
 				shaderOverwrite: new IndexShader(),
 				options: {
 					CULL_FACE: false
@@ -261,6 +251,7 @@ export class Renderer extends RendererContext {
 			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
 			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
+			this.setTexture(this.getBufferTexture('index'), this.gl.TEXTURE_2D, TEXTURE.FRAME_INDEX, 'index');
 
 			this.initialRender = false;
 		}
@@ -422,15 +413,11 @@ export class Renderer extends RendererContext {
 					'projectionView': this.currentCamera.projViewMatrix,
 				}, 'scene');
 
-				this.currentShader.setUniforms({
-					'objectIndex': this.objectIndex,
-				});
-
 				for(let material of geo.materials) {
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
 
 					this.applyMaterial(material);
-					this.drawGeo(geo);
+					this.drawGeo(geo, material.drawmode || this.currentShader.drawmode);
 
 					matIndex++;
 				}
@@ -445,8 +432,12 @@ export class Renderer extends RendererContext {
 					'objectIndex': this.objectIndex,
 				});
 
+				const drawmode = geo.material ? geo.material.drawmode || this.currentShader.drawmode : this.currentShader.drawmode;
+
+				this.currentShader.setUniforms(geo.material.attributes, 'material');
+
 				this.setupGemoetry(geo);
-				this.drawGeo(geo);
+				this.drawGeo(geo, drawmode);
 			}
 			
 		} else {
@@ -481,9 +472,9 @@ export class Renderer extends RendererContext {
 		}
 	}
 
-	drawGeo(geo) {
+	drawGeo(geo, drawmode) {
 		if (geo.instanced) {
-			this.drawGeoInstanced(geo);
+			this.drawGeoInstanced(geo, drawmode);
 			return;
 		}
 
@@ -491,24 +482,24 @@ export class Renderer extends RendererContext {
 		const buffer = this.getGemoetryBuffer(geo);
 
 		if (buffer.indecies.length > 0) {
-			gl.drawElements(gl[this.currentShader.drawmode], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl[drawmode], buffer.indecies.length, gl.UNSIGNED_SHORT, 0);
 		} else {
-			gl.drawArrays(gl[this.currentShader.drawmode], 0, buffer.vertecies.length / buffer.elements);
+			gl.drawArrays(gl[drawmode], 0, buffer.vertecies.length / buffer.elements);
 		}
 	}
 
-	drawGeoInstanced(geo) {
+	drawGeoInstanced(geo, drawmode) {
 		const gl = this.gl;
 		const buffer = this.getGemoetryBuffer(geo);
 		const vertCount = buffer.vertecies.length / buffer.elements;
 
-		gl.drawArraysInstanced(gl[this.currentShader.drawmode], 0, vertCount, geo.instances);
+		gl.drawArraysInstanced(gl[drawmode], 0, vertCount, geo.instances);
 	}
 
 	drawScreen() {
 		this.currentScene = null;
 		this.setupGemoetry(this.renderTarget);
-		this.drawGeo(this.renderTarget);
+		this.drawGeo(this.renderTarget, this.currentShader.drawmode);
 	}
 
 }

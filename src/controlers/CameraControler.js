@@ -14,7 +14,7 @@ export class CameraControler extends EntityControler {
 		document.addEventListener('contextmenu', e => { e.preventDefault(); });
 
 		const down = e => {
-			if (EntityControler.isMouseButton(e) == 1) {
+			if (EntityControler.isMouseButton(e) == 2) {
 				this.unlock();
 				this.viewport.requestPointerLock();
 				pointerlock = true;

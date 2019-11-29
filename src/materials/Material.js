@@ -23,12 +23,28 @@ export class Material {
         this.materialAttributes[1] = val;
     }
 
+    set uniformScale(val) {
+        this.materialAttributes[2] = val;
+    }
+
+    set transparency(val) {
+        this.materialAttributes[3] = val;
+    }
+
     get specular() {
         return this.materialAttributes[0];
     }
 
     get roughness() {
         return this.materialAttributes[1];
+    }
+
+    get uniformScale() {
+        return this.materialAttributes[2];
+    }
+
+    get transparency() {
+        return this.materialAttributes[3];
     }
 
     constructor(attributes = {}) {
@@ -43,11 +59,12 @@ export class Material {
         this.normalMap = null;
 
         this.diffuseColor = [1, 0, 1, 1];
-        this.transparency = 0;
 
-        this.materialAttributes = [0.25, 0.33];
+        this.materialAttributes = [0.25, 0.33, 0, 1];
 
         this.castShadows = true;
+
+        this.drawmode = null;
 
         for (let attrb in attributes) {
             this[attrb] = attributes[attrb];

@@ -11,7 +11,7 @@ export default class MeshShader extends Shader {
                 sampler2D displacementMap;
                 sampler2D roughnessMap;
                 vec4 diffuseColor;
-                vec2 attributes;
+                vec4 attributes;
             };
         `;
     }
@@ -36,6 +36,7 @@ export default class MeshShader extends Shader {
             layout(location = 2) in vec3 aNormal;
 
             ${MeshShader.structSceneProjection}
+            ${MeshShader.structMaterial}
         
             out vec2 vTexCoords;
             out vec4 vWorldPos;
@@ -88,12 +89,19 @@ export default class MeshShader extends Shader {
         
         uniform SceneProjection scene;
 
+        uniform Material material;
         uniform float objectIndex;
         
         uniform vec3 viewPosition;
         
         void main() {
-            vec4 pos = scene.model * vec4(aPosition, 1.0);
+            float uniformSacle = 1.0;
+
+            if(material.attributes.b > 0.0) {
+                uniformSacle = (scene.projectionView * scene.model * vec4(aPosition, 1.0)).z;
+            }
+
+            vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
         
             gl_Position = scene.projectionView * pos;
             gl_PointSize = 2.0;

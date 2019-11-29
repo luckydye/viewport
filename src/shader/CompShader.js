@@ -30,6 +30,7 @@ export default class CompShader extends Shader {
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         uniform sampler2D normal;
+        uniform sampler2D index;
 
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
@@ -50,14 +51,18 @@ export default class CompShader extends Shader {
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
             vec4 color = texture(color, vTexCoords);
             vec4 depth = texture(depth, vTexCoords);
+            vec4 index = texture(index, vTexCoords);
 
             // finalColor.rgb += min(pow(depth.r - 0.05, 100.0), 0.25);
 
             oFragColor = color;
             
             // guides
+            if(guides.a < 0.9 && guides.a > 0.0) {
+                oFragColor.rgb = guides.rgb;
+            }
             if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
-                oFragColor = guides;
+                oFragColor = vec4(guides.rgb, 1.0);
             }
         }`;
     }

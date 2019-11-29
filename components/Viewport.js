@@ -73,6 +73,10 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
+    get selected() {
+        return this.cursor.parent;
+    }
+
     constructor({
         controllertype = ViewportController,
     } = {}) {
@@ -164,27 +168,10 @@ export default class Viewport extends HTMLElement {
 
     enableSelecting() {
         this.selectedColor = null;
-
-        this.renderer.preComposition = () => {
-            const color = this.selectedColor;
-            if(color) {
-                this.renderer.compShader.setUniforms({
-                    'selected': [
-                        color[0] / 255,
-                        color[1] / 255,
-                        color[2] / 255,
-                    ]
-                });
-            } else {
-                this.renderer.compShader.setUniforms({
-                    'selected': [1, 0, 0]
-                });
-            }
-        }
         
         // selecting
         this.addEventListener('mousedown', e => {
-            if(e.button === 2) {
+            if(e.button === 0) {
                 this.selectedColor = null;
 
                 const bounds = this.getBoundingClientRect();

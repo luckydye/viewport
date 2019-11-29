@@ -8,8 +8,6 @@ export default class PointMaterial extends Material {
 
         this.shader = PointShader;
 
-        this.transparency = 0.5;
-
         this.castShadows = false;
     }
 }

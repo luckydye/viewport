@@ -10,8 +10,10 @@ export default class PrimitiveShader extends MeshShader {
 
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
+            uniform Material material;
+
             void main () {
-                oFragColor = vec4(vec3(primitiveColor), 1.0);
+                oFragColor = vec4(vec3(primitiveColor), material.attributes.a);
             }
         `;
     }

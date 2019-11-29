@@ -13,6 +13,7 @@ export class Grid extends Guide {
 		this.count = count;
 		this.guide = true;
 		this.name = "Grid";
+		this.selectable = false;
 	}
 
 	onCreate(args) {
