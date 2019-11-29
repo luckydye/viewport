@@ -24,7 +24,6 @@ export class Texture {
     constructor(image, format = { type: "RAW" }) {
 
         this.uid = uuidv4();
-        this.animated = false;
 
         this.type = "TEXTURE_2D";
 
@@ -39,7 +38,6 @@ export class Texture {
             this.data = image;
         } else {
             this.image = image;
-            this.animated = image && image.localName === "video" || this.animated;
         }
     }
 

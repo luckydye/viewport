@@ -1,15 +1,8 @@
-import { Material } from "./materials/Material.js";
-import { Resources } from "./Resources.js";
-import { Texture } from "./materials/Texture.js";
-import { Logger } from "./Logger.js";
-import { Scene } from "./scene/Scene.js";
-import { vec3 } from 'gl-matrix';
-import { Geometry } from './scene/Geometry.js';
-import DefaultMaterial from './materials/DefaultMaterial.js';
-import { Plane } from './geo/Plane.js';
-import { Group } from './geo/Group.js';
-
-const logger = new Logger('Loader');
+import { Material } from "../materials/Material.js";
+import { Texture } from "../materials/Texture.js";
+import { Resources } from "../resources/Resources.js";
+import { Geometry } from '../scene/Geometry.js';
+import { Scene } from "../scene/Scene.js";
 
 export class Loader {
 
@@ -152,7 +145,7 @@ export class Loader {
             mat.texture = texture;
 
             if (!texImage) {
-                logger.error('could not find texture on Material', name);
+        
             }
         }
 
@@ -162,7 +155,7 @@ export class Loader {
             mat.specularMap = reflectionTexture;
 
             if (!reflectionImage) {
-                logger.error('could not find specularMap on Material', name);
+        
             }
         }
 
@@ -172,7 +165,7 @@ export class Loader {
             mat.displacementMap = displacementMap;
 
             if (!displacementImage) {
-                logger.error('could not find displacementMap on Material', name);
+        
             }
         }
 

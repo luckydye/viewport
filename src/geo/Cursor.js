@@ -1,4 +1,4 @@
-import { Loader } from '../Loader.js';
+import { Loader } from '../resources/Loader.js';
 import OBJFile from '../resources/OBJFile.js';
 import { Geometry } from '../scene/Geometry.js';
 import MattMaterial from '../materials/MattMaterial.js';

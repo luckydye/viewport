@@ -2,11 +2,10 @@ import Config from '../src/Config.js';
 import { ViewportController } from '../src/controlers/ViewportController.js';
 import { Cursor } from '../src/geo/Cursor.js';
 import { Renderer } from "../src/renderer/Renderer.js";
-import { Resources } from "../src/Resources.js";
+import { Resources } from "../src/resources/Resources.js";
 import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
-import { Vec, Raycast, Transform } from '../src/Math.js';
 
 export default class Viewport extends HTMLElement {
 

@@ -1,8 +1,4 @@
 import { Entity } from "../scene/Entity.js";
-import { Logger } from '../Logger.js';
-
-const logger = new Logger('EntityControler');
-const error = logger.error.bind(logger);
 
 export class EntityControler {
 

@@ -1,19 +1,17 @@
 import '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
-import { PlayerControler } from '../src/controlers/PlayerControler.js';
-import { Plane } from '../src/geo/Plane.js';
-import { Loader } from '../src/Loader.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Texture } from '../src/materials/Texture.js';
-import { Resources } from '../src/Resources.js';
+import { Resources } from '../src/resources/Resources.js';
+import { Loader } from '../src/resources/Loader.js';
 import { Camera } from '../src/scene/Camera.js';
 import { Entity } from '../src/scene/Entity.js';
+import { Geometry } from '../src/scene/Geometry.js';
 import Collider from '../src/traits/Collider.js';
+import Follow from '../src/traits/Follow.js';
 import Player from '../src/traits/Player.js';
 import RigidBody from '../src/traits/RigidBody.js';
-import Follow from '../src/traits/Follow.js';
-import { Geometry } from '../src/scene/Geometry.js';
 
 Resources.add({
     'noise': "textures/noise.jpg",

@@ -1,4 +1,4 @@
-import { Task } from "./Scheduler.js";
+import { Task } from "../Scheduler.js";
 
 export class Animation extends Task {
 

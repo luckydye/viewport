@@ -1,6 +1,5 @@
 import Config from '../Config.js';
 import { Grid } from '../geo/Grid.js';
-import { Logger } from '../Logger.js';
 import { Texture } from '../materials/Texture.js';
 import { Geometry } from '../scene/Geometry.js';
 import CompShader from '../shader/CompShader.js';
@@ -17,7 +16,7 @@ renderConfig.define('debug', false, false);
 renderConfig.define('debuglevel', 0, 0);
 renderConfig.define('wireframe', false, false);
 
-const logger = new Logger('Renderer'), log = logger.log;
+const log = console.log;
 
 class Screen extends Geometry {
 	static get attributes() {
@@ -138,12 +137,20 @@ export class Renderer extends RendererContext {
 		});
 		
 		if(this.indexPass) {
+			const indexShader = new IndexShader();
+			const renderer = this;
+			indexShader.customUniforms = {
+				get objectIndex() {
+					return renderer.objectIndex;
+				}
+			};
+
 			this.createRenderPass('index', {
 				filter(geo) {
 					return !geo.guide && geo.selectable || geo.selectable;
 				},
 				antialiasing: false,
-				shaderOverwrite: new IndexShader(),
+				shaderOverwrite: indexShader,
 				options: {
 					CULL_FACE: false
 				}
@@ -171,7 +178,7 @@ export class Renderer extends RendererContext {
 		}
 
 		if(this.debug) {
-			logger.log(`Resolution set to ${this.width}x${this.height}`);
+			log(`Resolution set to ${this.width}x${this.height}`);
 		}
 	}
 
@@ -287,22 +294,6 @@ export class Renderer extends RendererContext {
 
 	// give material attributes to shader
 	applyMaterial(material) {
-		// update textures
-		if (material && material.animated) {
-			if (material.texture && material.texture.image) {
-				this.updateTextureBuffer(this.prepareTexture(material.texture), material.texture.image);
-			}
-			if (material.specularMap && material.specularMap.image) {
-				this.updateTextureBuffer(this.prepareTexture(material.specularMap), material.specularMap.image);
-			}
-			if (material.normalMap && material.normalMap.image) {
-				this.updateTextureBuffer(this.prepareTexture(material.normalMap), material.normalMap.image);
-			}
-			if (material.displacementMap && material.displacementMap.image) {
-				this.updateTextureBuffer(this.prepareTexture(material.displacementMap), material.displacementMap.image);
-			}
-		}
-
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}
@@ -428,13 +419,15 @@ export class Renderer extends RendererContext {
 					'projectionView': this.currentCamera.projViewMatrix,
 				}, 'scene');
 
-				this.currentShader.setUniforms({
-					'objectIndex': this.objectIndex,
-				});
+				if(this.currentShader.customUniforms) {
+					this.currentShader.setUniforms(this.currentShader.customUniforms);
+				}
 
 				const drawmode = geo.material ? geo.material.drawmode || this.currentShader.drawmode : this.currentShader.drawmode;
 
-				this.currentShader.setUniforms(geo.material.attributes, 'material');
+				if(geo.material) {
+					this.currentShader.setUniforms(geo.material.attributes, 'material');
+				}
 
 				this.setupGemoetry(geo);
 				this.drawGeo(geo, drawmode);
@@ -464,7 +457,6 @@ export class Renderer extends RendererContext {
 
 			if (Object.keys(shaderObjectCache).length > 1 ||
 				shaderObjectCache[geo.uid] != geo.lastUpdate) {
-				
 				shaderObjectCache[geo.uid] = geo.lastUpdate;
 
 				this.currentShader.setUniforms({ 'model': geo.modelMatrix }, 'scene');

@@ -1,7 +1,7 @@
-import { Camera } from '../scene/Camera.js';
+import { Camera } from './Camera.js';
 import { mat4 } from 'gl-matrix';
 
-export class Spotlight extends Camera {
+export class DirectionalLight extends Camera {
 
 	constructor(args) {
 		super(args);

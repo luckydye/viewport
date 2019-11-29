@@ -1,8 +1,9 @@
 import { Vec, Transform, uuidv4 } from '../Math.js';
-import { Spotlight } from '../light/Spotlight.js';
+import { DirectionalLight } from './DirectionalLight.js';
 import { Camera } from './Camera.js';
 import { Entity } from './Entity.js';
 import { Guide } from '../geo/Guide.js';
+import { Box } from '../geo/Box.js';
 
 export class Scene extends Transform {
 
@@ -29,7 +30,7 @@ export class Scene extends Transform {
 
 		this.add(objs);
 
-		this.add(new Spotlight({
+		this.add(new DirectionalLight({
 			position: [0, -50, -45],
 			rotation: [45 * Math.PI / 180, 0, 0],
 		}));
@@ -47,25 +48,9 @@ export class Scene extends Transform {
 						const bottom = o.hitbox[2] + o.position.y;
 						const left = o.hitbox[3] + o.position.x;
 
-						// this.objects.add(new Guide({
-						// 	position: [top, left],
-						// 	scale: 0.75,
-						// }))
-
-						// this.objects.add(new Guide({
-						// 	position: [top, right],
-						// 	scale: 0.75,
-						// }))
-
-						// this.objects.add(new Guide({
-						// 	position: [bottom, left],
-						// 	scale: 0.75,
-						// }))
-
-						// this.objects.add(new Guide({
-						// 	position: [bottom, right],
-						// 	scale: 0.75,
-						// }))
+						this.objects.add(new Box({ top, left, right, bottom,
+							position: [0, 0, 2.1]
+						}))
 					}
 				}
 			});
