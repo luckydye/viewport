@@ -30,7 +30,6 @@ export default class CompShader extends Shader {
         uniform sampler2D guides;
         uniform sampler2D guidesDepth;
         uniform sampler2D normal;
-        uniform sampler2D lighting;
 
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;

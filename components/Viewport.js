@@ -116,6 +116,7 @@ export default class Viewport extends HTMLElement {
         } else {
             this.cursor.parent = geo;
             this.scene.add(this.cursor);
+            this.cursor.update();
             this.dispatchEvent(new Event('select'));
         }
     }
