@@ -90,7 +90,18 @@ export class Scene extends Transform {
 			if(obj.hitbox) {
 				for (let collider of this.objects) {
 					if (collider.hitbox && collider.collider && collider !== obj) {
-						if(this.intersectsRect(collider, obj)) collider.intersects(obj);
+
+						// intersects X
+						const intersectionsX = this.intersectsRect(collider, obj);
+						if(intersectionsX[0] != null) {
+							collider.intersects(obj, intersectionsX[0]);
+						}
+						
+						// intersects Y
+						const intersectionsY = this.intersectsRect(collider, obj);
+						if(intersectionsY[1] != null) {
+							collider.intersects(obj, intersectionsY[1]);
+						}
 					}
 				}
 			}
@@ -101,26 +112,44 @@ export class Scene extends Transform {
 		}
 	}
 
-	intersectsRect(entity, collider2) {
-		const top1 = entity.hitbox[0] + entity.position.y;
-		const right1 = entity.hitbox[1] + entity.position.x;
-		const bottom1 = entity.hitbox[2] + entity.position.y;
-		const left1 = entity.hitbox[3] + entity.position.x;
+	intersectsRect(entity, collider) {
+		const top = entity.hitbox[0] + entity.position.y;
+		const right = entity.hitbox[1] + entity.position.x;
+		const bottom = entity.hitbox[2] + entity.position.y;
+		const left = entity.hitbox[3] + entity.position.x;
 
-		const top2 = collider2.hitbox[0] + collider2.position.y;
-		const right2 = collider2.hitbox[1] + collider2.position.x;
-		const bottom2 = collider2.hitbox[2] + collider2.position.y;
-		const left2 = collider2.hitbox[3] + collider2.position.x;
+		const top2 = collider.hitbox[0] + collider.position.y;
+		const right2 = collider.hitbox[1] + collider.position.x;
+		const bottom2 = collider.hitbox[2] + collider.position.y;
+		const left2 = collider.hitbox[3] + collider.position.x;
 
-		if (bottom1 < top2 && (left1 > left2 && left1 < right2) || (right1 > left2 && right1 < right2)) {
-			return true;
+		const horizontal = (right > left2 && right < right2 || left < right2 && left > left2 );
+		const vertical = (bottom < top2 && bottom > bottom2 || top > bottom2 && top < top2);
+
+		let collidesX = null;
+		let collidesY = null;
+
+		// top edge collides
+		if (top > bottom2 && top < top2 && horizontal) {
+			collidesY = 0;
 		}
 
-		// if (right1 > left2 && top1 < top2 && top1 > bottom2) {
-		// 	return true;
-		// }
+		// bottom edge collides
+		if (bottom < top2 && bottom > bottom2 && horizontal) {
+			collidesY = 2;
+		}
 
-		return false;
+		// left edge collides
+		if (left > left2 && left < right2 && vertical) {
+			collidesX = 3;
+		}
+
+		// right edge collides
+		if (right > left2 && right < right2 && vertical) {
+			collidesX = 1;
+		}
+
+		return [ collidesX, collidesY ];
 	}
 
 	getObjectsByConstructor(objectConstructor) {

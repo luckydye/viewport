@@ -5,7 +5,9 @@ export default  {
     },
 
     onUpdate: (entity, ms) => {
-        entity.velocity.y -= 0.0025;
+        entity.velocity.x *= 0.925;
+        entity.velocity.z *= 0.925;
+        entity.velocity.y -= 0.02;
     }
 
 }

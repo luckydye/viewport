@@ -123,7 +123,7 @@ export class Renderer extends RendererContext {
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				colorBuffer: false,
-				antialiasing: false,
+				antialiasing: true,
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize],
 				options: {

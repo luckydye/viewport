@@ -281,13 +281,18 @@ export default class Viewport extends HTMLElement {
 
     render() {
         const currentFrame = performance.now();
-        const delta = currentFrame - this.frame.lastFrame;
+        let delta = currentFrame - this.frame.lastFrame;
         
         requestAnimationFrame(this.render.bind(this));
 
-        if(document.hidden) {
-            this.frame.accumulator = 0;
-            return;
+        // dont update on inital render
+        if(this.renderer.initialRender) {
+            delta = 0;
+        }
+
+        // reset delta for the very first frame after initial load
+        if(this.frame.accumulator == 0) {
+            delta = this.frame.tickrate;
         }
 
         this.frame.accumulator += delta;

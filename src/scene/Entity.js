@@ -44,8 +44,10 @@ export class Entity extends Geometry {
         this.intersections.clear();
     }
 
-    intersects(collider) {
-        this.intersections.add(collider);
+    intersects(collider, direction) {
+        for (let trait of this.traits) {
+            if(trait.onIntersects) trait.onIntersects(this, collider, direction);
+        }
     }
 
     hasTrait(trait) {

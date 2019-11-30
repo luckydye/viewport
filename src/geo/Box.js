@@ -20,17 +20,25 @@ export class Box extends Geometry {
 
 	get indecies() {
 		return [
+			// clipping off
+			// fron
 			0, 1, 2,
 			1, 3, 2,
-
+			// top
 			0, 1, 4,
 			0, 1, 5,
-			
+			// bottom
 			2, 7, 6,
 			2, 7, 3,
-
+			// back
 			4, 5, 6,
 			5, 7, 6,
+			// left
+			0, 4, 6,
+			0, 6, 2,
+			// right
+			1, 5, 7,
+			1, 7, 3,
 		]
 	}
 

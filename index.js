@@ -1,6 +1,6 @@
 import Viewport from './components/Viewport.js';
 import { Camera } from './src/scene/Camera.js';
-import { Resources } from './src/Resources.js';
+import { Resources } from './src/resources/Resources.js';
 import Config from './src/Config.js';
 import { Scheduler } from './src/Scheduler.js';
 import DefaultMaterial from './src/materials/DefaultMaterial.js';
@@ -18,7 +18,6 @@ import { Cube } from './src/geo/Cube.js';
 import { Group } from './src/geo/Group.js';
 import { Guide } from './src/geo/Guide.js';
 import { Plane } from './src/geo/Plane.js';
-import { Voxel } from './src/geo/Voxel.js';
 import { Vector } from './src/geo/Vector.js';
 import { PlayerControler } from './src/controlers/PlayerControler.js';
 import { ViewportController } from './src/controlers/ViewportController.js';

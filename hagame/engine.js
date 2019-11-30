@@ -28,6 +28,8 @@ function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
 
+    viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
+
     const noise = Resources.get('noise');
     const norm = Resources.get('norm');
 
@@ -40,7 +42,7 @@ function init() {
                 normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
             }),
-            hitbox: [2, 1, 0, -1, 1],
+            hitbox: [2, 2, 0, -1.75, 1],
             position: [0, 10, 0],
             scale: 0.33,
             vertecies: teapo,
