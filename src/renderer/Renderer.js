@@ -99,7 +99,7 @@ export class Renderer extends RendererContext {
 		this.indexPass = true;
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
-		this.shadowMapSize = 3072;
+		this.shadowMapSize = 4096;
 
 		this.lastSceneId = null;
 		this.currentScene = null;

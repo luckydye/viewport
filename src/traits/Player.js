@@ -7,7 +7,7 @@ export default  {
         entity.direction = new Vec();
         entity.speed = 0.01;
 		entity.player = true;
-		entity.jumppower = 0.5;
+		entity.jumppower = 0.33;
     },
 
     move(entity, dir) {

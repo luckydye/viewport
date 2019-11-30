@@ -13,8 +13,8 @@ export class DirectionalLight extends Camera {
 		this.nearplane = 1;
 
 		this.sensor = {
-			width: 32,
-			height: 32,
+			width: 16,
+			height: 16,
 		}
 	}
 
