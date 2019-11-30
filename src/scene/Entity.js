@@ -15,6 +15,8 @@ export class Entity extends Geometry {
         this.velocity = new Vec();
         this.traits = new Set();
 
+        this.intersections = new Set();
+
         if(args.traits) {
             for(let trait of args.traits) {
                 this.addTrait(trait);
@@ -31,22 +33,19 @@ export class Entity extends Geometry {
     }
 
     update(ms = 0) {
-        super.update(ms);
-
         for (let trait of this.traits) {
             if(trait.onUpdate) trait.onUpdate(this, ms);
         }
 
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
-		this.position.z += this.velocity.z;
-		this.position[3] = 1;
+        this.position.z += this.velocity.z;
+
+        this.intersections.clear();
     }
 
     intersects(collider) {
-        for (let trait of this.traits) {
-            if(trait.onIntersect) trait.onIntersect(this, collider);
-        }
+        this.intersections.add(collider);
     }
 
     hasTrait(trait) {

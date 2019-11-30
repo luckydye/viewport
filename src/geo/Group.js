@@ -13,7 +13,7 @@ export class Group extends Geometry {
 			materials.add(obj.material);
 			const matIndex = [...materials].indexOf(obj.material);
 
-			obj.update();
+			obj.updateModel();
 
 			for(let vert = 0; vert < verts.length; vert += 9) {
 				let vertex = vec4.create();

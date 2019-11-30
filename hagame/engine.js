@@ -40,6 +40,7 @@ function init() {
                 normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
             }),
+            hitbox: [2, 1, 0, -1, 1],
             position: [0, 10, 0],
             scale: 0.33,
             vertecies: teapo,
@@ -50,9 +51,9 @@ function init() {
                 normalMap: new Texture(norm),
                 specularMap: new Texture(noise),
             }),
-            hitbox: [-3, 10, 3, -10],
+            hitbox: [2.25, 9.2, -1.5, -9.2, 2],
             vertecies: ground,
-            position: [5, -2, 0],
+            position: [0, -1, 0],
             rotation: [0, 0, 0],
             scale: 2
         }),
@@ -74,8 +75,6 @@ function init() {
         traits: [ Follow ]
     });
 
-    camera.follow(geo[0]);
-
     camera.position.z = -20;
     camera.position.y = -2;
 
@@ -85,4 +84,6 @@ function init() {
 
     viewport.scene.add(camera);
     viewport.scene.add(geo);
+
+    camera.follow(geo[0]);
 }

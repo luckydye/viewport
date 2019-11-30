@@ -20,6 +20,10 @@ const GLOBAL_COMMANDS = {
         }
     },
 
+    reload() {
+        location.reload();
+    },
+
     clear(console) {
         console.clear();
     },

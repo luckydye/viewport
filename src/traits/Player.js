@@ -3,7 +3,9 @@ import { Vec } from '../Math';
 const keyRegister = new Map();
 
 window.addEventListener('keydown', e => {
-	keyRegister.set(e.key, true);
+	if(document.activeElement == document.body) {
+		keyRegister.set(e.key, true);
+	}
 });
 
 window.addEventListener('keyup', e => {
@@ -14,12 +16,15 @@ export default  {
 
     onCreate(entity) {
         entity.direction = new Vec();
-        entity.speed = 0.0005;
+        entity.speed = 0.005;
 		entity.player = true;
+		entity.jumppower = 0.08;
 		
 		window.addEventListener('keydown', e => {
-			if(e.key == " ") {
-				this.jump(entity);
+			if(document.activeElement == document.body) {
+				if(e.key == " ") {
+					this.jump(entity);
+				}
 			}
 		});
     },
@@ -38,7 +43,7 @@ export default  {
 
 	jump(entity) {
 		if(!entity.airborn) {
-			entity.velocity.y = 0.07;
+			entity.velocity.y = entity.jumppower;
 			entity.airborn = true;
 		}
     },
@@ -50,14 +55,13 @@ export default  {
     onUpdate(entity, ms) {
         if(!entity.player) return;
 
-		// if (this.checkKey("w")) this.move(entity, entity.speed);
-		// if (this.checkKey("s")) this.move(entity, -entity.speed);
-
-		if (this.checkKey("a")) this.strafe(entity, -entity.speed);
-		if (this.checkKey("d")) this.strafe(entity, entity.speed);
-
-		if (this.checkKey("q")) this.pan(entity, -entity.speed);
-		if (this.checkKey("y")) this.pan(entity, entity.speed);
+		if(!entity.airborn) {
+			if (this.checkKey("a")) this.strafe(entity, -entity.speed);
+			if (this.checkKey("d")) this.strafe(entity, entity.speed);
+		} else {
+			if (this.checkKey("a")) this.strafe(entity, -entity.speed / 8);
+			if (this.checkKey("d")) this.strafe(entity, entity.speed / 8);
+		}
 
         const camDirectionInv = [
 			Math.sin(-entity.rotation.y),
@@ -71,10 +75,6 @@ export default  {
 			Math.cos(entity.rotation.y),
 		]
 
-		entity.direction.x *= ms;
-		entity.direction.y *= ms;
-		entity.direction.z *= ms;
-
 		entity.velocity.x += (entity.direction.z * camDirectionInv[0]) + (entity.direction.x * camDirection[2]);
 		entity.velocity.y += (entity.direction.z * camDirectionInv[1]) + entity.direction.y;
 		entity.velocity.z += (entity.direction.z * camDirectionInv[2]) + (entity.direction.x * camDirection[0]);
@@ -84,13 +84,19 @@ export default  {
 		entity.position.z += entity.velocity.z;
 		entity.position[3] = 1;
 
-		entity.velocity.x *= 0.95;
-		entity.velocity.y *= 0.99;
-		entity.velocity.z *= 0.95;
+		if(entity.airborn) {
+			entity.velocity.x *= 0.995;
+			entity.velocity.z *= 0.995;
+		} else {
+			entity.velocity.x *= 0.925;
+			entity.velocity.z *= 0.925;
+		}
 
-		entity.direction.x = 0;
-		entity.direction.y = 0;
-        entity.direction.z = 0;
+		if(!entity.airborn) {
+			entity.direction.x = 0;
+			entity.direction.y = 0;
+			entity.direction.z = 0;
+		}
     },
 
 }

@@ -52,6 +52,7 @@ export class Geometry extends Transform {
 			selectable = true,
 			guide = false,
 			hitbox = null,
+			parent = null,
 			uv = [0, 0],
 		} = args;
 
@@ -61,7 +62,7 @@ export class Geometry extends Transform {
 			this.materials.push(material);
 		}
 
-		this.parent = null;
+		this.parent = parent;
 
 		this.matrixAutoUpdate = false;
 		this.lastUpdate = 1;
@@ -77,7 +78,7 @@ export class Geometry extends Transform {
 		this.modelMatrix = mat4.create();
 	}
 
-	update() {
+	updateModel() {
 		this.updateModelMatrix();
 		this.lastUpdate = Date.now();
 	}

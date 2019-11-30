@@ -100,7 +100,7 @@ export default class Viewport extends HTMLElement {
             nextFrame: 0,
             lastFrame: 0,
             accumulator: 0,
-            tickrate: 1000 / 64
+            tickrate: 1000 / 128
         };
 
         this.controllerType = controllertype;
@@ -114,7 +114,7 @@ export default class Viewport extends HTMLElement {
         } else {
             this.cursor.parent = geo;
             this.scene.add(this.cursor);
-            this.cursor.update();
+            this.cursor.updateModel();
             this.dispatchEvent(new Event('select'));
         }
     }
@@ -261,8 +261,8 @@ export default class Viewport extends HTMLElement {
                     selectedObject.position[direction] -= (movement / 500) * depth;
                 }
 
-                selectedObject.update();
-                this.cursor.update();
+                selectedObject.updateModel();
+                this.cursor.updateModel();
             }
         }
     }

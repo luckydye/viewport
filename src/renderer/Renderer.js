@@ -352,7 +352,7 @@ export class Renderer extends RendererContext {
 
 		if(!camera) return;
 
-		camera.update();
+		camera.updateModel();
 
 		const objects = scene.getRenderableObjects(camera);
 		const materials = objects.map(obj => obj.materials).flat();
@@ -452,7 +452,7 @@ export class Renderer extends RendererContext {
 			const shaderObjectCache = this.currentShader.cache.objects;
 
 			if (geo.matrixAutoUpdate || shaderObjectCache[geo.uid] != geo.lastUpdate) {
-				geo.update();
+				geo.updateModel();
 			}
 
 			if (Object.keys(shaderObjectCache).length > 1 ||
