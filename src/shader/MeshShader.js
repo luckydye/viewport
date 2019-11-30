@@ -112,7 +112,7 @@ export default class MeshShader extends Shader {
             vViewPos = viewPosition;
             vVertexPos = aPosition;
             vWorldPos = pos;
-            vNormal = normalize(vec4(aNormal, 0.0) * inverse(scene.model)).xyz;
+            vNormal = (transpose(inverse(scene.model)) * vec4(aNormal, 1.0)).xyz;
             primitiveColor = aNormal;
             index = objectIndex;
             vTexelPos = gl_Position;

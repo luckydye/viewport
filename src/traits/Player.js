@@ -50,6 +50,13 @@ export default  {
 			Math.cos(entity.rotation.y),
 		]
 
+		if(entity.direction.x < 0) {
+			entity.rotation.y = 180 * Math.PI / 180;
+			entity.direction.x *= -1;
+		} else if(entity.direction.x > 0) {
+			entity.rotation.y = 0 * Math.PI / 180;
+		}
+
 		entity.velocity.x += (entity.direction.z * camDirectionInv[0]) + (entity.direction.x * camDirection[2]);
 		entity.velocity.y += (entity.direction.z * camDirectionInv[1]) + entity.direction.y;
 		entity.velocity.z += (entity.direction.z * camDirectionInv[2]) + (entity.direction.x * camDirection[0]);
