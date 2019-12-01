@@ -6,66 +6,6 @@ import { Scene } from "../scene/Scene.js";
 
 export class Loader {
 
-    static loadScene(json, camera) {
-        const objects = [
-            ...json.objects,
-            ...json.cameras,
-        ];
-        const scene = new Scene(camera);
-
-        for (let obj of objects) {
-
-            let Category = Geometry;
-
-            if (obj.type in Geometry) Category = Geometry;
-            if (obj.type in Light) Category = Light;
-            if (obj.type in Camera) Category = Camera;
-
-            if (obj.type == 'Cursor' || obj.type == 'Grid') continue;
-
-            let geo = new Category[obj.type].js[obj.type];
-            geo = Object.assign(geo, obj);
-            scene.add(geo);
-
-            if (obj.type in Camera) {
-                scene.activeCamera = geo;
-            }
-        }
-        return scene;
-    }
-
-    static saveScene(scene) {
-        const objects = [...scene.objects];
-        const camera = scene.activeCamera;
-
-        const json = {
-            cameras: [
-                {
-                    type: camera.constructor.name,
-                    position: camera.position,
-                    rotation: camera.rotation,
-                    fov: camera.fov,
-                    scale: camera.scale,
-                }
-            ],
-            objects: [
-                ...objects.map(obj => {
-                    return {
-                        type: obj.constructor.name,
-                        position: obj.position,
-                        rotation: obj.rotation,
-                        scale: obj.scale,
-                    }
-                })
-            ],
-            animation: [
-
-            ]
-        };
-
-        return json;
-    }
-
     static loadObjFile(objFile) {
         const vertecies = [];
 
@@ -132,44 +72,6 @@ export class Loader {
         }
 
         return vertecies;
-    }
-
-    static createMatFromJson(name, json) {
-        const mat = new Material(name);
-
-        Object.assign(mat, json);
-
-        if (json.texture) {
-            const texImage = Resources.get(json.texture);
-            const texture = new Texture(texImage);
-            mat.texture = texture;
-
-            if (!texImage) {
-        
-            }
-        }
-
-        if (json.specularMap) {
-            const reflectionImage = Resources.get(json.specularMap);
-            const reflectionTexture = new Texture(reflectionImage);
-            mat.specularMap = reflectionTexture;
-
-            if (!reflectionImage) {
-        
-            }
-        }
-
-        if (json.displacementMap) {
-            const displacementImage = Resources.get(json.displacementMap);
-            const displacementMap = new Texture(displacementImage);
-            mat.displacementMap = displacementMap;
-
-            if (!displacementImage) {
-        
-            }
-        }
-
-        return mat;
     }
 
 }

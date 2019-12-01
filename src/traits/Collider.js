@@ -56,6 +56,10 @@ export default  {
                 entity.velocity.y = -entity.velocity.y / 10;
                 entity.position.y = top2 - entity.hitbox[2];
                 entity.airborn = false;
+
+                entity.force.y = 0;
+
+                entity.colliderGeometry = collider;
             }
         }
     },

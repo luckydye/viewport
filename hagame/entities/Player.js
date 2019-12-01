@@ -30,6 +30,6 @@ export function createPlayer() {
         position: [0, 10, 0],
         scale: 0.33,
         vertecies: teapo,
-        traits: [ RigidBody, Player, Collider ]
+        traits: [ Player, Collider ]
     });
 }

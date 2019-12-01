@@ -4,6 +4,7 @@ import Input from '../Input';
 export default  {
 
     onCreate(entity) {
+        entity.force = new Vec();
         entity.direction = new Vec();
         entity.speed = 0.01;
 		entity.player = true;
@@ -24,7 +25,7 @@ export default  {
 
 	jump(entity) {
 		if(!entity.airborn) {
-			entity.velocity.y = entity.jumppower;
+			entity.force.y = entity.jumppower;
 			entity.airborn = true;
 		}
     },
@@ -57,9 +58,26 @@ export default  {
 			entity.rotation.y = 0 * Math.PI / 180;
 		}
 
-		entity.velocity.x += (entity.direction.z * camDirectionInv[0]) + (entity.direction.x * camDirection[2]);
-		entity.velocity.y += (entity.direction.z * camDirectionInv[1]) + entity.direction.y;
-		entity.velocity.z += (entity.direction.z * camDirectionInv[2]) + (entity.direction.x * camDirection[0]);
+		entity.force.x += (entity.direction.z * camDirectionInv[0]) + (entity.direction.x * camDirection[2]);
+		entity.force.y += (entity.direction.z * camDirectionInv[1]) + entity.direction.y;
+		entity.force.z += (entity.direction.z * camDirectionInv[2]) + (entity.direction.x * camDirection[0]);
+		
+		entity.force.y -= 0.01;
+
+		entity.velocity.x = entity.force.x;
+		entity.velocity.y = entity.force.y;
+		entity.velocity.z = entity.force.z;
+		
+        if(entity.colliderGeometry) {
+			const collider = entity.colliderGeometry;
+            if(collider.velocity) {
+				entity.velocity.x = entity.force.x + collider.velocity.x;
+            }
+            entity.colliderGeometry = null;
+		}
+
+        entity.force.x *= 0.925;
+        entity.force.z *= 0.925;
 
 		entity.direction.x = 0;
 		entity.direction.y = 0;
