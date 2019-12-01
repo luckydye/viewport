@@ -52,7 +52,7 @@ export class Geometry extends Transform {
 			selectable = true,
 			guide = false,
 			hitbox = null,
-			scale = null,
+			scale = 1,
 			parent = null,
 			uv = [0, 0],
 		} = args;
