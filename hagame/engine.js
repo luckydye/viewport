@@ -4,21 +4,13 @@ import Viewport from '../components/Viewport.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
 import { Texture } from '../src/materials/Texture.js';
 import { Resources } from '../src/resources/Resources.js';
-import { Loader } from '../src/resources/Loader.js';
 import { Camera } from '../src/scene/Camera.js';
-import { Entity } from '../src/scene/Entity.js';
 import { Geometry } from '../src/scene/Geometry.js';
-import Collider from '../src/traits/Collider.js';
 import Follow from '../src/traits/Follow.js';
-import Player from '../src/traits/Player.js';
-import RigidBody from '../src/traits/RigidBody.js';
-
-Resources.add({
-    'noise': "textures/noise.jpg",
-    'norm': "textures/norm.png",
-    'teapot': "models/teapot.obj",
-    'ground': "models/ground.obj",
-});
+import { createPlayer } from './entities/Player.js';
+import { Loader } from '../src/resources/Loader.js';
+import { Console } from '../components/Console.js';
+import { Serializer } from '../src/resources/Serializer.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
@@ -27,49 +19,28 @@ window.addEventListener('DOMContentLoaded', () => {
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
-
     viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
 
-    const noise = Resources.get('noise');
-    const norm = Resources.get('norm');
-
-    const teapo = Loader.loadObjFile(Resources.get('teapot'));
     const ground = Loader.loadObjFile(Resources.get('ground'));
-
+    
     const geo = [
-        new Entity({
-            material: new DefaultMaterial({
-                normalMap: new Texture(norm),
-                specularMap: new Texture(noise),
-            }),
-            hitbox: [2, 2, 0, -1.75, 1],
-            position: [0, 10, 0],
-            scale: 0.33,
-            vertecies: teapo,
-            traits: [ RigidBody, Player, Collider ]
-        }),
+        createPlayer(),
         new Geometry({
-            material: new DefaultMaterial({
-                normalMap: new Texture(norm),
-                specularMap: new Texture(noise),
-            }),
+            material: new DefaultMaterial(),
             hitbox: [2.25, 9.2, -1.5, -9.2, 2],
             vertecies: ground,
             position: [0, -1, 0],
             rotation: [0, 0, 0],
             scale: 2
         }),
-        // new Geometry({
-        //     material: new DefaultMaterial({
-        //         normalMap: new Texture(norm),
-        //         specularMap: new Texture(noise),
-        //     }),
-        //     hitbox: [-1, 1, 1, -1],
-        //     vertecies: ground,
-        //     position: [-18, -2, 0],
-        //     rotation: [0, 0, 0],
-        //     scale: 2
-        // })
+        new Geometry({
+            material: new DefaultMaterial(),
+            hitbox: [2.25, 9.2, -1.5, -9.2, 2],
+            vertecies: ground,
+            position: [-18, -3, 1],
+            rotation: [0, 0, 0],
+            scale: 2
+        })
     ];
 
     const camera = new Camera({
@@ -88,4 +59,8 @@ function init() {
     viewport.scene.add(geo);
 
     camera.follow(geo[0]);
+
+    Console.GLOBAL_COMMANDS["export"] = () => {
+        Serializer.serializeScene(viewport.scene);
+    }
 }

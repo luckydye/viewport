@@ -20,6 +20,26 @@ const GLOBAL_COMMANDS = {
         }
     },
 
+    find(console, args) {
+        const keys = Object.keys(Config.global);
+        const cmds = Object.keys(GLOBAL_COMMANDS);
+
+        console.log('Matches:');
+
+        if(args[0]) {
+            for(let key of [...keys, ...cmds]) {
+                if(key.match(args[0])) {
+                    const param = Config.global[key];
+                    if(param) {
+                        console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
+                    } else {
+                        console.log(key.padEnd(15, " "));
+                    }
+                }
+            }
+        }
+    },
+
     reload() {
         location.reload();
     },
@@ -35,6 +55,10 @@ const GLOBAL_COMMANDS = {
 }
 
 export class Console extends HTMLElement {
+
+    static get GLOBAL_COMMANDS() {
+        return GLOBAL_COMMANDS;
+    }
 
     get input() {
         return this.shadowRoot.querySelector('input');
@@ -71,7 +95,7 @@ export class Console extends HTMLElement {
         const args = string.split(" ");
         const config = Config.global;
 
-        const commands = GLOBAL_COMMANDS;
+        const commands = Console.GLOBAL_COMMANDS;
 
         if(args[0] in commands) {
             commands[args[0]](this, args.slice(1));
