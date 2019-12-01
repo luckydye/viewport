@@ -10,6 +10,7 @@ import { Entity } from '../src/scene/Entity.js';
 import { Geometry } from '../src/scene/Geometry.js';
 import Follow from '../src/traits/Follow.js';
 import { PlayerEntity } from './entities/Player.js';
+import { Platform } from './entities/Platform.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
@@ -40,7 +41,7 @@ function init() {
             rotation: [0, 0, 0],
             scale: 2
         }),
-        new Entity({
+        new Platform({
             material: new DefaultMaterial(),
             hitbox: [1.55, 7.5, -1.5, -7.5, 1],
             vertecies: ground,
@@ -49,10 +50,6 @@ function init() {
             scale: 1.5
         })
     ];
-
-    setInterval(() => {
-        geo[3].velocity.x = Math.sin(performance.now() / 500) * 0.1;
-    }, 14);
 
     const camera = new Camera({
         fov: 54.4,
@@ -70,9 +67,14 @@ function init() {
 
     camera.follow(geo[0]);
 
+    exportable(viewport);
+}
+
+function exportable(viewport) {
     Console.GLOBAL_COMMANDS["export"] = () => {
 
         MapFile.OBJECT_TYPES["PlayerEntity"] = PlayerEntity;
+        MapFile.OBJECT_TYPES["Platform"] = Platform;
 
         const blob = MapFile.serializeScene(viewport.scene);
         const blobUrl = URL.createObjectURL(blob);
@@ -89,8 +91,21 @@ function init() {
 
             console.log(scene);
 
+            const camera = new Camera({
+                fov: 54.4,
+                traits: [ Follow ]
+            });
+        
+            camera.position.z = -20;
+            camera.position.y = -2;
+            camera.origin.y = -4;
+        
+            camera.follow([...scene.objects].find(o => o instanceof PlayerEntity));
+
+            scene.add(camera);
+
+            viewport.camera = camera;
             viewport.scene = scene;
-            viewport.scene.add(viewport.camera);
         })
     }
 }
