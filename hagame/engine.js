@@ -3,14 +3,13 @@ import { Console } from '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
-import { Loader } from '../src/resources/Loader.js';
 import MapFile from '../src/resources/MapFile.js';
 import { Resources } from '../src/resources/Resources.js';
 import { Camera } from '../src/scene/Camera.js';
+import { Entity } from '../src/scene/Entity.js';
 import { Geometry } from '../src/scene/Geometry.js';
 import Follow from '../src/traits/Follow.js';
-import { createPlayer } from './entities/Player.js';
-import { Entity } from '../src/scene/Entity.js';
+import { PlayerEntity } from './entities/Player.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
@@ -24,7 +23,7 @@ function init() {
     const ground = Resources.get('ground').getVertecies();
     
     const geo = [
-        createPlayer(),
+        new PlayerEntity(),
         new Geometry({
             material: new DefaultMaterial(),
             hitbox: [2.25, 9.2, -1.5, -9.2, 2],
@@ -62,7 +61,6 @@ function init() {
 
     camera.position.z = -20;
     camera.position.y = -2;
-
     camera.origin.y = -4;
 
     viewport.camera = camera;
@@ -73,19 +71,26 @@ function init() {
     camera.follow(geo[0]);
 
     Console.GLOBAL_COMMANDS["export"] = () => {
-        const blob = MapFile.serializeScene(viewport.scene);
-        console.log(blob);
 
+        MapFile.OBJECT_TYPES["PlayerEntity"] = PlayerEntity;
+
+        const blob = MapFile.serializeScene(viewport.scene);
         const blobUrl = URL.createObjectURL(blob);
 
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = "export.gmap";
-        link.click();
+        // const link = document.createElement("a");
+        // link.href = blobUrl;
+        // link.download = "export.gmap";
+        // link.click();
         
-        // blob.arrayBuffer().then(b => {
-        //     const file = MapFile.fromDataArray(b);
-        //     const scene = file.toScene();
-        // })
+        blob.arrayBuffer().then(b => {
+            const file = MapFile.fromDataArray(b);
+            console.log(file);
+            const scene = file.toScene();
+
+            console.log(scene);
+
+            viewport.scene = scene;
+            viewport.scene.add(viewport.camera);
+        })
     }
 }

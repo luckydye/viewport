@@ -1,8 +1,9 @@
-import { BinaryFile } from './BinaryFile';
-import { Scene } from '../scene/Scene';
 import DefaultMaterial from '../materials/DefaultMaterial';
-import { Geometry } from '../scene/Geometry';
 import { Camera } from '../scene/Camera';
+import { Entity } from '../scene/Entity';
+import { Geometry } from '../scene/Geometry';
+import { Scene } from '../scene/Scene';
+import { BinaryFile } from './BinaryFile';
 
 const Structs = {
     fileHeader: {
@@ -12,6 +13,7 @@ const Structs = {
     },
     object: {
         // header
+        type: 'unsigned char',
         verteciesLength: 'int',
         indeciesLength: 'int',
         // data
@@ -81,10 +83,18 @@ export default class MapFile extends BinaryFile {
 
         const scene = new Scene();
 
+        const objectTypes = MapFile.OBJECT_TYPES;
+
         for(let obj of objects) {
             const indecies = obj.indecies.data;
+            const struct = objectTypes[obj.type.data];
 
-            const geo = new Geometry({
+            if(!struct) {
+                console.error('Unknown object type "' + obj.type.data + '" skipped.');
+                continue;
+            }
+
+            const geo = new struct({
                 material: new DefaultMaterial(),
                 hitbox: obj.hitbox.data,
                 vertecies: obj.vertecies.data,
@@ -124,6 +134,9 @@ export default class MapFile extends BinaryFile {
             }
         }
 
+        // TODO:
+        // materials
+
         const fileData = [ objectData ];
 
         const hedaer = new Uint32Array([
@@ -151,18 +164,26 @@ export default class MapFile extends BinaryFile {
         ]);
 
         // TODO:
-        // material
-        // entities
-        // hitbox
+        // materials
 
         const fileData = [ position, rotation, scale, indecies, vertecies, hitbox ];
 
-        const hedaer = new Uint32Array([
-            vertecies.byteLength / Float32Array.BYTES_PER_ELEMENT,
-            indecies.byteLength / Uint32Array.BYTES_PER_ELEMENT,
-        ]);
+        const type = object.constructor.name.split('').map(s => s.charCodeAt(0));
+        type.push(0x00);
 
-        return [ hedaer, ...fileData ];
+        return [ 
+            new Uint8Array(type),
+            new Uint32Array([
+                vertecies.byteLength / Float32Array.BYTES_PER_ELEMENT,
+                indecies.byteLength / Uint32Array.BYTES_PER_ELEMENT,
+            ]), 
+            ...fileData
+        ];
     }
 
 }
+
+MapFile.OBJECT_TYPES = {
+    Geometry: Geometry,
+    Entity: Entity
+};

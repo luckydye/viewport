@@ -52,6 +52,7 @@ export class Geometry extends Transform {
 			selectable = true,
 			guide = false,
 			hitbox = null,
+			scale = null,
 			parent = null,
 			uv = [0, 0],
 		} = args;
@@ -75,6 +76,7 @@ export class Geometry extends Transform {
 		this.selectable = selectable;
 		this.guide = guide;
 		this.uv = uv;
+		this.scale = scale;
 		this.modelMatrix = mat4.create();
 	}
 

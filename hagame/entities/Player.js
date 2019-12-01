@@ -14,22 +14,33 @@ Resources.add({
     'ground': "models/ground.obj",
 });
 
-export function createPlayer() {
+export class PlayerEntity extends Entity {
 
-    const noise = Resources.get('noise');
-    const norm = Resources.get('norm');
+    constructor(args = {}) {
+        super(args);
+        
+        this.addTrait(Player);
+        this.addTrait(Collider);
 
-    const teapo = Loader.loadObjFile(Resources.get('teapot'));
+        const noise = Resources.get('noise');
+        const norm = Resources.get('norm');
 
-    return new Entity({
-        material: new DefaultMaterial({
+        this.material = new DefaultMaterial({
             normalMap: new Texture(norm),
             specularMap: new Texture(noise),
-        }),
-        hitbox: [2, 2, 0, -1.75, 1],
-        position: [0, 10, 0],
-        scale: 0.33,
-        vertecies: teapo,
-        traits: [ Player, Collider ]
-    });
+        });
+
+        this.position.x = 0;
+        this.position.y = 10;
+        this.position.z = 0;
+    }
+
+    onCreate(args) {
+        const teapo = Resources.get('teapot').getVertecies();
+
+        args.vertecies = teapo;
+        args.hitbox = [2, 2, 0, -1.75, 1];
+        args.scale = 0.33;
+    }
+
 }
