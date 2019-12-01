@@ -9,15 +9,6 @@ import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
 
-const renderConfig = Config.global;
-
-renderConfig.define('show.grid', false, false);
-renderConfig.define('debug', false, false);
-renderConfig.define('debuglevel', 0, 0);
-renderConfig.define('wireframe', false, false);
-
-const log = console.log;
-
 class Screen extends Geometry {
 	static get attributes() {
 		return [
@@ -66,19 +57,29 @@ export class Renderer extends RendererContext {
 	}
 
 	get showGrid() {
-		return renderConfig.getValue('show.grid');
+		return this.renderConfig.getValue('show.grid');
 	}
 
 	get debugLevel() {
-		return renderConfig.getValue('debuglevel');
+		return this.renderConfig.getValue('debuglevel');
 	}
 
 	get drawWireframe() {
-		return renderConfig.getValue('wireframe');
+		return this.renderConfig.getValue('wireframe');
+	}
+
+	setConfig(config) {
+		this.renderConfig = config;
+		this.renderConfig.define('show.grid', false, false);
+		this.renderConfig.define('debug', false, false);
+		this.renderConfig.define('debuglevel', 0, 0);
+		this.renderConfig.define('wireframe', false, false);
 	}
 
 	onCreate() {
-		this.debug = renderConfig.getValue('debug');
+		this.setConfig(Config.global);
+
+		this.debug = this.renderConfig.getValue('debug');
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
@@ -178,7 +179,7 @@ export class Renderer extends RendererContext {
 		}
 
 		if(this.debug) {
-			log(`Resolution set to ${this.width}x${this.height}`);
+			console.log(`Resolution set to ${this.width}x${this.height}`);
 		}
 	}
 

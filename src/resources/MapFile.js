@@ -1,9 +1,14 @@
 import DefaultMaterial from '../materials/DefaultMaterial';
 import { Camera } from '../scene/Camera';
 import { Entity } from '../scene/Entity';
+import { PlayerEntity } from '../scene/PlayerEntity';
 import { Geometry } from '../scene/Geometry';
 import { Scene } from '../scene/Scene';
 import { BinaryFile } from './BinaryFile';
+import { Cube } from '../geo/Cube';
+import { Plane } from '../geo/Plane';
+import { Guide } from '../geo/Guide';
+import { Box } from '../geo/Box';
 
 const Structs = {
     fileHeader: {
@@ -184,6 +189,11 @@ export default class MapFile extends BinaryFile {
 }
 
 MapFile.OBJECT_TYPES = {
+    PlayerEntity: PlayerEntity,
+    Cube: Cube,
+    Plane: Plane,
+    Guide: Guide,
+    Box: Box,
     Geometry: Geometry,
     Entity: Entity
 };

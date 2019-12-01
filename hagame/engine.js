@@ -9,8 +9,8 @@ import { Camera } from '../src/scene/Camera.js';
 import { Entity } from '../src/scene/Entity.js';
 import { Geometry } from '../src/scene/Geometry.js';
 import Follow from '../src/traits/Follow.js';
-import { PlayerEntity } from './entities/Player.js';
 import { Platform } from './entities/Platform.js';
+import { PlayerEntity } from '../src/scene/PlayerEntity.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
