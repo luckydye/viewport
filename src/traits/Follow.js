@@ -6,14 +6,19 @@ export default {
 
     onUpdate: (entity, ms) => {
         if(entity.followed) {
+            let deltaX = -entity.followed.position.x - entity.position.x;
+            let deltaY = -entity.followed.position.y - entity.position.y;
 
-            entity.velocity.x = -entity.followed.position.x - entity.position.x;
-            entity.velocity.y = -entity.followed.position.y - entity.position.y;
-            // entity.velocity.z = -entity.followed.position.z - entity.position.z;
+            const deadZone = [4, 2];
 
-            entity.velocity.x *= 0.01;
-            entity.velocity.y *= 0.0033;
-            entity.velocity.z *= 0.0033;
+            deltaX = Math.max(deltaX - deadZone[0], 0.0) || Math.min(deltaX + deadZone[0], 0.0);
+            deltaY = Math.max(deltaY - deadZone[1], 0.0) || Math.min(deltaY + deadZone[1], 0.0);
+
+            entity.velocity.x = deltaX;
+            entity.velocity.y = deltaY;
+
+            entity.velocity.x *= 0.05;
+            entity.velocity.y *= 0.05;
         }
     },
 

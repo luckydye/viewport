@@ -2,25 +2,18 @@ import '../components/Console.js';
 import { Console } from '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
-import { Emitter } from '../src/geo/Emitter.js';
-import DefaultMaterial from '../src/materials/DefaultMaterial.js';
-import MattMaterial from '../src/materials/MattMaterial.js';
 import MapFile from '../src/resources/MapFile.js';
 import { Resources } from '../src/resources/Resources.js';
 import { Camera } from '../src/scene/Camera.js';
-import { Geometry } from '../src/scene/Geometry.js';
 import { PlayerEntity } from '../src/scene/PlayerEntity.js';
 import { Task } from '../src/Scheduler.js';
 import Follow from '../src/traits/Follow.js';
 import { Platform } from './entities/Platform.js';
-import { Texture } from '../src/materials/Texture.js';
+
+Resources.add({ 'testmap': "maps/test.gmap" });
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
-});
-
-Resources.add({
-    'testmap': "maps/test.gmap",
 });
 
 function init() {
@@ -41,7 +34,6 @@ function init() {
 
 function loadMap(viewport, resources) {
     const scene = resources.toScene();
-    console.log(scene);
 
     const camera = new Camera({
         fov: 54.4,

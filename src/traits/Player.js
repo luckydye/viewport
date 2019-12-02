@@ -10,6 +10,8 @@ export default  {
 		entity.player = true;
 		entity.jumppower = 0.33;
 
+		entity.mode = 0;
+
 		Input.init();
     },
 
@@ -32,13 +34,19 @@ export default  {
 		}
     },
 
+	boost(entity) {
+		entity.force.y += 0.08;
+		entity.force.y *= 0.75;
+
+		entity.force.x *= 1.01;
+		entity.force.z *= 1.01;
+    },
+
     onUpdate(entity, ms) {
         if(!entity.player) return;
 
 		if (Input.pressed("a", 14)) this.strafe(entity, -entity.speed);
 		if (Input.pressed("d", 15)) this.strafe(entity, entity.speed);
-		// if (Input.pressed("q")) this.pan(entity, -entity.speed);
-		// if (Input.pressed("y")) this.pan(entity, entity.speed);
 		if (Input.pressed(" ", 0)) this.jump(entity);
 
         const camDirectionInv = [
@@ -60,11 +68,18 @@ export default  {
 			entity.rotation.y = 0 * Math.PI / 180;
 		}
 
+		if(entity.airborn) {
+			entity.direction.x *= 0.93;
+	        entity.direction.z *= 0.93;
+		}
+
 		entity.force.x += (entity.direction.z * camDirectionInv[0]) + (entity.direction.x * camDirection[2]);
 		entity.force.y += (entity.direction.z * camDirectionInv[1]) + entity.direction.y;
 		entity.force.z += (entity.direction.z * camDirectionInv[2]) + (entity.direction.x * camDirection[0]);
 		
 		entity.force.y -= 0.01;
+
+		if (Input.pressed("q", 3)) this.boost(entity);
 
 		entity.velocity.x = entity.force.x;
 		entity.velocity.y = entity.force.y;
@@ -78,8 +93,8 @@ export default  {
             entity.colliderGeometry = null;
 		}
 
-        entity.force.x *= 0.925;
-        entity.force.z *= 0.925;
+		entity.force.x *= 0.93;
+		entity.force.z *= 0.93;
 
 		entity.direction.x = 0;
 		entity.direction.y = 0;
