@@ -13,16 +13,16 @@ import { PlayerEntity } from '../src/scene/PlayerEntity.js';
 import { Task } from '../src/Scheduler.js';
 import Follow from '../src/traits/Follow.js';
 import { Platform } from './entities/Platform.js';
+import { Texture } from '../src/materials/Texture.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
 });
 
 Resources.add({
-    'noise': "textures/noise.jpg",
-    'norm': "textures/norm.png",
     'teapot': "models/teapot.obj",
     'ground': "models/ground.obj",
+    'grass': "textures/grass.png",
 });
 
 function init() {
@@ -41,7 +41,9 @@ function init() {
             vertecies: teapot,
         }),
         new Geometry({
-            material: new DefaultMaterial(),
+            material: new DefaultMaterial({
+                texture: new Texture(Resources.get('grass')),
+            }),
             hitbox: [2.25, 9.2, -1.5, -9.2, 2],
             vertecies: ground,
             position: [0, -1, 0],
@@ -57,7 +59,7 @@ function init() {
             scale: 2
         }),
         new Emitter({
-            material: new MattMaterial(),
+            material: new DefaultMaterial(),
             position: [0, 12, 0],
         }),
         new Platform({
@@ -94,18 +96,17 @@ function init() {
 }
 
 function exportable(viewport) {
-    Console.GLOBAL_COMMANDS["export"] = () => {
+    Console.GLOBAL_COMMANDS["export"] = async () => {
 
-        MapFile.OBJECT_TYPES["PlayerEntity"] = PlayerEntity;
         MapFile.OBJECT_TYPES["Platform"] = Platform;
 
-        const blob = MapFile.serializeScene(viewport.scene);
+        const blob = await MapFile.serializeScene(viewport.scene);
         const blobUrl = URL.createObjectURL(blob);
 
-        // const link = document.createElement("a");
-        // link.href = blobUrl;
-        // link.download = "export.gmap";
-        // link.click();
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "export.gmap";
+        link.click();
         
         blob.arrayBuffer().then(b => {
             const file = MapFile.fromDataArray(b);
