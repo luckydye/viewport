@@ -11,9 +11,18 @@ import { Geometry } from '../src/scene/Geometry.js';
 import Follow from '../src/traits/Follow.js';
 import { Platform } from './entities/Platform.js';
 import { PlayerEntity } from '../src/scene/PlayerEntity.js';
+import { Emitter } from '../src/geo/Emitter.js';
+import MattMaterial from '../src/materials/MattMaterial.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
+});
+
+Resources.add({
+    'noise': "textures/noise.jpg",
+    'norm': "textures/norm.png",
+    'teapot': "models/teapot.obj",
+    'ground': "models/ground.obj",
 });
 
 function init() {
@@ -21,10 +30,16 @@ function init() {
     document.body.appendChild(viewport);
     viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
 
-    const ground = Resources.get('ground').getVertecies();
+    let ground = Resources.get('ground');
+    ground = ground.getVertecies();
+
+    let teapot = Resources.get('teapot');
+    teapot = teapot.getVertecies();
     
     const geo = [
-        new PlayerEntity(),
+        new PlayerEntity({
+            vertecies: teapot,
+        }),
         new Geometry({
             material: new DefaultMaterial(),
             hitbox: [2.25, 9.2, -1.5, -9.2, 2],
@@ -40,6 +55,10 @@ function init() {
             position: [-18, -3, 1],
             rotation: [0, 0, 0],
             scale: 2
+        }),
+        new Emitter({
+            material: new MattMaterial(),
+            position: [0, 5, 0],
         }),
         new Platform({
             material: new DefaultMaterial(),

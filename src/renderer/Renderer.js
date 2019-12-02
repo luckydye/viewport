@@ -74,6 +74,7 @@ export class Renderer extends RendererContext {
 		this.renderConfig.define('debug', false, false);
 		this.renderConfig.define('debuglevel', 0, 0);
 		this.renderConfig.define('wireframe', false, false);
+		this.renderConfig.load();
 	}
 
 	onCreate() {
@@ -124,7 +125,7 @@ export class Renderer extends RendererContext {
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				colorBuffer: false,
-				antialiasing: true,
+				antialiasing: false,
 				shaderOverwrite: new NormalShader(),
 				resolution: [this.shadowMapSize, this.shadowMapSize],
 				options: {
@@ -163,7 +164,7 @@ export class Renderer extends RendererContext {
 				filter(geo) {
 					return (geo.guide || self.drawWireframe) && self.showGuides;
 				},
-				antialiasing: false,
+				antialiasing: true,
 				shaderOverwrite: new PrimitiveShader()
 			})
 		}
@@ -483,8 +484,14 @@ export class Renderer extends RendererContext {
 
 	drawGeoInstanced(geo, drawmode) {
 		const gl = this.gl;
-		const buffer = this.getGemoetryBuffer(geo);
-		const vertCount = buffer.vertecies.length / buffer.elements;
+		const bufferInfo = this.getGemoetryBuffer(geo);
+		const vertCount = bufferInfo.vertecies.length / bufferInfo.elements;
+
+		if(!bufferInfo.instanceBuffer) {
+			this.initializeInstanceBuffer(bufferInfo);
+		} else {
+			this.updateArrayBuffer(bufferInfo.instanceBuffer, bufferInfo.getInstanceBuffer());
+		}
 
 		gl.drawArraysInstanced(gl[drawmode], 0, vertCount, geo.instances);
 	}

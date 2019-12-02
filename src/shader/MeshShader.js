@@ -35,6 +35,8 @@ export default class MeshShader extends Shader {
             layout(location = 1) in vec3 aTexCoords;
             layout(location = 2) in vec3 aNormal;
 
+            layout(location = 3) in vec4 aTransform;
+
             ${MeshShader.structSceneProjection}
             ${MeshShader.structMaterial}
         
@@ -101,7 +103,17 @@ export default class MeshShader extends Shader {
                 uniformSacle = (scene.projectionView * scene.model * vec4(aPosition, 1.0)).z;
             }
 
-            vec4 pos = scene.model * vec4(aPosition * uniformSacle, 1.0);
+            vec4 pos = vec4(aPosition, 1.0);
+
+            // instanced scaleing
+            if(aTransform.w > 0.0) {
+                pos.xyz *= aTransform.w;
+            }
+
+            pos = scene.model * pos * uniformSacle;
+
+            // instanced translate
+            pos.xyz += aTransform.xyz;
         
             gl_Position = scene.projectionView * pos;
             gl_PointSize = 2.0;

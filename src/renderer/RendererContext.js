@@ -484,16 +484,29 @@ export class RendererContext {
 	}
 
 	// update geometry buffer with DYNAMIC_DRAW
-	updateBuffer(bufferInfo) {
+	updateArrayBuffer(buffer, data) {
 		const gl = this.gl;
-		
-		this.useVAO(buffer.vao);
 
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indexBuffer);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, bufferInfo.indecies, gl.DYNAMIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+	}
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo.vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, bufferInfo.vertecies, gl.DYNAMIC_DRAW);
+	// init buffer resources for instanced draw
+	initializeInstanceBuffer(bufferInfo) {
+		const gl = this.gl;
+
+		bufferInfo.instanceBuffer = gl.createBuffer();
+
+		const instanceVertexBuffer = bufferInfo.getInstanceBuffer();
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo.instanceBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, instanceVertexBuffer, gl.DYNAMIC_DRAW);
+
+		gl.vertexAttribPointer(this.currentShader.attributes['aTransform'], 
+			4, gl.FLOAT, false, 4 * instanceVertexBuffer.BYTES_PER_ELEMENT, 0);
+			
+		gl.vertexAttribDivisor(this.currentShader.attributes['aTransform'], 1);
+		gl.enableVertexAttribArray(this.currentShader.attributes['aTransform']);
 	}
 
 	// prepare geometry buffers for draw

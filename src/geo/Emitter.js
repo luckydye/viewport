@@ -1,79 +1,56 @@
-import { Geometry } from "../scene/Geometry.js";
+import { VertexBuffer } from "../scene/Geometry.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
-import { Vec } from "../Math.js";
+import { Vec, Transform } from "../Math.js";
+import { Plane } from './Plane.js';
+import { Entity } from '../scene/Entity.js';
 
-const DEFAULT_GUIDE_MATERIAL = new DefaultMaterial();
+const MAX_PARTICLE_COUNT = 500;
 
-export class Particle extends Geometry {
+export class Emitter extends Entity {
 
     get vertecies() {
-        const s = 20;
-
-        const [x, y, z] = this.position;
-        const d = this.direction;
-
-        return [
-            x + 0, y + 0, z + 0, 0, 0, 0, d[0], d[1], d[2],
-            x + -s, y + 0, z + 0, 0, 0, 0, d[0], d[1], d[2],
-            x + -s, y + s, z + 0, 0, 0, 0, d[0], d[1], d[2],
-
-            x + -s, y + s, z, 0, 0, 0, d[0], d[1], d[2],
-            x + -s, y + 0, z, 0, 0, 0, d[0], d[1], d[2],
-            x + 0, y + 0, z + s, 0, 0, 0, d[0], d[1], d[2],
-
-            x + -s, y + s, z, 0, 0, 0, d[0], d[1], d[2],
-            x + 0, y + 0, z + s, 0, 0, 0, d[0], d[1], d[2],
-            x + 0, y + 0, z + 0, 0, 0, 0, d[0], d[1], d[2],
-
-            x + 0, y + 0, z + 0, 0, 0, 0, d[0], d[1], d[2],
-            x + 0, y + 0, z + s, 0, 0, 0, d[0], d[1], d[2],
-            x - s, y + 0, z + 0, 0, 0, 0, d[0], d[1], d[2],
-        ]
+        return this.particleGeometry.vertecies;
     }
 
-    constructor(origin) {
-        super();
+    get instancesBuffer() {
+        const newBuffer = [];
 
-        this.name = "Emitter";
+        for(let p of this.particles) {
+            newBuffer.push(
+                p.position[0],
+                p.position[1],
+                p.position[2],
+                p.scale
+            );
+        }
 
-        this.base = origin;
-        this.age = 0;
-        this.position = new Vec();
-        this.direction = Vec.normal(Vec.add(
-            this.base.rotation,
-            new Vec(Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1, Math.random() + 1 / 2 - 1)
-        ));
+        this.instanceBufferCache.set(newBuffer, 0);
+        return this.instanceBufferCache;
     }
 
-}
-
-export class Emitter extends Geometry {
-
-    get buffer() {
-        return this.createBuffer();
+    get instances() {
+        return this.particles.length;
     }
 
     onCreate(args) {
-        args.material = DEFAULT_GUIDE_MATERIAL;
-
-        this.particle = new Particle(this);
         this.particles = [];
-
-        this.instances = 1;
         this.instanced = true;
-
         this.rotation = new Vec(0, 0, 0);
+        this.maxage = 1000;
+        this.rate = 100;
 
-        this.maxage = 10000;
+        this.particleGeometry = new Plane();
+
+        this.instanceBufferCache = new Float32Array(MAX_PARTICLE_COUNT * 4);
     }
 
-    update(ms) {
-        this.spawn(10);
+    update(ms = 0) {
+        this.spawn(this.rate);
 
         for (let p of this.particles) {
-            p.position.x += p.direction.x * ms;
-            p.position.y += p.direction.y * ms;
-            p.position.z += p.direction.z * ms;
+            p.position[0] += p.velocity[0];
+            p.position[1] += p.velocity[1];
+            p.position[2] += p.velocity[2];
 
             p.age += ms;
 
@@ -85,19 +62,31 @@ export class Emitter extends Geometry {
 
     spawn(amount) {
         for (let i = 0; i < amount; i++) {
-            this.particles.push(new Particle(this));
+            if(this.particles.length < MAX_PARTICLE_COUNT) {
+                this.particles.push({
+                    position: [0, 0, 0],
+                    age: 0,
+                    scale: 0.5,
+                    velocity: [
+                        Math.random() + 1 / 2 - 1, 
+                        Math.random() + 1 / 2 - 1, 
+                        Math.random() + 1 / 2 - 1
+                    ]
+                });
+            }
         }
     }
 
-    get vertecies() {
-        const verts = [];
-
-        for (let p of this.particles) {
-            const pverts = p.vertecies;
-            verts.push(...pverts);
+    createBuffer() {
+        const buffer = new VertexBuffer(
+			this.vertecies,
+			this.indecies,
+            this.constructor.attributes,
+        );
+        buffer.getInstanceBuffer = () => {
+            return this.instancesBuffer;
         }
-
-        return verts;
-    }
+		return buffer;
+	}
 
 }

@@ -37,7 +37,6 @@ export class Geometry extends Transform {
 		this.name = "Geometry";
 
 		this.instanced = false;
-		this.instances = 0;
 
 		this.uid = uuidv4();
 
@@ -162,7 +161,7 @@ export class Geometry extends Transform {
 	}
 }
 
-class VertexBuffer {
+export class VertexBuffer {
 
 	get vertsPerElement() {
 		return this.vertecies.length / this.elements;
