@@ -9,6 +9,8 @@ export default  {
         entity.speed = 0.01;
 		entity.player = true;
 		entity.jumppower = 0.33;
+
+		Input.init();
     },
 
     move(entity, dir) {

@@ -23,9 +23,7 @@ export class PlayerEntity extends Entity {
     }
 
     onCreate(args) {
-        args.vertecies = [];
         args.hitbox = [2, 2, 0, -1.75, 1];
-        args.scale = 0.33;
     }
 
 }

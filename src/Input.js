@@ -1,23 +1,29 @@
 
 const keyRegister = new Map();
 
-window.addEventListener('keydown', e => {
-	if(document.activeElement == document.body) {
-        const key = keyRegister.get(e.key);
-
-        if(key && !key.pressed) {
-            keyRegister.set(e.key, { pressed: true, touched: true });
-        } else if(!key) {
-            keyRegister.set(e.key, { pressed: true, touched: true });
-        }
-	}
-});
-
-window.addEventListener('keyup', e => {
-	keyRegister.set(e.key, { pressed: false, touched: false });
-});
-
 export default class Input {
+
+    static init() {
+        if(Input.initialized || !Input.domElement) {
+            return;
+        }
+
+        Input.domElement.addEventListener('keydown', e => {
+            const key = keyRegister.get(e.key);
+    
+            if(key && !key.pressed) {
+                keyRegister.set(e.key, { pressed: true, touched: true });
+            } else if(!key) {
+                keyRegister.set(e.key, { pressed: true, touched: true });
+            }
+        });
+        
+        window.addEventListener('keyup', e => {
+            keyRegister.set(e.key, { pressed: false, touched: false });
+        });
+
+        Input.initialized = true;
+    }
 
     static pressed(...btns) {
         const gamepad = navigator.getGamepads()[0];
@@ -60,3 +66,5 @@ export default class Input {
     }
 
 }
+
+Input.domElement = window;
