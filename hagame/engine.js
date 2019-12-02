@@ -58,7 +58,7 @@ function init() {
         }),
         new Emitter({
             material: new MattMaterial(),
-            position: [0, 5, 0],
+            position: [0, 12, 0],
         }),
         new Platform({
             material: new DefaultMaterial(),

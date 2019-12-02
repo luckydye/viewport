@@ -41,7 +41,7 @@ export class Emitter extends Entity {
 
         this.speed = 0.25;
 
-        this.particleGeometry = new Plane();
+        this.particleGeometry = args.particleGeometry || new Plane();
 
         this.instanceBufferCache = new Float32Array(MAX_PARTICLE_COUNT * 4);
 
@@ -86,7 +86,7 @@ export class Emitter extends Entity {
                         this.position.z
                     ],
                     age: 0,
-                    scale: scale,
+                    scale: this.particleGeometry.scale * scale,
                     velocity: [
                         Math.random() + 1 / 2 - 1, 
                         Math.random() + 1 / 2 - 1, 
