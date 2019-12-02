@@ -103,14 +103,14 @@ export default class MeshShader extends Shader {
                 uniformSacle = (scene.projectionView * scene.model * vec4(aPosition, 1.0)).z;
             }
 
-            vec4 pos = vec4(aPosition, 1.0);
+            vec4 pos = vec4(aPosition * uniformSacle, 1.0);
 
             // instanced scaleing
             if(aTransform.w > 0.0) {
                 pos.xyz *= aTransform.w;
             }
 
-            pos = scene.model * pos * uniformSacle;
+            pos = scene.model * pos;
 
             // instanced translate
             pos.xyz += aTransform.xyz;
