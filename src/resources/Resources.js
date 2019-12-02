@@ -1,9 +1,11 @@
 import OBJFile from "./OBJFile.js";
+import MapFile from './MapFile.js';
 
 const global = {};
 
 global.initLoaded = false;
 global.resourceTypes = {
+	SCENE: [".gmap"],
 	JSON: [".json"],
 	TEXT: [".txt"],
 	IMAGE: [".png", ".jpg", ".webp"],
@@ -143,6 +145,13 @@ export class Resources {
 
 			case Resources.Types.SHADER:
 				return fetch(path).then(res => res.text());
+
+			case Resources.Types.SCENE:
+				return fetch(path).then(res => {
+					return res.arrayBuffer().then(b => {
+						return MapFile.fromDataArray(b);
+					})
+				});
 
 			default:
 				throw `Err: not a valid resource type: "${path}"`;

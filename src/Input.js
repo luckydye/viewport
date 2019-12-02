@@ -27,7 +27,7 @@ export default class Input {
 
     static pressed(...btns) {
         const gamepad = navigator.getGamepads()[0];
-        
+
         if(gamepad) for(let button of gamepad.buttons) {
             for(let btn of btns) {
                 if(gamepad.buttons.indexOf(button) === btn) {

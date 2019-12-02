@@ -90,8 +90,6 @@ export default class DefaultShader extends MeshShader {
 
             vec4 pos = vWorldPos;
 
-            pos.xyz += normalize(normal) * 0.2;
-
             vec4 v_Vertex_relative_to_light = shadowProjMat * shadowViewMat * pos;
             vec3 light_pos = v_Vertex_relative_to_light.xyz / v_Vertex_relative_to_light.w;
 

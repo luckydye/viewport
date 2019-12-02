@@ -20,9 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 Resources.add({
-    'teapot': "models/teapot.obj",
-    'ground': "models/ground.obj",
-    'grass': "textures/grass.png",
+    'testmap': "maps/test.gmap",
 });
 
 function init() {
@@ -30,47 +28,20 @@ function init() {
     document.body.appendChild(viewport);
     viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
 
-    let ground = Resources.get('ground');
-    ground = ground.getVertecies();
+    viewport.scheduler.addTask(new Task(ms => {
+        viewport.scene.lightsource.position.x = viewport.camera.position.x;
+    }));
 
-    let teapot = Resources.get('teapot');
-    teapot = teapot.getVertecies();
-    
-    const geo = [
-        new PlayerEntity({
-            vertecies: teapot,
-        }),
-        new Geometry({
-            material: new DefaultMaterial({
-                texture: new Texture(Resources.get('grass')),
-            }),
-            hitbox: [2.25, 9.2, -1.5, -9.2, 2],
-            vertecies: ground,
-            position: [0, -1, 0],
-            rotation: [0, 0, 0],
-            scale: 2
-        }),
-        new Geometry({
-            material: new DefaultMaterial(),
-            hitbox: [2.25, 9.2, -1.5, -9.2, 2],
-            vertecies: ground,
-            position: [-18, -3, 1],
-            rotation: [0, 0, 0],
-            scale: 2
-        }),
-        new Emitter({
-            material: new DefaultMaterial(),
-            position: [0, 12, 0],
-        }),
-        new Platform({
-            material: new DefaultMaterial(),
-            hitbox: [1.55, 7.5, -1.5, -7.5, 1],
-            vertecies: ground,
-            position: [20, -3, 0.25],
-            rotation: [0, 0, 0],
-            scale: 1.5
-        })
-    ];
+    MapFile.OBJECT_TYPES["Platform"] = Platform;
+
+    loadMap(viewport, Resources.get('testmap'));
+
+    exportable(viewport);
+}
+
+function loadMap(viewport, resources) {
+    const scene = resources.toScene();
+    console.log(scene);
 
     const camera = new Camera({
         fov: 54.4,
@@ -81,24 +52,16 @@ function init() {
     camera.position.y = -2;
     camera.origin.y = -4;
 
+    camera.follow([...scene.objects].find(o => o instanceof PlayerEntity));
+
+    scene.add(camera);
+
     viewport.camera = camera;
-
-    viewport.scene.add(camera);
-    viewport.scene.add(geo);
-
-    camera.follow(geo[0]);
-
-    viewport.scheduler.addTask(new Task(ms => {
-        viewport.scene.lightsource.position.x = camera.position.x;
-    }));
-
-    exportable(viewport);
+    viewport.scene = scene;
 }
 
 function exportable(viewport) {
     Console.GLOBAL_COMMANDS["export"] = async () => {
-
-        MapFile.OBJECT_TYPES["Platform"] = Platform;
 
         const blob = await MapFile.serializeScene(viewport.scene);
         const blobUrl = URL.createObjectURL(blob);
@@ -107,29 +70,5 @@ function exportable(viewport) {
         link.href = blobUrl;
         link.download = "export.gmap";
         link.click();
-        
-        blob.arrayBuffer().then(b => {
-            const file = MapFile.fromDataArray(b);
-            console.log(file);
-            const scene = file.toScene();
-
-            console.log(scene);
-
-            const camera = new Camera({
-                fov: 54.4,
-                traits: [ Follow ]
-            });
-        
-            camera.position.z = -20;
-            camera.position.y = -2;
-            camera.origin.y = -4;
-        
-            camera.follow([...scene.objects].find(o => o instanceof PlayerEntity));
-
-            scene.add(camera);
-
-            viewport.camera = camera;
-            viewport.scene = scene;
-        })
     }
 }

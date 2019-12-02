@@ -35,7 +35,7 @@ export class Scene extends Transform {
 
 		this.add(objs);
 
-		const shadowAngle = 85;
+		const shadowAngle = 80;
 
 		this.add(new DirectionalLight({
 			position: [0, -100, -8],
