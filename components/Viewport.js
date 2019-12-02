@@ -104,6 +104,16 @@ export default class Viewport extends HTMLElement {
         };
 
         this.controllerType = controllertype;
+
+        this.root.innerHTML = this.constructor.template;
+        this.root.appendChild(this.canvas);
+
+        this.statsElement = this.shadowRoot.querySelector('.stats');
+
+        Resources.load().then(() => {
+            this.init();
+            this.render();
+        });
     }
 
     selectGeometry(geo, color) {
@@ -265,18 +275,6 @@ export default class Viewport extends HTMLElement {
                 this.cursor.updateModel();
             }
         }
-    }
-
-    connectedCallback() {
-        this.root.innerHTML = this.constructor.template;
-        this.root.appendChild(this.canvas);
-
-        this.statsElement = this.shadowRoot.querySelector('.stats');
-
-        Resources.load().then(() => {
-            this.init();
-            this.render();
-        });
     }
 
     render() {
