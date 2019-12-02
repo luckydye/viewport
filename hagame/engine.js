@@ -2,17 +2,17 @@ import '../components/Console.js';
 import { Console } from '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
+import { Emitter } from '../src/geo/Emitter.js';
 import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import MattMaterial from '../src/materials/MattMaterial.js';
 import MapFile from '../src/resources/MapFile.js';
 import { Resources } from '../src/resources/Resources.js';
 import { Camera } from '../src/scene/Camera.js';
-import { Entity } from '../src/scene/Entity.js';
 import { Geometry } from '../src/scene/Geometry.js';
+import { PlayerEntity } from '../src/scene/PlayerEntity.js';
+import { Task } from '../src/Scheduler.js';
 import Follow from '../src/traits/Follow.js';
 import { Platform } from './entities/Platform.js';
-import { PlayerEntity } from '../src/scene/PlayerEntity.js';
-import { Emitter } from '../src/geo/Emitter.js';
-import MattMaterial from '../src/materials/MattMaterial.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
@@ -85,6 +85,10 @@ function init() {
     viewport.scene.add(geo);
 
     camera.follow(geo[0]);
+
+    viewport.scheduler.addTask(new Task(ms => {
+        viewport.scene.lightsource.position.x = camera.position.x;
+    }));
 
     exportable(viewport);
 }

@@ -37,22 +37,38 @@ export class Emitter extends Entity {
         this.instanced = true;
         this.rotation = new Vec(0, 0, 0);
         this.maxage = 1000;
-        this.rate = 100;
+        this.rate = 10;
+
+        this.speed = 0.25;
 
         this.particleGeometry = new Plane();
 
         this.instanceBufferCache = new Float32Array(MAX_PARTICLE_COUNT * 4);
+
+        setInterval(() => {
+            this.velocity.x = Math.sin(performance.now() / 500) * 0.2;
+        }, 14);
     }
 
     update(ms = 0) {
-        this.spawn(this.rate);
+        super.update(ms);
+
+        this.rate = Math.sin(performance.now() / 1000) * 10;
+
+        this.spawn(this.rate, 0.25);
+
+        this.origin.x = -this.position.x;
+        this.origin.y = -this.position.y;
+        this.origin.z = -this.position.z;
 
         for (let p of this.particles) {
-            p.position[0] += p.velocity[0];
-            p.position[1] += p.velocity[1];
-            p.position[2] += p.velocity[2];
+            p.position[0] = p.position[0] + p.velocity[0] * this.speed;
+            p.position[1] = p.position[1] + p.velocity[1] * this.speed;
+            p.position[2] = p.position[2] + p.velocity[2] * this.speed;
 
             p.age += ms;
+
+            p.scale *= 1.0 - (p.age / this.maxage) + 0.1;
 
             if (p.age > this.maxage * Math.random()) {
                 this.particles.splice(this.particles.indexOf(p), 1);
@@ -60,13 +76,17 @@ export class Emitter extends Entity {
         }
     }
 
-    spawn(amount) {
+    spawn(amount, scale = 1) {
         for (let i = 0; i < amount; i++) {
             if(this.particles.length < MAX_PARTICLE_COUNT) {
                 this.particles.push({
-                    position: [0, 0, 0],
+                    position: [
+                        this.position.x, 
+                        this.position.y, 
+                        this.position.z
+                    ],
                     age: 0,
-                    scale: 0.5,
+                    scale: scale,
                     velocity: [
                         Math.random() + 1 / 2 - 1, 
                         Math.random() + 1 / 2 - 1, 
