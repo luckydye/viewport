@@ -12,6 +12,7 @@ import { Guide } from '../geo/Guide';
 import { Box } from '../geo/Box';
 import { Texture } from '../materials/Texture';
 import { Emitter } from '../geo/Emitter';
+import { Material } from '../materials/Material';
 
 const Structs = {
     fileHeader: {
@@ -370,6 +371,7 @@ MapFile.OBJECT_TYPES = {
 };
 
 MapFile.MATERIAL_TYPES = {
+    Material: Material,
     DefaultMaterial: DefaultMaterial,
     MattMaterial: MattMaterial
 };
