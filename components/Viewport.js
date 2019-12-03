@@ -6,6 +6,7 @@ import { Resources } from "../src/resources/Resources.js";
 import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
+import { Raycast, Vec } from '../src/Math.js';
 
 export default class Viewport extends HTMLElement {
 
@@ -250,25 +251,26 @@ export default class Viewport extends HTMLElement {
     
         const move = e => {
             if (moving && selectedObject) {
-                const depth = Math.sqrt(
-                    Math.pow(selectedObject.position.x - this.camera.position.x, 2),
-                    Math.pow(selectedObject.position.y - this.camera.position.y, 2),
-                    Math.pow(selectedObject.position.z - this.camera.position.z, 2),
-                ) + 1 * 10;
 
-                let movement = (e.movementX + e.movementY) / 2;
-                const rot = this.camera.rotation.y / (Math.PI / 2);
+                const bounds = this.getBoundingClientRect();
+                
+                const cast = new Raycast(this.camera, e.x - bounds.x, e.y - bounds.y);
+
+                let hit = null;
 
                 if(direction == "x") {
-                    if(rot < 1) movement *= -1;
-                    selectedObject.position[direction] -= (movement / 500) * depth;
+                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+                    selectedObject.position.x = hit.position[0];
+                }
 
-                } else if(direction == "z") {
-                    if(rot > 2) movement *= -1;
-                    selectedObject.position[direction] += (movement / 500) * depth;
-                    
-                } else if(direction == "y") {
-                    selectedObject.position[direction] -= (movement / 500) * depth;
+                if(direction == "y") {
+                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+                    selectedObject.position.y = hit.position[1];
+                }
+
+                if(direction == "z") {
+                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 1, 0));
+                    selectedObject.position.z = hit.position[2];
                 }
 
                 selectedObject.updateModel();

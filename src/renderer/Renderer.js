@@ -8,6 +8,7 @@ import NormalShader from '../shader/NormalShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
+import { Camera } from '../scene/Camera.js';
 
 class Screen extends Geometry {
 	static get attributes() {
@@ -214,9 +215,14 @@ export class Renderer extends RendererContext {
 			this.clearBuffers();
 		}
 
-		if(this.currentCamera) {
+		if(this.currentCamera && this.currentCamera.perspective == Camera.PERSPECTIVE) {
 			this.currentCamera.sensor.width = this.width;
 			this.currentCamera.sensor.height = this.height;
+		}
+
+		if(this.currentCamera && this.currentCamera.perspective == Camera.ORTHGRAPHIC) {
+			this.currentCamera.sensor.width = this.currentCamera.sensor.width;
+			this.currentCamera.sensor.height = this.currentCamera.sensor.width / (this.width / this.height);
 		}
 		
 		if(this.renderPasses.length > 0) {

@@ -119,7 +119,7 @@ export class Raycast extends Vec {
 		const width = camera.sensor.width;
 		const height = camera.sensor.height;
 
-		this.origin = new Vec(camPos.x, camPos.y, camPos.z);
+		this.origin = new Vec(-camPos.x, -camPos.y, -camPos.z);
 
 		this[0] = (2 * x) / width - 1;
 		this[1] = 1 - (2 * y) / height;
@@ -152,14 +152,10 @@ export class Raycast extends Vec {
 		const t = this.distnace(plane, normal);
 		const pos = this.origin.add(this.multiply(new Vec(t, t, t)));
 
-		if (t > 0 && t < 100000) {
-			return {
-				distance: t,
-				position: pos,
-			};
-		}
-
-		return null;
+		return {
+			distance: t,
+			position: pos,
+		};
 	}
 }
 

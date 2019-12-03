@@ -38,24 +38,19 @@ export class Emitter extends Entity {
         this.rotation = new Vec(0, 0, 0);
         this.maxage = 1000;
         this.rate = 10;
+        this.jitter = 2;
 
         this.speed = 0.25;
 
         this.particleGeometry = args.particleGeometry || new Plane();
 
         this.instanceBufferCache = new Float32Array(MAX_PARTICLE_COUNT * 4);
-
-        setInterval(() => {
-            this.velocity.x = Math.sin(performance.now() / 500) * 0.2;
-        }, 14);
     }
 
     update(ms = 0) {
         super.update(ms);
 
-        this.rate = Math.sin(performance.now() / 1000) * 10;
-
-        this.spawn(this.rate, 0.25);
+        this.spawn(this.rate - ((Math.random()) * this.jitter), 0.25);
 
         this.origin.x = -this.position.x;
         this.origin.y = -this.position.y;
