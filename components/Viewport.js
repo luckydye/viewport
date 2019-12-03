@@ -303,6 +303,8 @@ export default class Viewport extends HTMLElement {
         const currentFrame = performance.now();
         let delta = currentFrame - this.frame.lastFrame;
         
+        this.frame.lastFrame = currentFrame;
+        
         requestAnimationFrame(this.render.bind(this));
 
         // dont update on inital render
@@ -319,7 +321,7 @@ export default class Viewport extends HTMLElement {
 
         this.renderer.info.drawtime = this.frame.accumulator.toFixed(1);
 
-        while (this.frame.accumulator >= this.frame.tickrate) {
+        while (this.frame.accumulator > this.frame.tickrate) {
             this.frame.accumulator -= this.frame.tickrate;
 
             this.scene.update(this.frame.tickrate);
@@ -330,9 +332,7 @@ export default class Viewport extends HTMLElement {
             camera: this.camera,
         });
 
-        this.frame.lastFrame = currentFrame;
-
-        this.renderer.info.cputime = (performance.now() - currentFrame).toFixed(1);
+        this.renderer.info.cputime = this.frame.accumulator.toFixed(1);
         this.renderer.info.fps = Math.round(1000 / delta);
 
         // debug

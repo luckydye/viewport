@@ -9,7 +9,7 @@ export default {
             let deltaX = -entity.followed.position.x - entity.position.x;
             let deltaY = -entity.followed.position.y - entity.position.y;
 
-            const deadZone = [4, 2];
+            const deadZone = [4, 3];
 
             deltaX = Math.max(deltaX - deadZone[0], 0.0) || Math.min(deltaX + deadZone[0], 0.0);
             deltaY = Math.max(deltaY - deadZone[1], 0.0) || Math.min(deltaY + deadZone[1], 0.0);
