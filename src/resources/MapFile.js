@@ -30,8 +30,8 @@ const Structs = {
         position: 'vector',
         rotation: 'vector',
         scale: 'float',
-        vertecies: 'float[verteciesLength]',
         indecies: 'int[indeciesLength]',
+        vertecies: 'float[verteciesLength]',
         hitbox: 'float[5]',
         materialCount: 'int',
         materials: 'int[materialCount]'
@@ -177,11 +177,15 @@ export default class MapFile extends BinaryFile {
 
         for(let obj of objects) {
             const indecies = obj.indecies.data;
-            const struct = objectTypes[obj.type.data];
+            let struct = objectTypes[obj.type.data];
 
             if(!struct) {
                 console.error('Unknown object type "' + obj.type.data + '" skipped.');
                 continue;
+            }
+
+            if(struct == Box) {
+                struct = Geometry;
             }
 
             const geo = new struct({

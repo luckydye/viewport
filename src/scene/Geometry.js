@@ -29,7 +29,11 @@ export class Geometry extends Transform {
 
     set material(mat) {
         this.materials[0] = mat;
-    }
+	}
+	
+	get hitbox() {
+		return this._hitbox;
+	}
 
 	constructor(args = {}) {
 		super(args);
@@ -67,7 +71,7 @@ export class Geometry extends Transform {
 		this.matrixAutoUpdate = false;
 		this.lastUpdate = 1;
 
-		this.hitbox = hitbox;
+		this._hitbox = hitbox;
 
 		this.indexArray = indecies;
 		this.vertArray = vertecies;

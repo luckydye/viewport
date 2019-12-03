@@ -6,16 +6,19 @@ export class Box extends Geometry {
 
 	get vertecies() {
 		return [
-			[this.left, this.top, this.depth],
-			[this.right, this.top, this.depth],
-			[this.left, this.bottom, this.depth],
-			[this.right, this.bottom, this.depth],
+			[this.left, this.top, this.depth, 0, 0],
+			[this.right, this.top, this.depth, 5, 0],
+			[this.left, this.bottom, this.depth, 0, 1],
+			[this.right, this.bottom, this.depth, 1, 1],
 
-			[this.left, this.top, -this.depth],
-			[this.right, this.top, -this.depth],
-			[this.left, this.bottom, -this.depth],
-			[this.right, this.bottom, -this.depth],
-		].map(vert => [...vert,  0, 0, 0,  ...this.color]).flat();
+			[this.left, this.top, -this.depth, 0, 5],
+			[this.right, this.top, -this.depth, 5, 5],
+			[this.left, this.bottom, -this.depth, 1, 1],
+			[this.right, this.bottom, -this.depth, 0, 1],
+		].map((vert, i) => {
+			const vertex = vert;
+			return [...vertex,  0,  ...this.color];
+		}).flat();
 	}
 
 	get indecies() {
@@ -25,7 +28,7 @@ export class Box extends Geometry {
 			0, 1, 2,
 			1, 3, 2,
 			// top
-			0, 1, 4,
+			0, 4, 5,
 			0, 1, 5,
 			// bottom
 			2, 7, 6,
@@ -45,12 +48,21 @@ export class Box extends Geometry {
 	constructor(args) {
 		super(args);
 
-		this.material = new PrimitivetMaterial();
 		this.material.drawmode = "TRIANGLES";
 
 		this.color = [1, 0, 0];
 
 		this.matrixAutoUpdate = true;
+	}
+
+	get hitbox() {
+		return [
+			this.top,
+			this.right,
+			this.bottom,
+			this.left,
+			1,
+		]
 	}
 
 	onCreate(args) {
@@ -62,6 +74,8 @@ export class Box extends Geometry {
         this.top = args.top;
 		this.right = args.right;
         this.bottom = args.bottom;
-        this.left = args.left;
+		this.left = args.left;
+
+		args.material = args.material || new PrimitivetMaterial();
 	}
 }

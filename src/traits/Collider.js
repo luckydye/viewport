@@ -30,6 +30,7 @@ export default  {
             if (right > left2 && right < right2 && horizontalAxis) {
                 entity.velocity.x = -entity.velocity.y / 10;
                 entity.position.x = left2 - entity.hitbox[1];
+                entity.airborn = false;
             }
         }
 
@@ -39,6 +40,7 @@ export default  {
             if (left < right2 && left > left2 && horizontalAxis) {
                 entity.velocity.x = -entity.velocity.y / 10;
                 entity.position.x = right2 - entity.hitbox[3];
+                entity.airborn = false;
             }
         }
 

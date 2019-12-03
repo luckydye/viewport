@@ -10,6 +10,8 @@ export default  {
 		entity.player = true;
 		entity.jumppower = 0.33;
 
+		entity.jumptimer = 0;
+
 		entity.mode = 0;
 
 		Input.init();
@@ -28,9 +30,10 @@ export default  {
     },
 
 	jump(entity) {
-		if(!entity.airborn) {
+		if(!entity.airborn && entity.jumptimer > 400) {
 			entity.force.y = entity.jumppower;
 			entity.airborn = true;
+			entity.jumptimer = 0;
 		}
     },
 
@@ -43,11 +46,14 @@ export default  {
     },
 
     onUpdate(entity, ms) {
+		entity.jumptimer += ms;
+
         if(!entity.player) return;
 
 		if (Input.pressed("a", 14)) this.strafe(entity, -entity.speed);
 		if (Input.pressed("d", 15)) this.strafe(entity, entity.speed);
 		if (Input.pressed(" ", 0)) this.jump(entity);
+
 
         const camDirectionInv = [
 			Math.sin(-entity.rotation.y),
@@ -90,7 +96,7 @@ export default  {
             if(collider.velocity) {
 				entity.velocity.x = entity.force.x + collider.velocity.x;
             }
-            entity.colliderGeometry = null;
+			entity.colliderGeometry = null;
 		}
 
 		entity.force.x *= 0.93;

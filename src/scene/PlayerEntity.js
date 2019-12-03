@@ -23,7 +23,7 @@ export class PlayerEntity extends Entity {
     }
 
     onCreate(args) {
-        args.hitbox = [2, 2, 0, -1.75, 1];
+        args.hitbox = [1, 1, -1, -1, 1];
     }
 
 }
