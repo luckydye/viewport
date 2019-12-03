@@ -177,6 +177,8 @@ export default class Viewport extends HTMLElement {
         let moving = false;
         let selectedObject = null;
         let direction = "x";
+        let startHit = null;
+        let lastPosition = null;
         
         this.addEventListener("mousemove", e => move(e));
         
@@ -239,38 +241,56 @@ export default class Viewport extends HTMLElement {
                     direction = "z";
                 }
 
+                const hit = castRay(e, direction);
+                startHit = hit;
+
                 const guided = (guideColor[0] + guideColor[1] + guideColor[2]) / 3;
                 if(guided > 42) {
                     moving = true;
                     selectedObject = this.selected;
+
+                    lastPosition = [
+                        selectedObject.position[0],
+                        selectedObject.position[1],
+                        selectedObject.position[2],
+                    ];
                 }
             }
         });
+
+        const castRay = (e, direction) => {
+            const bounds = this.getBoundingClientRect();
+            const cast = new Raycast(this.camera, e.x - bounds.x, e.y - bounds.y);
+
+            let hit = null;
+
+            if(direction == "x") {
+                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+            }
+            if(direction == "y") {
+                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+            }
+            if(direction == "z") {
+                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 1, 0));
+            }
+
+            return hit;
+        }
 
         // moveing
     
         const move = e => {
             if (moving && selectedObject) {
-
-                const bounds = this.getBoundingClientRect();
-                
-                const cast = new Raycast(this.camera, e.x - bounds.x, e.y - bounds.y);
-
-                let hit = null;
+                const hit = castRay(e, direction);
 
                 if(direction == "x") {
-                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
-                    selectedObject.position.x = hit.position[0];
+                    selectedObject.position.x = lastPosition[0] + hit.position[0] - startHit.position[0];
                 }
-
                 if(direction == "y") {
-                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
-                    selectedObject.position.y = hit.position[1];
+                    selectedObject.position.y = lastPosition[1] + hit.position[1] - startHit.position[1];
                 }
-
                 if(direction == "z") {
-                    hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 1, 0));
-                    selectedObject.position.z = hit.position[2];
+                    selectedObject.position.z = lastPosition[2] + hit.position[2] - startHit.position[2];
                 }
 
                 selectedObject.updateModel();
