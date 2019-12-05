@@ -278,6 +278,13 @@ export default class Viewport extends HTMLElement {
         }
 
         // moveing
+
+        const updateChildren = children => {
+            for(let child of children) {
+                child.object.updateModel();
+                updateChildren(child.children);
+            }
+        }
     
         const move = e => {
             if (moving && selectedObject) {
@@ -293,8 +300,10 @@ export default class Viewport extends HTMLElement {
                     selectedObject.position.z = lastPosition[2] + hit.position[2] - startHit.position[2];
                 }
 
+                const sceneGraph = this.scene.getSceneGraph();
+                const children = sceneGraph.getChildren(selectedObject);
                 selectedObject.updateModel();
-                this.cursor.updateModel();
+                updateChildren(children);
             }
         }
     }

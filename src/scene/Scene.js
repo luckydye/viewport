@@ -197,6 +197,14 @@ export class Scene extends Transform {
 			}
 		}
 
+		scene_graph.getChildren = object => {
+			for(let key in parents) {
+				if(parents[key].object == object) {
+					return parents[key].children;
+				}
+			}
+		}
+
 		return scene_graph;
 	}
 
