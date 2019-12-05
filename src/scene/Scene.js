@@ -175,4 +175,26 @@ export class Scene extends Transform {
 		});
 	}
 
+	getSceneGraph() {
+		const scene_graph = [];
+		const parents = {};
+
+		for(let obj of this.objects) {
+			parents[obj.uid] = {
+				name: obj.name,
+				uid: obj.uid,
+				children: [],
+			};
+
+			if(obj.parent) {
+				const parent = parents[obj.parent.uid];
+				parent.children.push(parents[obj.uid]);
+			} else {
+				scene_graph.push(parents[obj.uid]);
+			}
+		}
+
+		return scene_graph;
+	}
+
 }
