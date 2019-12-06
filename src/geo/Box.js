@@ -7,12 +7,12 @@ export class Box extends Geometry {
 	get vertecies() {
 		return [
 			[this.left, this.top, this.depth, 0, 0],
-			[this.right, this.top, this.depth, 5, 0],
+			[this.right, this.top, this.depth, 1, 0],
 			[this.left, this.bottom, this.depth, 0, 1],
 			[this.right, this.bottom, this.depth, 1, 1],
 
-			[this.left, this.top, -this.depth, 0, 5],
-			[this.right, this.top, -this.depth, 5, 5],
+			[this.left, this.top, -this.depth, 0, 1],
+			[this.right, this.top, -this.depth, 1, 1],
 			[this.left, this.bottom, -this.depth, 1, 1],
 			[this.right, this.bottom, -this.depth, 0, 1],
 		].map((vert, i) => {
@@ -61,7 +61,7 @@ export class Box extends Geometry {
 			this.right,
 			this.bottom,
 			this.left,
-			1,
+			this.depth,
 		]
 	}
 
@@ -77,5 +77,6 @@ export class Box extends Geometry {
 		this.left = args.left;
 
 		args.material = args.material || new PrimitivetMaterial();
+		args.hitbox = this.hitbox;
 	}
 }

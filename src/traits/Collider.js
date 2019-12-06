@@ -25,10 +25,12 @@ export default  {
         const bellow = top - (entity.velocity.y * 2) < bottom2;
         const above = bottom - (entity.velocity.y * 2) > top2;
 
+        const weight = entity.weight || 10;
+
         if (direction == 1 && !(bellow || above)) {
             // right edge collides
             if (right > left2 && right < right2 && horizontalAxis) {
-                entity.velocity.x = -entity.velocity.y / 10;
+                entity.velocity.x = -entity.velocity.y / weight;
                 entity.position.x = left2 - entity.hitbox[1];
                 entity.airborn = false;
             }
@@ -38,7 +40,7 @@ export default  {
 
             // left edge collides
             if (left < right2 && left > left2 && horizontalAxis) {
-                entity.velocity.x = -entity.velocity.y / 10;
+                entity.velocity.x = -entity.velocity.y / weight;
                 entity.position.x = right2 - entity.hitbox[3];
                 entity.airborn = false;
             }
@@ -47,7 +49,7 @@ export default  {
         if (direction == 0) {
             // top edge collides
             if (top > bottom2 && top < top2 && verticalAxis) {
-                entity.velocity.y = -entity.velocity.y / 10;
+                entity.velocity.y = -entity.velocity.y / weight;
                 entity.position.y = bottom2 - entity.hitbox[0];
             }
         }
@@ -55,11 +57,13 @@ export default  {
         if (direction == 2) {
             // bottom edge collides
             if (bottom < top2 && bottom > bottom2 && verticalAxis) {
-                entity.velocity.y = -entity.velocity.y / 10;
+                entity.velocity.y = -entity.velocity.y / weight;
                 entity.position.y = top2 - entity.hitbox[2];
                 entity.airborn = false;
 
-                entity.force.y = 0;
+                if(entity.force) {
+                    entity.force.y = 0;
+                }
 
                 entity.colliderGeometry = collider;
             }

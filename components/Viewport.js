@@ -16,6 +16,7 @@ export default class Viewport extends HTMLElement {
                 :host {
                     display: block;
                     position: relative;
+                    outline: none;
                 }
                 :host([active]) .crosshair {
                     display: block;

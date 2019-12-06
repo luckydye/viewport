@@ -15,7 +15,7 @@ export default class MattShader extends MeshShader {
                 color = vec4(color.rgb, color.a + texcolor.a / 2.0);
 
                 if(color.a < 1.0) {
-                    dicard;
+                    discard;
                 }
 
                 oFragColor = color;
