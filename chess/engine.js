@@ -9,17 +9,18 @@ import { PlayerEntity } from '../src/scene/PlayerEntity.js';
 import { Task } from '../src/Scheduler.js';
 import Follow from '../src/traits/Follow.js';
 import { Platform } from './entities/Platform.js';
+import Input from '../src/Input.js';
 
 Resources.add({ 'testmap': "maps/test.gmap" });
-
-window.addEventListener('DOMContentLoaded', () => {
-    Resources.load().then(() => init());
-});
+Resources.load().then(() => init());
 
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
     viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
+
+    viewport.tabIndex = 0;
+    Input.domElement = viewport;
 
     viewport.scheduler.addTask(new Task(ms => {
         viewport.scene.lightsource.position.x = viewport.camera.position.x;
@@ -28,8 +29,6 @@ function init() {
     MapFile.OBJECT_TYPES["Platform"] = Platform;
 
     loadMap(viewport, Resources.get('testmap'));
-
-    exportable(viewport);
 }
 
 function loadMap(viewport, resources) {
@@ -50,17 +49,4 @@ function loadMap(viewport, resources) {
 
     viewport.camera = camera;
     viewport.scene = scene;
-}
-
-function exportable(viewport) {
-    Console.GLOBAL_COMMANDS["export"] = async () => {
-
-        const blob = await MapFile.serializeScene(viewport.scene);
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = "export.gmap";
-        link.click();
-    }
 }

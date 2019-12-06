@@ -53,18 +53,31 @@ export default class Viewport extends HTMLElement {
                     transform: translate(-50%, -50%);
                     stroke-width: 0.5px;
                 }
+                .hud {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: block;
+                    pointer-events: none;
+                }
             </style>
 
-            <span class="crosshair">
-                <svg width="21px" height="21px">
-                    <line class="st0" x1="10" y1="0" x2="10" y2="8"/>
-                    <line class="st0" x1="10" y1="12" x2="10" y2="20"/>
-                    <line class="st0" x1="20" y1="10" x2="12" y2="10"/>
-                    <line class="st0" x1="8" y1="10" x2="0" y2="10"/>
-                </svg>
-            </span>
-            
-            <pre class="stats"></pre>
+            <div class="hud">
+                <span class="crosshair">
+                    <svg width="21px" height="21px">
+                        <line class="st0" x1="10" y1="0" x2="10" y2="8"/>
+                        <line class="st0" x1="10" y1="12" x2="10" y2="20"/>
+                        <line class="st0" x1="20" y1="10" x2="12" y2="10"/>
+                        <line class="st0" x1="8" y1="10" x2="0" y2="10"/>
+                    </svg>
+                </span>
+                
+                <pre class="stats"></pre>
+
+                <slot class="hud"></slot>
+            </div>
         `;
     }
 
