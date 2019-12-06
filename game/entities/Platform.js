@@ -12,3 +12,5 @@ export class Platform extends Entity {
     }
 
 }
+
+MapFile.OBJECT_TYPES["Platform"] = Platform;

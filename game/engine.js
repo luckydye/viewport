@@ -1,15 +1,12 @@
 import '../components/Console.js';
-import { Console } from '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
-import MapFile from '../src/resources/MapFile.js';
+import Input from '../src/Input.js';
 import { Resources } from '../src/resources/Resources.js';
 import { Camera } from '../src/scene/Camera.js';
 import { PlayerEntity } from '../src/scene/PlayerEntity.js';
 import { Task } from '../src/Scheduler.js';
 import Follow from '../src/traits/Follow.js';
-import { Platform } from './entities/Platform.js';
-import Input from '../src/Input.js';
 
 Resources.add({ 'testmap': "maps/test.gmap" });
 Resources.load().then(() => init());
@@ -25,8 +22,6 @@ function init() {
     viewport.scheduler.addTask(new Task(ms => {
         viewport.scene.lightsource.position.x = viewport.camera.position.x;
     }));
-
-    MapFile.OBJECT_TYPES["Platform"] = Platform;
 
     loadMap(viewport, Resources.get('testmap'));
 }
