@@ -1,4 +1,3 @@
-import { Loader } from '../resources/Loader.js';
 import OBJFile from '../resources/OBJFile.js';
 import { Geometry } from '../scene/Geometry.js';
 import MattMaterial from '../materials/MattMaterial.js';
@@ -19,7 +18,7 @@ export class Cursor extends Guide {
 
 	get vertecies() {
 		const obj = OBJFile.parseFile(cursorObj);
-		const vert = Loader.loadObjFile(obj);
+		const vert = obj.getVertecies();
 		return vert;
 	}
 
