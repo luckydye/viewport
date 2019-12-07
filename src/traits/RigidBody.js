@@ -1,7 +1,7 @@
 export default  {
 
     onCreate: (entity) => {
-        entity.weight = 2;
+        entity.weight = 3;
     },
 
     onUpdate: (entity, ms) => {

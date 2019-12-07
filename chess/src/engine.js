@@ -14,7 +14,7 @@ Resources.resourceRoot = "../chess/res/";
 
 Resources.add({
     'select_tex': "textures/selector.png",
-    'testmap': "maps/chess.gmap",
+    'testmap': "maps/chess_winter.gmap",
 });
 
 Resources.load().then(() => init());
@@ -33,7 +33,7 @@ function loadMap(viewport, resources) {
     const scene = resources.toScene();
 
     const camera = new Camera({
-        fov: 42,
+        fov: 35,
     });
 
     Texture.default.mag_filter = "LINEAR";
@@ -48,10 +48,10 @@ function loadMap(viewport, resources) {
     });
     cursor.matrixAutoUpdate = true;
 
-    camera.position.y = -25;
     camera.rotation.y = -90 * Math.PI / 180;
-    camera.rotation.x = 1;
-    camera.position.x = -17;
+    camera.rotation.x = 0.75;
+    camera.position.y = -32;
+    camera.position.x = -35;
 
     scene.add(cursor);
     scene.add(camera);
@@ -71,13 +71,13 @@ function loadMap(viewport, resources) {
     const castRay = (x, y) => {
         const bounds = viewport.getBoundingClientRect();
         const cast = new Raycast(viewport.camera, x - bounds.x, y - bounds.y);
-        return cast.hit(new Vec(0, -0.01, 0), new Vec(0, 1, 0));
+        return cast.hit(new Vec(0, -0.2, 0), new Vec(0, -1, 0));
     }
 
     const spawnCube = pos => {
         const p = new Figure({
             material: new DefaultMaterial(),
-            position: new Vec(pos[0], 5, pos[2]),
+            position: new Vec(pos[0], 12, pos[2]),
             scale: 0,
         });
 

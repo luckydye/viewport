@@ -16,7 +16,7 @@ export class Figure extends Entity {
 
     onCreate(args) {
         args.vertecies = verts;
-        args.hitbox = [1, 1, -1, -1, 1];
+        args.hitbox = [1, 1, 1, -1, 1];
     }
 
 }
