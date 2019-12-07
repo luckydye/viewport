@@ -1,9 +1,9 @@
+import { Cube } from '../../src/geo/Cube';
+import DefaultMaterial from '../../src/materials/DefaultMaterial';
 import { Entity } from '../../src/scene/Entity';
 import Collider from '../../src/traits/Collider';
 import RigidBody from '../../src/traits/RigidBody';
-import { Cube } from '../../src/geo/Cube';
-
-const verts = new Cube().vertecies;
+import { Texture } from '../../src/materials/Texture';
 
 export class Figure extends Entity {
 
@@ -15,8 +15,20 @@ export class Figure extends Entity {
     }
 
     onCreate(args) {
-        args.vertecies = verts;
-        args.hitbox = [1, 1, 1, -1, 1];
+        args.hitbox = [3, 1, 0, -1, 1];
+
+        if(args.side == 1) {
+            args.material = new DefaultMaterial({
+                texture: new Texture(),
+                diffuseColor: [0.9, 0.9, 0.9, 1]
+            });
+        } else {
+            args.material = new DefaultMaterial({
+                texture: new Texture(),
+                diffuseColor: [0.1, 0.1, 0.1, 1]
+            });
+        }
+        
     }
 
 }

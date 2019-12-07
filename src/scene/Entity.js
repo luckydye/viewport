@@ -24,14 +24,6 @@ export class Entity extends Geometry {
         }
     }
 
-    createBuffer() {
-        for (let trait of this.traits) {
-            if(trait.onCreate) trait.onCreate(this);
-        }
-        
-        return super.createBuffer();
-    }
-
     update(ms = 0) {
         for (let trait of this.traits) {
             if(trait.onUpdate) trait.onUpdate(this, ms);

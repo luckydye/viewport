@@ -49,6 +49,10 @@ export class Scene extends Transform {
 				if(o) {
 					this.objects.add(o);
 
+					for (let trait of o.traits) {
+						if(trait.onCreate) trait.onCreate(o);
+					}
+
 					if(o.hitbox) {
 						o.hitbox_ = new Box({ 
 							top: o.hitbox[0], 
@@ -67,6 +71,12 @@ export class Scene extends Transform {
 			});
 		} else {
 			this.objects.add(obj);
+
+			if(obj.traits) {
+				for (let trait of obj.traits) {
+					if(trait.onCreate) trait.onCreate(obj);
+				}
+			}
 		}
 
 		this.lastchange = Date.now();

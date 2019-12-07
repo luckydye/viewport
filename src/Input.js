@@ -1,5 +1,6 @@
 
 const keyRegister = new Map();
+const mouseListeners = [];
 
 export default class Input {
 
@@ -17,12 +18,48 @@ export default class Input {
                 keyRegister.set(e.key, { pressed: true, touched: true });
             }
         });
+
+        let dragging = false;
+        let button = 0;
+
+        window.addEventListener('mousemove', e => {
+            if(dragging) {
+                for(let f of mouseListeners) {
+                    f({
+                        button,
+                        x: e.x,
+                        y: e.y,
+                    });
+                }
+            }
+        });
+
+        Input.domElement.addEventListener('mousedown', e => {
+            button = e.button;
+            for(let f of mouseListeners) {
+                f({
+                    first: true,
+                    button,
+                    x: e.x,
+                    y: e.y,
+                });
+            }
+            dragging = true;
+        });
+        
+        window.addEventListener('mouseup', e => {
+            dragging = false;
+        });
         
         window.addEventListener('keyup', e => {
             keyRegister.set(e.key, { pressed: false, touched: false });
         });
 
         Input.initialized = true;
+    }
+
+    static onDrag(f) {
+        mouseListeners.push(f);
     }
 
     static pressed(...btns) {

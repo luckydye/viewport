@@ -174,6 +174,22 @@ export class Renderer extends RendererContext {
 	setResolution(width, height) {
 		super.setResolution(width, height);
 
+		const timeoutTime = 14 * 5;
+
+		if(Date.now() - this.resizeTimeout < timeoutTime) {
+			
+			if(this.timout) {
+				clearTimeout(this.timout);
+			}
+
+			this.timout = setTimeout(() => {
+				this.setResolution(width, height);
+			}, timeoutTime);
+
+			return;
+		}
+		
+		this.resizeTimeout = Date.now();
 		this.initialRender = true;
 
 		for (let pass of this.renderPasses) {
