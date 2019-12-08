@@ -1,6 +1,7 @@
 import Config from '../Config.js';
 import { Grid } from '../geo/Grid.js';
 import { Texture } from '../materials/Texture.js';
+import { Camera } from '../scene/Camera.js';
 import { Geometry } from '../scene/Geometry.js';
 import CompShader from '../shader/CompShader.js';
 import IndexShader from '../shader/IndexShader.js';
@@ -8,7 +9,6 @@ import NormalShader from '../shader/NormalShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
-import { Camera } from '../scene/Camera.js';
 
 class Screen extends Geometry {
 	static get attributes() {

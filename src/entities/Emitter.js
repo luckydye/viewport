@@ -1,7 +1,7 @@
 import { VertexBuffer } from "../scene/Geometry.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
 import { Vec, Transform } from "../Math.js";
-import { Plane } from './Plane.js';
+import { Plane } from '../geo/Plane.js';
 import { Entity } from '../scene/Entity.js';
 
 const MAX_PARTICLE_COUNT = 500;

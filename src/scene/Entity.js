@@ -1,9 +1,9 @@
-import { Geometry } from "./Geometry.js";
 import { Vec } from "../Math.js";
+import { Geometry } from "./Geometry.js";
 
 export class Entity extends Geometry {
 
-    constructor(args) {
+    constructor(args = {}) {
         super(args);
 
         this.name = "Entity";

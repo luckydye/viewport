@@ -1,14 +1,39 @@
-import { Vec, Transform, uuidv4 } from '../Math.js';
-import { DirectionalLight } from './DirectionalLight.js';
-import { Camera } from './Camera.js';
-import { Entity } from './Entity.js';
-import { Guide } from '../geo/Guide.js';
-import { Box } from '../geo/Box.js';
 import Config from '../Config.js';
+import { Box } from '../geo/Box.js';
+import { Transform, uuidv4 } from '../Math.js';
+import { Emitter } from '../entities/Emitter.js';
+import Player from '../entities/Player.js';
+import Static from '../entities/Static.js';
+import { Camera } from './Camera.js';
+import { DirectionalLight } from './DirectionalLight.js';
+import { Entity } from './Entity.js';
+import Prop from './Prop.js';
+import { Geometry } from './Geometry.js';
+import { Cube } from '../geo/Cube.js';
+import { Guide } from '../geo/Guide.js';
+import { Plane } from '../geo/Plane.js';
+import { Vector } from '../geo/Vector.js';
+import { Group } from '../geo/Group.js';
 
 const config = Config.global;
 
-config.define('show_hitbox', 0, 0);
+config.define('show.hitbox', 0, 0);
+
+Prop.register('prop_player', Player);
+Prop.register('prop_static', Static);
+
+Prop.register('entity', Entity);
+Prop.register('entity_camera', Camera);
+Prop.register('entity_directional_light', DirectionalLight);
+Prop.register('entity_emitter', Emitter);
+
+Prop.register('geometry', Geometry);
+Prop.register('geometry_box', Box);
+Prop.register('geometry_cube', Cube);
+Prop.register('geometry_guide', Guide);
+Prop.register('geometry_plane', Plane);
+Prop.register('geometry_vector', Vector);
+Prop.register('geometry_group', Group);
 
 export class Scene extends Transform {
 
@@ -125,15 +150,15 @@ export class Scene extends Transform {
 	}
 
 	intersectsRect(entity, collider) {
-		const top = entity.hitbox[0] + entity.position.y;
-		const right = entity.hitbox[1] + entity.position.x;
-		const bottom = entity.hitbox[2] + entity.position.y;
-		const left = entity.hitbox[3] + entity.position.x;
+		const top = entity.hitbox[0] + entity.position[1];
+		const right = entity.hitbox[1] + entity.position[0];
+		const bottom = entity.hitbox[2] + entity.position[1];
+		const left = entity.hitbox[3] + entity.position[0];
 
-		const top2 = collider.hitbox[0] + collider.position.y;
-		const right2 = collider.hitbox[1] + collider.position.x;
-		const bottom2 = collider.hitbox[2] + collider.position.y;
-		const left2 = collider.hitbox[3] + collider.position.x;
+		const top2 = collider.hitbox[0] + collider.position[1];
+		const right2 = collider.hitbox[1] + collider.position[0];
+		const bottom2 = collider.hitbox[2] + collider.position[1];
+		const left2 = collider.hitbox[3] + collider.position[0];
 
 		const horizontal = (right > left2 && right < right2 || left < right2 && left > left2 );
 		const vertical = (bottom < top2 && bottom > bottom2 || top > bottom2 && top < top2);

@@ -1,3 +1,4 @@
+import { Raycast } from './Math';
 
 const keyRegister = new Map();
 const mouseListeners = [];
@@ -60,6 +61,18 @@ export default class Input {
 
     static onDrag(f) {
         mouseListeners.push(f);
+    }
+
+    static cast(camera, x, y, origin = [0, 0, 0], normal = [0, -1, 0]) {
+        let ele = Input.domElement;
+
+        if(ele == window) {
+            ele = document.body;
+        }
+
+        const bounds = ele.getBoundingClientRect();
+        const cast = new Raycast(camera, x - bounds.x, y - bounds.y);
+        return cast.hit(origin, normal);
     }
 
     static pressed(...btns) {

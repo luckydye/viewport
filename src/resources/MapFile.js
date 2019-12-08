@@ -1,18 +1,11 @@
 import DefaultMaterial from '../materials/DefaultMaterial';
+import { Material } from '../materials/Material';
 import MattMaterial from '../materials/MattMaterial';
-import { Camera } from '../scene/Camera';
-import { Entity } from '../scene/Entity';
-import { PlayerEntity } from '../scene/PlayerEntity';
+import { Texture } from '../materials/Texture';
 import { Geometry } from '../scene/Geometry';
+import Prop from '../scene/Prop';
 import { Scene } from '../scene/Scene';
 import { BinaryFile } from './BinaryFile';
-import { Cube } from '../geo/Cube';
-import { Plane } from '../geo/Plane';
-import { Guide } from '../geo/Guide';
-import { Box } from '../geo/Box';
-import { Texture } from '../materials/Texture';
-import { Emitter } from '../geo/Emitter';
-import { Material } from '../materials/Material';
 
 const Structs = {
     fileHeader: {
@@ -147,7 +140,6 @@ export default class MapFile extends BinaryFile {
 
         const scene = new Scene();
 
-        const objectTypes = MapFile.OBJECT_TYPES;
         const materialTypes = MapFile.MATERIAL_TYPES;
 
         const materialPool = [];
@@ -177,7 +169,7 @@ export default class MapFile extends BinaryFile {
 
         for(let obj of objects) {
             const indecies = obj.indecies.data;
-            let struct = objectTypes[obj.type.data];
+            let struct = Prop.map.get(obj.type.data);
 
             if(!struct) {
                 console.error('Unknown object type "' + obj.type.data + '" skipped.');
@@ -265,6 +257,10 @@ export default class MapFile extends BinaryFile {
     }
 
     static serializeObject(object) {
+        if(!object.type) {
+            return [];
+        }
+
         const position = new Float32Array([object.position.x, object.position.y, object.position.z]);
         const rotation = new Float32Array([object.rotation.x, object.rotation.y, object.rotation.z]);
         const scale = new Float32Array([object.scale]);
@@ -281,7 +277,7 @@ export default class MapFile extends BinaryFile {
         const materialCount = new Uint32Array([ object.materials.length ]);
         const materials = new Uint32Array(object.materials.map(mat => this.getMaterialIndex(mat)));
 
-        const type = stringToCharArray(object.constructor.name);
+        const type = stringToCharArray(object.type);
 
         return [ 
             new Uint8Array(type),
@@ -362,17 +358,6 @@ export default class MapFile extends BinaryFile {
     }
 
 }
-
-MapFile.OBJECT_TYPES = {
-    PlayerEntity: PlayerEntity,
-    Cube: Cube,
-    Plane: Plane,
-    Guide: Guide,
-    Box: Box,
-    Emitter: Emitter,
-    Geometry: Geometry,
-    Entity: Entity
-};
 
 MapFile.MATERIAL_TYPES = {
     Material: Material,

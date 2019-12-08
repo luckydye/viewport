@@ -1,5 +1,4 @@
 import { Camera } from './Camera.js';
-import { mat4 } from 'gl-matrix';
 
 export class DirectionalLight extends Camera {
 

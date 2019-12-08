@@ -3,10 +3,11 @@ import '../../components/Viewport.js';
 import Viewport from '../../components/Viewport.js';
 import { Box } from '../../src/geo/Box.js';
 import { Plane } from '../../src/geo/Plane.js';
+import Input from '../../src/Input.js';
 import DefaultMaterial from '../../src/materials/DefaultMaterial.js';
 import MattMaterial from '../../src/materials/MattMaterial.js';
 import { Texture } from '../../src/materials/Texture.js';
-import { Raycast, Vec } from '../../src/Math.js';
+import { Vec } from '../../src/Math.js';
 import { Resources } from '../../src/resources/Resources.js';
 import { Camera } from '../../src/scene/Camera.js';
 import { Geometry } from '../../src/scene/Geometry.js';
@@ -30,22 +31,14 @@ Resources.add({
 
 Resources.load().then(() => init());
 
-const figures = [
-    Bishop,
-    Farmer,
-    Horse,
-    King,
-    Queen,
-    Tower,
-]
-
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
     viewport.renderer.background = [0, 0, 0, 0];
     viewport.tabIndex = 0;
 
-    loadMap(viewport, Resources.get('testmap'));
+    const scene = loadMap(viewport, Resources.get('testmap'));
+    gameSetup(viewport, scene);
 }
 
 function loadMap(viewport, resources) {
@@ -102,13 +95,24 @@ function loadMap(viewport, resources) {
         })
     }));
 
+    return scene;
+}
+
+function gameSetup(viewport, scene) {
+
+    const figures = [
+        Bishop,
+        Farmer,
+        Horse,
+        King,
+        Queen,
+        Tower,
+    ];
+
     const camera = new Camera({ 
         fov: 35,
         traits: [ Turntable ]
     });
-
-    Texture.default.mag_filter = "LINEAR";
-    Texture.default.min_filter = "LINEAR";
 
     const cursor = new Plane({
         rotation: [90 * Math.PI / 180, 0, 0],
@@ -137,12 +141,6 @@ function loadMap(viewport, resources) {
     let currentTarget = null;
     let currentTargetPosition = null;
 
-    const castRay = (x, y) => {
-        const bounds = viewport.getBoundingClientRect();
-        const cast = new Raycast(viewport.camera, x - bounds.x, y - bounds.y);
-        return cast.hit(new Vec(0, -0.2, 0), new Vec(0, -1, 0));
-    }
-
     const spawnCube = pos => {
         const Fig = figures[Math.floor(figures.length * Math.random())];
 
@@ -163,7 +161,7 @@ function loadMap(viewport, resources) {
     }
 
     viewport.addEventListener('mousemove', e => {
-        const hit = castRay(e.x, e.y);
+        const hit = Input.cast(viewport.camera, e.x, e.y, [0, -0.2, 0]);
         hit.position = [
             Math.max(Math.min(hit.position[0], 8), -8),
             hit.position[1],

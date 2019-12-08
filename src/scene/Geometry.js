@@ -1,6 +1,5 @@
-import { Transform, uuidv4, Vec } from "../Math.js";
-import DefaultMaterial from "../materials/DefaultMaterial.js";
-import { mat4, glMatrix, quat, vec3 } from 'gl-matrix';
+import { glMatrix, mat4, quat, vec3 } from 'gl-matrix';
+import { Transform, uuidv4 } from "../Math.js";
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);

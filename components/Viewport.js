@@ -1,5 +1,4 @@
 import Config from '../src/Config.js';
-import { ViewportController } from '../src/controlers/ViewportController.js';
 import { Cursor } from '../src/geo/Cursor.js';
 import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/resources/Resources.js";
@@ -86,9 +85,7 @@ export default class Viewport extends HTMLElement {
         return this.cursor.parent;
     }
 
-    constructor({
-        controllertype = ViewportController,
-    } = {}) {
+    constructor() {
         super();
         
         Config.global.load();
@@ -117,8 +114,6 @@ export default class Viewport extends HTMLElement {
             accumulator: 0,
             tickrate: 1000 / 128
         };
-
-        this.controllerType = controllertype;
 
         this.root.innerHTML = this.constructor.template;
         this.root.appendChild(this.canvas);
@@ -150,10 +145,6 @@ export default class Viewport extends HTMLElement {
     }
 
     init() {
-        if(this.controllerType) {
-            new this.controllerType(this.camera, this);
-        }
-
         // resolution
         this.renderer.setResolution(this.clientWidth, this.clientHeight);
 
