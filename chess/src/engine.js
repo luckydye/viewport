@@ -29,10 +29,7 @@ Resources.resourceRoot = "../chess/res/";
 
 Resources.add({
     'select_tex': "textures/selector.png",
-    'water': "textures/water.jpg",
-    'noise': "textures/noise.png",
     'testmap': "maps/chess_winter.gmap",
-    'board_frame': "models/chess_board_frame.obj",
     'board': "textures/chess.png",
 });
 
@@ -63,19 +60,11 @@ function init() {
         lastValue = cam.rotation.y;
     }));
 
-    const scene = loadMap(viewport, Resources.get('testmap'));
+    const scene = Resources.get('testmap').toScene();
     gameSetup(viewport, scene);
 }
 
-function loadMap(viewport, resources) {
-    const scene = resources.toScene();
-
-    const darkGrey = [
-        0.08388 * 2, 
-        0.08202 * 2, 
-        0.08167 * 2, 
-        1
-    ];
+function gameSetup(viewport, scene) {
 
     scene.add(new Box({
         top: 0,
@@ -86,7 +75,12 @@ function loadMap(viewport, resources) {
         position: [0, -0.05, 0],
         material: new DefaultMaterial({
             texture: viewport.renderer.emptyTexture,
-            diffuseColor: darkGrey
+            diffuseColor: [
+                0.08388 * 2, 
+                0.08202 * 2, 
+                0.08167 * 2, 
+                1
+            ]
         })
     }));
     
@@ -99,11 +93,6 @@ function loadMap(viewport, resources) {
             diffuseColor: [1, 1, 1, 1]
         })
     }));
-
-    return scene;
-}
-
-function gameSetup(viewport, scene) {
 
     const figures = [
         Bishop,

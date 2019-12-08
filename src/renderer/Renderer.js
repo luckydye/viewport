@@ -95,6 +95,8 @@ export class Renderer extends RendererContext {
 		this.emptyTexture = this.prepareTexture(new Texture());
 		this.placeholderTexture = this.prepareTexture(new Texture(Texture.PLACEHOLDER));
 
+		this.placeholderTexture = this.emptyTexture;
+
 		this.MAX_TEXTURE_UINTS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
 
 		this.showGuides = true;
