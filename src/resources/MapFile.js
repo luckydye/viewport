@@ -1,3 +1,4 @@
+import { Box } from '../geo/Box';
 import DefaultMaterial from '../materials/DefaultMaterial';
 import { Material } from '../materials/Material';
 import MattMaterial from '../materials/MattMaterial';
@@ -147,6 +148,11 @@ export default class MapFile extends BinaryFile {
         for(let material of materials) {
             const type = material.type.data || "DefaultMaterial";
 
+            if(!(type in materialTypes)) {
+                console.warn('Material type "' + type + '" does not exist.');
+                continue;
+            }
+
             const mat = new materialTypes[type]({
                 diffuseColor: material.diffuseColor.data,
                 materialAttributes: material.materialValues.data,
@@ -213,9 +219,9 @@ export default class MapFile extends BinaryFile {
 
         let objectCount = 0;
         let materialCount = 0;
-
+        
         for(let object of objects) {
-            if(!(object instanceof Camera)) {
+            if(!object.guide) {
                 for(let material of object.materials) {
                     tempMaterialStore.push(material);
                 }
@@ -223,7 +229,7 @@ export default class MapFile extends BinaryFile {
         }
 
         for(let object of objects) {
-            if(!(object instanceof Camera)) {
+            if(!object.guide) {
                 const data = this.serializeObject(object);
                 objectData.push(...data);
                 objectCount++;
@@ -257,7 +263,7 @@ export default class MapFile extends BinaryFile {
     }
 
     static serializeObject(object) {
-        if(!object.type) {
+        if(!object.constructor.type) {
             return [];
         }
 
@@ -277,7 +283,7 @@ export default class MapFile extends BinaryFile {
         const materialCount = new Uint32Array([ object.materials.length ]);
         const materials = new Uint32Array(object.materials.map(mat => this.getMaterialIndex(mat)));
 
-        const type = stringToCharArray(object.type);
+        const type = stringToCharArray(object.constructor.type);
 
         return [ 
             new Uint8Array(type),
@@ -339,6 +345,7 @@ export default class MapFile extends BinaryFile {
         return new Promise((resolve, reject) => {
             if(!texture) {
                 resolve(new ArrayBuffer(0));
+                return;
             }
 
             const img = texture.image;
@@ -353,6 +360,8 @@ export default class MapFile extends BinaryFile {
                 ctx.canvas.toBlob(blob => {
                     blob.arrayBuffer().then(arrayBuffer => resolve(arrayBuffer));
                 }, 'image/png');
+            } else {
+                resolve(new ArrayBuffer(0));
             }
         })
     }

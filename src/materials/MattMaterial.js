@@ -8,6 +8,7 @@ export default class MattMaterial extends Material {
         
         this.shader = MattShader;
         this.castShadows = false;
+        this.drawmode = "TRIANGLES";
     }
 
 }
