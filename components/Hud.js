@@ -18,6 +18,7 @@ export class Hud extends HTMLElement {
                     padding: 15px;
                     box-sizing: border-box;
                     font-family: sans-serif;
+                    user-select: none;
                 }
             </style>
             <main></main>

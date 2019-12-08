@@ -21,6 +21,8 @@ import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
 import { Hud } from '../../components/Hud.js';
 import { Task } from '../../src/Scheduler.js';
+import { Emitter } from '../../src/entities/Emitter.js';
+import { Cube } from '../../src/geo/Cube.js';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -144,9 +146,24 @@ function gameSetup(viewport, scene) {
     });
     cursor.matrixAutoUpdate = true;
 
+    const emitter = new Emitter({
+        material: new DefaultMaterial({
+            texture: viewport.renderer.emptyTexture,
+            diffuseColor: [1, 1, 1, 1],
+        }),
+        scale: 0.5,
+    });
+
+    emitter.particleGeometry = new Cube();
+
+    emitter.speed = 0.1;
+    emitter.maxage = 400;
+    emitter.rate = 0;
+
     camera.rotation.x = 0.8;
     camera.position.y = -32;
 
+    scene.add(emitter);
     scene.add(cursor);
     scene.add(camera);
 
@@ -165,6 +182,9 @@ function gameSetup(viewport, scene) {
     const spawnCube = pos => {
         const Fig = figures[Math.floor(figures.length * Math.random())];
 
+        emitter.position[0] = pos[0];
+        emitter.position[2] = pos[2];
+
         const p = new Fig({
             material: new DefaultMaterial(),
             position: new Vec(pos[0], 4, pos[2]),
@@ -177,6 +197,14 @@ function gameSetup(viewport, scene) {
                 p.scale += 0.25;
             }
         }, 14);
+
+        setTimeout(() => {
+            emitter.rate = 25;
+        }, 200);
+
+        setTimeout(() => {
+            emitter.rate = 0;
+        }, 220);
 
         scene.add([ p ]);
     }
