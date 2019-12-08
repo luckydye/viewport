@@ -68,8 +68,7 @@ function init() {
 }
 
 function loadMap(viewport, resources) {
-    // const scene = resources.toScene();
-    const scene = new Scene();
+    const scene = resources.toScene();
 
     const darkGrey = [
         0.08388 * 2, 
@@ -98,42 +97,6 @@ function loadMap(viewport, resources) {
         material: new DefaultMaterial({
             texture: new Texture(Resources.get('board')),
             diffuseColor: [1, 1, 1, 1]
-        })
-    }));
-    
-    scene.add(new Plane({
-        scale: 50,
-        rotation: [90 * Math.PI / 180, 180 * Math.PI / 180, 0],
-        position: [0, -0.8, 0],
-        material: new WaterMaterial({
-            transparency: 1,
-            texture: new Texture(Resources.get('water')),
-            specularMap: new Texture(Resources.get('water')),
-            specular: 12,
-            displacementMap: new Texture(Resources.get('noise')),
-        })
-    }));
-    
-    scene.add(new Plane({
-        scale: 50,
-        rotation: [90 * Math.PI / 180, 0, 0],
-        position: [0, -0.5, 0],
-        material: new WaterMaterial({
-            transparency: 0.75,
-            texture: new Texture(Resources.get('water')),
-            specularMap: new Texture(Resources.get('water')),
-            specular: 12,
-            displacementMap: new Texture(Resources.get('noise')),
-        })
-    }));
-
-    scene.add(new Geometry({
-        scale: 2,
-        position: [0, -0.33, 0],
-        vertecies: Resources.get('board_frame').getVertecies(),
-        material: new DefaultMaterial({
-            texture: viewport.renderer.emptyTexture,
-            diffuseColor: darkGrey,
         })
     }));
 
