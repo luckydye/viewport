@@ -139,9 +139,9 @@ export default class DefaultShader extends MeshShader {
             float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 
             vec3 shadowColor = vec3(
-                150.0 / 255.0, // r
-                150.0 / 255.0, // g
-                170.0 / 255.0  // b
+                100.0 / 255.0, // r
+                100.0 / 255.0, // g
+                120.0 / 255.0  // b
             );
 
             vec3 lightColor = vec3(

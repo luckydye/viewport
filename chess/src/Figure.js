@@ -11,7 +11,14 @@ export class Figure extends Entity {
         super(args);
         
         this.addTrait(RigidBody);
-        this.addTrait(Collider);
+        this.addTrait({
+            onUpdate: () => {
+                if(this.position.y < 0) {
+                    this.position.y = 0;
+                    this.velocity.y = 0;
+                }
+            }
+        });
 
         this.moveTarget = [
             this.position.x,
@@ -21,7 +28,7 @@ export class Figure extends Entity {
     }
 
     onCreate(args) {
-        args.hitbox = [3, 1, 0, -1, 1];
+        // args.hitbox = [3, 1, 0, -1, 1];
 
         if(args.side == 1) {
             args.material = new DefaultMaterial({
@@ -54,14 +61,12 @@ export class Figure extends Entity {
 
     pickup() {
         this.moveTarget[1] = 4;
-        this.collider = false;
         this.hover = true;
     }
 
     release() {
         this.velocity.x = 0;
         this.velocity.z = 0;
-        this.collider = true;
         this.hover = false;
     }
 

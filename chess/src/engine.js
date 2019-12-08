@@ -183,6 +183,66 @@ function gameSetup(viewport, scene) {
         return p;
     }
 
+    const gridToWorld = (x, z) => {
+        return [
+            ((x - 4) / 2) * 4.38 + 1 + origin[0],
+            0,
+            ((z - 4) / 2) * 4.38 + 1 + origin[1]
+        ]
+    }
+
+    // board
+
+    const boardState = [
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+    ];
+
+
+    boardState[0][0] = spawnCube(gridToWorld(0, 0));
+    boardState[1][0] = spawnCube(gridToWorld(1, 0));
+    boardState[2][0] = spawnCube(gridToWorld(2, 0));
+    boardState[3][0] = spawnCube(gridToWorld(3, 0));
+    boardState[4][0] = spawnCube(gridToWorld(4, 0));
+    boardState[5][0] = spawnCube(gridToWorld(5, 0));
+    boardState[6][0] = spawnCube(gridToWorld(6, 0));
+    boardState[7][0] = spawnCube(gridToWorld(7, 0));
+
+    boardState[0][1] = spawnCube(gridToWorld(0, 1));
+    boardState[1][1] = spawnCube(gridToWorld(1, 1));
+    boardState[2][1] = spawnCube(gridToWorld(2, 1));
+    boardState[3][1] = spawnCube(gridToWorld(3, 1));
+    boardState[4][1] = spawnCube(gridToWorld(4, 1));
+    boardState[5][1] = spawnCube(gridToWorld(5, 1));
+    boardState[6][1] = spawnCube(gridToWorld(6, 1));
+    boardState[7][1] = spawnCube(gridToWorld(7, 1));
+
+    boardState[0][6] = spawnCube(gridToWorld(0, 6));
+    boardState[1][6] = spawnCube(gridToWorld(1, 6));
+    boardState[2][6] = spawnCube(gridToWorld(2, 6));
+    boardState[3][6] = spawnCube(gridToWorld(3, 6));
+    boardState[4][6] = spawnCube(gridToWorld(4, 6));
+    boardState[5][6] = spawnCube(gridToWorld(5, 6));
+    boardState[6][6] = spawnCube(gridToWorld(6, 6));
+    boardState[7][6] = spawnCube(gridToWorld(7, 6));
+
+    boardState[0][7] = spawnCube(gridToWorld(0, 7));
+    boardState[1][7] = spawnCube(gridToWorld(1, 7));
+    boardState[2][7] = spawnCube(gridToWorld(2, 7));
+    boardState[3][7] = spawnCube(gridToWorld(3, 7));
+    boardState[4][7] = spawnCube(gridToWorld(4, 7));
+    boardState[5][7] = spawnCube(gridToWorld(5, 7));
+    boardState[6][7] = spawnCube(gridToWorld(6, 7));
+    boardState[7][7] = spawnCube(gridToWorld(7, 7));
+
+    // events
+
     viewport.addEventListener('mousemove', e => {
         const hit = Input.cast(viewport.camera, e.x, e.y, [0, -0.2, 0]);
         hit.position = [
@@ -208,13 +268,6 @@ function gameSetup(viewport, scene) {
             currentObject.moveTo(sollX, sollZ);
         }
     })
-
-
-    const boardState = new Array(8);
-
-    for(let i = 0; i < 8; i++) {
-        boardState[i] = new Array(8);
-    }
 
     viewport.addEventListener('mousedown', e => {
         if(e.button == 0) {
