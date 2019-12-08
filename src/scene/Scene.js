@@ -154,35 +154,40 @@ export class Scene extends Transform {
 		const right = entity.hitbox[1] + entity.position[0];
 		const bottom = entity.hitbox[2] + entity.position[1];
 		const left = entity.hitbox[3] + entity.position[0];
+		const front = entity.position[2] - entity.hitbox[4];
+		const back = entity.position[2] + entity.hitbox[4];
 
 		const top2 = collider.hitbox[0] + collider.position[1];
 		const right2 = collider.hitbox[1] + collider.position[0];
 		const bottom2 = collider.hitbox[2] + collider.position[1];
 		const left2 = collider.hitbox[3] + collider.position[0];
+		const front2 = collider.position[2] - collider.hitbox[4];
+		const back2 = collider.position[2] + collider.hitbox[4];
 
-		const horizontal = (right > left2 && right < right2 || left < right2 && left > left2 );
+		const horizontal = (right > left2 && right < right2 || left < right2 && left > left2);
 		const vertical = (bottom < top2 && bottom > bottom2 || top > bottom2 && top < top2);
+		const depth = (back > front2 && back < back2 || front < back2 && front > front2);
 
 		let collidesX = null;
 		let collidesY = null;
 
 		// top edge collides
-		if (top > bottom2 && top < top2 && horizontal) {
+		if (top > bottom2 && top < top2 && horizontal && depth) {
 			collidesY = 0;
 		}
 
 		// bottom edge collides
-		if (bottom < top2 && bottom > bottom2 && horizontal) {
+		if (bottom < top2 && bottom > bottom2 && horizontal && depth) {
 			collidesY = 2;
 		}
 
 		// left edge collides
-		if (left > left2 && left < right2 && vertical) {
+		if (left > left2 && left < right2 && vertical && depth) {
 			collidesX = 3;
 		}
 
 		// right edge collides
-		if (right > left2 && right < right2 && vertical) {
+		if (right > left2 && right < right2 && vertical && depth) {
 			collidesX = 1;
 		}
 

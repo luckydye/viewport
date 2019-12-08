@@ -12,6 +12,12 @@ export class Figure extends Entity {
         
         this.addTrait(RigidBody);
         this.addTrait(Collider);
+
+        this.moveTarget = [
+            this.position.x,
+            this.position.y,
+            this.position.z,
+        ];
     }
 
     onCreate(args) {
@@ -29,6 +35,34 @@ export class Figure extends Entity {
             });
         }
         
+    }
+
+    update(ms) {
+        super.update(ms);
+
+        if(this.hover) {
+            this.velocity.y = (this.moveTarget[1] - this.position.y) / 10;
+            this.velocity.x = (this.moveTarget[0] - this.position.x) / 10;
+            this.velocity.z = (this.moveTarget[2] - this.position.z) / 10;
+        }
+    }
+
+    moveTo(x, z) {
+        this.moveTarget[0] = x;
+        this.moveTarget[2] = z;
+    }
+
+    pickup() {
+        this.moveTarget[1] = 4;
+        this.collider = false;
+        this.hover = true;
+    }
+
+    release() {
+        this.velocity.x = 0;
+        this.velocity.z = 0;
+        this.collider = true;
+        this.hover = false;
     }
 
 }

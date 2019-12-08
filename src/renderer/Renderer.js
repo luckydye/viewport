@@ -104,6 +104,10 @@ export class Renderer extends RendererContext {
 		this.background = [0, 0, 0, 0];
 		this.shadowMapSize = 4096;
 
+		this.fogMax = 0.25;
+		this.fogDensity = 1000;
+		this.fogStartOffset = 0.0001;
+
 		this.lastSceneId = null;
 		this.currentScene = null;
 		this.currentCamera = null;
@@ -136,8 +140,12 @@ export class Renderer extends RendererContext {
 		}
 
 		this.createRenderPass('color', {
-			filter(geo) { return !geo.guide; }
+			filter(geo) { return !geo.guide && !geo.isLight; }
 		});
+
+		// this.createRenderPass('lighting', {
+		// 	filter(geo) { return geo.isLight; }
+		// });
 		
 		if(this.indexPass) {
 			const indexShader = new IndexShader();
@@ -283,6 +291,12 @@ export class Renderer extends RendererContext {
 			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 			this.setTexture(this.getBufferTexture('index'), this.gl.TEXTURE_2D, TEXTURE.FRAME_INDEX, 'index');
+
+			this.compShader.setUniforms({
+				fogDensity: this.fogDensity,
+				fogStartOffset: this.fogStartOffset,
+				fogMax: this.fogMax,
+			});
 
 			this.initialRender = false;
 		}
@@ -432,6 +446,12 @@ export class Renderer extends RendererContext {
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
 
 					this.applyMaterial(material);
+
+					const custom = this.currentShader.customUniforms;
+					if(custom) {
+						this.currentShader.setUniforms(custom);
+					}
+
 					this.drawGeo(geo, material.drawmode || this.currentShader.drawmode);
 
 					matIndex++;

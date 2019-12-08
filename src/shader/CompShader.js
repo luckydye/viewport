@@ -34,6 +34,10 @@ export default class CompShader extends Shader {
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
 
+        uniform float fogMax;
+        uniform float fogDensity;
+        uniform float fogStartOffset;
+
         out vec4 oFragColor;
 
         vec2 rand( vec2 coord ) {
@@ -56,7 +60,7 @@ export default class CompShader extends Shader {
             oFragColor = color;
 
             // depth fog
-            oFragColor.rgb += min(pow(depth.r - 0.05, 100.0), 0.25);
+            oFragColor.rgb += min(pow(depth.r - fogStartOffset, fogDensity), fogMax);
             
             // guides
             if(guides.a < 0.9 && guides.a > 0.0) {

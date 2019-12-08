@@ -42,10 +42,11 @@ export class Hud extends HTMLElement {
                     padding: 10px;
                     height: 100px;
                     width: 100px;
-                    color: #333;
-                    background: white;
+                    color: #eee;
+                    background: #1c1c1cee;
                     text-transform: uppercase;
                     letter-spacing: 1px;
+                    border-radius: 4px;
                 }
             </style>
             <h2>Test2</h2>

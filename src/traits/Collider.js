@@ -9,6 +9,8 @@ export default  {
         // hitbox array relative from object position
         // [0] = top; [1] = right; [2] = bottom; [3] = left;
 
+        if(!entity.collider) return;
+
         const top = entity.hitbox[0] + entity.position.y;
         const right = entity.hitbox[1] + entity.position.x;
         const bottom = entity.hitbox[2] + entity.position.y;

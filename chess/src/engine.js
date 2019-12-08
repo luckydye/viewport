@@ -23,11 +23,14 @@ import { Hud } from '../../components/Hud.js';
 import { Task } from '../../src/Scheduler.js';
 import { Emitter } from '../../src/entities/Emitter.js';
 import { Cube } from '../../src/geo/Cube.js';
+import WaterMaterial from '../../src/materials/WaterMaterial.js';
 
 Resources.resourceRoot = "../chess/res/";
 
 Resources.add({
     'select_tex': "textures/selector.png",
+    'water': "textures/water.jpg",
+    'noise': "textures/noise.png",
     'testmap': "maps/chess_winter.gmap",
     'board_frame': "models/chess_board_frame.obj",
     'board': "textures/chess.png",
@@ -71,7 +74,7 @@ function loadMap(viewport, resources) {
     const darkGrey = [
         0.08388 * 2, 
         0.08202 * 2, 
-        0.09167 * 2, 
+        0.08167 * 2, 
         1
     ];
 
@@ -87,7 +90,7 @@ function loadMap(viewport, resources) {
             diffuseColor: darkGrey
         })
     }));
-
+    
     scene.add(new Plane({
         scale: 10,
         rotation: [90 * Math.PI / 180, 0, 0],
@@ -97,14 +100,30 @@ function loadMap(viewport, resources) {
             diffuseColor: [1, 1, 1, 1]
         })
     }));
-
+    
+    scene.add(new Plane({
+        scale: 50,
+        rotation: [90 * Math.PI / 180, 180 * Math.PI / 180, 0],
+        position: [0, -0.8, 0],
+        material: new WaterMaterial({
+            transparency: 1,
+            texture: new Texture(Resources.get('water')),
+            specularMap: new Texture(Resources.get('water')),
+            specular: 12,
+            displacementMap: new Texture(Resources.get('noise')),
+        })
+    }));
+    
     scene.add(new Plane({
         scale: 50,
         rotation: [90 * Math.PI / 180, 0, 0],
         position: [0, -0.5, 0],
-        material: new DefaultMaterial({
-            texture: viewport.renderer.emptyTexture,
-            diffuseColor: darkGrey
+        material: new WaterMaterial({
+            transparency: 0.75,
+            texture: new Texture(Resources.get('water')),
+            specularMap: new Texture(Resources.get('water')),
+            specular: 12,
+            displacementMap: new Texture(Resources.get('noise')),
         })
     }));
 
@@ -178,12 +197,10 @@ function gameSetup(viewport, scene) {
 
     let currentTarget = null;
     let currentTargetPosition = null;
+    let currentObject = null;
 
     const spawnCube = pos => {
         const Fig = figures[Math.floor(figures.length * Math.random())];
-
-        emitter.position[0] = pos[0];
-        emitter.position[2] = pos[2];
 
         const p = new Fig({
             material: new DefaultMaterial(),
@@ -198,6 +215,9 @@ function gameSetup(viewport, scene) {
             }
         }, 14);
 
+        emitter.position[0] = pos[0];
+        emitter.position[2] = pos[2];
+
         setTimeout(() => {
             emitter.rate = 25;
         }, 200);
@@ -207,6 +227,8 @@ function gameSetup(viewport, scene) {
         }, 220);
 
         scene.add([ p ]);
+
+        return p;
     }
 
     viewport.addEventListener('mousemove', e => {
@@ -226,19 +248,74 @@ function gameSetup(viewport, scene) {
             Math.floor((hit.position[0] / 2) * border) + 4,
             Math.floor((hit.position[2] / 2) * border) + 4,
         ];
+
+        if(currentObject) {
+            const sollX = ((hit.position[0] / 2) * border) * (2 / border) + origin[0];
+            const sollZ = ((hit.position[2] / 2) * border) * (2 / border) + origin[1];
+
+            currentObject.moveTo(sollX, sollZ);
+        }
     })
+
+
+    const boardState = new Array(8);
+
+    for(let i = 0; i < 8; i++) {
+        boardState[i] = new Array(8);
+    }
 
     viewport.addEventListener('mousedown', e => {
         if(e.button == 0) {
-            const target = currentTarget;
             const pos = currentTargetPosition;
-            spawnCube(pos);
+
+            if(!boardState[currentTarget[0]][currentTarget[1]]) {
+                const geo = spawnCube(pos);
+                boardState[currentTarget[0]][currentTarget[1]] = geo;
+                currentObject = boardState[currentTarget[0]][currentTarget[1]];
+                currentObject.lastPosition = [currentObject.position.x, currentObject.position.z];
+                currentObject = null;
+            } else {
+                currentObject = boardState[currentTarget[0]][currentTarget[1]];
+                currentObject.pickup();
+                currentObject.coord = [currentTarget[0], currentTarget[1]];
+                currentObject.lastPosition = [currentObject.position.x, currentObject.position.z];
+            }
+
             cursor.scale = 0.95;
         }
     })
 
     viewport.addEventListener('mouseup', e => {
         cursor.scale = 1;
+
+        if(currentObject) {
+            if(!boardState[currentTarget[0]][currentTarget[1]]) {
+                boardState[currentObject.coord[0]][currentObject.coord[1]] = null;
+                boardState[currentTarget[0]][currentTarget[1]] = currentObject;
+                currentObject.position.x = currentTargetPosition[0];
+                currentObject.position.z = currentTargetPosition[2];
+            } else {
+                currentObject.position.x = currentObject.lastPosition[0];
+                currentObject.position.z = currentObject.lastPosition[1];
+            }
+
+            currentObject.coord = [currentTarget[0], currentTarget[1]];
+
+            currentObject.release();
+
+            emitter.position[0] = currentObject.position[0];
+            emitter.position[2] = currentObject.position[2];
+    
+            setTimeout(() => {
+                emitter.rate = 25;
+            }, 200);
+    
+            setTimeout(() => {
+                emitter.rate = 0;
+            }, 220);
+            
+            currentObject = null;
+        }
     })
 
     viewport.addEventListener('contextmenu', e => {
