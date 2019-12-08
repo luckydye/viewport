@@ -17,7 +17,7 @@ export default  {
                     lastX = e.x;
                 }
 
-                x += (e.x - lastX) / 200;
+                x += (e.x - lastX) / 400;
 
                 lastX = e.x;
     

@@ -19,6 +19,8 @@ import { Horse } from './Horse.js';
 import { King } from './King.js';
 import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
+import { Hud } from '../../components/Hud.js';
+import { Task } from '../../src/Scheduler.js';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -36,6 +38,25 @@ function init() {
     document.body.appendChild(viewport);
     viewport.renderer.background = [0, 0, 0, 0];
     viewport.tabIndex = 0;
+
+    const hud = new Hud();
+    viewport.appendChild(hud);
+
+    let lastValue = 0;
+    hud.jiggle = [0, 0];
+
+    viewport.scheduler.addTask(new Task(() => {
+        const cam = viewport.camera;
+        const deltaX = (cam.rotation.y - lastValue);
+
+        hud.jiggle[0] += Math.sign(deltaX) * 0.5;
+        hud.jiggle[1] += Math.sign(deltaX) * 0.125;
+        hud.jiggle[0] *= 0.9;
+        hud.jiggle[1] *= 0.9;
+
+        hud.style.transform = `translateX(${hud.jiggle[0]}px) translateY(${hud.jiggle[1]}px)`;
+        lastValue = cam.rotation.y;
+    }));
 
     const scene = loadMap(viewport, Resources.get('testmap'));
     gameSetup(viewport, scene);
