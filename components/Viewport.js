@@ -184,12 +184,13 @@ export default class Viewport extends HTMLElement {
         let direction = "x";
         let startHit = null;
         let lastPosition = null;
+        let mousedown = false;
         
         this.addEventListener("mousemove", e => move(e));
         
         // selecting
         window.addEventListener('mouseup', e => {
-            if(e.button === 0 && !moving) {
+            if(e.button === 0 && !moving && mousedown) {
                 this.selectedColor = null;
 
                 const bounds = this.getBoundingClientRect();
@@ -226,9 +227,12 @@ export default class Viewport extends HTMLElement {
             }
 
             moving = false;
+            mousedown = false;
         });
         
         this.addEventListener('mousedown', e => {
+            mousedown = true;
+
             if(e.button === 0 && selectedObject) {
                 this.selectedColor = null;
 
@@ -309,6 +313,7 @@ export default class Viewport extends HTMLElement {
                 const children = sceneGraph.getChildren(selectedObject);
                 selectedObject.updateModel();
                 updateChildren(children);
+                this.cursor.updateModel();
             }
         }
     }

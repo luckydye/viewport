@@ -220,20 +220,24 @@ export class Scene extends Transform {
 		const parents = {};
 
 		for(let obj of this.objects) {
-			parents[obj.uid] = {
-				name: obj.name,
-				uid: obj.uid,
-				object: obj,
-				children: [],
-			};
+			if(!obj.guide) {
+				parents[obj.uid] = {
+					name: obj.name,
+					uid: obj.uid,
+					object: obj,
+					children: [],
+				};
+			}
 		}
 
 		for(let obj of this.objects) {
-			if(obj.parent) {
-				const parent = parents[obj.parent.uid];
-				parent.children.push(parents[obj.uid]);
-			} else {
-				scene_graph.push(parents[obj.uid]);
+			if(!obj.guide) {
+				if(obj.parent) {
+					const parent = parents[obj.parent.uid];
+					parent.children.push(parents[obj.uid]);
+				} else {
+					scene_graph.push(parents[obj.uid]);
+				}
 			}
 		}
 
