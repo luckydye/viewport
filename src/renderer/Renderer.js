@@ -69,11 +69,16 @@ export class Renderer extends RendererContext {
 		return this.renderConfig.getValue('wireframe');
 	}
 
+	get shadowMapSize() {
+		return this.renderConfig.getValue('shadowMapSize');
+	}
+
 	setConfig(config) {
 		this.renderConfig = config;
 		this.renderConfig.define('show.grid', false, false);
 		this.renderConfig.define('debug', false, false);
 		this.renderConfig.define('debuglevel', 0, 0);
+		this.renderConfig.define('shadowMapSize', 4096, 4096);
 		this.renderConfig.define('wireframe', false, false);
 		this.renderConfig.load();
 	}
@@ -104,7 +109,6 @@ export class Renderer extends RendererContext {
 		this.indexPass = true;
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
-		this.shadowMapSize = 4096;
 
 		this.fogMax = 0.25;
 		this.fogDensity = 1000;

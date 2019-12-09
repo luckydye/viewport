@@ -33,11 +33,9 @@ export class RendererContext {
 		if (!canvas) throw "RendererContext: Err: no canvas";
 
 		this.contextOptions = contextOptions;
-
+		this.canvas = canvas;
 		this.debug = false;
-
 		this.currentShader = null;
-
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
@@ -48,13 +46,17 @@ export class RendererContext {
 			BLEND: true,
 		}
 
-		this.getContext(canvas);
-		this.onCreate();
+		this.initialize();
 
 		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
 		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
 
 		this.MULTISAMPLING_SAMPLES = 8;
+	}
+
+	initialize() {
+		this.getContext(this.canvas);
+		this.onCreate();
 
 		// enable gl options
 		this.setOptions(this.options);
