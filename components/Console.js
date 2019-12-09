@@ -134,13 +134,11 @@ export class Console extends HTMLElement {
         const template = html`
             <style>
                 :host {
-                    background: rgba(27, 27, 27, 0.75);
                     display: flex;
                     flex-direction: column;
                     color: #eee;
                     overflow: hidden;
                     z-index: 1000;
-                    backdrop-filter: blur(4px);
                     user-select: text;
                 }
                 .log {
@@ -161,13 +159,14 @@ export class Console extends HTMLElement {
                 input {
                     padding: 8px;
                     color: currentColor;
-                    background: rgba(0, 0, 0, 0.33);
                     border: none;
                     outline: none;
                     font-size: 13px;
                     font-family: monospace;
                     width: 100%;
                     box-sizing: border-box;
+                    background: rgba(0, 0, 0, 0.1);
+                    border-top: 1px solid var(--gyro-background);
                 }
                 ::-webkit-scrollbar {
                     width: 12px;
