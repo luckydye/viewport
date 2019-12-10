@@ -40,6 +40,16 @@ const GLOBAL_COMMANDS = {
         }
     },
 
+    reset(console) {
+        const keys = Object.keys(Config.global);
+        for(let key of keys) {
+            const param = Config.global[key];
+            Config.global.setValue(param.name, param.default);
+        }
+
+        console.log('Config reset.');
+    },
+
     reload() {
         location.reload();
     },

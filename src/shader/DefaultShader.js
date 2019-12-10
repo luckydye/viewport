@@ -122,7 +122,7 @@ export default class DefaultShader extends MeshShader {
             color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
             color = vec4(color.rgb, color.a + texcolor.a / 2.0);
 
-            if(color.a < 1.0) {
+            if(color.a < 0.5) {
                 discard;
             }
             

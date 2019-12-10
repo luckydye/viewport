@@ -34,14 +34,13 @@ export class Figure extends Entity {
             args.material = new DefaultMaterial({
                 texture: new Texture(),
                 diffuseColor: [0.9, 0.9, 0.9, 1]
-            });
+            });;
         } else {
             args.material = new DefaultMaterial({
                 texture: new Texture(),
                 diffuseColor: [0.1, 0.1, 0.1, 1]
-            });
+            });;
         }
-        
     }
 
     update(ms) {

@@ -19,11 +19,12 @@ import { Horse } from './Horse.js';
 import { King } from './King.js';
 import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
-import { Hud } from '../../components/Hud.js';
 import { Task } from '../../src/Scheduler.js';
 import { Emitter } from '../../src/entities/Emitter.js';
 import { Cube } from '../../src/geo/Cube.js';
 import WaterMaterial from '../../src/materials/WaterMaterial.js';
+import { ChessBoard } from './Chess.js';
+import { Renderer } from '../../src/renderer/Renderer.js';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -35,30 +36,16 @@ Resources.add({
 
 Resources.load().then(() => init());
 
+Renderer.showGuides = false;
+Renderer.clearPass = false;
+Renderer.indexPass = false;
+Renderer.shadowPass = true;
+
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
     viewport.renderer.background = [0, 0, 0, 0];
     viewport.tabIndex = 0;
-
-    const hud = new Hud();
-    viewport.appendChild(hud);
-
-    let lastValue = 0;
-    hud.jiggle = [0, 0];
-
-    viewport.scheduler.addTask(new Task(() => {
-        const cam = viewport.camera;
-        const deltaX = (cam.rotation.y - lastValue);
-
-        hud.jiggle[0] += Math.sign(deltaX) * 0.5;
-        hud.jiggle[1] += Math.sign(deltaX) * 0.125;
-        hud.jiggle[0] *= 0.9;
-        hud.jiggle[1] *= 0.9;
-
-        hud.style.transform = `translateX(${hud.jiggle[0]}px) translateY(${hud.jiggle[1]}px)`;
-        lastValue = cam.rotation.y;
-    }));
 
     const scene = Resources.get('testmap').toScene();
     gameSetup(viewport, scene);
@@ -94,15 +81,6 @@ function gameSetup(viewport, scene) {
         })
     }));
 
-    const figures = [
-        Bishop,
-        Farmer,
-        Horse,
-        King,
-        Queen,
-        Tower,
-    ];
-
     const camera = new Camera({ 
         fov: 35,
         traits: [ Turntable ]
@@ -115,7 +93,6 @@ function gameSetup(viewport, scene) {
             diffuseColor: [0, 0, 0, 0]
         })
     });
-    cursor.matrixAutoUpdate = true;
 
     const emitter = new Emitter({
         material: new DefaultMaterial({
@@ -130,6 +107,8 @@ function gameSetup(viewport, scene) {
     emitter.speed = 0.1;
     emitter.maxage = 400;
     emitter.rate = 0;
+
+    cursor.matrixAutoUpdate = true;
 
     camera.rotation.x = 0.8;
     camera.position.y = -32;
@@ -151,21 +130,23 @@ function gameSetup(viewport, scene) {
     let currentTargetPosition = null;
     let currentObject = null;
 
-    const spawnCube = pos => {
-        const Fig = figures[Math.floor(figures.length * Math.random())];
+    const figures = [
+        King,
+        Tower,
+        Bishop,
+        Queen,
+        Horse,
+        Farmer,
+    ];
+
+    function spawnFigure(type, side, pos) {
+        const Fig = figures[type];
 
         const p = new Fig({
-            material: new DefaultMaterial(),
-            position: new Vec(pos[0], 4, pos[2]),
-            side: Math.round(Math.random()),
-            scale: 0,
+            position: new Vec(pos[0], 5, pos[2]),
+            side: side,
+            scale: 1.5,
         });
-
-        setInterval(() => {
-            if(p.scale < 1.5) {
-                p.scale += 0.25;
-            }
-        }, 14);
 
         emitter.position[0] = pos[0];
         emitter.position[2] = pos[2];
@@ -183,7 +164,7 @@ function gameSetup(viewport, scene) {
         return p;
     }
 
-    const gridToWorld = (x, z) => {
+    function gridToWorld(x, z) {
         return [
             ((x - 4) / 2) * 4.38 + 1 + origin[0],
             0,
@@ -191,55 +172,63 @@ function gameSetup(viewport, scene) {
         ]
     }
 
-    // board
+    const neutralMaterial = new DefaultMaterial({
+        diffuseColor: [0.75, 0.75, 1, 0.95]
+    });
 
-    const boardState = [
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-    ];
+    const targetMaterial = new DefaultMaterial({
+        diffuseColor: [1, 0.75, 0.75, 0.95]
+    });
 
+    function helperDisplay(positions) {
+        const objs = [];
 
-    boardState[0][0] = spawnCube(gridToWorld(0, 0));
-    boardState[1][0] = spawnCube(gridToWorld(1, 0));
-    boardState[2][0] = spawnCube(gridToWorld(2, 0));
-    boardState[3][0] = spawnCube(gridToWorld(3, 0));
-    boardState[4][0] = spawnCube(gridToWorld(4, 0));
-    boardState[5][0] = spawnCube(gridToWorld(5, 0));
-    boardState[6][0] = spawnCube(gridToWorld(6, 0));
-    boardState[7][0] = spawnCube(gridToWorld(7, 0));
+        for(let pos of positions) {
 
-    boardState[0][1] = spawnCube(gridToWorld(0, 1));
-    boardState[1][1] = spawnCube(gridToWorld(1, 1));
-    boardState[2][1] = spawnCube(gridToWorld(2, 1));
-    boardState[3][1] = spawnCube(gridToWorld(3, 1));
-    boardState[4][1] = spawnCube(gridToWorld(4, 1));
-    boardState[5][1] = spawnCube(gridToWorld(5, 1));
-    boardState[6][1] = spawnCube(gridToWorld(6, 1));
-    boardState[7][1] = spawnCube(gridToWorld(7, 1));
+            const world = [
+                ((pos[0] - 4) / 2) * 4.38 + 1 + origin[0],
+                0.125,
+                ((pos[1] - 4) / 2) * 4.38 + 1 + origin[1],
+                0
+            ];
 
-    boardState[0][6] = spawnCube(gridToWorld(0, 6));
-    boardState[1][6] = spawnCube(gridToWorld(1, 6));
-    boardState[2][6] = spawnCube(gridToWorld(2, 6));
-    boardState[3][6] = spawnCube(gridToWorld(3, 6));
-    boardState[4][6] = spawnCube(gridToWorld(4, 6));
-    boardState[5][6] = spawnCube(gridToWorld(5, 6));
-    boardState[6][6] = spawnCube(gridToWorld(6, 6));
-    boardState[7][6] = spawnCube(gridToWorld(7, 6));
+            let mat = neutralMaterial;
 
-    boardState[0][7] = spawnCube(gridToWorld(0, 7));
-    boardState[1][7] = spawnCube(gridToWorld(1, 7));
-    boardState[2][7] = spawnCube(gridToWorld(2, 7));
-    boardState[3][7] = spawnCube(gridToWorld(3, 7));
-    boardState[4][7] = spawnCube(gridToWorld(4, 7));
-    boardState[5][7] = spawnCube(gridToWorld(5, 7));
-    boardState[6][7] = spawnCube(gridToWorld(6, 7));
-    boardState[7][7] = spawnCube(gridToWorld(7, 7));
+            if(pos[2]) {
+                mat = targetMaterial;
+            }
+            
+            const helper = new Plane({
+                rotation: [90 * Math.PI / 180, 0, 0, 0],
+                position: world,
+                material: mat
+            });
+            objs.push(helper);
+            scene.add(helper);
+        }
+
+        return {
+            remove() {
+                for(let obj of objs) {
+                    scene.remove(obj);
+                }
+            }
+        }
+    }
+
+    // initialize board
+
+    const chessBoard = new ChessBoard();
+
+    for(let x = 0; x < 8; x++) {
+        for(let y = 0; y < 8; y++) {
+            const piece = chessBoard.board[x][y];
+
+            if(piece) {
+                piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(x, y));
+            }
+        }
+    }
 
     // events
 
@@ -264,26 +253,32 @@ function gameSetup(viewport, scene) {
         if(currentObject) {
             const sollX = ((hit.position[0] / 2) * border) * (2 / border) + origin[0];
             const sollZ = ((hit.position[2] / 2) * border) * (2 / border) + origin[1];
-
-            currentObject.moveTo(sollX, sollZ);
+            currentObject.geometry.moveTo(sollX, sollZ);
         }
     })
 
+    let positionHelpers = null;
+
     viewport.addEventListener('mousedown', e => {
         if(e.button == 0) {
-            const pos = currentTargetPosition;
 
-            if(!boardState[currentTarget[0]][currentTarget[1]]) {
-                const geo = spawnCube(pos);
-                boardState[currentTarget[0]][currentTarget[1]] = geo;
-                currentObject = boardState[currentTarget[0]][currentTarget[1]];
-                currentObject.lastPosition = [currentObject.position.x, currentObject.position.z];
-                currentObject = null;
-            } else {
-                currentObject = boardState[currentTarget[0]][currentTarget[1]];
-                currentObject.pickup();
+            const piece = chessBoard.getPieaceAt(...currentTarget);
+
+            if(piece) {
+                currentObject = piece;
+                
+                currentObject.geometry.pickup();
                 currentObject.coord = [currentTarget[0], currentTarget[1]];
-                currentObject.lastPosition = [currentObject.position.x, currentObject.position.z];
+                currentObject.lastPosition = [
+                    currentObject.geometry.position.x, 
+                    currentObject.geometry.position.z
+                ];
+
+                const available = chessBoard.getAvailableMovesAt(currentTarget);
+                positionHelpers = helperDisplay(available);
+                
+            } else {
+                currentObject = null;
             }
 
             cursor.scale = 0.95;
@@ -293,23 +288,32 @@ function gameSetup(viewport, scene) {
     viewport.addEventListener('mouseup', e => {
         cursor.scale = 1;
 
+        if(positionHelpers) {
+            positionHelpers.remove();
+        }
+
         if(currentObject) {
-            if(!boardState[currentTarget[0]][currentTarget[1]]) {
-                boardState[currentObject.coord[0]][currentObject.coord[1]] = null;
-                boardState[currentTarget[0]][currentTarget[1]] = currentObject;
-                currentObject.position.x = currentTargetPosition[0];
-                currentObject.position.z = currentTargetPosition[2];
+
+            const move = chessBoard.movePiece(currentObject.coord, currentTarget);
+
+            if(move) {
+                currentObject.geometry.position.x = currentTargetPosition[0];
+                currentObject.geometry.position.z = currentTargetPosition[2];
+
+                if(move[0]) {
+                    scene.remove(move[0].geometry);
+                }
             } else {
-                currentObject.position.x = currentObject.lastPosition[0];
-                currentObject.position.z = currentObject.lastPosition[1];
+                currentObject.geometry.position.x = currentObject.lastPosition[0];
+                currentObject.geometry.position.z = currentObject.lastPosition[1];
             }
 
             currentObject.coord = [currentTarget[0], currentTarget[1]];
 
-            currentObject.release();
+            currentObject.geometry.release();
 
-            emitter.position[0] = currentObject.position[0];
-            emitter.position[2] = currentObject.position[2];
+            emitter.position[0] = currentObject.geometry.position[0];
+            emitter.position[2] = currentObject.geometry.position[2];
     
             setTimeout(() => {
                 emitter.rate = 25;

@@ -104,9 +104,10 @@ export class Renderer extends RendererContext {
 
 		this.MAX_TEXTURE_UINTS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
 
-		this.showGuides = true;
-		this.clearPass = true;
-		this.indexPass = true;
+		this.showGuides = Renderer.showGuides;
+		this.clearPass = Renderer.clearPass;
+		this.indexPass = Renderer.indexPass;
+		this.shadowPass = Renderer.shadowPass;
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
 
@@ -127,7 +128,7 @@ export class Renderer extends RendererContext {
 
 		const self = this;
 
-		if(this.shadowMapSize > 0) {
+		if(this.shadowMapSize > 0 && this.shadowPass) {
 			this.createRenderPass('shadow', {
 				get camera() {
 					return self.currentScene.lightsource;
@@ -551,3 +552,8 @@ export class Renderer extends RendererContext {
 	}
 
 }
+
+Renderer.showGuides = true;
+Renderer.clearPass = true;
+Renderer.indexPass = true;
+Renderer.shadowPass = true;
