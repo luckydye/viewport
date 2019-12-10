@@ -22,16 +22,16 @@ export default class SSAOShader extends CompShader {
             #define EULER 2.718281828459045
 
             const int samples = 8;     // ao sample count
-            const float radius = 100.0;  // ao radius
+            const float radius = 2.0;  // ao radius
 
             const float noiseAmount = 0.0003; // dithering amount
 
-            const float diffArea = 0.4;   // self-shadowing reduction
+            const float diffArea = 0.6;   // self-shadowing reduction
             const float gDisplace = 0.4;  // gauss bell center
 
-            const vec2 size = vec2(512.0);
+            const vec2 size = vec2(0.33);
             const float aoClamp = 0.5;
-            const float lumInfluence = 0.125;
+            const float lumInfluence = 0.1;
 
             vec2 rand( const vec2 coord ) {
                 vec2 noise;
@@ -126,21 +126,9 @@ export default class SSAOShader extends CompShader {
                 float lum = dot( color.rgb, lumcoeff );
                 vec3 luminance = vec3( lum );
 
-                vec3 aoResult = vec3( mix( vec3( ao ), vec3( 1.0 ), luminance * lumInfluence ) );  // ambient occlusion only
+                vec3 aoResult = vec3( mix( vec3( ao ), vec3( 1.0 ), luminance * lumInfluence ) );
 
-                vec4 guidesDepth = texture(guidesDepth, vTexCoords);
-
-                oFragColor = vec4(color * aoResult, 1.0);
-
-                float fogColor = min(pow(depth - 0.01, 100.0), 0.25);
-
-                oFragColor.r += fogColor * 0.7;
-                oFragColor.g += fogColor;
-                oFragColor.b += fogColor * 0.8;
-                
-                if(guidesDepth.r > 0.0 && guidesDepth.r <= depth) {
-                    oFragColor = texture(guides, vTexCoords);
-                }
+                oFragColor = vec4(aoResult * 2.0, 1.0);
             }
         `;
     }

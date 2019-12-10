@@ -6,9 +6,11 @@ import { Geometry } from '../scene/Geometry.js';
 import CompShader from '../shader/CompShader.js';
 import IndexShader from '../shader/IndexShader.js';
 import NormalShader from '../shader/NormalShader.js';
+import LightShader from '../shader/LightShader.js';
 import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
+import SSAOShader from '../shader/SSAOShader.js';
 
 class Screen extends Geometry {
 	static get attributes() {
@@ -38,6 +40,7 @@ const TEXTURE = {
 	FRAME_NORMAL: 5,
 	FRAME_WORLD: 6,
 	FRAME_INDEX: 7,
+	FRAME_LIGHTING: 14,
 	SHADOW_MAP: 8,
 	MESH_TEXTURE: 9,
 	MESH_SPECULAR_MAP: 10,
@@ -90,7 +93,7 @@ export class Renderer extends RendererContext {
 
 		this.renderTarget = new Screen();
 		this.grid = new Grid();
-
+		
 		this.compShader = new CompShader();
 
 		this.textures = {};
@@ -149,10 +152,6 @@ export class Renderer extends RendererContext {
 		this.createRenderPass('color', {
 			filter(geo) { return !geo.guide && !geo.isLight; }
 		});
-
-		// this.createRenderPass('lighting', {
-		// 	filter(geo) { return geo.isLight; }
-		// });
 		
 		if(this.indexPass) {
 			const indexShader = new IndexShader();
@@ -184,6 +183,9 @@ export class Renderer extends RendererContext {
 				shaderOverwrite: new PrimitiveShader()
 			})
 		}
+
+		this.bloomShader = new LightShader();
+		this.postprocessingPass = new RenderPass(this, 'lighting');
 	}
 
 	setResolution(width, height) {
@@ -210,6 +212,8 @@ export class Renderer extends RendererContext {
 		for (let pass of this.renderPasses) {
 			pass.resize(this.width, this.height);
 		}
+
+		this.postprocessingPass.resize(this.width, this.height);
 
 		if(this.debug) {
 			console.log(`Resolution set to ${this.width}x${this.height}`);
@@ -270,8 +274,9 @@ export class Renderer extends RendererContext {
 
 				pass.finalize();
 			}
-			
 			this.clearFramebuffer();
+			
+			this.drawPostProcessing();
 			
 			this.compositeRenderPasses();
 
@@ -281,8 +286,24 @@ export class Renderer extends RendererContext {
 		}
 	}
 
+	drawPostProcessing() {
+		this.postprocessingPass.use();
+
+		this.useShader(this.bloomShader);
+		
+		this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
+		
+		this.clear();
+		this.drawScreen();
+
+		this.postprocessingPass.finalize();
+	}
+
 	compositeRenderPasses() {
 		const gl = this.gl;
+
+		this.clearFramebuffer();
+		this.viewport(this.width, this.height);
 
 		this.useShader(this.compShader);
 
@@ -298,11 +319,16 @@ export class Renderer extends RendererContext {
 			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
 			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 			this.setTexture(this.getBufferTexture('index'), this.gl.TEXTURE_2D, TEXTURE.FRAME_INDEX, 'index');
+			this.setTexture(this.getBufferTexture('lighting'), this.gl.TEXTURE_2D, TEXTURE.FRAME_LIGHTING, 'lighting');
 
 			this.compShader.setUniforms({
 				fogDensity: this.fogDensity,
 				fogStartOffset: this.fogStartOffset,
 				fogMax: this.fogMax,
+				resolution: [
+					this.width,
+					this.height
+				],
 			});
 
 			this.initialRender = false;
@@ -313,7 +339,6 @@ export class Renderer extends RendererContext {
 			this.clear();
 		}
 
-		this.clearFramebuffer();
 		this.drawScreen();
 	}
 

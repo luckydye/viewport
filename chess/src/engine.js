@@ -173,11 +173,11 @@ function gameSetup(viewport, scene) {
     }
 
     const neutralMaterial = new DefaultMaterial({
-        diffuseColor: [0.75, 0.75, 1, 0.95]
+        diffuseColor: [0.75, 0.75, 1, 1]
     });
 
     const targetMaterial = new DefaultMaterial({
-        diffuseColor: [1, 0.75, 0.75, 0.95]
+        diffuseColor: [1, 0.75, 0.75, 1]
     });
 
     function helperDisplay(positions) {
@@ -187,7 +187,7 @@ function gameSetup(viewport, scene) {
 
             const world = [
                 ((pos[0] - 4) / 2) * 4.38 + 1 + origin[0],
-                0.125,
+                0.05,
                 ((pos[1] - 4) / 2) * 4.38 + 1 + origin[1],
                 0
             ];

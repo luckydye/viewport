@@ -7,7 +7,7 @@ const defaults = {
     wrap_s: "REPEAT",
     wrap_t: "REPEAT",
     mag_filter: "LINEAR",
-    min_filter: "NEAREST_MIPMAP_LINEAR",
+    min_filter: "LINEAR",
 };
 
 export class Texture {
