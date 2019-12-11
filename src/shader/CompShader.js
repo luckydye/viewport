@@ -91,8 +91,8 @@ export default class CompShader extends Shader {
 
             oFragColor = texture(color, vTexCoords);
 
-            vec4 bloom = blur13(lighting, vTexCoords, resolution, vec2(2.0, 0.0));
-            bloom += blur13(lighting, vTexCoords, resolution, vec2(0.0, 2.0));
+            vec4 bloom = blur13(lighting, vTexCoords, resolution, vec2(1.0, 0.0));
+            bloom += blur13(lighting, vTexCoords, resolution, vec2(0.0, 1.0));
 
             oFragColor += bloom * 0.4;
 

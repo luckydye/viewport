@@ -137,6 +137,7 @@ export class Renderer extends RendererContext {
 					return self.currentScene.lightsource;
 				},
 				filter(geo) {
+					self.shadowPass = false;
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				colorBuffer: false,
@@ -150,7 +151,10 @@ export class Renderer extends RendererContext {
 		}
 
 		this.createRenderPass('color', {
-			filter(geo) { return !geo.guide && !geo.isLight; }
+			filter(geo) {
+				self.shadowPass = true;
+				return !geo.guide && !geo.isLight;
+			}
 		});
 		
 		if(this.indexPass) {
@@ -392,19 +396,22 @@ export class Renderer extends RendererContext {
 			this.currentShader.setUniforms(material.attributes, 'material');
 		}
 
-		const lightSource = this.currentScene.lightsource;
-		this.currentShader.setUniforms({
-			'shadowProjMat': lightSource.projMatrix,
-			'shadowViewMat': lightSource.viewMatrix,
-		});
+		if(this.shadowPass) {
+			const lightSource = this.currentScene.lightsource;
+			this.currentShader.setUniforms({
+				'shadowProjMat': lightSource.projMatrix,
+				'shadowViewMat': lightSource.viewMatrix,
+			});
+			
+			this.currentShader.setUniforms({
+				'viewPosition': [
+					-this.currentCamera.position.x,
+					-this.currentCamera.position.y,
+					-this.currentCamera.position.z,
+				]
+			});
+		}
 
-		this.currentShader.setUniforms({
-			'viewPosition': [
-				-this.currentCamera.position.x,
-				-this.currentCamera.position.y,
-				-this.currentCamera.position.z,
-			]
-		});
 	}
 
 	getGemoetryBuffer(geo) {
@@ -531,8 +538,11 @@ export class Renderer extends RendererContext {
 				geo.updateModel();
 			}
 
-			if (Object.keys(shaderObjectCache).length > 1 ||
-				shaderObjectCache[geo.uid] != geo.lastUpdate) {
+			if(!shaderObjectCache[geo.uid]) {
+				shaderObjectCache.size = shaderObjectCache.size+1 || 1;
+			}
+
+			if (shaderObjectCache.size > 1 || shaderObjectCache[geo.uid] != geo.lastUpdate) {
 				shaderObjectCache[geo.uid] = geo.lastUpdate;
 
 				this.currentShader.setUniforms({ 'model': geo.modelMatrix }, 'scene');
