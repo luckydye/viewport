@@ -104,8 +104,8 @@ function gameSetup(viewport, scene) {
 
     emitter.particleGeometry = new Cube();
 
-    emitter.speed = 0.1;
-    emitter.maxage = 400;
+    emitter.speed = 0.05;
+    emitter.maxage = 500;
     emitter.rate = 0;
 
     cursor.matrixAutoUpdate = true;
@@ -141,26 +141,12 @@ function gameSetup(viewport, scene) {
 
     function spawnFigure(type, side, pos) {
         const Fig = figures[type];
-
         const p = new Fig({
             position: new Vec(pos[0], 5, pos[2]),
             side: side,
             scale: 1.5,
         });
-
-        emitter.position[0] = pos[0];
-        emitter.position[2] = pos[2];
-
-        setTimeout(() => {
-            emitter.rate = 25;
-        }, 200);
-
-        setTimeout(() => {
-            emitter.rate = 0;
-        }, 220);
-
         scene.add([ p ]);
-
         return p;
     }
 
@@ -302,6 +288,13 @@ function gameSetup(viewport, scene) {
 
                 if(move[0]) {
                     scene.remove(move[0].geometry);
+
+                    emitter.position[0] = move[0].geometry.position[0];
+                    emitter.position[1] = 0.5;
+                    emitter.position[2] = move[0].geometry.position[2];
+            
+                    setTimeout(() => { emitter.rate = 25; }, 0);
+                    setTimeout(() => { emitter.rate = 0; }, 50);
                 }
             } else {
                 currentObject.geometry.position.x = currentObject.lastPosition[0];
@@ -311,17 +304,6 @@ function gameSetup(viewport, scene) {
             currentObject.coord = [currentTarget[0], currentTarget[1]];
 
             currentObject.geometry.release();
-
-            emitter.position[0] = currentObject.geometry.position[0];
-            emitter.position[2] = currentObject.geometry.position[2];
-    
-            setTimeout(() => {
-                emitter.rate = 25;
-            }, 200);
-    
-            setTimeout(() => {
-                emitter.rate = 0;
-            }, 220);
             
             currentObject = null;
         }
