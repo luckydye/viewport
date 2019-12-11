@@ -8,7 +8,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "dev": "parcel watch ./chess/index.html --public-url ."
+    "dev": "parcel watch ./chess/index.html --no-hmr --public-url .",
+    "start": "node ./chess/server.mjs"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,11 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
+    "@uncut/hotel": "git+ssh://git@github.com/luckydye/hotel.git",
+    "express": "^4.17.1",
     "gl-matrix": "^3.1.0",
-    "lit-html": "^1.1.2"
+    "lit-html": "^1.1.2",
+    "ws": "^7.2.0"
   },
   "browserslist": [
     "last 1 Chrome versions"

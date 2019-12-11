@@ -1,30 +1,27 @@
 import '../../components/Console.js';
 import '../../components/Viewport.js';
 import Viewport from '../../components/Viewport.js';
+import { Emitter } from '../../src/entities/Emitter.js';
 import { Box } from '../../src/geo/Box.js';
+import { Cube } from '../../src/geo/Cube.js';
 import { Plane } from '../../src/geo/Plane.js';
 import Input from '../../src/Input.js';
 import DefaultMaterial from '../../src/materials/DefaultMaterial.js';
 import MattMaterial from '../../src/materials/MattMaterial.js';
 import { Texture } from '../../src/materials/Texture.js';
 import { Vec } from '../../src/Math.js';
+import { Renderer } from '../../src/renderer/Renderer.js';
 import { Resources } from '../../src/resources/Resources.js';
 import { Camera } from '../../src/scene/Camera.js';
-import { Geometry } from '../../src/scene/Geometry.js';
-import { Scene } from '../../src/scene/Scene.js';
 import Turntable from '../../src/traits/Turntable.js';
 import { Bishop } from './Bishop.js';
+import { ChessBoard } from './Chess.mjs';
 import { Farmer } from './Farmer.js';
 import { Horse } from './Horse.js';
 import { King } from './King.js';
 import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
-import { Task } from '../../src/Scheduler.js';
-import { Emitter } from '../../src/entities/Emitter.js';
-import { Cube } from '../../src/geo/Cube.js';
-import WaterMaterial from '../../src/materials/WaterMaterial.js';
-import { ChessBoard } from './Chess.js';
-import { Renderer } from '../../src/renderer/Renderer.js';
+import HotelClient from '@uncut/hotel/Client';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -49,6 +46,16 @@ function init() {
 
     const scene = Resources.get('testmap').toScene();
     gameSetup(viewport, scene);
+
+    connect();
+}
+
+async function connect() {
+    const client = new HotelClient({ port: 8080 });
+    await client.connect();
+
+    client.emit('join', { roomId: "0", username: "Player1" });
+    client.emit('chat', { message: "die." });
 }
 
 function gameSetup(viewport, scene) {
@@ -120,8 +127,13 @@ function gameSetup(viewport, scene) {
     viewport.camera = camera;
     viewport.scene = scene;
 
-    viewport.scene.lightsource.position.z = -100;
-    viewport.scene.lightsource.rotation.x = 0.75;
+    viewport.scene.lightsource.rotation.x = 80 * Math.PI / 180;
+    viewport.scene.lightsource.rotation.y = 0;
+    viewport.scene.lightsource.rotation.z = 0.75;
+
+    viewport.scene.lightsource.position.x = -100;
+    viewport.scene.lightsource.position.y = -100;
+    viewport.scene.lightsource.position.z = -25;
     
     const border = 0.91;
     const origin = [0.1, 0.1];
@@ -250,7 +262,7 @@ function gameSetup(viewport, scene) {
 
             const piece = chessBoard.getPieaceAt(...currentTarget);
 
-            if(piece) {
+            if(piece && piece.side == chessBoard.currentSide) {
                 currentObject = piece;
                 
                 currentObject.geometry.pickup();
