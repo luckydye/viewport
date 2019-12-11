@@ -7,6 +7,7 @@ import { Geometry } from '../scene/Geometry';
 import Prop from '../scene/Prop';
 import { Scene } from '../scene/Scene';
 import { BinaryFile } from './BinaryFile';
+import { Group } from '../geo/Group';
 
 const Structs = {
     fileHeader: {
@@ -213,7 +214,39 @@ export default class MapFile extends BinaryFile {
     }
 
     static async serializeScene(scene) {
-        const objects = [...scene.objects];
+        const objects = [];
+        const sceneGraph = scene.getSceneGraph();
+
+        const flattenChildren = item => {
+            const flattenObjects = [];
+
+            if(item.object.indecies.length > 0) {
+                objects.push(item.object);
+            } else {
+                flattenObjects.push(item.object);
+            }
+
+            for(let childItem of item.children) {
+                const childChildren = flattenChildren(childItem);
+                flattenObjects.push(...childChildren);
+            }
+
+            return flattenObjects;
+        }
+
+        for(let item of sceneGraph) {
+            if(item.children.length > 0) {
+                const grouping = new Group();
+                grouping.add(...flattenChildren(item));
+
+                // vertecies getter to fill the materials attribute before collection materials
+                if(grouping.vertecies.length > 0) {
+                    objects.push(grouping);
+                }
+            } else {
+                objects.push(item.object);
+            }
+        }
 
         const objectData = [];
 
@@ -222,9 +255,7 @@ export default class MapFile extends BinaryFile {
         
         for(let object of objects) {
             if(!object.guide) {
-                for(let material of object.materials) {
-                    tempMaterialStore.push(material);
-                }
+                tempMaterialStore.push(...object.materials);
             }
         }
 
@@ -283,7 +314,11 @@ export default class MapFile extends BinaryFile {
         const materialCount = new Uint32Array([ object.materials.length ]);
         const materials = new Uint32Array(object.materials.map(mat => this.getMaterialIndex(mat)));
 
-        const type = stringToCharArray(object.constructor.type);
+        let type = stringToCharArray(object.constructor.type);
+
+        if(object.constructor.type == "geometry_group") {
+            type = stringToCharArray("geometry");
+        }
 
         return [ 
             new Uint8Array(type),

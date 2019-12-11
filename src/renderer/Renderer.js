@@ -370,15 +370,23 @@ export class Renderer extends RendererContext {
 	applyMaterial(material) {
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
+		} else {
+			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}
 		if(material.specularMap) {
 			this.setTexture(this.prepareTexture(material.specularMap), this.gl.TEXTURE_2D, TEXTURE.MESH_SPECULAR_MAP);
+		} else {
+			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_SPECULAR_MAP);
 		}
 		if(material.normalMap) {
 			this.setTexture(this.prepareTexture(material.normalMap), this.gl.TEXTURE_2D, TEXTURE.MESH_NORMAL_MAP);
+		} else {
+			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_NORMAL_MAP);
 		}
 		if(material.displacementMap) {
 			this.setTexture(this.prepareTexture(material.displacementMap), this.gl.TEXTURE_2D, TEXTURE.MESH_DISPLACEMENT_MAP);
+		} else {
+			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_DISPLACEMENT_MAP);
 		}
 
 		const shaderCache = this.currentShader.cache;
@@ -473,15 +481,15 @@ export class Renderer extends RendererContext {
 			let matIndex = 0;
 
 			if (!shaderOverwrite) {
-				const shader = this.getMaterialShader(geo.material);
-				this.useShader(shader);
-				this.setupGemoetry(geo);
-
-				this.currentShader.setUniforms({
-					'projectionView': this.currentCamera.projViewMatrix,
-				}, 'scene');
-
 				for(let material of geo.materials) {
+					const shader = this.getMaterialShader(material);
+					this.useShader(shader);
+					this.setupGemoetry(geo);
+
+					this.currentShader.setUniforms({
+						'projectionView': this.currentCamera.projViewMatrix,
+					}, 'scene');
+					
 					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
 
 					this.applyMaterial(material);

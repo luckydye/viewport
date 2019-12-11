@@ -74,8 +74,10 @@ export class Scene extends Transform {
 				if(o) {
 					this.objects.add(o);
 
-					for (let trait of o.traits) {
-						if(trait.onCreate) trait.onCreate(o);
+					if(o.traits) {
+						for (let trait of o.traits) {
+							if(trait.onCreate) trait.onCreate(o);
+						}
 					}
 
 					if(o.hitbox) {

@@ -27,17 +27,29 @@ export default class Viewport extends HTMLElement {
                     object-position: center;
                     object-fit: cover;
                 }
-                .stats {
+                .info {
                     position: absolute;
-                    top: 0px;
-                    left: 10px;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    box-sizing: border-box;
                     z-index: 10000;
-                    color: white;
+                    color: #eee;
                     opacity: 0.75;
                     pointer-events: none;
-                    user-select: none;
-                    margin: 0;
+                    user-select: text;
                     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+                    font-size: 0.6em;
+                    background: rgba(25, 25, 25, 0.75);
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .info span {
+                    display: inline-block;
+                    padding: 4px 10px;
+                }
+                .info span:not(:last-child) {
+                    border-right: 1px solid rgba(25, 25, 25, 0.75);
                 }
                 .crosshair {
                     display: none;
@@ -65,6 +77,8 @@ export default class Viewport extends HTMLElement {
             </style>
 
             <div class="hud">
+                <div class="info"></div>
+
                 <span class="crosshair">
                     <svg width="21px" height="21px">
                         <line class="st0" x1="10" y1="0" x2="10" y2="8"/>
@@ -73,8 +87,6 @@ export default class Viewport extends HTMLElement {
                         <line class="st0" x1="8" y1="10" x2="0" y2="10"/>
                     </svg>
                 </span>
-                
-                <pre class="stats"></pre>
 
                 <slot class="hud"></slot>
             </div>
@@ -118,7 +130,7 @@ export default class Viewport extends HTMLElement {
         this.root.innerHTML = this.constructor.template;
         this.root.appendChild(this.canvas);
 
-        this.statsElement = this.shadowRoot.querySelector('.stats');
+        this.infoElement = this.shadowRoot.querySelector('.info');
 
         Resources.load().then(() => {
             this.init();
@@ -356,12 +368,23 @@ export default class Viewport extends HTMLElement {
 
         // debug
         if(this.renderer.debug) {
-            const infoString = JSON.stringify(this.renderer.info, null, '  ');
-            this.statsElement.innerHTML = infoString.replace(/"/g, '')
-                                                    .replace(/,/g, '')
-                                                    .replace(/\{|\}/g, '');
-        } else if(!this.renderer.debug && this.statsElement.innerHTML != "") {
-            this.statsElement.innerHTML = "";
+            this.infoElement.innerHTML = `
+                <div>
+                    <span>${this.renderer.info.resolution}</span>
+                    <span>${this.renderer.info.verts} vertecies</span>
+                    <span>${this.renderer.info.objects} objects</span>
+                    <span>${this.renderer.info.passes} passes</span>
+                    <span>${this.renderer.info.shaders} shaders</span>
+                    <span>${this.renderer.info.textures} textures</span>
+                </div>
+
+                <div>
+                    <span>${this.renderer.info.fps} fps</span>
+                    <span>${this.renderer.info.cputime} ms</span>
+                </div>
+            `;
+        } else if(!this.renderer.debug && this.infoElement.innerHTML != "") {
+            this.infoElement.innerHTML = "";
         }
     }
 
