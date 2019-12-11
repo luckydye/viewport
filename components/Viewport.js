@@ -206,7 +206,7 @@ export default class Viewport extends HTMLElement {
         let lastPosition = null;
         let mousedown = false;
         
-        this.addEventListener("mousemove", e => move(e));
+        window.addEventListener("mousemove", e => move(e));
         
         // selecting
         window.addEventListener('mouseup', e => {
@@ -233,6 +233,8 @@ export default class Viewport extends HTMLElement {
                         
                         if(geo !== this.cursor && guided < 42) {
                             this.selectGeometry(geo);
+                        } else {
+                            this.selectGeometry(null);
                         }
 
                     } else {
