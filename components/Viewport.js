@@ -131,11 +131,19 @@ export default class Viewport extends HTMLElement {
         this.root.appendChild(this.canvas);
 
         this.infoElement = this.shadowRoot.querySelector('.info');
+    }
 
+    connectedCallback() {
         Resources.load().then(() => {
             this.init();
             this.render();
         });
+    }
+
+    disconnectedCallback() {
+        if(this.frame.nextFrame) {
+            cancelAnimationFrame(this.frame.nextFrame);
+        }
     }
 
     selectGeometry(geo, color) {
@@ -336,7 +344,7 @@ export default class Viewport extends HTMLElement {
         
         this.frame.lastFrame = currentFrame;
         
-        requestAnimationFrame(this.render.bind(this));
+        this.frame.nextFrame = requestAnimationFrame(this.render.bind(this));
 
         // dont update on inital render
         if(this.renderer.initialRender) {
