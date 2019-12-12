@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "parcel watch ./chess/index.html --no-hmr --public-url .",
+    "build": "parcel build ./chess/index.html --public-url .",
     "start": "node ./chess/server.mjs"
   },
   "repository": {
@@ -30,5 +31,8 @@
   },
   "browserslist": [
     "last 1 Chrome versions"
-  ]
+  ],
+  "devDependencies": {
+    "cssnano": "^4.1.10"
+  }
 }
