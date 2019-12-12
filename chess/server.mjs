@@ -1,5 +1,6 @@
 import { Connection, MessageHandler, Room } from '@uncut/hotel';
 import express from 'express';
+import * as http from 'http';
 import path from 'path';
 import WebSocket from 'ws';
 import { ChessBoard } from './src/Chess.mjs';
@@ -120,11 +121,13 @@ class ChessMessageHandler extends MessageHandler {
 const app = express();
 const port = process.env.PORT || 3000;
 
-const wss = new WebSocket.Server({ port: 8080 });
+const server = http.createServer(app);
+
+const wss = new WebSocket.Server({ server });
 const handler = new ChessMessageHandler();
 const con = new Connection(wss, handler);
 
 app.use('/', express.static(path.resolve('dist')));
 app.use('/chess/res', express.static(path.resolve('chess/res')));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+server.listen(port, () => console.log(`Example app listening on port ${port}!`));

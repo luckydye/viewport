@@ -51,7 +51,7 @@ function init() {
 }
 
 async function connect(game) {
-    const client = new HotelClient({ port: 8080 });
+    const client = new HotelClient();
 
     const tickrate = 32;
     
