@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "@uncut/hotel": "git+ssh://git@github.com/luckydye/hotel.git",
+    "@uncut/hotel": "git+https://github.com/luckydye/hotel.git",
     "express": "^4.17.1",
     "gl-matrix": "^3.1.0",
     "lit-html": "^1.1.2",
