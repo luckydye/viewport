@@ -31,6 +31,7 @@ export default class CompShader extends Shader {
         uniform sampler2D index;
         uniform sampler2D lighting;
 
+        uniform vec4 selection;
         uniform vec2 resolution;
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
@@ -87,7 +88,6 @@ export default class CompShader extends Shader {
             vec4 guides = texture(guides, vTexCoords);
             vec4 guidesDepth = texture(guidesDepth, vTexCoords);
             vec4 depth = texture(depth, vTexCoords);
-            vec4 index = texture(index, vTexCoords);
 
             oFragColor = texture(color, vTexCoords);
 
@@ -102,6 +102,23 @@ export default class CompShader extends Shader {
             // color correction
             // oFragColor.rgb = vec3(1.0) - exp(-oFragColor.rgb * exposure);
             // oFragColor.rgb = pow(oFragColor.rgb, vec3(1.0 / gamma));
+
+            float border = 1.0 / resolution.x;
+
+            vec4 index0 = texture(index, vTexCoords);
+            vec4 index1 = texture(index, vec2(vTexCoords.x + border, vTexCoords.y + border));
+            vec4 index2 = texture(index, vec2(vTexCoords.x - border, vTexCoords.y + border));
+            vec4 index3 = texture(index, vec2(vTexCoords.x - border, vTexCoords.y - border));
+            vec4 index4 = texture(index, vec2(vTexCoords.x + border, vTexCoords.y - border));
+
+            if(index0.r == selection.r && (
+                index1.r != selection.r ||
+                index2.r != selection.r ||
+                index3.r != selection.r ||
+                index4.r != selection.r
+            )) {
+                oFragColor.rgb = vec3(1.0, 1.0, 0.1);
+            }
 
             // guides
             if(guides.a < 0.9 && guides.a > 0.0) {

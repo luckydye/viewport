@@ -1,5 +1,5 @@
 import Config from '../src/Config.js';
-import { Cursor } from '../src/geo/Cursor.js';
+import { Cursor, RotationCursor } from '../src/geo/Cursor.js';
 import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/resources/Resources.js";
 import { Camera } from '../src/scene/Camera.js';
@@ -8,6 +8,14 @@ import { Scheduler } from "../src/Scheduler.js";
 import { Raycast, Vec } from '../src/Math.js';
 
 export default class Viewport extends HTMLElement {
+
+    static get MOVE() {
+        return 'move';
+    }
+
+    static get ROTATE() {
+        return 'rotate';
+    }
 
     static get template() {
         return `
@@ -93,10 +101,6 @@ export default class Viewport extends HTMLElement {
         `;
     }
 
-    get selected() {
-        return this.cursor.parent;
-    }
-
     constructor() {
         super();
         
@@ -110,7 +114,11 @@ export default class Viewport extends HTMLElement {
 
         this.canvas = document.createElement('canvas');
 
-        this.cursor = new Cursor();
+        // cursor stuff
+        this.rotatecursor = new RotationCursor();
+        this.movecursor = new Cursor();
+        this.mode = Viewport.MOVE;
+
         this.renderer = new Renderer(this.canvas);
         this.camera = new Camera({
             position: [0, -20, -20],
@@ -147,16 +155,13 @@ export default class Viewport extends HTMLElement {
     }
 
     selectGeometry(geo, color) {
-        if(geo == null) {
-            this.cursor.parent = null;
-            this.scene.remove(this.cursor);
-            this.dispatchEvent(new Event('select'));
+        this.selected = geo;
+        if(geo) {
+            this.selectedColor = color || this.selectedColor;
         } else {
-            this.cursor.parent = geo;
-            this.scene.add(this.cursor);
-            this.cursor.updateModel();
-            this.dispatchEvent(new Event('select'));
+            this.selectedColor = null;
         }
+        this.dispatchEvent(new Event('select'));
     }
 
     setScene(scene) {
@@ -205,14 +210,28 @@ export default class Viewport extends HTMLElement {
         let startHit = null;
         let lastPosition = null;
         let mousedown = false;
+
+        const view = this;
+
+        this.renderer.compShader.customUniforms = {
+            get selection() {
+                if(view.selectedColor) {
+                    return [
+                        view.selectedColor[0] / 255,
+                        view.selectedColor[1] / 255,
+                        view.selectedColor[2] / 255,
+                        1,
+                    ];
+                }
+                return [0, 0, 0, 0];
+            }
+        }
         
         window.addEventListener("mousemove", e => move(e));
         
         // selecting
         window.addEventListener('mouseup', e => {
             if(e.button === 0 && !moving && mousedown) {
-                this.selectedColor = null;
-
                 const bounds = this.getBoundingClientRect();
                 const color = this.renderer.readPixelFromBuffer('index', 
                     e.x - bounds.x, 
@@ -227,12 +246,11 @@ export default class Viewport extends HTMLElement {
                     const index = color[0];
                     const geo = [...this.scene.objects][index];
                     if(geo && geo.selectable) {
-                        this.selectedColor = color;
 
                         const guided = (guideColor[0] + guideColor[1] + guideColor[2]) / 3;
                         
                         if(geo !== this.cursor && guided < 42) {
-                            this.selectGeometry(geo);
+                            this.selectGeometry(geo, color);
                         } else {
                             this.selectGeometry(null);
                         }
@@ -250,14 +268,16 @@ export default class Viewport extends HTMLElement {
 
             moving = false;
             mousedown = false;
+
+            this.rotatecursor.rotation.x = 0;
+            this.rotatecursor.rotation.y = 0;
+            this.rotatecursor.rotation.z = 0;
         });
         
         this.addEventListener('mousedown', e => {
             mousedown = true;
 
             if(e.button === 0 && selectedObject) {
-                this.selectedColor = null;
-
                 const bounds = this.getBoundingClientRect();
                 const guideColor = this.renderer.readPixelFromBuffer('guides', 
                     e.x - bounds.x, 
@@ -293,16 +313,22 @@ export default class Viewport extends HTMLElement {
             const bounds = this.getBoundingClientRect();
             const cast = new Raycast(this.camera, e.x - bounds.x, e.y - bounds.y);
 
+            let origin = new Vec();
+
             let hit = null;
 
+            if(selectedObject) {
+                origin = selectedObject.position;
+            }
+
             if(direction == "x") {
-                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+                hit = cast.hit(origin, new Vec(0, 0, 1));
             }
             if(direction == "y") {
-                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 0, 1));
+                hit = cast.hit(origin, new Vec(0, 0, 1));
             }
             if(direction == "z") {
-                hit = cast.hit(new Vec(0, 0, 0), new Vec(0, 1, 0));
+                hit = cast.hit(origin, new Vec(0, 1, 0));
             }
 
             return hit;
@@ -321,21 +347,44 @@ export default class Viewport extends HTMLElement {
             if (moving && selectedObject) {
                 const hit = castRay(e, direction);
 
-                if(direction == "x") {
-                    selectedObject.position.x = lastPosition[0] + hit.position[0] - startHit.position[0];
+                let vec = selectedObject.position;
+
+                if(this.mode == Viewport.MOVE) {
+                    vec = selectedObject.position;
+
+                    if(direction == "x") {
+                        vec.x = lastPosition[0] + hit.position[0] - startHit.position[0];
+                    }
+                    if(direction == "y") {
+                        vec.y = lastPosition[1] + hit.position[1] - startHit.position[1];
+                    }
+                    if(direction == "z") {
+                        vec.z = lastPosition[2] + hit.position[2] - startHit.position[2];
+                    }
                 }
-                if(direction == "y") {
-                    selectedObject.position.y = lastPosition[1] + hit.position[1] - startHit.position[1];
-                }
-                if(direction == "z") {
-                    selectedObject.position.z = lastPosition[2] + hit.position[2] - startHit.position[2];
+                if(this.mode == Viewport.ROTATE) {
+                    vec = selectedObject.rotation;
+                    const cursor = this.rotatecursor.rotation;
+                    
+                    if(direction == "x") {
+                        vec.x = lastPosition[0] + hit.position[0] - startHit.position[0];
+                        cursor.x = lastPosition[0] + hit.position[0] - startHit.position[0];
+                    }
+                    if(direction == "y") {
+                        vec.y = lastPosition[1] + hit.position[1] - startHit.position[1];
+                        cursor.y = lastPosition[1] + hit.position[1] - startHit.position[1];
+                    }
+                    if(direction == "z") {
+                        vec.z = lastPosition[2] + hit.position[2] - startHit.position[2];
+                        cursor.z = lastPosition[2] + hit.position[2] - startHit.position[2];
+                    }
+
                 }
 
                 const sceneGraph = this.scene.getSceneGraph();
                 const children = sceneGraph.getChildren(selectedObject);
                 selectedObject.updateModel();
                 updateChildren(children);
-                this.cursor.updateModel();
             }
         }
     }
@@ -367,6 +416,36 @@ export default class Viewport extends HTMLElement {
 
             this.scene.update(this.frame.tickrate);
             this.scheduler.run(this.frame.tickrate);
+        }
+
+        if(this.selected) {
+
+            switch(this.mode) {
+                case Viewport.MOVE:
+                    this.scene.remove(this.rotatecursor);
+                    this.scene.add(this.movecursor);
+                    this.movecursor.position.x = this.selected.position.x;
+                    this.movecursor.position.y = this.selected.position.y;
+                    this.movecursor.position.z = this.selected.position.z;
+                    this.movecursor.updateModel();
+                    break;
+                case Viewport.ROTATE:
+                    this.scene.add(this.rotatecursor);
+                    this.scene.remove(this.movecursor);
+                    this.rotatecursor.position.x = this.selected.position.x;
+                    this.rotatecursor.position.y = this.selected.position.y;
+                    this.rotatecursor.position.z = this.selected.position.z;
+                    this.rotatecursor.updateModel();
+                    break;
+                default:
+                    this.scene.remove(this.rotatecursor);
+                    this.scene.remove(this.movecursor);
+                    break;
+            }
+
+        } else {
+            this.scene.remove(this.rotatecursor);
+            this.scene.remove(this.movecursor);
         }
         
         this.renderer.draw(this.scene, {

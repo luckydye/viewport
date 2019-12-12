@@ -168,7 +168,7 @@ export class Renderer extends RendererContext {
 
 			this.createRenderPass('index', {
 				filter(geo) {
-					return !geo.guide && geo.selectable || geo.selectable;
+					return !geo.guide && geo.selectable;
 				},
 				antialiasing: false,
 				shaderOverwrite: indexShader,
@@ -336,6 +336,11 @@ export class Renderer extends RendererContext {
 			});
 
 			this.initialRender = false;
+		}
+
+		const custom = this.compShader.customUniforms;
+		if(custom) {
+			this.compShader.setUniforms(custom);
 		}
 
 		if(this.clearPass) {
