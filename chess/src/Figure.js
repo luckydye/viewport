@@ -59,6 +59,11 @@ export class Figure extends Entity {
     }
 
     pickup() {
+        this.lastPosition = [
+            this.position.x, 
+            this.position.z
+        ];
+
         this.moveTarget[1] = 4;
         this.hover = true;
     }
