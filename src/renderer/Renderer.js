@@ -49,11 +49,6 @@ const TEXTURE = {
 	PLACEHOLDER: 13,
 }
 
-Config.global.define('showGuides', false);
-Config.global.define('clearPass', false);
-Config.global.define('indexPass', false);
-Config.global.define('shadowPass', false);
-
 export class Renderer extends RendererContext {
 
 	static get defaults() {
@@ -88,6 +83,10 @@ export class Renderer extends RendererContext {
 		this.renderConfig.define('debuglevel', 0, 0);
 		this.renderConfig.define('shadowMapSize', 4096, 4096);
 		this.renderConfig.define('wireframe', false, false);
+		this.renderConfig.define('showGuides', false);
+		this.renderConfig.define('clearPass', false);
+		this.renderConfig.define('indexPass', false);
+		this.renderConfig.define('shadowPass', false);
 		this.renderConfig.load();
 	}
 
@@ -193,7 +192,7 @@ export class Renderer extends RendererContext {
 				filter(geo) {
 					return (geo.guide || self.drawWireframe) && self.showGuides;
 				},
-				antialiasing: true,
+				antialiasing: false,
 				shaderOverwrite: new PrimitiveShader()
 			})
 		}
