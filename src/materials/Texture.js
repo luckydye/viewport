@@ -44,6 +44,8 @@ export class Texture {
         this.mag_filter = Texture.default.mag_filter;
         this.min_filter = Texture.default.min_filter;
 
+        this.flipY = true;
+
         if(image instanceof ArrayBuffer) {
             this.format = format;
             this.data = image;

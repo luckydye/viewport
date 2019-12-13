@@ -375,6 +375,9 @@ export class Renderer extends RendererContext {
 	applyMaterial(material) {
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
+			this.currentShader.setUniforms({
+				'textureFlipY': material.texture.flipY,
+			});
 		} else {
 			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}

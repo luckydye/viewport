@@ -14,6 +14,8 @@ export default class DefaultShader extends MeshShader {
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
 
+        uniform bool textureFlipY;
+            
         vec2 TextureCoords() {
             float scale = 1.0;
 
@@ -21,9 +23,15 @@ export default class DefaultShader extends MeshShader {
                 discard;
             }
 
-            vec2 displace = texture(material.displacementMap, vTexCoords.xy).rg;
+            vec2 texCoords = vTexCoords;
 
-            return (vTexCoords.xy / scale) + displace.xy;
+            if(textureFlipY) {
+                texCoords.y = 1.0 - texCoords.y;
+            }
+
+            vec2 displace = texture(material.displacementMap, texCoords.xy).rg;
+
+            return (texCoords.xy / scale) + displace.xy;
         }
 
         vec4 getMappedValue(sampler2D image, vec4 value) {
