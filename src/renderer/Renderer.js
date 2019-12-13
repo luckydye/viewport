@@ -49,6 +49,11 @@ const TEXTURE = {
 	PLACEHOLDER: 13,
 }
 
+Config.global.define('showGuides', false);
+Config.global.define('clearPass', false);
+Config.global.define('indexPass', false);
+Config.global.define('shadowPass', false);
+
 export class Renderer extends RendererContext {
 
 	static get defaults() {
@@ -88,6 +93,11 @@ export class Renderer extends RendererContext {
 
 	onCreate() {
 		this.setConfig(Config.global);
+
+		Renderer.showGuides = Renderer.showGuides || Config.global.getValue('showGuides');
+		Renderer.clearPass = Renderer.clearPass || Config.global.getValue('clearPass');
+		Renderer.indexPass = Renderer.indexPass || Config.global.getValue('indexPass');
+		Renderer.shadowPass = Renderer.shadowPass || Config.global.getValue('shadowPass');
 
 		this.debug = this.renderConfig.getValue('debug');
 
@@ -379,9 +389,9 @@ export class Renderer extends RendererContext {
 	applyMaterial(material) {
 		if(material.texture) {
 			this.setTexture(this.prepareTexture(material.texture), this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
-			// this.currentShader.setUniforms({
-			// 	'textureFlipY': material.texture.flipY,
-			// });
+			this.currentShader.setUniforms({
+				'textureFlipY': material.texture.flipY,
+			});
 		} else {
 			this.setTexture(null, this.gl.TEXTURE_2D, TEXTURE.MESH_TEXTURE);
 		}
@@ -413,6 +423,9 @@ export class Renderer extends RendererContext {
 			
 			this.pushTexture(TEXTURE.SHADOW_MAP, 'shadowDepth');
 
+			this.currentShader.setUniforms({
+				'lightColor': this.currentScene.lightsource.color,
+			});
 			this.currentShader.setUniforms(material.attributes, 'material');
 		}
 
@@ -607,8 +620,3 @@ export class Renderer extends RendererContext {
 	}
 
 }
-
-Renderer.showGuides = true;
-Renderer.clearPass = true;
-Renderer.indexPass = true;
-Renderer.shadowPass = true;

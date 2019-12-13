@@ -228,14 +228,16 @@ function gameSetup(viewport, scene) {
     viewport.camera = camera;
     viewport.scene = scene;
 
-    viewport.scene.lightsource.rotation.x = 80 * Math.PI / 180;
+    viewport.scene.lightsource.rotation.x = 100 * Math.PI / 180;
     viewport.scene.lightsource.rotation.y = 0;
     viewport.scene.lightsource.rotation.z = 0.75;
 
     viewport.scene.lightsource.position.x = -100;
     viewport.scene.lightsource.position.y = -100;
-    viewport.scene.lightsource.position.z = -25;
-    
+    viewport.scene.lightsource.position.z = 25;
+
+    viewport.scene.lightsource.color = [1.0, 0.590619, 0.296138];
+
     const border = 0.91;
     const origin = [0.1, 0.1];
 

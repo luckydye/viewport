@@ -46,6 +46,7 @@ const GLOBAL_COMMANDS = {
             const param = Config.global[key];
             Config.global.setValue(param.name, param.default);
         }
+        Config.global.save();
 
         console.log('Config reset.');
     },

@@ -80,8 +80,8 @@ export default class CompShader extends Shader {
             return color;
         }
 
-        const float gamma = 2.2;
-        const float exposure = 1.0;
+        const float gamma = 0.65;
+        const float exposure = 2.2;
 
         void main() {
             vec4 normal = texture(normal, vTexCoords);
@@ -100,8 +100,8 @@ export default class CompShader extends Shader {
             oFragColor.rgb += min(pow(depth.r - fogStartOffset, fogDensity), fogMax);
             
             // color correction
-            // oFragColor.rgb = vec3(1.0) - exp(-oFragColor.rgb * exposure);
-            // oFragColor.rgb = pow(oFragColor.rgb, vec3(1.0 / gamma));
+            oFragColor.rgb = vec3(1.0) - exp(-oFragColor.rgb * exposure);
+            oFragColor.rgb = pow(oFragColor.rgb, vec3(1.0 / gamma));
 
             float border = 1.0 / resolution.x;
 

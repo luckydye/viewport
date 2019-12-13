@@ -14,6 +14,7 @@ export default class DefaultShader extends MeshShader {
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
 
+        uniform vec3 lightColor;
         uniform bool textureFlipY;
             
         vec2 TextureCoords() {
@@ -76,10 +77,10 @@ export default class DefaultShader extends MeshShader {
             vec3 lightDir = normalize(lightPos.xyz);
             float diffuse = max(dot(norm, lightDir), 0.0);
 
-            finalColor.rgb *= 0.75 + diffuse;
+            finalColor.rgb *= 0.75 + diffuse * lightColor;
         }
 
-        bool Shadows(out vec4 finalColor, vec3 normal, vec3 shadowColor, vec3 lightColor) {
+        bool Shadows(out vec4 finalColor, vec3 normal, vec3 shadowColor) {
 
             vec4 pos = vWorldPos;
 
@@ -134,16 +135,10 @@ export default class DefaultShader extends MeshShader {
             vec3 shadowColor = vec3(
                 100.0 / 255.0, // r
                 100.0 / 255.0, // g
-                120.0 / 255.0  // b
+                135.0 / 255.0  // b
             );
 
-            vec3 lightColor = vec3(
-                255.0 / 255.0, // r
-                240.0 / 255.0, // g
-                200.0 / 255.0  // b
-            );
-
-            bool inShadow = Shadows(oFragColor, normal, shadowColor, lightColor);
+            bool inShadow = Shadows(oFragColor, normal, shadowColor);
 
             if(!inShadow) {
                 Shading(oFragColor, normal, shadowColor, lightColor);

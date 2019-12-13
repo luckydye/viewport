@@ -33,7 +33,7 @@ export class Figure extends Entity {
         if(args.side == 1) {
             args.material = new DefaultMaterial({
                 texture: new Texture(),
-                diffuseColor: [0.65, 0.63, 0.6, 1]
+                diffuseColor: [0.72, 0.74, 0.75, 1]
             });;
         } else {
             args.material = new DefaultMaterial({
