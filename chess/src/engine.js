@@ -158,7 +158,7 @@ function gameSetup(viewport, scene) {
         depth: 10,
         position: [0, -0.05, 0],
         material: new DefaultMaterial({
-            texture: viewport.renderer.emptyTexture,
+            texture: new Texture(),
             diffuseColor: [
                 0.08388 * 2, 
                 0.08202 * 2, 
@@ -207,7 +207,7 @@ function gameSetup(viewport, scene) {
 
     const emitter = new Emitter({
         material: new DefaultMaterial({
-            texture: viewport.renderer.emptyTexture,
+            texture: new Texture(),
             diffuseColor: [1, 1, 1, 1],
         }),
         scale: 0.5,
