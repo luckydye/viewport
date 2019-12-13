@@ -7,19 +7,6 @@ const Pieces = {
     'PAWN': 5
 };
 
-const GameState = {
-    'STARING': 0,
-    'PLAYING_WHITE_SIDE': 1,
-    'PLAYING_BLACK_SIDE': 2,
-    'ENDED': 3,
-};
-
-const PlayerState = {
-    'IDLE': 0,
-    'PLAYING': 1,
-    'CHECK': 2,
-};
-
 class Piece {
     constructor(type, side) {
         this.moves = 0;
@@ -44,10 +31,7 @@ export class ChessBoard {
         ];
 
         this.offboard = [];
-
         this.currentSide = 0;
-        this.gameState = GameState.STARING;
-        this.playerState = PlayerState.IDLE;
 
         this.setup();
     }

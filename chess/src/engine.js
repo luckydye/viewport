@@ -38,6 +38,12 @@ Renderer.clearPass = false;
 Renderer.indexPass = false;
 Renderer.shadowPass = true;
 
+const GameState = {
+    'WAITING': 0,
+    'STARTED': 1,
+    'ENDED': 2,
+}
+
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);

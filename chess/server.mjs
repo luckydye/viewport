@@ -5,22 +5,36 @@ import path from 'path';
 import WebSocket from 'ws';
 import { ChessBoard } from './src/Chess.mjs';
 
+// send room state with side that has to play
+// wait for player move response
+// send next room state with the other side as player
+// dont accept any responses from the other player
+    // (also block client interaction)
+    // (apply room state to client board)
+
+const GameState = {
+    'WAITING': 0,
+    'STARTED': 1,
+    'ENDED': 2,
+}
+
 class ChessRoom extends Room {
 
     constructor(braodcast) {
         super(braodcast);
 
+        this.tickrate = 32;
         this.chessBoard = new ChessBoard();
         this.players = [];
-
-        this.tickrate = 32;
+        this.gameState = GameState.WAITING;
     }
 
-    getState() {
-        return {
-            members: this.members,
-            players: this.players
-        }
+    get turn() {
+        return this.chessBoard.currentSide;
+    }
+
+    set turn(val) {
+        this.chessBoard.currentSide = val;
     }
 
     onJoined(clientId, username) {
@@ -52,25 +66,54 @@ class ChessRoom extends Room {
         this.braodcastRoomState();
     }
 
+    getState() {
+        return {
+            players: this.players,
+            turn: this.turn,
+            state: this.gameState,
+            moves: this.moves,
+        }
+    }
+
+    tick() {
+        this.tiemr = setTimeout(() => {
+            this.braodcastRoomState();
+            this.tick();
+        }, 1000 / this.tickrate);
+    }
+
     stopGame() {
         console.log("stop game");
 
+        this.gameState = GameState.ENDED;
+
         clearTimeout(this.tiemr);
+        this.braodcastRoomState();
     }
 
     startGame() {
         console.log("start game");
 
+        this.gameState = GameState.STARTED;
+
+        this.moves = [];
+        this.turn = 0;
+
         this.tick();
     }
 
-    tick() {
-        this.tiemr = setTimeout(() => {
+    nextTurn() {
+        this.turn = this.turn === 0 ? 1 : 0;
+    }
 
-            this.braodcastRoomState();
+    movePiece(clientId, [p1, p2]) {
+        const player = this.getPlayer(clientId);
 
-            this.tick();
-        }, 1000 / this.tickrate);
+        if(player.side == this.turn) {
+            const collateral = this.chessBoard.movePiece(p1, p2);
+            this.moves.push([p1, p2]);
+            this.nextTurn();
+        }
     }
 
     updatePlayer(clientId, data) {
@@ -80,7 +123,6 @@ class ChessRoom extends Room {
             player.cursor = data.cursor;
             player.world = data.world;
             player.pickup = data.pickup;
-            player.lastTarget = data.lastTarget;
         }
     }
 
@@ -91,7 +133,6 @@ class ChessRoom extends Room {
             }
         }
     }
-
 }
 
 class ChessMessageHandler extends MessageHandler {
@@ -107,8 +148,14 @@ class ChessMessageHandler extends MessageHandler {
             'leave': msg => this.handleLeaveMessage(msg),
             'chat': msg => this.handleChatMessage(msg),
             'player': msg => this.handlePlayerMessage(msg),
+            'move': msg => this.handleMoveMessage(msg),
             'binary': msg => this.handleBinaryMessage(msg)
         }
+    }
+
+    handleMoveMessage(msg) {
+        const room = this.getRoom(msg.socket.room);
+        room.movePiece(msg.socket.uid, msg.data);
     }
 
     handlePlayerMessage(msg) {
