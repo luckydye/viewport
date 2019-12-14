@@ -10,8 +10,10 @@ export default  {
     onCreate(entity) {
         Input.init();
 
+        entity.turntable = true;
+
         Input.onDrag(e => {
-            if(e.button == 2) {
+            if(e.button == 0 && entity.turntable) {
                 if(e.first) {
                     lastX = e.x;
                 }

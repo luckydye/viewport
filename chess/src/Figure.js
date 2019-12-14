@@ -31,15 +31,16 @@ export class Figure extends Entity {
         // args.hitbox = [3, 1, 0, -1, 1];
 
         if(args.side == 1) {
+            this.rotation = [0, 180 * Math.PI / 180, 0];
             args.material = new DefaultMaterial({
                 texture: new Texture(),
                 diffuseColor: [0.72, 0.74, 0.75, 1]
-            });;
+            });
         } else {
             args.material = new DefaultMaterial({
                 texture: new Texture(),
                 diffuseColor: [0.1, 0.1, 0.1, 1]
-            });;
+            });
         }
     }
 

@@ -395,6 +395,16 @@ function gameSetup(viewport, scene) {
 
     function mouseMoveHandler(x, y) {
         const hit = Input.cast(viewport.camera, x, y, [0, -0.2, 0]);
+        
+        if (hit.position[0] > 9 || hit.position[0] < -9 ||
+            hit.position[2] > 9 || hit.position[2] < -9) {
+
+            cursorTargetPosition = null;
+            cursorTarget = null;
+            
+            return;
+        }
+
         hit.position = [
             Math.max(Math.min(hit.position[0], 8), -8),
             hit.position[1],
@@ -420,6 +430,10 @@ function gameSetup(viewport, scene) {
     }
 
     function mouseDownHandler(e) {
+        if(!cursorTarget) {
+            return;
+        }
+
         cursor.scale = 0.95;
 
         if(chessBoard.currentSide !== chessBoard.clientSide) {
@@ -429,6 +443,7 @@ function gameSetup(viewport, scene) {
         const piece = chessBoard.getPieaceAt(...cursorTarget);
 
         if(piece && piece.side == chessBoard.currentSide) {
+            camera.turntable = false;
 
             // pickup piece
             currentPiece = piece;
@@ -476,24 +491,30 @@ function gameSetup(viewport, scene) {
 
     function mouseUpHandler() {
         cursor.scale = 1;
+        camera.turntable = true;
 
         if(positionHelpers) {
             positionHelpers.remove();
         }
 
         if(currentPiece) {
-            lastMove = [[...currentPiece.coords], [...cursorTarget]];
 
-            const move = chessBoard.movePiece(currentPiece.coords, cursorTarget);
-
-            if(move) {
-                movePiece(currentPiece, cursorTargetPosition);
-
-                if(move.length > 0) {
-                    removePiece(move[0]);
-                }
-            } else {
+            if(!cursorTarget) {
                 movePiece(currentPiece, currentPiece.geometry.lastPosition);
+            } else {
+                lastMove = [[...currentPiece.coords], [...cursorTarget]];
+
+                const move = chessBoard.movePiece(currentPiece.coords, cursorTarget);
+
+                if(move) {
+                    movePiece(currentPiece, cursorTargetPosition);
+
+                    if(move.length > 0) {
+                        removePiece(move[0]);
+                    }
+                } else {
+                    movePiece(currentPiece, currentPiece.geometry.lastPosition);
+                }
             }
 
             currentPiece.geometry.release();
