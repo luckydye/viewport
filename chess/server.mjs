@@ -70,8 +70,9 @@ class ChessRoom extends Room {
         return {
             players: this.players,
             turn: this.turn,
+            board: this.chessBoard,
             state: this.gameState,
-            moves: this.moves,
+            moves: this.chessBoard.moves,
         }
     }
 
@@ -96,7 +97,6 @@ class ChessRoom extends Room {
 
         this.gameState = GameState.STARTED;
 
-        this.moves = [];
         this.turn = 0;
 
         this.tick();
@@ -111,7 +111,6 @@ class ChessRoom extends Room {
 
         if(player.side == this.turn) {
             const collateral = this.chessBoard.movePiece(p1, p2);
-            this.moves.push([p1, p2]);
             this.nextTurn();
         }
     }
@@ -123,6 +122,10 @@ class ChessRoom extends Room {
             player.cursor = data.cursor;
             player.world = data.world;
             player.pickup = data.pickup;
+
+            if(data.move && player.side == this.turn) {
+                this.movePiece(clientId, data.move);
+            }
         }
     }
 
@@ -148,14 +151,8 @@ class ChessMessageHandler extends MessageHandler {
             'leave': msg => this.handleLeaveMessage(msg),
             'chat': msg => this.handleChatMessage(msg),
             'player': msg => this.handlePlayerMessage(msg),
-            'move': msg => this.handleMoveMessage(msg),
             'binary': msg => this.handleBinaryMessage(msg)
         }
-    }
-
-    handleMoveMessage(msg) {
-        const room = this.getRoom(msg.socket.room);
-        room.movePiece(msg.socket.uid, msg.data);
     }
 
     handlePlayerMessage(msg) {

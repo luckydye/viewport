@@ -97,7 +97,7 @@ export default class DefaultShader extends MeshShader {
             vec4 shadowmap_color1 = texture(shadowDepth, vec2(shadowTexCoord.x, shadowTexCoord.y));
             float shadowmap_distance = shadowmap_color1.r;
 
-            float bias = 0.00005;
+            float bias = 0.0001;
             float illuminated = step(vertex_relative_to_light.z, shadowmap_distance + bias);
             float lightDist = vertex_relative_to_light.z;
 

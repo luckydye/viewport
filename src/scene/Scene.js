@@ -125,7 +125,12 @@ export class Scene extends Transform {
 
 	update(ms) {
 		for (let obj of this.objects) {
+			if(obj.removed) {
+				this.remove(obj);
+			}
+		}
 
+		for (let obj of this.objects) {
 			if(obj.hitbox) {
 				for (let collider of this.objects) {
 					if (collider.hitbox && collider.collider && collider !== obj) {

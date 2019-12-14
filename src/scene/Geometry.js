@@ -40,6 +40,7 @@ export class Geometry extends Transform {
 		this.name = "Geometry";
 
 		this.instanced = false;
+		this.removed = false;
 
 		this.uid = uuidv4();
 
@@ -153,6 +154,10 @@ export class Geometry extends Transform {
 
 	onCreate(args) {
 
+	}
+
+	remove() {
+		this.removed = true;
 	}
 
 	createBuffer() {

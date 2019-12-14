@@ -60,65 +60,83 @@ async function connect(game) {
     const client = new HotelClient();
 
     const tickrate = 32;
+    const playerCursors = new Map();
+    let lastMove = null;
     
     client.on('client.connected', msg => {
         client.id = msg.uid;
     });
 
+    client.on('room.state', msg => handleRoomState(msg));
+
     const connected = await client.connect();
     client.emit('join', { roomId: "0", username: "Player1" });
 
-    setInterval(() => {
+    setInterval(() => sendPlayerState(), 1000 / tickrate);
+
+    function sendPlayerState() {
+        let currentMove = game.getLastMove();
+
+        if (lastMove && lastMove[0][0] == currentMove[0][0] &&
+                        lastMove[0][1] == currentMove[0][1] &&
+                        lastMove[1][0] == currentMove[1][0] &&
+                        lastMove[1][1] == currentMove[1][1]) {
+
+            currentMove = null;
+        } else {
+            lastMove = currentMove;
+        }
+
         client.emit('player', {
             cursor: game.cursor,
             world: game.position,
             pickup: game.pickup,
-            lastTarget: game.lastTarget,
+            move: currentMove
         });
-    }, 1000 / tickrate);
+    }
 
-    const playerCursors = new Map();
-
-    client.on('room.state', msg => {
+    function handleRoomState(msg) {
         const players = msg.players;
 
+        game.chess.currentSide = msg.turn;
+
+        // TODO:
+        // why does the move not registern ?
+        if(!game.chess.compareBoard(msg.board)) {
+            game.chess.setBoard(msg.board, piece => {
+                const coords = piece.coords;
+                if(piece.geometry && !piece.geometry.hover) {
+                    game.movePieceToGrid(piece, coords);
+                }
+            });
+        }
+
         for(let player of players) {
-            if(player.clientId == client.id) {
-                game.chess.currentSide = player.side;
-            } else {
+            // handle network players
+            if(player.clientId != client.id) {
                 if(player.pickup) {
                     const piece = game.chess.getPieaceAt(player.pickup[0], player.pickup[1]);
-                    if(!piece.geometry.hover) {
-                        piece.geometry.pickup();
-                    }
-                    piece.geometry.moveTo(player.world[0], player.world[2]);
-
-                } else if(player.lastTarget) {
-                    const piece = game.chess.getPieaceAt(player.lastTarget[0], player.lastTarget[1]);
-                    
                     if(piece) {
-                        piece.geometry.position.x = piece.geometry.lastPosition[0];
-                        piece.geometry.position.z = piece.geometry.lastPosition[1];
+                        if(!piece.geometry.hover) {
+                            piece.geometry.pickup();
+                            piece.client = player.clientId;
+                        }
+                        piece.geometry.moveTo(player.world[0], player.world[2]);
+                    } else {
+                        console.error('Network error');
+                    }
+                } else {
+                    const pieces = game.chess.board.flat();
 
-                        piece.geometry.release();
-
-                        const move = game.chess.movePiece(player.lastTarget, player.cursor);
-                        
-                        if(move) {
-                            const pos = game.gridToWorld(
-                                player.cursor[0],
-                                player.cursor[1],
-                            );
-
-                            piece.geometry.position.x = pos[0];
-                            piece.geometry.position.z = pos[2];
-
-                            if(move[0]) {
-                                game.scene.remove(move[0].geometry);
-                            }
+                    for(let otherPiece of pieces) {
+                        if(otherPiece && otherPiece.client && otherPiece.client == player.clientId) {
+                            otherPiece.geometry.release();
+                            game.movePieceToGrid(otherPiece, otherPiece.coords);
                         }
                     }
                 }
+            } else {
+                game.chess.clientSide = player.side;
             }
         }
 
@@ -150,29 +168,10 @@ async function connect(game) {
                 cursor.cursor.material.diffuseColor = [0, 0, 0, 0.5];
             }
         }
-        
-    });
+    }
 }
 
 function gameSetup(viewport, scene) {
-
-    scene.add(new Box({
-        top: 0,
-        right: 10,
-        bottom: -2,
-        left: -10,
-        depth: 10,
-        position: [0, -0.05, 0],
-        material: new DefaultMaterial({
-            texture: new Texture(),
-            diffuseColor: [
-                0.08388 * 2, 
-                0.08202 * 2, 
-                0.08167 * 2, 
-                1
-            ]
-        })
-    }));
     
     scene.add(new Plane({
         scale: 10,
@@ -247,10 +246,12 @@ function gameSetup(viewport, scene) {
     const border = 0.91;
     const origin = [0.1, 0.1];
 
-    let lastTarget = null;
-    let currentTarget = null;
-    let currentTargetPosition = null;
-    let currentObject = null;
+    let cursorTarget = null;
+    let cursorTargetPosition = null;
+    let currentPiece = null;
+    let cursorWorldPosition = [0, 0];
+    let positionHelpers = null;
+    let lastMove = null;
 
     const figures = [
         King,
@@ -283,7 +284,6 @@ function gameSetup(viewport, scene) {
     const neutralMaterial = new DefaultMaterial({
         diffuseColor: [0.75, 0.75, 1, 1]
     });
-
     const targetMaterial = new DefaultMaterial({
         diffuseColor: [1, 0.75, 0.75, 1]
     });
@@ -328,22 +328,30 @@ function gameSetup(viewport, scene) {
 
     const chessBoard = new ChessBoard();
 
-    for(let x = 0; x < 8; x++) {
-        for(let y = 0; y < 8; y++) {
-            const piece = chessBoard.board[x][y];
+    initBoard();
 
-            if(piece) {
-                piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(x, y));
+    function initBoard() {
+        for(let x = 0; x < 8; x++) {
+            for(let y = 0; y < 8; y++) {
+                const piece = chessBoard.board[x][y];
+    
+                if(piece) {
+                    if(!piece.geometry) {
+                        piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(x, y));
+                        piece.coords = [x, y];
+                    } else {
+                        // const pos = gridToWorld(x, y);
+                        // piece.geometry.position = new Vec(pos[0], 5, pos[2]);
+                    }
+                }
             }
         }
     }
 
     // events
 
-    let cursorWorldPosition = [0, 0];
-
-    viewport.addEventListener('mousemove', e => {
-        const hit = Input.cast(viewport.camera, e.x, e.y, [0, -0.2, 0]);
+    function mouseMoveHandler(x, y) {
+        const hit = Input.cast(viewport.camera, x, y, [0, -0.2, 0]);
         hit.position = [
             Math.max(Math.min(hit.position[0], 8), -8),
             hit.position[1],
@@ -354,105 +362,116 @@ function gameSetup(viewport, scene) {
             hit.position[1],
             Math.floor((hit.position[2] / 2) * border) * (2 / border) + 1 + origin[1],
         ];
-        currentTargetPosition = cursor.position;
-        currentTarget = [
+        cursorTargetPosition = [cursor.position[0], cursor.position[2]];
+        cursorTarget = [
             Math.floor((hit.position[0] / 2) * border) + 4,
             Math.floor((hit.position[2] / 2) * border) + 4,
         ];
 
-        if(currentObject) {
+        if(currentPiece) {
             const sollX = ((hit.position[0] / 2) * border) * (2 / border) + origin[0];
             const sollZ = ((hit.position[2] / 2) * border) * (2 / border) + origin[1];
             cursorWorldPosition = [sollX, 0, sollZ];
-            currentObject.geometry.moveTo(sollX, sollZ);
+            currentPiece.geometry.moveTo(sollX, sollZ);
         }
-    })
+    }
 
-    let positionHelpers = null;
+    function mouseDownHandler() {
+        cursor.scale = 0.95;
 
-    viewport.addEventListener('mousedown', e => {
-        if(e.button == 0) {
-
-            const piece = chessBoard.getPieaceAt(...currentTarget);
-
-            if(piece && piece.side == chessBoard.currentSide) {
-                
-                lastTarget = [...currentTarget];
-
-                currentObject = piece;
-                
-                currentObject.geometry.pickup();
-                currentObject.coord = [currentTarget[0], currentTarget[1]];
-
-                const available = chessBoard.getAvailableMovesAt(currentTarget);
-                positionHelpers = helperDisplay(available);
-                
-            } else {
-                currentObject = null;
-            }
-
-            cursor.scale = 0.95;
+        if(chessBoard.currentSide !== chessBoard.clientSide) {
+            return;
         }
-    })
 
-    viewport.addEventListener('mouseup', e => {
+        const piece = chessBoard.getPieaceAt(...cursorTarget);
+
+        if(piece && piece.side == chessBoard.currentSide) {
+
+            // pickup piece
+            currentPiece = piece;
+            currentPiece.geometry.pickup();
+
+            // display available moves
+            const available = chessBoard.getAvailableMovesAt(cursorTarget);
+            positionHelpers = helperDisplay(available);
+            
+        } else {
+            currentPiece = null;
+        }
+    }
+
+    function movePiece(piece, pos) {
+        piece.geometry.position.x = pos[0];
+        piece.geometry.position.z = pos[1];
+    }
+
+    function movePieceToGrid(piece, pos) {
+        pos = gridToWorld(pos[0], pos[1]);
+        piece.geometry.position.x = pos[0];
+        piece.geometry.position.z = pos[2];
+    }
+
+    function removePiece(piece) {
+        piece.geometry.remove();
+
+        emitter.position[0] = piece.geometry.position[0];
+        emitter.position[1] = 0.5;
+        emitter.position[2] = piece.geometry.position[2];
+
+        setTimeout(() => { emitter.rate = 25; }, 0);
+        setTimeout(() => { emitter.rate = 0; }, 50);
+    }
+
+    function mouseUpHandler() {
         cursor.scale = 1;
 
         if(positionHelpers) {
             positionHelpers.remove();
         }
 
-        if(currentObject) {
-
-            const move = chessBoard.movePiece(currentObject.coord, currentTarget);
+        if(currentPiece) {
+            const move = chessBoard.movePiece(currentPiece.coords, cursorTarget);
 
             if(move) {
-                currentObject.geometry.position.x = currentTargetPosition[0];
-                currentObject.geometry.position.z = currentTargetPosition[2];
+                movePiece(currentPiece, cursorTargetPosition);
 
-                if(move[0]) {
-                    scene.remove(move[0].geometry);
+                lastMove = [[...currentPiece.coords], [...cursorTarget]];
 
-                    emitter.position[0] = move[0].geometry.position[0];
-                    emitter.position[1] = 0.5;
-                    emitter.position[2] = move[0].geometry.position[2];
-            
-                    setTimeout(() => { emitter.rate = 25; }, 0);
-                    setTimeout(() => { emitter.rate = 0; }, 50);
+                if(move.length > 0) {
+                    removePiece(move[0]);
                 }
             } else {
-                currentObject.geometry.position.x = currentObject.geometry.lastPosition[0];
-                currentObject.geometry.position.z = currentObject.geometry.lastPosition[1];
+                movePiece(currentPiece, currentPiece.geometry.lastPosition);
             }
 
-            currentObject.coord = [currentTarget[0], currentTarget[1]];
-
-            currentObject.geometry.release();
-            
-            currentObject = null;
+            currentPiece.geometry.release();
+            currentPiece = null;
         }
-    })
+    }
 
-    viewport.addEventListener('contextmenu', e => {
-        e.preventDefault();
-    })
+    viewport.addEventListener('mousemove', e => mouseMoveHandler(e.x, e.y));
+    viewport.addEventListener('contextmenu', e => e.preventDefault());
+    viewport.addEventListener('mouseup', e => mouseUpHandler());
+    viewport.addEventListener('mousedown', e => {
+        if(e.button == 0) mouseDownHandler();
+    });
 
     return {
-        get lastTarget() {
-            return lastTarget;
-        },
         get cursor() {
-            return currentTarget;
+            return cursorTarget;
         },
         get position() {
             return cursorWorldPosition;
         },
         get pickup() {
-            return currentObject ? currentObject.coord : null;
+            return currentPiece ? currentPiece.coords : null;
         },
-        get scene() {
-            return scene;
+        getLastMove() {
+            return lastMove;
         },
+        removePiece,
+        movePiece,
+        movePieceToGrid,
         chess: chessBoard,
         createCursor,
         gridToWorld

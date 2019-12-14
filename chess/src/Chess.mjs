@@ -8,10 +8,11 @@ const Pieces = {
 };
 
 class Piece {
-    constructor(type, side) {
+    constructor(type, side, pos) {
         this.moves = 0;
         this.type = type;
         this.side = side;
+        this.coords = pos;
     }
 }
 
@@ -19,6 +20,7 @@ export class ChessBoard {
 
     constructor() {
         
+        this.moves = [];
         this.board = [
             [null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null],
@@ -32,6 +34,7 @@ export class ChessBoard {
 
         this.offboard = [];
         this.currentSide = 0;
+        this.clientSide = -1;
 
         this.setup();
     }
@@ -40,39 +43,99 @@ export class ChessBoard {
         
     }
 
+    setBoard(board, callback) {
+        const pieces = [...this.board.flat()];
+
+        this.moves = [...board.moves];
+        this.board = [
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+        ];
+     
+        for(let x = 0; x < 8; x++) {
+            for(let y = 0; y < 8; y++) {
+                const boardPice = board.board[x][y];
+                
+                if(boardPice) {
+                    const foundPice = pieces.find(p => (
+                        p && p.type == boardPice.type && p.side == boardPice.side
+                    ));
+                    pieces.splice(pieces.indexOf(foundPice), 1);
+
+                    foundPice.moves = boardPice.moves;
+                    foundPice.coords = boardPice.coords;
+
+                    if(callback) {
+                        callback(foundPice);
+                    }
+
+                    this.board[x][y] = foundPice;
+                }
+            }
+        }
+
+        for(let p of pieces) {
+            if(p && p.geometry) {
+                p.geometry.remove();
+            }
+        }
+    }
+
+    compareBoard(board) {
+        for(let x = 0; x < 8; x++) {
+            for(let y = 0; y < 8; y++) {
+                const clientPiece = this.board[x][y];
+                const comparePiece = board.board[x][y];
+
+                if((!clientPiece && !comparePiece) || (clientPiece && comparePiece)) {
+                    return comparePiece.type == clientPiece.type;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     setup() {
-        this.board[0][0] = new Piece(Pieces.ROCK, 0);
-        this.board[1][0] = new Piece(Pieces.KNIGHT, 0);
-        this.board[2][0] = new Piece(Pieces.BISHOP, 0);
-        this.board[3][0] = new Piece(Pieces.QUEEN, 0);
-        this.board[4][0] = new Piece(Pieces.KING, 0);
-        this.board[5][0] = new Piece(Pieces.BISHOP, 0);
-        this.board[6][0] = new Piece(Pieces.KNIGHT, 0);
-        this.board[7][0] = new Piece(Pieces.ROCK, 0);
-        this.board[0][1] = new Piece(Pieces.PAWN, 0);
-        this.board[1][1] = new Piece(Pieces.PAWN, 0);
-        this.board[2][1] = new Piece(Pieces.PAWN, 0);
-        this.board[3][1] = new Piece(Pieces.PAWN, 0);
-        this.board[4][1] = new Piece(Pieces.PAWN, 0);
-        this.board[5][1] = new Piece(Pieces.PAWN, 0);
-        this.board[6][1] = new Piece(Pieces.PAWN, 0);
-        this.board[7][1] = new Piece(Pieces.PAWN, 0);
-        this.board[0][6] = new Piece(Pieces.PAWN, 1);
-        this.board[1][6] = new Piece(Pieces.PAWN, 1);
-        this.board[2][6] = new Piece(Pieces.PAWN, 1);
-        this.board[3][6] = new Piece(Pieces.PAWN, 1);
-        this.board[4][6] = new Piece(Pieces.PAWN, 1);
-        this.board[5][6] = new Piece(Pieces.PAWN, 1);
-        this.board[6][6] = new Piece(Pieces.PAWN, 1);
-        this.board[7][6] = new Piece(Pieces.PAWN, 1);
-        this.board[0][7] = new Piece(Pieces.ROCK, 1);
-        this.board[1][7] = new Piece(Pieces.KNIGHT, 1);
-        this.board[2][7] = new Piece(Pieces.BISHOP, 1);
-        this.board[3][7] = new Piece(Pieces.QUEEN, 1);
-        this.board[4][7] = new Piece(Pieces.KING, 1);
-        this.board[5][7] = new Piece(Pieces.BISHOP, 1);
-        this.board[6][7] = new Piece(Pieces.KNIGHT, 1);
-        this.board[7][7] = new Piece(Pieces.ROCK, 1);
+        this.board[0][0] = new Piece(Pieces.ROCK, 0, [0, 0]);
+        this.board[1][0] = new Piece(Pieces.KNIGHT, 0, [1, 0]);
+        this.board[2][0] = new Piece(Pieces.BISHOP, 0, [2, 0]);
+        this.board[3][0] = new Piece(Pieces.QUEEN, 0, [3, 0]);
+        this.board[4][0] = new Piece(Pieces.KING, 0, [4, 0]);
+        this.board[5][0] = new Piece(Pieces.BISHOP, 0, [5, 0]);
+        this.board[6][0] = new Piece(Pieces.KNIGHT, 0, [6, 0]);
+        this.board[7][0] = new Piece(Pieces.ROCK, 0, [7, 0]);
+        this.board[0][1] = new Piece(Pieces.PAWN, 0, [0, 1]);
+        this.board[1][1] = new Piece(Pieces.PAWN, 0, [1, 1]);
+        this.board[2][1] = new Piece(Pieces.PAWN, 0, [2, 1]);
+        this.board[3][1] = new Piece(Pieces.PAWN, 0, [3, 1]);
+        this.board[4][1] = new Piece(Pieces.PAWN, 0, [4, 1]);
+        this.board[5][1] = new Piece(Pieces.PAWN, 0, [5, 1]);
+        this.board[6][1] = new Piece(Pieces.PAWN, 0, [6, 1]);
+        this.board[7][1] = new Piece(Pieces.PAWN, 0, [7, 1]);
+        this.board[0][6] = new Piece(Pieces.PAWN, 1, [0, 6]);
+        this.board[1][6] = new Piece(Pieces.PAWN, 1, [1, 6]);
+        this.board[2][6] = new Piece(Pieces.PAWN, 1, [2, 6]);
+        this.board[3][6] = new Piece(Pieces.PAWN, 1, [3, 6]);
+        this.board[4][6] = new Piece(Pieces.PAWN, 1, [4, 6]);
+        this.board[5][6] = new Piece(Pieces.PAWN, 1, [5, 6]);
+        this.board[6][6] = new Piece(Pieces.PAWN, 1, [6, 6]);
+        this.board[7][6] = new Piece(Pieces.PAWN, 1, [7, 6]);
+        this.board[0][7] = new Piece(Pieces.ROCK, 1, [0, 7]);
+        this.board[1][7] = new Piece(Pieces.KNIGHT, 1, [1, 7]);
+        this.board[2][7] = new Piece(Pieces.BISHOP, 1, [2, 7]);
+        this.board[3][7] = new Piece(Pieces.QUEEN, 1, [3, 7]);
+        this.board[4][7] = new Piece(Pieces.KING, 1, [4, 7]);
+        this.board[5][7] = new Piece(Pieces.BISHOP, 1, [5, 7]);
+        this.board[6][7] = new Piece(Pieces.KNIGHT, 1, [6, 7]);
+        this.board[7][7] = new Piece(Pieces.ROCK, 1, [7, 7]);
     }
 
     movePiece(p1, p2) {
@@ -101,7 +164,10 @@ export class ChessBoard {
                 this.board[targetPosition[0]][targetPosition[1]] = piece;
                 this.board[position[0]][position[1]] = null;
 
+                piece.coords = targetPosition;
                 piece.moves += dist;
+                
+                this.moves.push([p1, p2]);
 
                 return targetPiece;
             }
