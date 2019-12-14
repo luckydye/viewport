@@ -44,8 +44,9 @@ export class ChessBoard {
     }
 
     setBoard(board, updateCallback, removeCallback) {
-        const pieces = [...this.board.flat()];
+        const pieces = [...this.board.flat(), ...this.offboard];
 
+        this.offboard = [];
         this.moves = [...board.moves];
         this.board = [
             [null, null, null, null, null, null, null, null],
@@ -66,6 +67,7 @@ export class ChessBoard {
                     const foundPice = pieces.find(p => (
                         p && p.type == boardPice.type && p.side == boardPice.side
                     ));
+
                     pieces.splice(pieces.indexOf(foundPice), 1);
 
                     foundPice.moves = boardPice.moves;

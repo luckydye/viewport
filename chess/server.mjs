@@ -37,6 +37,10 @@ class ChessRoom extends Room {
         this.chessBoard.currentSide = val;
     }
 
+    get started() {
+        return this.gameState === GameState.STARTED;
+    }
+
     onJoined(clientId, username) {
         if(this.players.length < 2) {
             const side = !this.players[0] ? 0 : 1;
@@ -105,16 +109,19 @@ class ChessRoom extends Room {
     }
 
     nextTurn() {
+        if(!this.started) return;
+
         this.turn = this.turn === 0 ? 1 : 0;
         console.log('next turn');
     }
 
     movePiece(clientId, [p1, p2]) {
+        if(!this.started) return;
+
         const player = this.getPlayer(clientId);
 
         if(player.side == this.turn) {
             const collateral = this.chessBoard.movePiece(p1, p2);
-            console.log(collateral, [p1, p2]);
             if(collateral) {
                 this.nextTurn();
             }

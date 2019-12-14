@@ -9,6 +9,8 @@
 
     <script src="./src/engine.js"></script>
 
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -21,7 +23,20 @@
             display: flex;
             flex-direction: column;
             background: #dedddc;
-            font-family: sans-serif;
+            font-family: 'Roboto Slab';
+        }
+        h2 {
+            color: #fff;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.33);
+            margin: 0;
+            width: auto;
+            text-align: center;
+            margin: 30px auto;
+            display: block;
+            padding: 10px 0;
+            background: rgba(0, 0, 0, 0.25);
+            user-select: none;
+            letter-spacing: 2px;
         }
         gl-viewport {
             height: 100%;
@@ -41,10 +56,56 @@
         dev-console[open] {
             display: flex;
         }
+        .delayed-fade-out {
+            animation: fade-out 1s ease both;
+            animation-delay: 3s;
+        }
+        .loader {
+            animation: loading 1.5s linear infinite;
+            background: url('./res/images/chess_figures.svg');
+            background-size: contain;
+            background-repeat: repeat-x;
+            width: 300px;
+            height: 75px;
+            margin-bottom: 20px;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            height: 40px;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .version {
+            position: fixed;
+            bottom: 15px;
+            opacity: 0.25;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        @keyframes fade-out {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes loading {
+            from { background-position-x: 0px; }
+            to { background-position-x: 200px; }
+        }
     </style>
 </head>
 
 <body>
+    <div class="loading">
+        <div class="loader"></div>
+        <div>Loading</div>
+    </div>
+
+    <div class="version">
+        <div>version 1.0</div>
+    </div>
+
     <dev-console></dev-console>
 </body>
 

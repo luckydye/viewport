@@ -53,7 +53,28 @@ function init() {
     const scene = Resources.get('testmap').toScene();
     const game = gameSetup(viewport, scene);
 
-    connect(game);
+    let uiTimer = null;
+    let started = false;
+
+    const uiUpdate = lobby => {
+        uiTimer = setTimeout(() => {
+            const state = lobby.getRoomState();
+
+            if(state.players.length < 2) {
+                viewport.innerHTML = "<h2>Waiting for players (1/2)</h2>";
+                started = false;
+            } else {
+                if(!started) {
+                    viewport.innerHTML = '<h2 class="delayed-fade-out">Game Started</h2>';
+                }
+                started = true;
+            }
+
+            uiUpdate(lobby);
+        }, 300);
+    };
+
+    connect(game).then(uiUpdate);
 }
 
 async function connect(game) {
@@ -62,6 +83,7 @@ async function connect(game) {
     const tickrate = 32;
     const playerCursors = new Map();
     let lastMove = null;
+    let latestState = null;
     
     client.on('client.connected', msg => {
         client.id = msg.uid;
@@ -98,6 +120,8 @@ async function connect(game) {
     function handleRoomState(msg) {
         const players = msg.players;
 
+        latestState = msg;
+
         game.chess.currentSide = msg.turn;
 
         if(!game.chess.compareBoard(msg.board)) {
@@ -105,6 +129,10 @@ async function connect(game) {
                 const coords = piece.coords;
                 if(piece.geometry && !piece.geometry.hover) {
                     game.movePieceToGrid(piece, coords);
+                }
+                if(piece.geometry) {
+                    piece.geometry.removed = false;
+                    game.scene.add(piece.geometry);
                 }
             }, removedPiece => {
                 removedPiece.geometry.remove();
@@ -167,6 +195,12 @@ async function connect(game) {
                 cursor.cursor.position.z = pos[2];
                 cursor.cursor.material.diffuseColor = [0, 0, 0, 0.5];
             }
+        }
+    }
+
+    return {
+        getRoomState() {
+            return latestState;
         }
     }
 }
@@ -465,6 +499,9 @@ function gameSetup(viewport, scene) {
         },
         get pickup() {
             return currentPiece ? currentPiece.coords : null;
+        },
+        get scene() {
+            return scene;
         },
         getLastMove() {
             return lastMove;
