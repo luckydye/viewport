@@ -100,14 +100,14 @@ async function connect(game) {
 
         game.chess.currentSide = msg.turn;
 
-        // TODO:
-        // why does the move not registern ?
         if(!game.chess.compareBoard(msg.board)) {
             game.chess.setBoard(msg.board, piece => {
                 const coords = piece.coords;
                 if(piece.geometry && !piece.geometry.hover) {
                     game.movePieceToGrid(piece, coords);
                 }
+            }, removedPiece => {
+                removedPiece.geometry.remove();
             });
         }
 
@@ -340,8 +340,8 @@ function gameSetup(viewport, scene) {
                         piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(x, y));
                         piece.coords = [x, y];
                     } else {
-                        // const pos = gridToWorld(x, y);
-                        // piece.geometry.position = new Vec(pos[0], 5, pos[2]);
+                        const pos = gridToWorld(x, y);
+                        piece.geometry.position = new Vec(pos[0], 5, pos[2]);
                     }
                 }
             }
@@ -430,12 +430,12 @@ function gameSetup(viewport, scene) {
         }
 
         if(currentPiece) {
+            lastMove = [[...currentPiece.coords], [...cursorTarget]];
+
             const move = chessBoard.movePiece(currentPiece.coords, cursorTarget);
 
             if(move) {
                 movePiece(currentPiece, cursorTargetPosition);
-
-                lastMove = [[...currentPiece.coords], [...cursorTarget]];
 
                 if(move.length > 0) {
                     removePiece(move[0]);

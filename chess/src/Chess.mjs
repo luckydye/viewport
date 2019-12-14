@@ -43,7 +43,7 @@ export class ChessBoard {
         
     }
 
-    setBoard(board, callback) {
+    setBoard(board, updateCallback, removeCallback) {
         const pieces = [...this.board.flat()];
 
         this.moves = [...board.moves];
@@ -71,8 +71,8 @@ export class ChessBoard {
                     foundPice.moves = boardPice.moves;
                     foundPice.coords = boardPice.coords;
 
-                    if(callback) {
-                        callback(foundPice);
+                    if(updateCallback) {
+                        updateCallback(foundPice);
                     }
 
                     this.board[x][y] = foundPice;
@@ -81,9 +81,7 @@ export class ChessBoard {
         }
 
         for(let p of pieces) {
-            if(p && p.geometry) {
-                p.geometry.remove();
-            }
+            if(p) removeCallback(p);
         }
     }
 
@@ -93,13 +91,20 @@ export class ChessBoard {
                 const clientPiece = this.board[x][y];
                 const comparePiece = board.board[x][y];
 
-                if((!clientPiece && !comparePiece) || (clientPiece && comparePiece)) {
-                    return comparePiece.type == clientPiece.type;
-                } else {
-                    return false;
+                if(clientPiece && comparePiece) {
+                    if(comparePiece.type != clientPiece.type) {
+                        // type differencce
+                        return false;
+                    }
+                } else if(clientPiece == null || comparePiece == null) {
+                    if(clientPiece != comparePiece) {
+                        // position difference
+                        return false;
+                    }
                 }
             }
         }
+
         return true;
     }
 

@@ -39,12 +39,14 @@ class ChessRoom extends Room {
 
     onJoined(clientId, username) {
         if(this.players.length < 2) {
-            this.players.push({
-                side: this.players.length,
+            const side = !this.players[0] ? 0 : 1;
+            
+            this.players[side] = {
+                side: side,
                 clientId, 
                 username,
                 cursor: [0, 0]
-            });
+            }
         }
 
         if(this.members.size > 1) {
@@ -104,6 +106,7 @@ class ChessRoom extends Room {
 
     nextTurn() {
         this.turn = this.turn === 0 ? 1 : 0;
+        console.log('next turn');
     }
 
     movePiece(clientId, [p1, p2]) {
@@ -111,7 +114,10 @@ class ChessRoom extends Room {
 
         if(player.side == this.turn) {
             const collateral = this.chessBoard.movePiece(p1, p2);
-            this.nextTurn();
+            console.log(collateral, [p1, p2]);
+            if(collateral) {
+                this.nextTurn();
+            }
         }
     }
 
