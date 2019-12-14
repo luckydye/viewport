@@ -59,16 +59,27 @@ function init() {
     const uiUpdate = lobby => {
         uiTimer = setTimeout(() => {
             const state = lobby.getRoomState();
+            let hudHTML = "";
 
             if(state.players.length < 2) {
-                viewport.innerHTML = "<h2>Waiting for players (1/2)</h2>";
+                hudHTML += "<h2>Waiting for players (1/2)</h2>";
                 started = false;
             } else {
                 if(!started) {
-                    viewport.innerHTML = '<h2 class="delayed-fade-out">Game Started</h2>';
+                    hudHTML += '<h2 class="delayed-fade-out">Game Started</h2>';
+                } else {
+                    const turn = game.chess.currentSide == 0 ? "white" : "black";
+                    hudHTML += `
+                        <div class="current-turn" ${turn}>
+                            <span>Current turn:</span>
+                            <a>${turn}</a>
+                        </div>
+                    `;
                 }
                 started = true;
             }
+
+            viewport.innerHTML = hudHTML;
 
             uiUpdate(lobby);
         }, 300);
