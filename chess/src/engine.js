@@ -164,6 +164,11 @@ async function connect(game) {
                     }
                 }
             } else {
+                if(game.chess.clientSide != player.side) {
+                    if(player.side === 0) {
+                        game.moveCamera(180 * Math.PI / 180);
+                    }
+                }
                 game.chess.clientSide = player.side;
             }
         }
@@ -307,6 +312,10 @@ function gameSetup(viewport, scene) {
         return p;
     }
 
+    function moveCamera(deg) {
+        camera.setDegrees(deg);
+    }
+
     function gridToWorld(x, z) {
         return [
             ((x - 4) / 2) * 4.38 + 1 + origin[0],
@@ -410,7 +419,7 @@ function gameSetup(viewport, scene) {
         }
     }
 
-    function mouseDownHandler() {
+    function mouseDownHandler(e) {
         cursor.scale = 0.95;
 
         if(chessBoard.currentSide !== chessBoard.clientSide) {
@@ -425,6 +434,8 @@ function gameSetup(viewport, scene) {
             currentPiece = piece;
             currentPiece.geometry.pickup();
 
+            mouseMoveHandler(e.x, e.y);
+
             // display available moves
             const available = chessBoard.getAvailableMovesAt(cursorTarget);
             positionHelpers = helperDisplay(available);
@@ -435,8 +446,15 @@ function gameSetup(viewport, scene) {
     }
 
     function movePiece(piece, pos) {
-        piece.geometry.position.x = pos[0];
-        piece.geometry.position.z = pos[1];
+        piece.geometry.moveTo(pos[0], pos[1]);
+
+        setTimeout(() => {
+            piece.geometry.position.x = pos[0];
+            piece.geometry.position.z = pos[1];
+
+            piece.geometry.velocity.x = 0;
+            piece.geometry.velocity.z = 0;
+        }, 300);
     }
 
     function movePieceToGrid(piece, pos) {
@@ -487,7 +505,7 @@ function gameSetup(viewport, scene) {
     viewport.addEventListener('contextmenu', e => e.preventDefault());
     viewport.addEventListener('mouseup', e => mouseUpHandler());
     viewport.addEventListener('mousedown', e => {
-        if(e.button == 0) mouseDownHandler();
+        if(e.button == 0) mouseDownHandler(e);
     });
 
     return {
@@ -509,6 +527,7 @@ function gameSetup(viewport, scene) {
         removePiece,
         movePiece,
         movePieceToGrid,
+        moveCamera,
         chess: chessBoard,
         createCursor,
         gridToWorld

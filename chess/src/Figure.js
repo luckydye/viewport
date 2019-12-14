@@ -15,7 +15,7 @@ export class Figure extends Entity {
             onUpdate: () => {
                 if(this.position.y < 0) {
                     this.position.y = 0;
-                    this.velocity.y = 0;
+                    this.velocity.y = -this.velocity.y / 10;
                 }
             }
         });
@@ -46,10 +46,11 @@ export class Figure extends Entity {
     update(ms) {
         super.update(ms);
 
+        this.velocity.x = (this.moveTarget[0] - this.position.x) / 10;
+        this.velocity.z = (this.moveTarget[2] - this.position.z) / 10;
+        
         if(this.hover) {
             this.velocity.y = (this.moveTarget[1] - this.position.y) / 10;
-            this.velocity.x = (this.moveTarget[0] - this.position.x) / 10;
-            this.velocity.z = (this.moveTarget[2] - this.position.z) / 10;
         }
     }
 
@@ -64,7 +65,7 @@ export class Figure extends Entity {
             this.position.z
         ];
 
-        this.moveTarget[1] = 4;
+        this.moveTarget[1] = 3;
         this.hover = true;
     }
 

@@ -1,15 +1,14 @@
 import { Vec } from '../Math';
 import Input from '../Input';
 
+let x = 0;
+let lastX = 0;
+const dist = -32;
+
 export default  {
 
     onCreate(entity) {
         Input.init();
-
-        let x = 0;
-        const dist = -32;
-
-        let lastX = 0;
 
         Input.onDrag(e => {
             if(e.button == 2) {
@@ -31,5 +30,15 @@ export default  {
         entity.position.z = Math.cos(-x) * dist;
         entity.rotation.y = x;
     },
+
+    methods: {
+        setDegrees(deg) {
+            lastX = deg;
+            x = deg;
+            this.position.x = Math.sin(-deg) * dist;
+            this.position.z = Math.cos(-deg) * dist;
+            this.rotation.y = deg;
+        }
+    }
 
 }
