@@ -1,4 +1,4 @@
-const Pieces = {
+export const Pieces = {
     'KING': 0,
     'ROCK': 1,
     'BISHOP': 2,
@@ -55,11 +55,14 @@ export class ChessBoard {
             if(piece && piece.type == Pieces.PAWN) {
                 if(piece.side === 0 && piece.coords[1] == 7) {
                     // choose type to replace the pawn
-                    state.promotion = piece;
+
+                    state.promotion = state.promotion || [];
+                    state.promotion.push(piece);
                 }
                 if(piece.side === 1 && piece.coords[1] == 0) {
                     // choose type to replace the pawn
-                    state.promotion = piece;
+                    state.promotion = state.promotion || [];
+                    state.promotion.push(piece);
                 }
             }
 
@@ -226,6 +229,23 @@ export class ChessBoard {
         this.board[5][7] = new Piece(Pieces.BISHOP, 1, [5, 7]);
         this.board[6][7] = new Piece(Pieces.KNIGHT, 1, [6, 7]);
         this.board[7][7] = new Piece(Pieces.ROCK, 1, [7, 7]);
+    }
+
+    promotePiece(piece, toType) {
+        const promos = this.state.promotion;
+
+        if(promos) {
+            for(let promo of promos) {
+                
+                if(piece == promo) {
+                    this.replacePieceType(piece, toType);
+                }
+            }
+        }
+    }
+
+    replacePieceType(piece, type) {
+        this.board[piece.coords[0]][piece.coords[1]] = new Piece(type, piece.side, [...piece.coords]);
     }
 
     movePiece(p1, p2) {

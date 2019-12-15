@@ -80,7 +80,7 @@ class ChessRoom extends Room {
             board: this.chessBoard,
             state: this.gameState,
             moves: this.chessBoard.moves,
-            winner: this.chessBoard.state ? this.chessBoard.state.win : null,
+            boardState: this.chessBoard.state,
         }
     }
 
@@ -137,6 +137,15 @@ class ChessRoom extends Room {
             player.cursor = data.cursor;
             player.world = data.world;
             player.pickup = data.pickup;
+            player.promotion = data.promotion;
+
+            if(player.promotion) {
+                const promos = this.chessBoard.state.promotion;
+
+                if(promos) {
+                    this.chessBoard.promotePiece(promos[0], player.promotion);
+                }
+            }
 
             if(data.move && player.side == this.turn) {
                 this.movePiece(clientId, data.move);

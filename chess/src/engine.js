@@ -15,13 +15,14 @@ import { Resources } from '../../src/resources/Resources.js';
 import { Camera } from '../../src/scene/Camera.js';
 import Turntable from '../../src/traits/Turntable.js';
 import { Bishop } from './Bishop.js';
-import { ChessBoard } from './Chess.mjs';
+import { ChessBoard, Pieces } from './Chess.mjs';
 import { Farmer } from './Farmer.js';
 import { Horse } from './Horse.js';
 import { King } from './King.js';
 import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
 import HotelClient from '@uncut/hotel/Client';
+import { html, render } from 'lit-html';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -59,29 +60,80 @@ function init() {
     const uiUpdate = lobby => {
         uiTimer = setTimeout(() => {
             const state = lobby.getRoomState();
-            let hudHTML = "";
+            const boardState = state.board.state;
 
-            if(state.players.length < 2) {
-                hudHTML += "<h2>Waiting for players (1/2)</h2>";
-                started = false;
-            } else if(state.winner !== null) {
-                hudHTML += "<h2>Winner: " + (state.winner === 0 ? "Black" : "White") + "</h2>";
-            } else {
-                if(!started) {
-                    hudHTML += '<h2 class="delayed-fade-out">Game Started</h2>';
-                } else {
-                    const turn = game.chess.currentSide == 1 ? "white" : "black";
-                    hudHTML += `
-                        <div class="current-turn" ${turn}>
-                            <span>Current turn:</span>
-                            <a>${turn}</a>
-                        </div>
-                    `;
-                }
-                started = true;
+            function choosePromotion(type) {
+                lobby.sendPromotion(type);
             }
 
-            viewport.innerHTML = hudHTML;
+            let hudHTML = html``;
+
+            if(state.players.length < 2) {
+                hudHTML = html`
+                    ${hudHTML} 
+                    <h2>Waiting for players (1/2)</h2>
+                `;
+                started = false;
+            } else {
+                if(state.winner != null) {
+                    hudHTML = html`
+                        ${hudHTML}
+                        <h2>Winner: ${state.winner === 0 ? "Black" : "White"}</h2>
+                    `;
+                } else {
+                    if(!started) {
+                        hudHTML = html`
+                            ${hudHTML}
+                            <h2 class="delayed-fade-out">Game Started</h2>
+                        `;
+                    } else {
+                        const turn = game.chess.currentSide == 1 ? "white" : "black";
+                        hudHTML = html`
+                            ${hudHTML}
+                            <div class="current-turn" ?white=${turn == 'white'} ?black=${turn == 'black'}>
+                                <span>Current turn:</span>
+                                <a>${turn}</a>
+                            </div>
+                        `;
+                    }
+                    started = true;
+                }
+            }
+
+            if(boardState && boardState.promotion) {
+                hudHTML = html`
+                    <h2>Promote a Pawn</h2>
+                    <div class="chess-select">
+                        <div class="figure" @click=${() => choosePromotion(Pieces.KING)}>
+                            <svg>
+                                <use xlink:href="/chess/res/images/chess_figures.svg#King"/>
+                            </svg>
+                        </div>
+                        <div class="figure" @click=${() => choosePromotion(Pieces.QUEEN)}>
+                            <svg>
+                                <use xlink:href="/chess/res/images/chess_figures.svg#Queen"/>
+                            </svg>
+                        </div>
+                        <div class="figure" @click=${() => choosePromotion(Pieces.BISHOP)}>
+                            <svg>
+                                <use xlink:href="/chess/res/images/chess_figures.svg#Bishop"/>
+                            </svg>
+                        </div>
+                        <div class="figure" @click=${() => choosePromotion(Pieces.KNIGHT)}>
+                            <svg>
+                                <use xlink:href="/chess/res/images/chess_figures.svg#Knight"/>
+                            </svg>
+                        </div>
+                        <div class="figure" @click=${() => choosePromotion(Pieces.ROCK)}>
+                            <svg>
+                                <use xlink:href="/chess/res/images/chess_figures.svg#Rock"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+            }
+
+            render(hudHTML, viewport);
 
             uiUpdate(lobby);
         }, 300);
@@ -97,6 +149,7 @@ async function connect(game) {
     const playerCursors = new Map();
     let lastMove = null;
     let latestState = null;
+    let promotion = null;
     
     client.on('client.connected', msg => {
         client.id = msg.uid;
@@ -126,8 +179,11 @@ async function connect(game) {
             cursor: game.cursor,
             world: game.position,
             pickup: game.pickup,
-            move: currentMove
+            move: currentMove,
+            promotion: promotion,
         });
+
+        promotion = null;
     }
 
     function handleRoomState(msg) {
@@ -219,7 +275,10 @@ async function connect(game) {
     return {
         getRoomState() {
             return latestState;
-        }
+        },
+        sendPromotion(type) {
+            promotion = type;
+        },
     }
 }
 
