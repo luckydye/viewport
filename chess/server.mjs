@@ -27,6 +27,7 @@ class ChessRoom extends Room {
         this.chessBoard = new ChessBoard();
         this.players = [];
         this.gameState = GameState.WAITING;
+        this.winner = null;
     }
 
     get turn() {
@@ -79,6 +80,7 @@ class ChessRoom extends Room {
             board: this.chessBoard,
             state: this.gameState,
             moves: this.chessBoard.moves,
+            winner: this.chessBoard.state ? this.chessBoard.state.win : null,
         }
     }
 

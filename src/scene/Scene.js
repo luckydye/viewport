@@ -58,6 +58,8 @@ export class Scene extends Transform {
 		this.objects = new Set();
 		this.lastchange = Date.now();
 
+		this.orderObjects = true;
+
 		this.add(objs);
 
 		const shadowAngle = 80;
@@ -206,20 +208,26 @@ export class Scene extends Transform {
 	}
 
 	getRenderableObjects(camera) {
-		return [...this.objects].filter(obj => !obj.hidden).sort((a, b) => {
+		if(this.orderObjects) {
+			return [...this.objects].filter(obj => !obj.hidden).sort((a, b) => {
 
-			const distA = Math.sqrt(
-				Math.pow(-camera.position.x - (this.origin.x + a.position.x), 2) +
-				Math.pow(-camera.position.z - (this.origin.z + a.position.z), 2)
-			);
+				const distA = Math.sqrt(
+					Math.pow(camera.position.x - a.position.x, 2) +
+					Math.pow(camera.position.y - a.position.y, 2) +
+					Math.pow(camera.position.z - a.position.z, 2)
+				);
 
-			const distB = Math.sqrt(
-				Math.pow(-camera.position.x - (this.origin.x + b.position.x), 2) +
-				Math.pow(-camera.position.z - (this.origin.z + b.position.z), 2)
-			);
+				const distB = Math.sqrt(
+					Math.pow(camera.position.x - b.position.x, 2) +
+					Math.pow(camera.position.y - b.position.y, 2) +
+					Math.pow(camera.position.z - b.position.z, 2)
+				);
 
-			return distB - distA;
-		});
+				return distB - distA;
+			});
+		} else {
+			return [...this.objects];
+		}
 	}
 
 	getSceneGraph() {

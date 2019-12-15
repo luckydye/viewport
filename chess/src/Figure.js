@@ -49,7 +49,7 @@ export class Figure extends Entity {
 
         this.velocity.x = (this.moveTarget[0] - this.position.x) / 10;
         this.velocity.z = (this.moveTarget[2] - this.position.z) / 10;
-        
+
         if(this.hover) {
             this.velocity.y = (this.moveTarget[1] - this.position.y) / 10;
         }
@@ -71,8 +71,6 @@ export class Figure extends Entity {
     }
 
     release() {
-        this.velocity.x = 0;
-        this.velocity.z = 0;
         this.hover = false;
     }
 

@@ -61,13 +61,14 @@
             animation-delay: 3s;
         }
         .loader {
-            animation: loading 1.5s linear infinite;
+            animation: loading 2s linear infinite;
             background: url('./res/images/chess_figures.svg');
             background-size: contain;
             background-repeat: repeat-x;
             width: 300px;
-            height: 75px;
+            height: 54px;
             margin-bottom: 20px;
+            margin-top: -40px;
         }
         .loading {
             position: fixed;
@@ -91,7 +92,7 @@
         }
         @keyframes loading {
             from { background-position-x: 0px; }
-            to { background-position-x: 200px; }
+            to { background-position-x: 300px; }
         }
         .current-turn {
             position: fixed;

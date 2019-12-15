@@ -35,15 +35,98 @@ export class ChessBoard {
         this.offboard = [];
         this.currentSide = 0;
         this.clientSide = -1;
+        this.state = null;
 
         this.setup();
     }
 
     evaluate() {
-        
+        const state = {
+            check: null,
+            promotion: null,
+            win: null,
+        };
+
+        const pieces = [...this.board.flat()];
+
+        for(let piece of pieces) {
+
+            // promotion
+            if(piece && piece.type == Pieces.PAWN) {
+                if(piece.side === 0 && piece.coords[1] == 7) {
+                    // choose type to replace the pawn
+                    state.promotion = piece;
+                }
+                if(piece.side === 1 && piece.coords[1] == 0) {
+                    // choose type to replace the pawn
+                    state.promotion = piece;
+                }
+            }
+
+            // check
+            if(piece && piece.type == Pieces.KING) {
+                for(let otherPiece of pieces) {
+                    if(otherPiece && piece.side != otherPiece.side) {
+                        const moves = this.getAvailableMovesAt(otherPiece.coords);
+
+                        for(let pos of moves) {
+                            if(pos[0] === piece.coords[0] && pos[1] === piece.coords[1]) {
+                                state.check = otherPiece;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(state.check) {
+            const checkMoves = this.getAvailableMovesAt(state.check.coords);
+            const king = pieces.find(p => p && p.type === Pieces.KING && p.side !== state.check.side);
+
+            let escapeable = false;
+
+            if (state.check.type === Pieces.QUEEN ||
+                state.check.type === Pieces.BISHOP ||
+                state.check.type === Pieces.ROCK) {
+
+                const kingMoves = this.getAvailableMovesAt(king.coords);
+
+                for(let kingMove of kingMoves) {
+                    for(let checkMove of checkMoves) {
+                        if(kingMove[0] !== checkMove[0] && kingMove[1] !== checkMove[1]) {
+                            escapeable = true;
+                        }
+                    }
+                }
+            }
+
+            // TODO: Check Move
+            // see if it can be prevented with anothers piece move
+
+            if(!escapeable) {
+                state.win = state.check.side;
+            }
+        }
+
+        // general winning conditions
+        if(!pieces.find(p => p && p.side === 0)) {
+            state.win = 1;
+        }
+        if(!pieces.find(p => p && p.side === 1)) {
+            state.win = 0;
+        }
+
+        if(!pieces.find(p => p && p.type === Pieces.KING && p.side === 0)) {
+            state.win = 1;
+        }
+        if(!pieces.find(p => p && p.type === Pieces.KING && p.side === 1)) {
+            state.win = 0;
+        }
+
+        return state;
     }
 
-    setBoard(board, updateCallback, removeCallback) {
+    setBoard(board, updateCallback, removeCallback, createCallback) {
         const pieces = [...this.board.flat(), ...this.offboard];
 
         this.offboard = [];
@@ -149,9 +232,11 @@ export class ChessBoard {
         const position = p1;
         const targetPosition = p2;
 
+        const movePiece = this.getPieaceAt(p1);
         const available = this.getAvailableMovesAt(p1);
 
         let targetPiece = [];
+        let found = false;
 
         for(let p of available) {
             if(p[0] == targetPosition[0] && p[1] == targetPosition[1]) {
@@ -176,8 +261,19 @@ export class ChessBoard {
                 
                 this.moves.push([p1, p2]);
 
-                return targetPiece;
+                found = true;
+                break;
             }
+        }
+
+        this.state = this.evaluate();
+
+        if(this.state.check) {
+            // eval check conditions
+        }
+
+        if(found) {
+            return targetPiece;
         }
 
         return false;

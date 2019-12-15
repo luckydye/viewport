@@ -64,11 +64,13 @@ function init() {
             if(state.players.length < 2) {
                 hudHTML += "<h2>Waiting for players (1/2)</h2>";
                 started = false;
+            } else if(state.winner !== null) {
+                hudHTML += "<h2>Winner: " + (state.winner === 0 ? "Black" : "White") + "</h2>";
             } else {
                 if(!started) {
                     hudHTML += '<h2 class="delayed-fade-out">Game Started</h2>';
                 } else {
-                    const turn = game.chess.currentSide == 0 ? "white" : "black";
+                    const turn = game.chess.currentSide == 1 ? "white" : "black";
                     hudHTML += `
                         <div class="current-turn" ${turn}>
                             <span>Current turn:</span>
@@ -331,7 +333,8 @@ function gameSetup(viewport, scene) {
         return [
             ((x - 4) / 2) * 4.38 + 1 + origin[0],
             0,
-            ((z - 4) / 2) * 4.38 + 1 + origin[1]
+            ((z - 4) / 2) * 4.38 + 1 + origin[1],
+            0
         ]
     }
 
@@ -347,12 +350,8 @@ function gameSetup(viewport, scene) {
 
         for(let pos of positions) {
 
-            const world = [
-                ((pos[0] - 4) / 2) * 4.38 + 1 + origin[0],
-                0.05,
-                ((pos[1] - 4) / 2) * 4.38 + 1 + origin[1],
-                0
-            ];
+            const world = gridToWorld(pos[0], pos[1]);
+            world[1] = 0.05;
 
             let mat = neutralMaterial;
 
@@ -471,22 +470,34 @@ function gameSetup(viewport, scene) {
         }
     }
 
-    function movePiece(piece, pos) {
-        piece.geometry.moveTo(pos[0], pos[1]);
+    function movePiece(piece, pos, transition = true) {
+        if(transition) {
+            piece.geometry.moveTo(pos[0], pos[1]);
 
-        setTimeout(() => {
-            piece.geometry.position.x = pos[0];
-            piece.geometry.position.z = pos[1];
-
+            setTimeout(() => {
+                piece.geometry.velocity.x = 0;
+                piece.geometry.velocity.z = 0;
+                piece.geometry.position.x = pos[0];
+                piece.geometry.position.z = pos[1];
+                piece.geometry.lastPosition[0] = pos[0];
+                piece.geometry.lastPosition[1] = pos[1];
+                piece.geometry.moveTarget[0] = pos[0];
+                piece.geometry.moveTarget[2] = pos[1];
+            }, 400);
+        } else {
             piece.geometry.velocity.x = 0;
             piece.geometry.velocity.z = 0;
-        }, 300);
+            piece.geometry.position.x = pos[0];
+            piece.geometry.position.y = 0;
+            piece.geometry.position.z = pos[1];
+            piece.geometry.moveTarget[0] = pos[0];
+            piece.geometry.moveTarget[2] = pos[1];
+        }
     }
 
-    function movePieceToGrid(piece, pos) {
+    function movePieceToGrid(piece, pos, transition = false) {
         pos = gridToWorld(pos[0], pos[1]);
-        piece.geometry.position.x = pos[0];
-        piece.geometry.position.z = pos[2];
+        movePiece(piece, [pos[0], pos[2]], transition);
     }
 
     function removePiece(piece) {
