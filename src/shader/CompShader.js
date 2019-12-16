@@ -94,7 +94,8 @@ export default class CompShader extends Shader {
             vec4 bloom = blur13(lighting, vTexCoords, resolution, vec2(1.0, 0.0));
             bloom += blur13(lighting, vTexCoords, resolution, vec2(0.0, 1.0));
 
-            oFragColor += bloom * 0.4;
+            // TODO: desatureate bloom
+            oFragColor += bloom * 0.25;
 
             // depth fog
             oFragColor.rgb += min(pow(depth.r - fogStartOffset, fogDensity), fogMax);

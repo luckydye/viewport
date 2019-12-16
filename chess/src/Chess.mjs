@@ -7,12 +7,20 @@ export const Pieces = {
     'PAWN': 5
 };
 
+function uuidv4() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 class Piece {
     constructor(type, side, pos) {
         this.moves = 0;
         this.type = type;
         this.side = side;
         this.coords = pos;
+        this.id = uuidv4();
     }
 }
 
@@ -150,9 +158,17 @@ export class ChessBoard {
                 const boardPice = board.board[x][y];
                 
                 if(boardPice) {
+                    // TODO: Repalce Pieces
+                    // instead of resuing, replace with new pieces and 
+                    // later reuse just the geometry for the different types.
+                    // or use uids for the pieces to identify new pieces
+
                     const foundPice = pieces.find(p => (
+                        // just search for the piece with the same uid instead,
+                        // if not found create a new piece
                         p && p.type == boardPice.type && p.side == boardPice.side
                     ));
+                    // from here I can animate the found piece geo to the correct positon coords
 
                     pieces.splice(pieces.indexOf(foundPice), 1);
 

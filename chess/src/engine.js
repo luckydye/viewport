@@ -195,6 +195,13 @@ async function connect(game) {
 
         if(!game.chess.compareBoard(msg.board)) {
             game.chess.setBoard(msg.board, piece => {
+
+                // TODO: Render new board
+                // keep all Figures geometry apart from pieces.
+                // reorganize geometry that exists on the new pieces.
+                // use the geometry closest to the new piece
+                // or use uids for the pieces to identify new pieces
+
                 const coords = piece.coords;
                 if(piece.geometry && !piece.geometry.hover) {
                     game.movePieceToGrid(piece, coords);
@@ -284,15 +291,15 @@ async function connect(game) {
 
 function gameSetup(viewport, scene) {
     
-    scene.add(new Plane({
-        scale: 10,
-        rotation: [90 * Math.PI / 180, 0, 0],
-        position: [0, 0, 0],
-        material: new DefaultMaterial({
-            texture: new Texture(Resources.get('board')),
-            diffuseColor: [1, 1, 1, 1]
-        })
-    }));
+    // scene.add(new Plane({
+    //     scale: 10,
+    //     rotation: [90 * Math.PI / 180, 0, 0],
+    //     position: [0, 0, 0],
+    //     material: new DefaultMaterial({
+    //         texture: new Texture(Resources.get('board')),
+    //         diffuseColor: [1, 1, 1, 1]
+    //     })
+    // }));
 
     const camera = new Camera({ 
         fov: 35,
@@ -352,7 +359,7 @@ function gameSetup(viewport, scene) {
     viewport.scene.lightsource.position.y = -100;
     viewport.scene.lightsource.position.z = 25;
 
-    viewport.scene.lightsource.color = [1.0, 0.590619, 0.296138];
+    viewport.scene.lightsource.color = [255 / 255, 205 / 255, 155 / 255];
 
     const border = 0.91;
     const origin = [0.1, 0.1];
@@ -458,6 +465,11 @@ function gameSetup(viewport, scene) {
                 }
             }
         }
+    }
+
+    function updateBoard() {
+        // TODO: updateBoarrd
+        // move and reuse pices with the same id and stuff
     }
 
     // events

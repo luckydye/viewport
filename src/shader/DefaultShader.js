@@ -77,10 +77,10 @@ export default class DefaultShader extends MeshShader {
             vec3 lightDir = normalize(lightPos.xyz);
             float diffuse = max(dot(norm, lightDir), 0.0);
 
-            finalColor.rgb *= 0.75 + diffuse * lightColor;
+            finalColor.rgb *= 0.8 + (diffuse * lightColor);
         }
 
-        bool Shadows(out vec4 finalColor, vec3 normal, vec3 shadowColor) {
+        bool Shadows() {
 
             vec4 pos = vWorldPos;
 
@@ -100,10 +100,6 @@ export default class DefaultShader extends MeshShader {
             float bias = 0.0001;
             float illuminated = step(vertex_relative_to_light.z, shadowmap_distance + bias);
             float lightDist = vertex_relative_to_light.z;
-
-            if(illuminated < 1.0 && lightDist > 0.01) {
-                finalColor.rgb *= shadowColor;
-            }
 
             return illuminated < 1.0 && lightDist > 0.01;
         }
@@ -133,16 +129,19 @@ export default class DefaultShader extends MeshShader {
             float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 
             vec3 shadowColor = vec3(
-                100.0 / 255.0, // r
-                100.0 / 255.0, // g
-                135.0 / 255.0  // b
+                150.0 / 255.0, // r
+                150.0 / 255.0, // g
+                175.0 / 255.0  // b
             );
 
-            bool inShadow = Shadows(oFragColor, normal, shadowColor);
+            bool inShadow = Shadows();
 
             if(!inShadow) {
+
                 Shading(oFragColor, normal, shadowColor, lightColor);
                 Specular(oFragColor, normal, lightColor * specular, roughness);
+            } else {
+                oFragColor.rgb *= shadowColor;
             }
         }
         `;
