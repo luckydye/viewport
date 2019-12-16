@@ -23,6 +23,7 @@ import { Queen } from './Queen.js';
 import { Tower } from './Tower.js';
 import HotelClient from '@uncut/hotel/Client';
 import { html, render } from 'lit-html';
+import Config from '../../src/Config.js';
 
 Resources.resourceRoot = "../chess/res/";
 
@@ -38,6 +39,9 @@ Renderer.showGuides = false;
 Renderer.clearPass = false;
 Renderer.indexPass = false;
 Renderer.shadowPass = true;
+
+Config.global.setValue('show.grid', false);
+Config.global.save();
 
 const GameState = {
     'WAITING': 0,
