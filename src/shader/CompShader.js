@@ -104,7 +104,7 @@ export default class CompShader extends Shader {
             oFragColor.rgb = vec3(1.0) - exp(-oFragColor.rgb * exposure);
             oFragColor.rgb = pow(oFragColor.rgb, vec3(1.0 / gamma));
 
-            float border = 1.0 / resolution.x;
+            float border = 0.25 / resolution.x;
 
             vec4 index0 = texture(index, vTexCoords);
             vec4 index1 = texture(index, vec2(vTexCoords.x + border, vTexCoords.y + border));
@@ -112,11 +112,20 @@ export default class CompShader extends Shader {
             vec4 index3 = texture(index, vec2(vTexCoords.x - border, vTexCoords.y - border));
             vec4 index4 = texture(index, vec2(vTexCoords.x + border, vTexCoords.y - border));
 
+            vec4 index5 = texture(index, vec2(vTexCoords.x + border, vTexCoords.y));
+            vec4 index6 = texture(index, vec2(vTexCoords.x - border, vTexCoords.y));
+            vec4 index7 = texture(index, vec2(vTexCoords.x, vTexCoords.y + border));
+            vec4 index8 = texture(index, vec2(vTexCoords.x, vTexCoords.y - border));
+
             if(index0.r == selection.r && (
                 index1.r != selection.r ||
                 index2.r != selection.r ||
                 index3.r != selection.r ||
-                index4.r != selection.r
+                index4.r != selection.r ||
+                index5.r != selection.r ||
+                index6.r != selection.r ||
+                index7.r != selection.r ||
+                index8.r != selection.r
             )) {
                 oFragColor.rgb = vec3(1.0, 1.0, 0.1);
             }
