@@ -290,16 +290,6 @@ async function connect(game) {
 }
 
 function gameSetup(viewport, scene) {
-    
-    // scene.add(new Plane({
-    //     scale: 10,
-    //     rotation: [90 * Math.PI / 180, 0, 0],
-    //     position: [0, 0, 0],
-    //     material: new DefaultMaterial({
-    //         texture: new Texture(Resources.get('board')),
-    //         diffuseColor: [1, 1, 1, 1]
-    //     })
-    // }));
 
     const camera = new Camera({ 
         fov: 35,
