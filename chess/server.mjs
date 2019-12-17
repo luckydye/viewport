@@ -143,7 +143,10 @@ class ChessRoom extends Room {
                 const promos = this.chessBoard.state.promotion;
 
                 if(promos) {
-                    this.chessBoard.promotePiece(promos[0], player.promotion);
+                    const done = this.chessBoard.promotePiece(promos[0], player.promotion);
+                    if(done) {
+                        this.braodcastRoomState();
+                    }
                 }
             }
 
