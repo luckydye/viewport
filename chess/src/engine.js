@@ -80,7 +80,7 @@ function init() {
                 started = false;
             } else {
 
-                if(boardState.win != null) {
+                if(boardState && boardState.win != null) {
                     hudHTML = html`
                         ${hudHTML}
                         <h2>Winner: ${boardState.win === 0 ? "Black" : "White"}</h2>
