@@ -147,6 +147,13 @@ function init() {
     connect(game).then(uiUpdate);
 }
 
+function hashid() {
+	return 'xxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 async function connect(game) {
     const client = new HotelClient();
 
@@ -162,8 +169,12 @@ async function connect(game) {
 
     client.on('room.state', msg => handleRoomState(msg));
 
+    if(!location.hash) {
+        location.hash = hashid();
+    }
+
     const connected = await client.connect();
-    client.emit('join', { roomId: "0", username: "Player1" });
+    client.emit('join', { roomId: location.hash, username: "Player1" });
 
     setInterval(() => sendPlayerState(), 1000 / tickrate);
 
