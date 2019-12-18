@@ -1,5 +1,4 @@
 import { Camera } from './Camera.js';
-import { mat4 } from 'gl-matrix';
 
 export class DirectionalLight extends Camera {
 
@@ -11,6 +10,8 @@ export class DirectionalLight extends Camera {
 		this.perspective = Camera.ORTHGRAPHIC;
 		this.farplane = 1000;
 		this.nearplane = 1;
+
+		this.color = [1.0, 1.0, 1.0];
 
 		this.sensor = {
 			width: 32,

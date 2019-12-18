@@ -3,11 +3,15 @@ import { CameraControler } from "./CameraControler.js";
 
 export class PlayerControler extends CameraControler {
 
-	constructor(...args) {
-		super(...args);
+	get entity() {
+		return this.viewport.camera;
+	}
+
+	constructor(viewport) {
+		super(null, viewport);
 
 		this.sensivity = 0.00075;
-		this.speed = 0.00025;
+		this.speed = 0.002;
 		this.weight = 0.95;
 		this.direction = new Vec();
 	}
@@ -24,7 +28,7 @@ export class PlayerControler extends CameraControler {
 		this.direction.x = dir;
 	}
 
-	update(dt = 0) {
+	update() {
 		const entity = this.entity;
 
 		if (this.checkKey("w")) this.move(this.speed);
@@ -47,10 +51,6 @@ export class PlayerControler extends CameraControler {
 			Math.max(Math.min(Math.tan(this.entity.rotation.x), 1), -1),
 			Math.cos(this.entity.rotation.y),
 		]
-
-		this.direction.x *= dt;
-		this.direction.y *= dt;
-		this.direction.z *= dt;
 
 		this.entity.velocity.x += (this.direction.z * camDirectionInv[0]) + (this.direction.x * camDirection[2]);
 		this.entity.velocity.y += (this.direction.z * camDirectionInv[1]) + this.direction.y;

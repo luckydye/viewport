@@ -1,12 +1,20 @@
 import MeshShader from './MeshShader.js';
 
-export default class DefaultShader extends MeshShader {
+export default class WaterShader extends MeshShader {
+
+    get customUniforms() {
+        return {
+            time: performance.now(),
+        }
+    }
 
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
 
         uniform SceneProjection scene;
         uniform Material material;
+
+        uniform float time;
         
         uniform int currentMaterialIndex;
         
@@ -14,25 +22,16 @@ export default class DefaultShader extends MeshShader {
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
 
-        uniform vec3 lightColor;
-        uniform bool textureFlipY;
-            
         vec2 TextureCoords() {
-            float scale = 1.0;
+            float scale = 0.2;
 
             if (currentMaterialIndex != materialIndex) {
                 discard;
             }
 
-            vec2 texCoords = vTexCoords;
+            vec2 displace = texture(material.displacementMap, (vTexCoords.xy / scale) + (time / 5000.0)).rg;
 
-            if(textureFlipY) {
-                texCoords.y = 1.0 - texCoords.y;
-            }
-
-            vec2 displace = texture(material.displacementMap, texCoords.xy).rg;
-
-            return (texCoords.xy / scale) + displace.xy;
+            return (vTexCoords.xy / scale) + (displace.xy * 0.2) + (time / 12000.0);
         }
 
         vec4 getMappedValue(sampler2D image, vec4 value) {
@@ -62,6 +61,21 @@ export default class DefaultShader extends MeshShader {
             return clamp(value, 0.0, 1.0);
         }
 
+        vec3 rgb2hsb( in vec3 c ){
+            vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+            vec4 p = mix(vec4(c.bg, K.wz),
+                         vec4(c.gb, K.xy),
+                         step(c.b, c.g));
+            vec4 q = mix(vec4(p.xyw, c.r),
+                         vec4(c.r, p.yzx),
+                         step(p.x, c.r));
+            float d = q.x - min(q.w, q.y);
+            float e = 1.0e-10;
+            return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
+                        d / (q.x + e),
+                        q.x);
+        }
+
         void Fresnel(out vec4 finalColor, vec3 normal) {
             vec3 viewDir = normalize(vViewPos - vWorldPos.xyz);
             float fresnel = dot(normal, viewDir);
@@ -77,10 +91,10 @@ export default class DefaultShader extends MeshShader {
             vec3 lightDir = normalize(lightPos.xyz);
             float diffuse = max(dot(norm, lightDir), 0.0);
 
-            finalColor.rgb *= 0.8 + (diffuse * lightColor);
+            finalColor.rgb *= 0.75 + diffuse;
         }
 
-        bool Shadows() {
+        bool Shadows(out vec4 finalColor, vec3 normal, vec3 shadowColor, vec3 lightColor) {
 
             vec4 pos = vWorldPos;
 
@@ -97,9 +111,13 @@ export default class DefaultShader extends MeshShader {
             vec4 shadowmap_color1 = texture(shadowDepth, vec2(shadowTexCoord.x, shadowTexCoord.y));
             float shadowmap_distance = shadowmap_color1.r;
 
-            float bias = 0.0001;
+            float bias = 0.00005;
             float illuminated = step(vertex_relative_to_light.z, shadowmap_distance + bias);
             float lightDist = vertex_relative_to_light.z;
+
+            if(illuminated < 1.0 && lightDist > 0.01) {
+                finalColor.rgb *= shadowColor;
+            }
 
             return illuminated < 1.0 && lightDist > 0.01;
         }
@@ -112,7 +130,7 @@ export default class DefaultShader extends MeshShader {
             color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
             color = vec4(color.rgb, color.a + texcolor.a / 2.0);
 
-            if(color.a < 0.5) {
+            if(color.a < 1.0) {
                 discard;
             }
             
@@ -126,23 +144,27 @@ export default class DefaultShader extends MeshShader {
             }
 
             float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
-            float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
 
             vec3 shadowColor = vec3(
                 150.0 / 255.0, // r
                 150.0 / 255.0, // g
-                175.0 / 255.0  // b
+                170.0 / 255.0  // b
             );
 
-            bool inShadow = Shadows();
+            vec3 lightColor = vec3(
+                255.0 / 255.0, // r
+                240.0 / 255.0, // g
+                200.0 / 255.0  // b
+            );
+
+            bool inShadow = Shadows(oFragColor, normal, shadowColor, lightColor);
 
             if(!inShadow) {
-
                 Shading(oFragColor, normal, shadowColor, lightColor);
-                Specular(oFragColor, normal, lightColor * specular, roughness);
-            } else {
-                oFragColor.rgb *= shadowColor;
+                Specular(oFragColor, normal, lightColor * specular, specular);
             }
+
+            oFragColor.a = material.attributes[3];
         }
         `;
     }

@@ -1,9 +1,9 @@
-import { Geometry } from "./Geometry.js";
 import { Vec } from "../Math.js";
+import { Geometry } from "./Geometry.js";
 
 export class Entity extends Geometry {
 
-    constructor(args) {
+    constructor(args = {}) {
         super(args);
 
         this.name = "Entity";
@@ -22,14 +22,6 @@ export class Entity extends Geometry {
                 this.addTrait(trait);
             }
         }
-    }
-
-    createBuffer() {
-        for (let trait of this.traits) {
-            if(trait.onCreate) trait.onCreate(this);
-        }
-        
-        return super.createBuffer();
     }
 
     update(ms = 0) {

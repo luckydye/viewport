@@ -1,7 +1,7 @@
 import { VertexBuffer } from "../scene/Geometry.js";
 import DefaultMaterial from "../materials/DefaultMaterial.js";
 import { Vec, Transform } from "../Math.js";
-import { Plane } from './Plane.js';
+import { Plane } from '../geo/Plane.js';
 import { Entity } from '../scene/Entity.js';
 
 const MAX_PARTICLE_COUNT = 500;
@@ -36,7 +36,7 @@ export class Emitter extends Entity {
         this.particles = [];
         this.instanced = true;
         this.rotation = new Vec(0, 0, 0);
-        this.maxage = 1000;
+        this.maxage = 1000 * Math.random();
         this.rate = 10;
         this.jitter = 2;
 
@@ -57,16 +57,17 @@ export class Emitter extends Entity {
         this.origin.z = -this.position.z;
 
         for (let p of this.particles) {
-            p.position[0] = p.position[0] + p.velocity[0] * this.speed;
-            p.position[1] = p.position[1] + p.velocity[1] * this.speed;
-            p.position[2] = p.position[2] + p.velocity[2] * this.speed;
+            p.position[0] = p.position[0] + p.velocity[0] * p.speed;
+            p.position[1] = p.position[1] + p.velocity[1] * p.speed;
+            p.position[2] = p.position[2] + p.velocity[2] * p.speed;
 
+            p.speed *= 0.98;
             p.age += ms;
 
-            p.scale *= 1.0 - (p.age / this.maxage) + 0.1;
-
-            if (p.age > this.maxage * Math.random()) {
+            if (p.age >= p.maxage) {
                 this.particles.splice(this.particles.indexOf(p), 1);
+            } else {
+                p.scale = 1.0 - (p.age / p.maxage);
             }
         }
     }
@@ -81,6 +82,8 @@ export class Emitter extends Entity {
                         this.position.z
                     ],
                     age: 0,
+                    speed: this.speed,
+                    maxage: this.maxage * Math.random(),
                     scale: this.particleGeometry.scale * scale,
                     velocity: [
                         Math.random() + 1 / 2 - 1, 

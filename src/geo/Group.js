@@ -41,7 +41,7 @@ export class Group extends Geometry {
 			}
 		}
 
-		this.materials.push(...materials);
+		this.materials = [...materials];
 
 		return vertArray;
 	}
@@ -67,8 +67,8 @@ export class Group extends Geometry {
 		this.materials = [];
 	}
 
-	add(geo) {
-		this.objects.push(geo);
+	add(...geo) {
+		this.objects.push(...geo);
 	}
 
 }

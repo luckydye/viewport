@@ -33,11 +33,9 @@ export class RendererContext {
 		if (!canvas) throw "RendererContext: Err: no canvas";
 
 		this.contextOptions = contextOptions;
-
+		this.canvas = canvas;
 		this.debug = false;
-
 		this.currentShader = null;
-
 		this.framebuffers = new Map();
 		this.bufferTextures = new Map();
 		this.shaders = new Map();
@@ -48,13 +46,17 @@ export class RendererContext {
 			BLEND: true,
 		}
 
-		this.getContext(canvas);
-		this.onCreate();
+		this.initialize();
 
 		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
 		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
 
 		this.MULTISAMPLING_SAMPLES = 8;
+	}
+
+	initialize() {
+		this.getContext(this.canvas);
+		this.onCreate();
 
 		// enable gl options
 		this.setOptions(this.options);
@@ -374,8 +376,6 @@ export class RendererContext {
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT16, w, h, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
 
@@ -422,7 +422,7 @@ export class RendererContext {
 		TEXTURE_WRAP_S = "REPEAT",
 		TEXTURE_WRAP_T = "REPEAT",
 		TEXTURE_MAG_FILTER = "LINEAR",
-		TEXTURE_MIN_FILTER = "NEAREST_MIPMAP_LINEAR",
+		TEXTURE_MIN_FILTER = "LINEAR",
 	} = {}) {
 		const gl = this.gl;
 
@@ -441,7 +441,7 @@ export class RendererContext {
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
 		}
 
-		if (mipmaps) {
+		if (mipmaps || TEXTURE_MAG_FILTER.match('MIPMAP') || TEXTURE_MIN_FILTER.match('MIPMAP')) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 

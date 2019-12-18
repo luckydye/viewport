@@ -1,6 +1,6 @@
 import MeshShader from './MeshShader.js';
 
-export default class MattShader extends MeshShader {
+export default class SpriteShader extends MeshShader {
 
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`

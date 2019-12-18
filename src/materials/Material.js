@@ -8,6 +8,10 @@ export class Material {
         return Object.assign(material, attributes);
     }
 
+    get customUniforms() {
+        return {};
+    }
+
     get attributes() {
         return {
             diffuseColor: this.diffuseColor,

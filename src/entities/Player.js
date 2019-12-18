@@ -1,14 +1,14 @@
 import DefaultMaterial from '../materials/DefaultMaterial';
+import { Entity } from '../scene/Entity';
 import Collider from '../traits/Collider';
-import Player from '../traits/Player';
-import { Entity } from './Entity';
+import Playable from '../traits/Playable';
 
-export class PlayerEntity extends Entity {
+export default class Player extends Entity {
 
-    constructor(args = {}) {
+    constructor(args) {
         super(args);
         
-        this.addTrait(Player);
+        this.addTrait(Playable);
         this.addTrait(Collider);
 
         this.material = new DefaultMaterial();

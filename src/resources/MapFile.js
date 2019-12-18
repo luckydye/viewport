@@ -1,18 +1,13 @@
+import { Box } from '../geo/Box';
 import DefaultMaterial from '../materials/DefaultMaterial';
+import { Material } from '../materials/Material';
 import MattMaterial from '../materials/MattMaterial';
-import { Camera } from '../scene/Camera';
-import { Entity } from '../scene/Entity';
-import { PlayerEntity } from '../scene/PlayerEntity';
+import { Texture } from '../materials/Texture';
 import { Geometry } from '../scene/Geometry';
+import Prop from '../scene/Prop';
 import { Scene } from '../scene/Scene';
 import { BinaryFile } from './BinaryFile';
-import { Cube } from '../geo/Cube';
-import { Plane } from '../geo/Plane';
-import { Guide } from '../geo/Guide';
-import { Box } from '../geo/Box';
-import { Texture } from '../materials/Texture';
-import { Emitter } from '../geo/Emitter';
-import { Material } from '../materials/Material';
+import { Group } from '../geo/Group';
 
 const Structs = {
     fileHeader: {
@@ -147,13 +142,17 @@ export default class MapFile extends BinaryFile {
 
         const scene = new Scene();
 
-        const objectTypes = MapFile.OBJECT_TYPES;
         const materialTypes = MapFile.MATERIAL_TYPES;
 
         const materialPool = [];
 
         for(let material of materials) {
             const type = material.type.data || "DefaultMaterial";
+
+            if(!(type in materialTypes)) {
+                console.warn('Material type "' + type + '" does not exist.');
+                continue;
+            }
 
             const mat = new materialTypes[type]({
                 diffuseColor: material.diffuseColor.data,
@@ -177,7 +176,7 @@ export default class MapFile extends BinaryFile {
 
         for(let obj of objects) {
             const indecies = obj.indecies.data;
-            let struct = objectTypes[obj.type.data];
+            let struct = Prop.map.get(obj.type.data);
 
             if(!struct) {
                 console.error('Unknown object type "' + obj.type.data + '" skipped.');
@@ -215,23 +214,53 @@ export default class MapFile extends BinaryFile {
     }
 
     static async serializeScene(scene) {
-        const objects = [...scene.objects];
+        const objects = [];
+        const sceneGraph = scene.getSceneGraph();
+
+        const flattenChildren = item => {
+            const flattenObjects = [];
+
+            if(item.object.indecies.length > 0) {
+                objects.push(item.object);
+            } else {
+                flattenObjects.push(item.object);
+            }
+
+            for(let childItem of item.children) {
+                const childChildren = flattenChildren(childItem);
+                flattenObjects.push(...childChildren);
+            }
+
+            return flattenObjects;
+        }
+
+        for(let item of sceneGraph) {
+            if(item.children.length > 0) {
+                const grouping = new Group();
+                grouping.add(...flattenChildren(item));
+
+                // vertecies getter to fill the materials attribute before collection materials
+                if(grouping.vertecies.length > 0) {
+                    objects.push(grouping);
+                }
+            } else {
+                objects.push(item.object);
+            }
+        }
 
         const objectData = [];
 
         let objectCount = 0;
         let materialCount = 0;
-
+        
         for(let object of objects) {
-            if(!(object instanceof Camera)) {
-                for(let material of object.materials) {
-                    tempMaterialStore.push(material);
-                }
+            if(!object.guide) {
+                tempMaterialStore.push(...object.materials);
             }
         }
 
         for(let object of objects) {
-            if(!(object instanceof Camera)) {
+            if(!object.guide) {
                 const data = this.serializeObject(object);
                 objectData.push(...data);
                 objectCount++;
@@ -265,6 +294,10 @@ export default class MapFile extends BinaryFile {
     }
 
     static serializeObject(object) {
+        if(!object.constructor.type) {
+            return [];
+        }
+
         const position = new Float32Array([object.position.x, object.position.y, object.position.z]);
         const rotation = new Float32Array([object.rotation.x, object.rotation.y, object.rotation.z]);
         const scale = new Float32Array([object.scale]);
@@ -281,7 +314,11 @@ export default class MapFile extends BinaryFile {
         const materialCount = new Uint32Array([ object.materials.length ]);
         const materials = new Uint32Array(object.materials.map(mat => this.getMaterialIndex(mat)));
 
-        const type = stringToCharArray(object.constructor.name);
+        let type = stringToCharArray(object.constructor.type);
+
+        if(object.constructor.type == "geometry_group") {
+            type = stringToCharArray("geometry");
+        }
 
         return [ 
             new Uint8Array(type),
@@ -343,6 +380,7 @@ export default class MapFile extends BinaryFile {
         return new Promise((resolve, reject) => {
             if(!texture) {
                 resolve(new ArrayBuffer(0));
+                return;
             }
 
             const img = texture.image;
@@ -357,22 +395,13 @@ export default class MapFile extends BinaryFile {
                 ctx.canvas.toBlob(blob => {
                     blob.arrayBuffer().then(arrayBuffer => resolve(arrayBuffer));
                 }, 'image/png');
+            } else {
+                resolve(new ArrayBuffer(0));
             }
         })
     }
 
 }
-
-MapFile.OBJECT_TYPES = {
-    PlayerEntity: PlayerEntity,
-    Cube: Cube,
-    Plane: Plane,
-    Guide: Guide,
-    Box: Box,
-    Emitter: Emitter,
-    Geometry: Geometry,
-    Entity: Entity
-};
 
 MapFile.MATERIAL_TYPES = {
     Material: Material,
