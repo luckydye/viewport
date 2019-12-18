@@ -39,7 +39,7 @@ export default class SpriteShader extends MeshShader {
             void main() {
                 vec4 texcolor = texture(material.texture, uv().xy);
 
-                if(texcolor.a < 0.5) {
+                if(texcolor.a < 0.1) {
                     discard;
                 }
 

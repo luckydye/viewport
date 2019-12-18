@@ -10,8 +10,8 @@ export default class SpriteMaterial extends Material {
     constructor(args) {
         super(args);
 
-        this.framerate = 2;
-        this.framecount = 5;
+        this.framerate = 12;
+        this.framecount = 8;
         
         this.shader = SpriteShader;
         this.castShadows = false;

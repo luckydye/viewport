@@ -12,7 +12,8 @@ import SpriteMaterial from '../src/materials/SpriteMaterial.js';
 import { Texture } from '../src/materials/Texture.js';
 
 Resources.add({
-    'sprite': '/textures/spritetest.png'
+    'sprite': '/textures/spritetest.png',
+    'map': '/maps/testmap.gmap'
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -26,11 +27,12 @@ function init() {
     viewport.tabIndex = 0;
     Input.domElement = viewport;
 
-    const scene = new Scene();
+    const scene = Resources.get('map').toScene();
 
     const plane = new Plane({
-        position: [0, 4, 0],
+        position: [0, 5, 0],
         material: new SpriteMaterial({
+            transparency: 0.5,
             texture: new Texture(Resources.get('sprite'))
         }),
         scale: 5,

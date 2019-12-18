@@ -65,7 +65,8 @@ export default class CompShader extends Shader {
                         q.x, 0.0);
         }
 
-        vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
+        vec4 blur1323(sampler2D image, vec2 uv) {
+            vec2 direction = vec2(0.0, 1.0);
             vec4 color = vec4(0.0);
             vec2 off1 = vec2(1.411764705882353) * direction;
             vec2 off2 = vec2(3.2941176470588234) * direction;
@@ -77,6 +78,37 @@ export default class CompShader extends Shader {
             color += texture(image, uv - (off2 / resolution)) * 0.09447039785044732;
             color += texture(image, uv + (off3 / resolution)) * 0.010381362401148057;
             color += texture(image, uv - (off3 / resolution)) * 0.010381362401148057;
+            return color;
+        }
+
+        vec4 blur132(sampler2D image, vec2 uv) {
+            vec2 direction = vec2(0.0, 2.0);
+            vec4 color = vec4(0.0);
+            vec2 off1 = vec2(1.411764705882353) * direction;
+            vec2 off2 = vec2(3.2941176470588234) * direction;
+            vec2 off3 = vec2(5.176470588235294) * direction;
+            color += blur1323(image, uv) * 0.1964825501511404;
+            color += blur1323(image, uv + (off1 / resolution)) * 0.2969069646728344;
+            color += blur1323(image, uv - (off1 / resolution)) * 0.2969069646728344;
+            color += blur1323(image, uv + (off2 / resolution)) * 0.09447039785044732;
+            color += blur1323(image, uv - (off2 / resolution)) * 0.09447039785044732;
+            color += blur1323(image, uv + (off3 / resolution)) * 0.010381362401148057;
+            color += blur1323(image, uv - (off3 / resolution)) * 0.010381362401148057;
+            return color;
+        }
+
+        vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
+            vec4 color = vec4(0.0);
+            vec2 off1 = vec2(1.411764705882353) * direction;
+            vec2 off2 = vec2(3.2941176470588234) * direction;
+            vec2 off3 = vec2(5.176470588235294) * direction;
+            color += blur132(image, uv) * 0.1964825501511404;
+            color += blur132(image, uv + (off1 / resolution)) * 0.2969069646728344;
+            color += blur132(image, uv - (off1 / resolution)) * 0.2969069646728344;
+            color += blur132(image, uv + (off2 / resolution)) * 0.09447039785044732;
+            color += blur132(image, uv - (off2 / resolution)) * 0.09447039785044732;
+            color += blur132(image, uv + (off3 / resolution)) * 0.010381362401148057;
+            color += blur132(image, uv - (off3 / resolution)) * 0.010381362401148057;
             return color;
         }
 
@@ -95,7 +127,7 @@ export default class CompShader extends Shader {
             bloom += blur13(lighting, vTexCoords, resolution, vec2(0.0, 1.0));
 
             // TODO: desatureate bloom
-            oFragColor += bloom * 0.25;
+            oFragColor += bloom * 0.2;
 
             // depth fog
             oFragColor.rgb += min(pow(depth.r - fogStartOffset, fogDensity), fogMax);

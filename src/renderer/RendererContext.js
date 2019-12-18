@@ -42,7 +42,7 @@ export class RendererContext {
 
 		this.options = {
 			DEPTH_TEST: true,
-			CULL_FACE: false,
+			CULL_FACE: true,
 			BLEND: true,
 		}
 
