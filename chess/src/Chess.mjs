@@ -158,28 +158,32 @@ export class ChessBoard {
                 const boardPice = board.board[x][y];
                 
                 if(boardPice) {
-                    // TODO: Repalce Pieces
-                    // instead of resuing, replace with new pieces and 
-                    // later reuse just the geometry for the different types.
-                    // or use uids for the pieces to identify new pieces
+                    const foundPice = pieces.find(p => (p && p.id == boardPice.id));
 
-                    const foundPice = pieces.find(p => (
-                        // just search for the piece with the same uid instead,
-                        // if not found create a new piece
-                        p && p.type == boardPice.type && p.side == boardPice.side
-                    ));
-                    // from here I can animate the found piece geo to the correct positon coords
+                    if(foundPice) {
+                        pieces.splice(pieces.indexOf(foundPice), 1);
+    
+                        foundPice.moves = boardPice.moves;
+                        foundPice.coords = boardPice.coords;
+    
+                        if(updateCallback) {
+                            updateCallback(foundPice);
+                        }
+    
+                        this.board[x][y] = foundPice;
 
-                    pieces.splice(pieces.indexOf(foundPice), 1);
+                    } else {
+                        const newPice = new Piece(boardPice.type, boardPice.side, boardPice.coords);
 
-                    foundPice.moves = boardPice.moves;
-                    foundPice.coords = boardPice.coords;
-
-                    if(updateCallback) {
-                        updateCallback(foundPice);
+                        newPice.moves = boardPice.moves;
+                        newPice.id = boardPice.id;
+    
+                        if(createCallback) {
+                            createCallback(newPice);
+                        }
+    
+                        this.board[x][y] = newPice;
                     }
-
-                    this.board[x][y] = foundPice;
                 }
             }
         }
@@ -255,6 +259,7 @@ export class ChessBoard {
                 
                 if(piece == promo) {
                     this.replacePieceType(piece, toType);
+                    return true;
                 }
             }
         }

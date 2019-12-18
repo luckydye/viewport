@@ -79,10 +79,11 @@ function init() {
                 `;
                 started = false;
             } else {
-                if(state.winner != null) {
+
+                if(boardState && boardState.win != null) {
                     hudHTML = html`
                         ${hudHTML}
-                        <h2>Winner: ${state.winner === 0 ? "Black" : "White"}</h2>
+                        <h2>Winner: ${boardState.win === 0 ? "Black" : "White"}</h2>
                     `;
                 } else {
                     if(!started) {
@@ -104,7 +105,7 @@ function init() {
                 }
             }
 
-            if(boardState && boardState.promotion) {
+            if(boardState && boardState.promotion && boardState.promotion[0].side == game.chess.clientSide) {
                 hudHTML = html`
                     <h2>Promote a Pawn</h2>
                     <div class="chess-select">
@@ -146,6 +147,13 @@ function init() {
     connect(game).then(uiUpdate);
 }
 
+function hashid() {
+	return 'xxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 async function connect(game) {
     const client = new HotelClient();
 
@@ -161,8 +169,12 @@ async function connect(game) {
 
     client.on('room.state', msg => handleRoomState(msg));
 
+    if(!location.hash) {
+        location.hash = hashid();
+    }
+
     const connected = await client.connect();
-    client.emit('join', { roomId: "0", username: "Player1" });
+    client.emit('join', { roomId: location.hash, username: "Player1" });
 
     setInterval(() => sendPlayerState(), 1000 / tickrate);
 
@@ -197,14 +209,8 @@ async function connect(game) {
 
         game.chess.currentSide = msg.turn;
 
-        if(!game.chess.compareBoard(msg.board)) {
+        if(!game.chess.compareBoard(msg.board) || !game.initilized) {
             game.chess.setBoard(msg.board, piece => {
-
-                // TODO: Render new board
-                // keep all Figures geometry apart from pieces.
-                // reorganize geometry that exists on the new pieces.
-                // use the geometry closest to the new piece
-                // or use uids for the pieces to identify new pieces
 
                 const coords = piece.coords;
                 if(piece.geometry && !piece.geometry.hover) {
@@ -213,10 +219,18 @@ async function connect(game) {
                 if(piece.geometry) {
                     piece.geometry.removed = false;
                     game.scene.add(piece.geometry);
+                } else {
+                    game.initPiece(piece);
                 }
             }, removedPiece => {
-                removedPiece.geometry.remove();
+                if(removedPiece.geometry) {
+                    removedPiece.geometry.remove();
+                }
+            }, createdPiece => {
+                game.initPiece(createdPiece);
             });
+
+            game.initilized = true;
         }
 
         for(let player of players) {
@@ -441,29 +455,8 @@ function gameSetup(viewport, scene) {
 
     const chessBoard = new ChessBoard();
 
-    initBoard();
-
-    function initBoard() {
-        for(let x = 0; x < 8; x++) {
-            for(let y = 0; y < 8; y++) {
-                const piece = chessBoard.board[x][y];
-    
-                if(piece) {
-                    if(!piece.geometry) {
-                        piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(x, y));
-                        piece.coords = [x, y];
-                    } else {
-                        const pos = gridToWorld(x, y);
-                        piece.geometry.position = new Vec(pos[0], 5, pos[2]);
-                    }
-                }
-            }
-        }
-    }
-
-    function updateBoard() {
-        // TODO: updateBoarrd
-        // move and reuse pices with the same id and stuff
+    function initPiece(piece) {
+        piece.geometry = spawnFigure(piece.type, piece.side, gridToWorld(...piece.coords));
     }
 
     // events
@@ -638,6 +631,7 @@ function gameSetup(viewport, scene) {
         moveCamera,
         chess: chessBoard,
         createCursor,
+        initPiece,
         gridToWorld
     };
 }
