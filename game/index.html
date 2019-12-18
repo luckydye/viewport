@@ -7,9 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Viewport Test</title>
 
-    <script src="./src/engine.js"></script>
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <script src="./engine.js"></script>
 
     <style>
         body {
@@ -60,16 +58,6 @@
         .delayed-fade-out {
             animation: fade-out 1s ease both;
             animation-delay: 3s;
-        }
-        .loader {
-            animation: loading 2s linear infinite;
-            background: url('./res/images/chess_figures.svg');
-            background-size: contain;
-            background-repeat: repeat-x;
-            width: 300px;
-            height: 54px;
-            margin-bottom: 20px;
-            margin-top: -40px;
         }
         .loading {
             position: fixed;
@@ -153,7 +141,6 @@
 
 <body>
     <div class="loading">
-        <div class="loader"></div>
         <div>Loading</div>
     </div>
 

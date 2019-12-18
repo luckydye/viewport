@@ -2,23 +2,48 @@ import MeshShader from './MeshShader.js';
 
 export default class SpriteShader extends MeshShader {
 
+    get customUniforms() {
+        return {
+            time: performance.now(),
+        }
+    }
+
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
             uniform Material material;
 
+            uniform int currentMaterialIndex;
+
+            uniform float time;
+            uniform float framerate;
+            uniform float framecount;
+
+            uniform bool textureFlipY;
+
+            vec2 uv() {
+                if (currentMaterialIndex != materialIndex) {
+                    discard;
+                }
+                vec2 texCoords = vTexCoords;
+                if(textureFlipY) {
+                    texCoords.y = 1.0 - texCoords.y;
+                }
+
+                texCoords.x = vTexCoords.x / framecount;
+                float frame = floor(mod(time / (1000.0 / framerate), framecount));
+                texCoords.x += (1.0 / framecount) * frame;
+
+                return texCoords.xy;
+            }
+
             void main() {
-                // albedo
-                vec4 color = material.diffuseColor;
-                vec4 texcolor = texture(material.texture, vTexCoords.xy);
+                vec4 texcolor = texture(material.texture, uv().xy);
 
-                color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
-                color = vec4(color.rgb, color.a + texcolor.a / 2.0);
-
-                if(color.a < 1.0) {
+                if(texcolor.a < 0.5) {
                     discard;
                 }
 
-                oFragColor = color;
+                oFragColor = texcolor;
             }
         `;
     }
