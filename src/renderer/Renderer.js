@@ -51,6 +51,10 @@ const TEXTURE = {
 
 export class Renderer extends RendererContext {
 
+	static get TEXTURE() {
+		return TEXTURE;
+	}
+
 	static get defaults() {
 		return {
 			resolution: [
