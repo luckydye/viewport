@@ -7,7 +7,6 @@ export default class MattMaterial extends Material {
         super(args);
         
         this.shader = MattShader;
-        this.diffuseColor = [1, 1, 1, 1];
         this.castShadows = false;
         this.drawmode = "TRIANGLES";
     }

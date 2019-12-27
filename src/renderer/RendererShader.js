@@ -40,8 +40,6 @@ export class Shader {
 
 		this.initialized = false;
 
-		this.customUniforms = null;
-
 		this.cache = {
 			material: {},
 			objects: {}

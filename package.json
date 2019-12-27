@@ -8,23 +8,33 @@
     "lib": "lib"
   },
   "scripts": {
-    "dev": "parcel watch ./chess/index.html --public-url ."
+    "dev": "parcel watch ./game/index.html --no-hmr --public-url ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/luckydye/gl-viewport.git"
   },
-  "author": "",
+  "author": "Tim Havlicek",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/luckydye/gl-viewport/issues"
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
+    "@uncut/hotel": "git+https://github.com/luckydye/hotel.git",
+    "express": "^4.17.1",
     "gl-matrix": "^3.1.0",
-    "lit-html": "^1.1.2"
+    "lit-html": "^1.1.2",
+    "ws": "^7.2.0"
   },
   "browserslist": [
     "last 1 Chrome versions"
-  ]
+  ],
+  "devDependencies": {
+    "cssnano": "^4.1.10",
+    "parcel-bundler": "^1.12.4"
+  },
+  "engines": {
+    "node": "13.x"
+  }
 }

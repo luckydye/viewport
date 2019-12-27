@@ -136,6 +136,7 @@ export default class MeshShader extends Shader {
 
             uniform Material material;
             uniform int currentMaterialIndex;
+            uniform bool textureFlipY;
             
             vec2 TextureCoords() {
                 float scale = 1.0;
@@ -144,9 +145,15 @@ export default class MeshShader extends Shader {
                     discard;
                 }
 
-                vec2 displace = texture(material.displacementMap, vTexCoords.xy).rg;
+                vec2 texCoords = vTexCoords;
 
-                return (vTexCoords.xy / scale) + displace.xy;
+                if(textureFlipY) {
+                    texCoords.y = -texCoords.y;
+                }
+
+                vec2 displace = texture(material.displacementMap, texCoords.xy).rg;
+
+                return (texCoords.xy / scale) + displace.xy;
             }
 
             void main() {

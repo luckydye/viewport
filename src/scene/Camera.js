@@ -1,8 +1,7 @@
-import { mat4, vec3, glMatrix, quat } from 'gl-matrix';
-import { Vec } from '../Math.js';
-import DefaultMaterial from '../materials/DefaultMaterial.js';
-import { Entity } from './Entity.js';
+import { glMatrix, mat4 } from 'gl-matrix';
 import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
+import { Vec } from '../Math.js';
+import { Entity } from './Entity.js';
 
 // performance option, use Array instad of Float32Arrays
 glMatrix.setMatrixArrayType(Array);
@@ -160,3 +159,5 @@ export class Camera extends Entity {
 	}
 
 }
+
+Camera.type = 'camera';

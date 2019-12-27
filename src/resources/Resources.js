@@ -13,6 +13,7 @@ global.resourceTypes = {
 	SHADER: [".shader", ".fs", ".vs"],
 	GEOMETRY: [".obj"],
 };
+global.listeners = [];
 
 global.queue = new Set();
 global.map = new Map();
@@ -88,11 +89,23 @@ export class Resources {
 	
 				global.progress = null;
 				console.log('Resources loaded', Resources.finished);
+
+				for(let f of global.listeners) {
+					f();
+				}
 			})
 			global.progress = progress;
 		}
 
 		return global.progress;
+	}
+
+	static loaded() {
+		return new Promise((resolve, reject) => {
+			global.listeners.push(() => {
+				resolve();
+			})
+		})
 	}
 
 	static _fetch(path) {

@@ -17,18 +17,20 @@ export class EntityControler {
 	}
 
 	constructor(entity, viewport) {
-		if (!entity) error("No entity");
+		this.locked = false;
 
-		if (entity instanceof Entity) {
-			entity.addTrait({
-				onUpdate: (entity, ms) => {
-					this.update(ms);
-				}
-			});
+		if(entity) {
+			this.entity = entity;
+
+			if (entity instanceof Entity) {
+				entity.addTrait({
+					onUpdate: (entity, ms) => {
+						this.update(ms);
+					}
+				});
+			}
 		}
 
-		this.locked = false;
-		this.entity = entity;
 		this.viewport = viewport;
 
 		this.initKeyboard();
