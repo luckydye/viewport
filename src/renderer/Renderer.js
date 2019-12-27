@@ -430,6 +430,10 @@ export class Renderer extends RendererContext {
 				'lightColor': this.currentScene.lightsource.color,
 			});
 			this.currentShader.setUniforms(material.attributes, 'material');
+
+			if(material.customUniforms) {
+				this.currentShader.setUniforms(material.customUniforms);
+			}
 		}
 
 		if(this.shadowPass) {
