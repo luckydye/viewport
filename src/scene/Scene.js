@@ -43,7 +43,7 @@ export class Scene extends Transform {
 
 	get lightsource() {
 		if(!this._lightsource) {
-			this._lightsource = [...this.objects].filter(obj => obj.isLight)[0];
+			this._lightsource = this.objects.filter(obj => obj.isLight)[0];
 		}
 		return this._lightsource;
 	}
@@ -55,10 +55,8 @@ export class Scene extends Transform {
 
 		this._lightsource = null;
 		
-		this.objects = new Set();
+		this.objects = [];
 		this.lastchange = Date.now();
-
-		this.orderObjects = true;
 
 		this.add(objs);
 
@@ -74,7 +72,9 @@ export class Scene extends Transform {
 		if (Array.isArray(obj)) {
 			obj.forEach(o => {
 				if(o) {
-					this.objects.add(o);
+					if(this.objects.indexOf(o) === -1) {
+						this.objects.push(o);
+					}
 
 					if(o.traits) {
 						for (let trait of o.traits) {
@@ -93,13 +93,17 @@ export class Scene extends Transform {
 						});
 
 						if(config.getValue('show_hitbox')) {
-							this.objects.add(o.hitbox_);
+							if(this.objects.indexOf(o.hitbox_) === -1) {
+								this.objects.push(o.hitbox_);
+							}
 						}
 					}
 				}
 			});
 		} else {
-			this.objects.add(obj);
+			if(this.objects.indexOf(obj) === -1) {
+				this.objects.push(obj);
+			}
 
 			if(obj.traits) {
 				for (let trait of obj.traits) {
@@ -113,16 +117,19 @@ export class Scene extends Transform {
 
 	remove(obj) {
 		if (Array.isArray(obj)) {
-			obj.forEach(o => this.objects.delete(o));
+			obj.forEach(o => this.remove(o));
 		} else {
-			this.objects.delete(obj);
+			const index = this.objects.indexOf(obj);
+			if(index > 0) {
+				this.objects.splice(index, 1);
+			}
 		}
 
 		this.lastchange = Date.now();
 	}
 
 	clear() {
-		this.objects.clear();
+		this.objects = [];
 	}
 
 	update(ms) {
@@ -204,30 +211,11 @@ export class Scene extends Transform {
 	}
 
 	getObjectsByConstructor(objectConstructor) {
-		return [...this.objects].filter(obj => obj.constructor == objectConstructor);
+		return this.objects.filter(obj => obj.constructor == objectConstructor);
 	}
 
 	getRenderableObjects(camera) {
-		if(this.orderObjects) {
-			return [...this.objects].filter(obj => !obj.hidden).sort((a, b) => {
-
-				const distA = Math.sqrt(
-					Math.pow(camera.position.x - a.position.x, 2) +
-					Math.pow(camera.position.y - a.position.y, 2) +
-					Math.pow(camera.position.z - a.position.z, 2)
-				);
-
-				const distB = Math.sqrt(
-					Math.pow(camera.position.x - b.position.x, 2) +
-					Math.pow(camera.position.y - b.position.y, 2) +
-					Math.pow(camera.position.z - b.position.z, 2)
-				);
-
-				return distB - distA;
-			});
-		} else {
-			return [...this.objects];
-		}
+		return this.objects;
 	}
 
 	getSceneGraph() {
