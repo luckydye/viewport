@@ -75,9 +75,9 @@ export class Camera extends Entity {
 		return vertArray;
 	}
 
-	onCreate(args) {
-		args.material = new PrimitivetMaterial();
-	}
+	get view() {
+        return this;
+    }
 
 	constructor(args = {}) {
 		const {
@@ -88,6 +88,7 @@ export class Camera extends Entity {
 			height = 720,
 			perspective = Camera.PERSPECTIVE,
 		} = args;
+		
 		super(args);
 
 		this.hidden = true;

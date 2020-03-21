@@ -11,6 +11,7 @@ import PrimitiveShader from '../shader/PrimitiveShader.js';
 import { RendererContext } from './RendererContext.js';
 import { RenderPass } from './RenderPass.js';
 import SSAOShader from '../shader/SSAOShader.js';
+import VRShader from '../shader/VRShader.js';
 
 class Screen extends Geometry {
 	static get attributes() {
@@ -33,6 +34,10 @@ class Screen extends Geometry {
 
 const TEXTURE = {
 	EMPTY: 0,
+
+	FRAME_LEFT: 6,
+	FRAME_RIGHT: 7,
+
 	FRAME_COLOR: 1,
 	FRAME_COLOR_DEPTH: 2,
 	FRAME_GUIDES: 3,
@@ -41,11 +46,14 @@ const TEXTURE = {
 	FRAME_WORLD: 6,
 	FRAME_INDEX: 7,
 	FRAME_LIGHTING: 14,
+
 	SHADOW_MAP: 8,
+
 	MESH_TEXTURE: 9,
 	MESH_SPECULAR_MAP: 10,
 	MESH_DISPLACEMENT_MAP: 11,
 	MESH_NORMAL_MAP: 12,
+
 	PLACEHOLDER: 13,
 }
 
@@ -104,10 +112,10 @@ export class Renderer extends RendererContext {
 
 		this.debug = this.renderConfig.getValue('debug');
 
-		this.renderTarget = new Screen();
+		this.screen = new Screen();
 		this.grid = new Grid();
 		
-		this.compShader = new CompShader();
+		this.compShader = new VRShader();
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -115,15 +123,13 @@ export class Renderer extends RendererContext {
 
 		this.emptyTexture = this.prepareTexture(new Texture());
 		this.placeholderTexture = this.prepareTexture(new Texture(Texture.PLACEHOLDER));
-
 		this.placeholderTexture = this.emptyTexture;
+
+		this.renderTargets = [];
 
 		this.MAX_TEXTURE_UINTS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
 
-		this.showGuides = Renderer.showGuides;
 		this.clearPass = Renderer.clearPass;
-		this.indexPass = Renderer.indexPass;
-		this.shadowPass = Renderer.shadowPass;
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
 
@@ -138,68 +144,7 @@ export class Renderer extends RendererContext {
 
 		this.info = {};
 
-		this.renderPasses = [];
-
 		this.initialRender = true;
-
-		const self = this;
-
-		if(this.shadowMapSize > 0 && this.shadowPass) {
-			this.createRenderPass('shadow', {
-				get camera() {
-					return self.currentScene.lightsource;
-				},
-				filter(geo) {
-					self.shadowPass = false;
-					return !geo.guide && geo.material && geo.material.castShadows;
-				},
-				colorBuffer: false,
-				antialiasing: false,
-				shaderOverwrite: new NormalShader(),
-				resolution: [this.shadowMapSize, this.shadowMapSize],
-				options: {
-					CULL_FACE: false
-				}
-			})
-		}
-
-		this.createRenderPass('color', {
-			filter(geo) {
-				self.shadowPass = true;
-				return !geo.guide && !geo.isLight;
-			}
-		});
-		
-		if(this.indexPass) {
-			const indexShader = new IndexShader();
-			const renderer = this;
-			indexShader.customUniforms = {
-				get objectIndex() {
-					return renderer.objectIndex;
-				}
-			};
-
-			this.createRenderPass('index', {
-				filter(geo) {
-					return !geo.guide && geo.selectable;
-				},
-				antialiasing: false,
-				shaderOverwrite: indexShader,
-				options: {
-					CULL_FACE: false
-				}
-			})
-		}
-
-		if(this.showGuides) {
-			this.createRenderPass('guides', {
-				filter(geo) {
-					return (geo.guide || self.drawWireframe) && self.showGuides;
-				},
-				antialiasing: false,
-				shaderOverwrite: new PrimitiveShader()
-			})
-		}
 
 		this.bloomShader = new LightShader();
 		this.postprocessingPass = new RenderPass(this, 'lighting');
@@ -226,21 +171,9 @@ export class Renderer extends RendererContext {
 		this.resizeTimeout = Date.now();
 		this.initialRender = true;
 
-		for (let pass of this.renderPasses) {
-			pass.resize(this.width, this.height);
-		}
-
-		this.postprocessingPass.resize(this.width, this.height);
-
 		if(this.debug) {
 			console.log(`Resolution set to ${this.width}x${this.height}`);
 		}
-	}
-
-	createRenderPass(name, setup = {}) {
-		const pass = new RenderPass(this, name, setup);
-		this.renderPasses.push(pass);
-		return pass;
 	}
 
 	clearBuffers() {
@@ -250,9 +183,9 @@ export class Renderer extends RendererContext {
 	}
 
 	draw(scene, setup = {}) {
+		
 		if(this.debug) {
 			this.info.resolution = `${this.width}x${this.height}`;
-			this.info.passes = this.renderPasses.length;
 			this.info.debug = this.debug;
 			this.info.shaders = this.shaders.size;
 			this.info.materials = this.materials ? this.materials.length : 0;
@@ -267,99 +200,44 @@ export class Renderer extends RendererContext {
 			this.clearBuffers();
 		}
 
-		if(this.currentCamera && this.currentCamera.perspective == Camera.PERSPECTIVE) {
-			this.currentCamera.sensor.width = this.width;
-			this.currentCamera.sensor.height = this.height;
-		}
-
-		if(this.currentCamera && this.currentCamera.perspective == Camera.ORTHGRAPHIC) {
-			this.currentCamera.sensor.width = this.currentCamera.sensor.width;
-			this.currentCamera.sensor.height = this.currentCamera.sensor.width / (this.width / this.height);
-		}
-		
-		if(this.renderPasses.length > 0) {
-			for (let pass of this.renderPasses) {
-				pass.use();
-
-				this.setOptions(pass.sceneSetup.options);
-				this.clear();
-
-				const camera = pass.sceneSetup.camera || setup.camera || scene.cameras[0];
-
-				this.drawScene(scene, camera, pass.sceneSetup);
-				this.setOptions(this.options);
-
-				pass.finalize();
+		for(let camera of scene.cameras) {
+			if(camera && camera.perspective == Camera.PERSPECTIVE) {
+				camera.sensor.width = this.width;
+				camera.sensor.height = this.height;
 			}
-			this.clearFramebuffer();
-			
-			this.drawPostProcessing();
-			
-			this.compositeRenderPasses();
-
-		} else {
-			this.clear();
-			this.drawScene(scene, setup.camera || scene.cameras[0], setup);
+			if(camera && camera.perspective == Camera.ORTHGRAPHIC) {
+				camera.sensor.width = camera.sensor.width;
+				camera.sensor.height = camera.sensor.width / (this.width / this.height);
+			}
 		}
-	}
-
-	drawPostProcessing() {
-		this.postprocessingPass.use();
-
-		this.useShader(this.bloomShader);
 		
-		this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
-		
+		this.gl.clearColor(...this.background);
+
 		this.clear();
-		this.drawScreen();
+		
+		this.viewport(this.width, this.height);
 
-		this.postprocessingPass.finalize();
-	}
+		this.drawScene(scene, setup);
 
-	compositeRenderPasses() {
-		const gl = this.gl;
+		if(this.renderTargets[0]) {
+			this.renderTargets[0].finalize();
+		}
+		if(this.renderTargets[1]) {
+			this.renderTargets[1].finalize();
+		}
 
 		this.clearFramebuffer();
-		this.viewport(this.width, this.height);
 
 		this.useShader(this.compShader);
 
 		if(this.initialRender) {
 			this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
 			this.setTexture(this.placeholderTexture, this.gl.TEXTURE_2D, TEXTURE.PLACEHOLDER);
-
-			this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
-			this.setTexture(this.getBufferTexture('color.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR_DEPTH, 'depth');
-			this.setTexture(this.getBufferTexture('guides'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES, 'guides');
-			this.setTexture(this.getBufferTexture('guides.depth'), this.gl.TEXTURE_2D, TEXTURE.FRAME_GUIDES_DEPTH, 'guidesDepth');
-			this.setTexture(this.getBufferTexture('normal'), this.gl.TEXTURE_2D, TEXTURE.FRAME_NORMAL, 'normal');
-			this.setTexture(this.getBufferTexture('world'), this.gl.TEXTURE_2D, TEXTURE.FRAME_WORLD, 'world');
-			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
-			this.setTexture(this.getBufferTexture('index'), this.gl.TEXTURE_2D, TEXTURE.FRAME_INDEX, 'index');
-			this.setTexture(this.getBufferTexture('lighting'), this.gl.TEXTURE_2D, TEXTURE.FRAME_LIGHTING, 'lighting');
-
-			this.compShader.setUniforms({
-				fogDensity: this.fogDensity,
-				fogStartOffset: this.fogStartOffset,
-				fogMax: this.fogMax,
-				resolution: [
-					this.width,
-					this.height
-				],
-			});
-
 			this.initialRender = false;
 		}
 
-		const custom = this.compShader.customUniforms;
-		if(custom) {
-			this.compShader.setUniforms(custom);
-		}
-
-		if(this.clearPass) {
-			gl.clearColor(...this.background);
-			this.clear();
-		}
+		this.setTexture(this.getBufferTexture('view0'), this.gl.TEXTURE_2D, TEXTURE.FRAME_LEFT, 'view0');
+		this.setTexture(this.getBufferTexture('view1'), this.gl.TEXTURE_2D, TEXTURE.FRAME_RIGHT, 'view1');
 
 		this.drawScreen();
 	}
@@ -435,23 +313,6 @@ export class Renderer extends RendererContext {
 				this.currentShader.setUniforms(material.customUniforms);
 			}
 		}
-
-		if(this.shadowPass) {
-			const lightSource = this.currentScene.lightsource;
-			this.currentShader.setUniforms({
-				'shadowProjMat': lightSource.projMatrix,
-				'shadowViewMat': lightSource.viewMatrix,
-			});
-			
-			this.currentShader.setUniforms({
-				'viewPosition': [
-					-this.currentCamera.position.x,
-					-this.currentCamera.position.y,
-					-this.currentCamera.position.z,
-				]
-			});
-		}
-
 	}
 
 	getGemoetryBuffer(geo) {
@@ -461,17 +322,28 @@ export class Renderer extends RendererContext {
 		return this.vertexBuffers.get(geo.uid);
 	}
 
-	drawScene(scene, camera, {
+	drawScene(scene, {
 		filter = null,
 		shaderOverwrite = null,
 	} = {}) {
-		this.currentCamera = camera;
 
-		if(!camera) return;
+		const cameras = scene.cameras;
 
-		camera.updateModel();
+		if(cameras.length == 0) return;
 
-		const objects = scene.getRenderableObjects(camera);
+		for(let camera of cameras) {
+			const views = camera.view;
+			
+			if(Array.isArray(views)) {
+				for(let cam of views) {
+					cam.updateModel();
+				}
+			} else {
+				views.updateModel();
+			}
+		}
+
+		const objects = scene.getRenderableObjects(cameras[0]);
 		const materials = objects.map(obj => obj.materials).flat();
 		this.materials = materials;
 
@@ -482,7 +354,7 @@ export class Renderer extends RendererContext {
 		this.info.verts = 0;
 
 		for(let [uid, buffer] of this.vertexBuffers) {
-			if(![...objects, this.renderTarget].find(obj => obj.uid === uid)) {
+			if(![...objects, this.screen].find(obj => obj.uid === uid)) {
 				this.vertexBuffers.delete(uid);
 			}
 		}
@@ -510,50 +382,62 @@ export class Renderer extends RendererContext {
 	drawMesh(geo, shaderOverwrite) {
 		if (geo.material || shaderOverwrite) {
 
-			let matIndex = 0;
+			const cameras = this.currentScene.cameras;
 
-			if (!shaderOverwrite) {
-				for(let material of geo.materials) {
-					const shader = this.getMaterialShader(material);
-					this.useShader(shader);
-					this.setupGemoetry(geo);
+			const drawForAllViews = () => {
+				let camIndex = 0;
 
-					this.currentShader.setUniforms({
-						'projectionView': this.currentCamera.projViewMatrix,
-					}, 'scene');
-					
-					this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
+				for(let camera of cameras) {
 
-					this.applyMaterial(material);
+					let renderTarget = this.renderTargets[camIndex];
 
-					const custom = this.currentShader.customUniforms;
-					if(custom) {
-						this.currentShader.setUniforms(custom);
+					if(!renderTarget) {
+						renderTarget = new RenderPass(this, 'view' + camIndex);
+						this.renderTargets[camIndex] = renderTarget;
 					}
 
-					this.drawGeo(geo, material.drawmode || this.currentShader.drawmode);
+					renderTarget.use();
 
-					matIndex++;
+					this.currentShader.setUniforms({
+						'viewPosition': [
+							-camera.position.x,
+							-camera.position.y,
+							-camera.position.z,
+						]
+					});
+
+					this.currentShader.setUniforms({
+						'projectionView': camera.projViewMatrix,
+					}, 'scene');
+
+					const drawmode = geo.material ? geo.material.drawmode || this.currentShader.drawmode 
+												: this.currentShader.drawmode;
+
+					this.drawGeo(geo, drawmode);
+
+					camIndex++;
 				}
-			} else {
-				this.useShader(shaderOverwrite);
+			}
 
-				this.currentShader.setUniforms({
-					'projectionView': this.currentCamera.projViewMatrix,
-				}, 'scene');
-
-				if(this.currentShader.customUniforms) {
-					this.currentShader.setUniforms(this.currentShader.customUniforms);
-				}
-
-				const drawmode = geo.material ? geo.material.drawmode || this.currentShader.drawmode : this.currentShader.drawmode;
-
-				if(geo.material) {
-					this.currentShader.setUniforms(geo.material.attributes, 'material');
-				}
-
+			let matIndex = 0;
+				
+			for(let material of geo.materials) {
+				const shader = this.getMaterialShader(material);
+				this.useShader(shader);
 				this.setupGemoetry(geo);
-				this.drawGeo(geo, drawmode);
+				
+				this.gl.uniform1i(this.currentShader._uniforms.currentMaterialIndex, matIndex);
+				
+				this.applyMaterial(material);
+				
+				const custom = this.currentShader.customUniforms;
+				if(custom) {
+					this.currentShader.setUniforms(custom);
+				}
+
+				drawForAllViews();
+
+				matIndex++;
 			}
 			
 		} else {
@@ -622,8 +506,8 @@ export class Renderer extends RendererContext {
 
 	drawScreen() {
 		this.currentScene = null;
-		this.setupGemoetry(this.renderTarget);
-		this.drawGeo(this.renderTarget, this.currentShader.drawmode);
+		this.setupGemoetry(this.screen);
+		this.drawGeo(this.screen, this.currentShader.drawmode);
 	}
 
 }

@@ -1,20 +1,16 @@
 import '../components/Console.js';
 import '../components/Viewport.js';
 import Viewport from '../components/Viewport.js';
-import Input from '../src/Input.js';
-import { Resources } from '../src/resources/Resources.js';
-import { Camera } from '../src/scene/Camera.js';
-import { Task } from '../src/Scheduler.js';
-import Follow from '../src/traits/Follow.js';
-import { Scene } from '../src/scene/Scene.js';
 import { Plane } from '../src/geo/Plane.js';
+import Input from '../src/Input.js';
 import SpriteMaterial from '../src/materials/SpriteMaterial.js';
 import { Texture } from '../src/materials/Texture.js';
-
-Resources.add({
-    'sprite': '/textures/spritetest.png',
-    'map': '/maps/testmap.gmap'
-});
+import { Resources } from '../src/resources/Resources.js';
+import { Camera } from '../src/scene/Camera.js';
+import { Scene } from '../src/scene/Scene.js';
+import Follow from '../src/traits/Follow.js';
+import DefaultMaterial from '../src/materials/DefaultMaterial.js';
+import { Console } from '../components/Console.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Resources.load().then(() => init());
@@ -23,36 +19,40 @@ window.addEventListener('DOMContentLoaded', () => {
 function init() {
     const viewport = new Viewport({ controllertype: null });
     document.body.appendChild(viewport);
+
     viewport.renderer.background = [107 / 255, 174 / 255, 239 / 255, 1];
-    viewport.tabIndex = 0;
-    Input.domElement = viewport;
+    viewport.renderer.clearPass = true;
 
-    const scene = Resources.get('map').toScene();
-
-    const plane = new Plane({
-        position: [0, 5, 0],
-        material: new SpriteMaterial({
-            transparency: 0.5,
-            texture: new Texture(Resources.get('sprite'))
-        }),
-        scale: 5,
-    });
+    const scene = new Scene();
     
-    scene.add(plane);
+    scene.add([
+        new Plane({
+            position: [0, 0, 0],
+            material: new DefaultMaterial(),
+            scale: 5,
+        }),
+        new Plane({
+            position: [5, 5, -4],
+            material: new DefaultMaterial(),
+            scale: 5,
+        }),
+    ]);
 
-    const camera = new Camera({
+    const camera1 = new Camera({
+        position: [0.1, -2, -20],
         fov: 54.4,
         traits: [ Follow ]
     });
 
-    camera.position.z = -20;
-    camera.position.y = -2;
-    camera.origin.y = -4;
+    const camera2 = new Camera({
+        position: [-0.1, -2, -20],
+        fov: 54.4,
+        traits: [ Follow ]
+    });
 
-    // camera.follow([...scene.objects].find(o => o instanceof PlayerEntity));
+    scene.add(camera1);
+    scene.add(camera2);
 
-    scene.add(camera);
-
-    viewport.camera = camera;
+    viewport.camera = camera1;
     viewport.scene = scene;
 }

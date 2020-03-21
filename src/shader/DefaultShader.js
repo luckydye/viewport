@@ -109,40 +109,11 @@ export default class DefaultShader extends MeshShader {
             vec4 color = material.diffuseColor;
             vec4 texcolor = texture(material.texture, TextureCoords());
 
-            color = (texcolor * texcolor.a) + color * (1.0 - texcolor.a);
-            color = vec4(color.rgb, color.a + texcolor.a / 2.0);
-
             if(color.a < 0.5) {
                 discard;
             }
             
-            oFragColor = color;
-
-            vec3 normal = vNormal;
-            vec4 normalMap = texture(material.normalMap, TextureCoords());
-
-            if(normalMap.a > 0.0) {
-                normal = vNormal.xyz + normalize(vec4(normalMap.xyz, 0.0) * inverse(scene.model)).xyz;
-            }
-
-            float specular = getMappedValue(material.specularMap, vec4(material.attributes.x)).r;
-            float roughness = getMappedValue(material.roughnessMap, vec4(material.attributes.y)).r;
-
-            vec3 shadowColor = vec3(
-                150.0 / 255.0, // r
-                150.0 / 255.0, // g
-                175.0 / 255.0  // b
-            );
-
-            bool inShadow = Shadows();
-
-            if(!inShadow) {
-
-                Shading(oFragColor, normal, shadowColor, lightColor);
-                Specular(oFragColor, normal, lightColor * specular, roughness);
-            } else {
-                oFragColor.rgb *= shadowColor;
-            }
+            oFragColor = vec4(1.0);
         }
         `;
     }
