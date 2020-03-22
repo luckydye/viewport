@@ -12,8 +12,8 @@ export class ViewportController extends EntityControler {
 		entity.position.y = 0;
 		entity.position.z = 0;
 
-		this.angleY = 1.0;
-		this.angleX = 1.0;
+		this.angleY = 35 / 180 * Math.PI;
+		this.angleX = 0.5;
 		this.distance = -5;
 
 		const down = e => {

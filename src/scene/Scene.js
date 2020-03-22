@@ -215,7 +215,7 @@ export class Scene extends Transform {
 	}
 
 	getRenderableObjects(camera) {
-		return this.objects;
+		return this.objects.filter(obj => !obj.hidden);
 	}
 
 	getSceneGraph() {

@@ -4,11 +4,8 @@
   "description": "",
   "main": "./index.js",
   "module": "./index.js",
-  "directories": {
-    "lib": "lib"
-  },
   "scripts": {
-    "dev": "parcel watch ./game/index.html --no-hmr --public-url ."
+    "test": "echo no tests"
   },
   "repository": {
     "type": "git",
@@ -21,19 +18,13 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
-    "@uncut/hotel": "git+https://github.com/luckydye/hotel.git",
-    "express": "^4.17.1",
     "gl-matrix": "^3.1.0",
-    "lit-html": "^1.1.2",
-    "ws": "^7.2.0"
+    "lit-html": "^1.1.2"
   },
   "browserslist": [
     "last 1 Chrome versions"
   ],
-  "devDependencies": {
-    "cssnano": "^4.1.10",
-    "parcel-bundler": "^1.12.4"
-  },
+  "devDependencies": {},
   "engines": {
     "node": "13.x"
   }

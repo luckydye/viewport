@@ -130,7 +130,7 @@ export default class CompShader extends Shader {
             oFragColor += bloom * 0.2;
 
             // depth fog
-            oFragColor.rgb += min(pow(depth.r - fogStartOffset, fogDensity), fogMax);
+            oFragColor.a -= min(pow(depth.r - fogStartOffset, fogDensity), fogMax);
             
             // color correction
             oFragColor.rgb = vec3(1.0) - exp(-oFragColor.rgb * exposure);
@@ -165,6 +165,7 @@ export default class CompShader extends Shader {
             // guides
             if(guides.a < 0.9 && guides.a > 0.0) {
                 oFragColor.rgb = guides.rgb;
+                oFragColor.a = 0.25;
             }
             if(guidesDepth.r > 0.0 && guidesDepth.r < depth.r) {
                 oFragColor = vec4(guides.rgb, 1.0);

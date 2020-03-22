@@ -82,15 +82,15 @@ export class Renderer extends RendererContext {
 
 	setConfig(config) {
 		this.renderConfig = config;
-		this.renderConfig.define('show.grid', false, false);
+		this.renderConfig.define('show.grid', true, true);
 		this.renderConfig.define('debug', false, false);
 		this.renderConfig.define('debuglevel', 0, 0);
-		this.renderConfig.define('shadowMapSize', 4096, 4096);
+		this.renderConfig.define('shadowMapSize', 1024, 1024);
 		this.renderConfig.define('wireframe', false, false);
-		this.renderConfig.define('showGuides', false);
-		this.renderConfig.define('clearPass', false);
+		this.renderConfig.define('showGuides', true);
+		this.renderConfig.define('clearPass', true);
 		this.renderConfig.define('indexPass', false);
-		this.renderConfig.define('shadowPass', false);
+		this.renderConfig.define('shadowPass', true);
 		this.renderConfig.load();
 	}
 
@@ -105,7 +105,7 @@ export class Renderer extends RendererContext {
 		this.debug = this.renderConfig.getValue('debug');
 
 		this.renderTarget = new Screen();
-		this.grid = new Grid();
+		this.grid = new Grid(1, 400);
 		
 		this.compShader = new CompShader();
 
@@ -471,12 +471,12 @@ export class Renderer extends RendererContext {
 
 		camera.updateModel();
 
-		const objects = scene.getRenderableObjects(camera);
+		let objects = scene.getRenderableObjects(camera);
 		const materials = objects.map(obj => obj.materials).flat();
 		this.materials = materials;
 
 		if (this.showGrid) {
-			objects.push(this.grid);
+			objects = [...objects, this.grid];
 		}
 
 		this.info.verts = 0;
