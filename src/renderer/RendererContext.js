@@ -51,7 +51,7 @@ export class RendererContext {
 		this.TEXTURE_MAG_FILTER = this.gl.LINEAR;
 		this.TEXTURE_MIN_FILTER = this.gl.NEAREST_MIPMAP_LINEAR;
 
-		this.MULTISAMPLING_SAMPLES = 8;
+		this.MULTISAMPLING_SAMPLES = 6;
 	}
 
 	initialize() {

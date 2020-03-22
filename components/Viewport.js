@@ -47,7 +47,7 @@ export default class Viewport extends HTMLElement {
                     pointer-events: none;
                     user-select: text;
                     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                    font-size: 0.6em;
+                    font-size: 10px;
                     background: rgba(25, 25, 25, 0.75);
                     display: flex;
                     justify-content: space-between;
