@@ -1,11 +1,8 @@
-import Config from '../src/Config.js';
-import { Cursor, RotationCursor } from '../src/geo/Cursor.js';
 import { Renderer } from "../src/renderer/Renderer.js";
 import { Resources } from "../src/resources/Resources.js";
 import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
-import { Raycast, Vec } from '../src/Math.js';
 
 export default class ViewportLight extends HTMLElement {
 
@@ -93,13 +90,13 @@ export default class ViewportLight extends HTMLElement {
         this.scene.add(this.camera);
     }
 
-    init() {
+    setResolution(width, height) {
         // resolution
-        this.renderer.setResolution(this.width, this.height);
+        this.renderer.setResolution(width, height);
+    }
 
-        window.addEventListener('resize', () => {
-            this.renderer.setResolution(this.width, this.height);
-        });
+    init() {
+        this.setResolution(this.width, this.height);
     }
 
     render() {
