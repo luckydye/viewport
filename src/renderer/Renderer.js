@@ -127,9 +127,9 @@ export class Renderer extends RendererContext {
 		this.shadowColor = [0, 0, 0, 0.33];
 		this.background = [0, 0, 0, 0];
 
-		this.fogMax = 0.25;
-		this.fogDensity = 1000;
-		this.fogStartOffset = 0.0001;
+		this.fogMax = 0.15;
+		this.fogDensity = 50.0;
+		this.fogStartOffset = 0.02;
 
 		this.lastSceneId = null;
 		this.currentScene = null;
