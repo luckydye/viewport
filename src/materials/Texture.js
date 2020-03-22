@@ -32,7 +32,7 @@ export class Texture {
         return defaults;
     }
 
-    constructor(image, format = { type: "RAW" }) {
+    constructor(image, format = { type: "RAW" }, flipY = true) {
 
         this.uid = uuidv4();
 
@@ -44,7 +44,7 @@ export class Texture {
         this.mag_filter = Texture.default.mag_filter;
         this.min_filter = Texture.default.min_filter;
 
-        this.flipY = true;
+        this.flipY = flipY;
 
         if(image instanceof ArrayBuffer) {
             this.format = format;

@@ -82,7 +82,7 @@ export class Camera extends Entity {
 	constructor(args = {}) {
 		const {
 			fov = 54.4,
-			farplane = 2000,
+			farplane = 500,
 			nearplane = 0.1,
 			width = 1280,
 			height = 720,
