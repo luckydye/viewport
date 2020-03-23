@@ -80,6 +80,10 @@ export class Renderer extends RendererContext {
 		return this.renderConfig.getValue('shadowMapSize');
 	}
 
+	get antialiasing() {
+		return this.renderConfig.getValue('antialiasing');
+	}
+
 	setConfig(config) {
 		this.renderConfig = config;
 		this.renderConfig.define('show.grid', true, true);
@@ -91,6 +95,7 @@ export class Renderer extends RendererContext {
 		this.renderConfig.define('clearPass', true);
 		this.renderConfig.define('indexPass', false);
 		this.renderConfig.define('shadowPass', true);
+		this.renderConfig.define('antialiasing', true);
 		this.renderConfig.load();
 	}
 
@@ -164,6 +169,7 @@ export class Renderer extends RendererContext {
 		}
 
 		this.createRenderPass('color', {
+			antialiasing: this.antialiasing,
 			filter(geo) {
 				self.shadowPass = true;
 				return !geo.guide && !geo.isLight;
