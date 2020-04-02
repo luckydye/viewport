@@ -20,8 +20,7 @@
   "dependencies": {
     "binary-file-lib": "git+ssh://git@github.com/luckydye/binary-file-lib.git",
     "gl-matrix": "^3.1.0",
-    "lit-html": "^1.2.1",
-    "parcel": "^1.12.4"
+    "lit-html": "^1.2.1"
   },
   "browserslist": [
     "last 1 Chrome versions"
