@@ -3,6 +3,24 @@ import { Geometry } from "../scene/Geometry.js";
 
 export class Vector extends Geometry {
 
+	static vertecies(geo) {
+		const vertexData = {
+			vertecies: [],
+			uvs: [],
+			normals: [],
+		};
+
+		for (let p of geo.points) {
+			const { x, y, z } = p;
+
+			vertexData.vertecies.push([x, y, z]);
+			vertexData.uvs.push([0, 0]);
+			vertexData.normals.push([...geo.color]);
+		}
+
+		return vertexData;
+	}
+
 	onCreate(args) {
 		args.guide = true;
 		args.material = new DefaultMaterial();
@@ -11,15 +29,6 @@ export class Vector extends Geometry {
 		this.points = args.points;
 		this.color = [1, 1, 1];
 		this.name = "Vector";
-	}
-
-	get vertecies() {
-		const vertArray = [];
-		for (let p of this.points) {
-			const { x, y, z } = p;
-			vertArray.push(x, y, z, 0, 0, 0, ...this.color);
-		}
-		return vertArray;
 	}
 
 }

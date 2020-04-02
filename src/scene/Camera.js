@@ -7,6 +7,105 @@ import { Entity } from './Entity.js';
 glMatrix.setMatrixArrayType(Array);
 
 export class Camera extends Entity {
+	
+	static vertecies(geo) {
+		const s = [1, 1 / geo.aspectRatio];
+		const w = [geo.sensor.width, geo.sensor.height];
+		// const w = 10;
+		const depth = geo.perspective == Camera.ORTHGRAPHIC ? 0 : geo.farplane;
+		
+		return {
+			vertecies: [
+				[w[0], w[1], -depth],
+				[-w[0], w[1], -depth],
+				[-w[0], w[1], -depth],
+				[-w[0], -w[1], -depth],
+				[-w[0], -w[1], -depth],
+				[w[0], -w[1], -depth],
+				[w[0], -w[1], -depth],
+				[w[0], w[1], -depth],
+
+				[s[0], s[1], -geo.nearplane],
+				[-s[0], s[1], -geo.nearplane],
+				[-s[0], s[1], -geo.nearplane],
+				[-s[0], -s[1], -geo.nearplane],
+				[-s[0], -s[1], -geo.nearplane],
+				[s[0], -s[1], -geo.nearplane],
+				[s[0], -s[1], -geo.nearplane],
+				[s[0], s[1], -geo.nearplane],
+				[-s[0], -s[1], -geo.nearplane],
+				[s[0], s[1], -geo.nearplane],
+
+				[0, 0, -geo.nearplane],
+				[0, 0, -geo.farplane],
+
+				[-s[0], -s[1], -geo.nearplane],
+				[-w[0], -w[1], -depth],
+				[-s[0], s[1], -geo.nearplane],
+				[-w[0], -w[1], -depth],
+				[s[0], s[1], -geo.nearplane],
+				[w[0], w[1], -depth],
+				[s[0], -s[1], -geo.nearplane],
+				[w[0], -w[1], -depth],
+			],
+			uvs: [
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[0, 0],
+				[0, 0],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+				[1, 1],
+			],
+			normals: [
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 0, 0],
+				[1, 0, 0],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+				[1, 1, 1],
+			],
+		}
+	}
 
 	static get ORTHGRAPHIC() {
 		return "orthographic";
@@ -20,69 +119,20 @@ export class Camera extends Entity {
 		return this.sensor.width / this.sensor.height;
 	}
 
-	get vertecies() {
-		const s = [1, 1 / this.aspectRatio];
-		const w = [this.sensor.width, this.sensor.height];
-		// const w = 10;
-		const depth = this.perspective == Camera.ORTHGRAPHIC ? 0 : this.farplane;
-		
-		const vertArray = [
-			// farplane
-			w[0], w[1], -depth, 1, 1, 0,  1, 1, 1,
-			-w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
-
-			-w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
-			-w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
-
-			-w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
-			w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
-
-			w[0], -w[1], -depth, 1, 1, 0, 1, 1, 1,
-			w[0], w[1], -depth, 1, 1, 0, 1, 1, 1,
-
-			// nearplane
-			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-			-s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-
-			-s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-
-			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-
-			s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-
-			-s[0], -s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-			s[0], s[1], -this.nearplane, 1, 1, 0, 1, 1, 1,
-
-
-			0, 0, -this.nearplane, 0, 0, 0, 1, 0, 0,
-			0, 0, -this.farplane, 0, 0, 0, 1, 0, 0,
-
-			-s[0], -s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w[0], -w[1], -depth, 0, 0, 0, 1, 1, 1,
-
-			-s[0], s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
-			-w[0], w[1], -depth, 0, 0, 0, 1, 1, 1,
-
-			s[0], s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w[0], w[1], -depth, 0, 0, 0, 1, 1, 1,
-
-			s[0], -s[1], -this.nearplane, 0, 0, 0, 1, 1, 1,
-			w[0], -w[1], -depth, 0, 0, 0, 1, 1, 1,
-		]
-		return vertArray;
-	}
-
 	onCreate(args) {
+
+		this.sensor = {
+			width: args.width,
+			height: args.height
+		}
+
 		args.material = new PrimitivetMaterial();
 	}
 
 	constructor(args = {}) {
 		const {
-			fov = 54.4,
-			farplane = 500,
+			fov = 90,
+			farplane = 100,
 			nearplane = 0.1,
 			width = 1280,
 			height = 720,
@@ -104,11 +154,6 @@ export class Camera extends Entity {
 		this.projMatrix = mat4.create();
 		this.viewMatrix = mat4.create();
 		this.projViewMatrix = mat4.create();
-
-		this.sensor = {
-			width: width,
-			height: height
-		}
 	}
 
 	updateModelMatrix() {

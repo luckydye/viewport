@@ -286,12 +286,12 @@ export class Console extends HTMLElement {
                     position: absolute;
                     top: 100%;
                     left: 0;
-                    font-family: sans-serif;
+                    font-family: monospace, sans-serif;
                     font-size: 12px;
                 }
                 .suggestion {
                     background: #23232382;
-                    padding: 4px 10px;
+                    padding: 4px 8px;
                     cursor: pointer;
                 }
                 .suggestion:hover {

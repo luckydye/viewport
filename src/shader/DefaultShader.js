@@ -8,8 +8,6 @@ export default class DefaultShader extends MeshShader {
         uniform SceneProjection scene;
         uniform Material material;
         
-        uniform int currentMaterialIndex;
-        
         uniform sampler2D shadowDepth;
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
@@ -19,10 +17,6 @@ export default class DefaultShader extends MeshShader {
             
         vec2 TextureCoords() {
             float scale = 1.0;
-
-            if (currentMaterialIndex != materialIndex) {
-                discard;
-            }
 
             vec2 texCoords = vTexCoords;
 
@@ -135,14 +129,9 @@ export default class DefaultShader extends MeshShader {
             );
 
             bool inShadow = Shadows();
-
-            if(!inShadow) {
-
-                Shading(oFragColor, normal, shadowColor, lightColor);
-                Specular(oFragColor, normal, lightColor * specular, roughness);
-            } else {
-                oFragColor.rgb *= shadowColor;
-            }
+            
+            Shading(oFragColor, normal, shadowColor, lightColor);
+            Specular(oFragColor, normal, lightColor * specular, roughness);
         }
         `;
     }

@@ -6,7 +6,7 @@ import { Texture } from '../materials/Texture.js';
 import { Geometry } from '../scene/Geometry.js';
 import Prop from '../scene/Prop.js';
 import { Scene } from '../scene/Scene.js';
-import { BinaryFile } from './BinaryFile.js';
+import { BinaryFile } from 'binary-file-lib';
 import { Group } from '../geo/Group.js';
 
 const Structs = {

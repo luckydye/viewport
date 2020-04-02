@@ -25,10 +25,9 @@ export class RendererContext {
 
 	constructor(canvas, contextOptions = {
 		alpha: true,
-		premultipliedAlpha: false,
-		antialias: false,
-		preserveDrawingBuffer: false, // possible if using a offscreen canvas
-		desynchronized: false, // for non antiliase canvas on chrome to false
+		premultipliedAlpha: true,
+		antialias: true,
+		preserveDrawingBuffer: true, // possible if using a offscreen canvas
 	}) {
 		if (!canvas) throw "RendererContext: Err: no canvas";
 

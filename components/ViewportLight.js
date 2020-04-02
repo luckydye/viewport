@@ -4,6 +4,7 @@ import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
 import { ViewportController } from "../src/controlers/ViewportController.js";
+import './Console.js';
 
 export default class ViewportLight extends HTMLElement {
 
@@ -16,7 +17,17 @@ export default class ViewportLight extends HTMLElement {
                 canvas {
                     display: block;
                 }
+                dev-console {
+                    position: fixed;
+                    top: 10px;
+                    left: 10px;
+                    width: 500px;
+                    height: 250px;
+                    z-index: 1000;
+                    color: #eee;
+                }
             </style>
+            <dev-console></dev-console>
         `;
     }
 
@@ -56,7 +67,7 @@ export default class ViewportLight extends HTMLElement {
         this.camera = new Camera({
             position: [0, 5, -5],
             rotation: [10, 0, 0],
-            fov: 90
+            fov: 106
         });
 
         this.controller = new ViewportController(this.camera, this);
@@ -149,4 +160,4 @@ export default class ViewportLight extends HTMLElement {
 
 }
 
-customElements.define('gyro-viewport-light', ViewportLight);
+customElements.define('gyro-viewport', ViewportLight);

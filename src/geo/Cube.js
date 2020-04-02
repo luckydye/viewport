@@ -2,6 +2,38 @@ import { Geometry } from "../scene/Geometry.js";
 
 export class Cube extends Geometry {
 
+	static vertecies(geo) {
+		let vertecies = [];
+		let uvs = [];
+		let normals = [];
+
+		const faces = geo.faces;
+
+		let visibleFaces = [];
+
+		for (let key in geo.visible) {
+			if (geo.visible[key]) {
+				visibleFaces.push(key);
+			}
+		}
+
+		visibleFaces.forEach(face => {
+			vertecies = vertecies.concat(faces[face].vertecies);
+			uvs = uvs.concat(faces[face].uvs);
+			normals = normals.concat(faces[face].normals);
+		})
+
+		return {
+			vertecies,
+			uvs,
+			normals,
+		};
+	}
+
+	static indecies(geo) {
+		return [];
+	}
+
 	onCreate(args) {
 		this.name = "Cube";
 		this.vertsPerFace = 6;
@@ -16,31 +48,12 @@ export class Cube extends Geometry {
 	}
 
 	get invisible() {
-		return !this.visible.TOP &&
-			!this.visible.BOTTOM &&
-			!this.visible.LEFT &&
-			!this.visible.RIGHT &&
-			!this.visible.FRONT &&
-			!this.visible.BACK;
-	}
-
-	get vertecies() {
-		let vertArray = [];
-		const faces = this.faces;
-
-		let visibleFaces = [];
-
-		for (let key in this.visible) {
-			if (this.visible[key]) {
-				visibleFaces.push(key);
-			}
-		}
-
-		visibleFaces.forEach(face => {
-			vertArray = vertArray.concat(faces[face]);
-		})
-
-		return vertArray;
+		return  !this.visible.TOP &&
+				!this.visible.BOTTOM &&
+				!this.visible.LEFT &&
+				!this.visible.RIGHT &&
+				!this.visible.FRONT &&
+				!this.visible.BACK;
 	}
 
 	get faces() {
@@ -56,60 +69,162 @@ export class Cube extends Geometry {
 		const z = 0;
 
 		return {
-			TOP: [
-				s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 0, 1, 0,
-				s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 0, 1, 0,
-				-s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 0, 1, 0,
-
-				s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 0, 1, 0,
-				-s * w + x, s * w + y, -s * h + z, 0 + u, 0 + v, 0, 0, 1, 0,
-				-s * w + x, s * w + y, s * h + z, 0 + u, 1 + v, 0, 0, 1, 0,
-			],
-			BOTTOM: [
-				-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, 0, -1, 0,
-				s * w + x, -s * w + y, -s * h + z, 1 + u, 0 + v, 0, 0, -1, 0,
-				s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, 0, -1, 0,
-
-				-s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, 0, -1, 0,
-				-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, 0, -1, 0,
-				s * w + x, -s * w + y, s * h + z, 1 + u, 1 + v, 0, 0, -1, 0,
-			],
-			LEFT: [
-				-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 0, 1,
-				s * w + x, -s * h + y, s * w + z, 1 + u, 0 + v, 0, 0, 0, 1,
-				s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 0, 1,
-
-				-s * w + x, s * h + y, s * w + z, 0 + u, 1 + v, 0, 0, 0, 1,
-				-s * w + x, -s * h + y, s * w + z, 0 + u, 0 + v, 0, 0, 0, 1,
-				s * w + x, s * h + y, s * w + z, 1 + u, 1 + v, 0, 0, 0, 1,
-			],
-			RIGHT: [
-				s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, 0, -1,
-				s * w + x, -s * h + y, -s * w + z, 1 + u, 0 + v, 0, 0, 0, -1,
-				-s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, 0, -1,
-
-				s * w + x, s * h + y, -s * w + z, 1 + u, 1 + v, 0, 0, 0, -1,
-				-s * w + x, -s * h + y, -s * w + z, 0 + u, 0 + v, 0, 0, 0, -1,
-				-s * w + x, s * h + y, -s * w + z, 0 + u, 1 + v, 0, 0, 0, -1,
-			],
-			FRONT: [
-				s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, 0,
-				s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, 1, 0, 0,
-				s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, 0,
-
-				s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, 1, 0, 0,
-				s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, 1, 0, 0,
-				s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, 1, 0, 0,
-			],
-			BACK: [
-				-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, 0,
-				-s * w + x, s * w + y, -s * h + z, 1 + u, 0 + v, 0, -1, 0, 0,
-				-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, 0,
-
-				-s * w + x, s * w + y, s * h + z, 1 + u, 1 + v, 0, -1, 0, 0,
-				-s * w + x, -s * w + y, -s * h + z, 0 + u, 0 + v, 0, -1, 0, 0,
-				-s * w + x, -s * w + y, s * h + z, 0 + u, 1 + v, 0, -1, 0, 0,
-			]
+			TOP: {
+				vertecies: [
+					[s * w + x, s * w + y, s * h + z],
+					[s * w + x, s * w + y, -s * h + z],
+					[-s * w + x, s * w + y, -s * h + z],
+					[s * w + x, s * w + y, s * h + z],
+					[-s * w + x, s * w + y, -s * h + z],
+					[-s * w + x, s * w + y, s * h + z],
+				],
+				uvs: [
+					[1 + u, 1 + v],
+					[1 + u, 0 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 0 + v],
+					[0 + u, 1 + v],
+				],
+				normals: [
+					[0, 1, 0],
+					[0, 1, 0],
+					[0, 1, 0],
+					[0, 1, 0],
+					[0, 1, 0],
+					[0, 1, 0],
+				],
+			},
+			BOTTOM: {
+				vertecies: [
+					[-s * w + x, -s * w + y, -s * h + z],
+					[s * w + x, -s * w + y, -s * h + z],
+					[s * w + x, -s * w + y, s * h + z],
+					[-s * w + x, -s * w + y, s * h + z],
+					[-s * w + x, -s * w + y, -s * h + z],
+					[s * w + x, -s * w + y, s * h + z],
+				],
+				uvs: [
+					[0 + u, 0 + v],
+					[1 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 1 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+				],
+				normals: [
+					[0, -1, 0],
+					[0, -1, 0],
+					[0, -1, 0],
+					[0, -1, 0],
+					[0, -1, 0],
+					[0, -1, 0],
+				],
+			},
+			LEFT: {
+				vertecies: [
+					[-s * w + x, -s * h + y, s * w + z],
+					[s * w + x, -s * h + y, s * w + z],
+					[s * w + x, s * h + y, s * w + z],
+					[-s * w + x, s * h + y, s * w + z],
+					[-s * w + x, -s * h + y, s * w + z],
+					[s * w + x, s * h + y, s * w + z],
+				],
+				uvs: [
+					[0 + u, 0 + v],
+					[1 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 1 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+				],
+				normals: [
+					[0, 0, 1],
+					[0, 0, 1],
+					[0, 0, 1],
+					[0, 0, 1],
+					[0, 0, 1],
+					[0, 0, 1],
+				],
+			},
+			RIGHT: {
+				vertecies: [
+					[s * w + x, s * h + y, -s * w + z],
+					[s * w + x, -s * h + y, -s * w + z],
+					[-s * w + x, -s * h + y, -s * w + z],
+					[s * w + x, s * h + y, -s * w + z],
+					[-s * w + x, -s * h + y, -s * w + z],
+					[-s * w + x, s * h + y, -s * w + z],
+				],
+				uvs: [
+					[1 + u, 1 + v],
+					[1 + u, 0 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 0 + v],
+					[0 + u, 1 + v],
+				],
+				normals: [
+					[0, 0, -1],
+					[0, 0, -1],
+					[0, 0, -1],
+					[0, 0, -1],
+					[0, 0, -1],
+					[0, 0, -1],
+				],
+			},
+			FRONT: {
+				vertecies: [
+					[s * w + x, -s * w + y, -s * h + z],
+					[s * w + x, s * w + y, -s * h + z],
+					[s * w + x, s * w + y, s * h + z],
+					[s * w + x, -s * w + y, s * h + z],
+					[s * w + x, -s * w + y, -s * h + z],
+					[s * w + x, s * w + y, s * h + z],
+				],
+				uvs: [
+					[0 + u, 0 + v],
+					[1 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 1 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+				],
+				normals: [
+					[1, 0, 0],
+					[1, 0, 0],
+					[1, 0, 0],
+					[1, 0, 0],
+					[1, 0, 0],
+					[1, 0, 0],
+				],
+			},
+			BACK: {
+				vertecies: [
+					[-s * w + x, s * w + y, s * h + z],
+					[-s * w + x, s * w + y, -s * h + z],
+					[-s * w + x, -s * w + y, -s * h + z],
+					[-s * w + x, s * w + y, s * h + z],
+					[-s * w + x, -s * w + y, -s * h + z],
+					[-s * w + x, -s * w + y, s * h + z],
+				],
+				uvs: [
+					[1 + u, 1 + v],
+					[1 + u, 0 + v],
+					[0 + u, 0 + v],
+					[1 + u, 1 + v],
+					[0 + u, 0 + v],
+					[0 + u, 1 + v],
+				],
+				normals: [
+					[-1, 0, 0],
+					[-1, 0, 0],
+					[-1, 0, 0],
+					[-1, 0, 0],
+					[-1, 0, 0],
+					[-1, 0, 0],
+				],
+			}
 		}
 	}
 }

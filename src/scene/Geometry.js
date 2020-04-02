@@ -9,29 +9,21 @@ export class Geometry extends Transform {
 	static get attributes() {
 		return [
 			{ size: 3, attribute: "aPosition" },
-			{ size: 3, attribute: "aTexCoords" },
+			{ size: 2, attribute: "aTexCoords" },
 			{ size: 3, attribute: "aNormal" },
-		]
+		];
 	}
 
-	get vertecies() {
-		return this.vertArray || [];
+	static vertecies(geo) {
+		return {
+			vertecies: [],
+			uvs: [],
+			normals: [],
+		};
 	}
 
-	get indecies() {
-		return this.indexArray || [];
-	}
-
-    get material() {
-        return this.materials[0];
-    }
-
-    set material(mat) {
-        this.materials[0] = mat;
-	}
-	
-	get hitbox() {
-		return this._hitbox;
+	static indecies(geo) {
+		return [];
 	}
 
 	constructor(args = {}) {
@@ -44,37 +36,42 @@ export class Geometry extends Transform {
 
 		this.uid = uuidv4();
 
+		this.matrixAutoUpdate = false;
+		this.lastUpdate = 1;
+		this.selectable = false;
+		this.guide = false;
+		this.hidden = false;
+		this.scale = 1;
+		this.parent = null;
+		this.uv = [0, 0];
+
 		this.onCreate(args);
 
 		const {
 			indecies = null,
 			vertecies = null,
-			material = null,
-			materials = null,
-			hidden = false,
-			selectable = true,
-			guide = false,
-			hitbox = null,
-			scale = 1,
-			parent = null,
-			uv = [0, 0],
+			uvs = null,
+			normals = null,
+			material = this.material,
+			hidden = this.hidden,
+			selectable = this.selectable,
+			guide = this.guide,
+			hitbox = this.hitbox,
+			scale = this.scale,
+			parent = this.parent,
+			uv = this.uv,
 		} = args;
 
-        this.materials = materials || [];
-
-		if(material) {
-			this.materials.push(material);
-		}
+		const verts = this.constructor.vertecies(this);
+		const vertIndecies = this.constructor.indecies(this);
 
 		this.parent = parent;
-
-		this.matrixAutoUpdate = false;
-		this.lastUpdate = 1;
-
-		this._hitbox = hitbox;
-
-		this.indexArray = indecies;
-		this.vertArray = vertecies;
+		this.hitbox = hitbox;
+		this.material = material;
+		this.indecies = indecies || vertIndecies;
+		this.vertecies = vertecies || verts.vertecies;
+		this.uvs = uvs || verts.uvs;
+		this.normals = normals || verts.normals;
 		this.hidden = hidden;
 		this.selectable = selectable;
 		this.guide = guide;
@@ -162,7 +159,23 @@ export class Geometry extends Transform {
 
 	createBuffer() {
 		return new VertexBuffer(
-			this.vertecies,
+			this.vertecies.map((v, i) => {
+				const uv = this.uvs[i] || [0, 0];
+				const normal = this.normals[i] || [0, 0, 0];
+
+				return [
+					v[0],
+					v[1],
+					v[2],
+	
+					uv[0],
+					uv[1],
+	
+					normal[0],
+					normal[1],
+					normal[2]
+				];
+			}).flat(),
 			this.indecies,
 			this.constructor.attributes
 		);

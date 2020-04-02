@@ -32,7 +32,7 @@ export default class MeshShader extends Shader {
             precision mediump int;
             
             layout(location = 0) in vec3 aPosition;
-            layout(location = 1) in vec3 aTexCoords;
+            layout(location = 1) in vec2 aTexCoords;
             layout(location = 2) in vec3 aNormal;
 
             layout(location = 3) in vec4 aTransform;
@@ -120,7 +120,6 @@ export default class MeshShader extends Shader {
 
             // set vert outputs
             vTexCoords = vec2(aTexCoords.x, aTexCoords.y);
-            materialIndex = int(aTexCoords.z);
             vViewPos = viewPosition;
             vVertexPos = aPosition;
             vWorldPos = pos;
@@ -140,10 +139,6 @@ export default class MeshShader extends Shader {
             
             vec2 TextureCoords() {
                 float scale = 1.0;
-
-                if (currentMaterialIndex != materialIndex) {
-                    discard;
-                }
 
                 vec2 texCoords = vTexCoords;
 

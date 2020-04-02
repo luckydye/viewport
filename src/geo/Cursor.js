@@ -5,6 +5,10 @@ import { Guide } from './Guide.js';
 
 export class Cursor extends Guide {
 
+	static vertecies(geo) {
+		return OBJFile.parseFile(axisCursorObj);
+	}
+
 	constructor() {
 		super();
 
@@ -14,12 +18,6 @@ export class Cursor extends Guide {
 		this.material = new MattMaterial();
 		this.material.uniformScale = 1;
 		this.material.transparency = 0.75;
-	}
-
-	get vertecies() {
-		const obj = OBJFile.parseFile(axisCursorObj);
-		const vert = obj.getVertecies();
-		return vert;
 	}
 
 }

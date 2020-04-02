@@ -129,8 +129,32 @@ export default class OBJFile {
 					objData.materials.push(data[1]);
 					break;
 			}
-		}
+        }
 
-		return objData;
+        const vertecies = [];
+        const uvs = [];
+        const normals = [];
+        const indecies = [];
+
+        for(let face of objData.faces) {
+            for(let index of face) {
+                const vertex = index[0] - 1;
+                const uv = index[1] - 1;
+                const normal = index[2] - 1;
+
+                indecies.push(vertex);
+
+                vertecies[vertex] = objData.vertecies[vertex];
+                uvs[vertex] = objData.uvs[uv];
+                normals[vertex] = objData.normals[normal];
+            }
+        }
+
+		return {
+            indecies: indecies,
+            vertecies: vertecies,
+            uvs: uvs,
+            normals: normals,
+        };
 	}
 }

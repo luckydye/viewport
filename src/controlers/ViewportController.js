@@ -12,8 +12,8 @@ export class ViewportController extends EntityControler {
 		entity.position.y = 0;
 		entity.position.z = 0;
 
-		this.angleY = 35 / 180 * Math.PI;
-		this.angleX = 0.5;
+		this.angleY = 0;
+		this.angleX = 0.7;
 		this.distance = -5;
 
 		const down = e => {
@@ -33,9 +33,8 @@ export class ViewportController extends EntityControler {
 
 		const wheel = e => {
 			if (this.locked) return;
-			const dir = Math.sign(e.deltaY);
-			this.distance -= 1 * dir;
-			update();
+			this.distance -= 1 * Math.sign(e.deltaY);
+			updateDistance();
 		}
 
 		const move = e => {
@@ -48,18 +47,41 @@ export class ViewportController extends EntityControler {
 				entity.position.x += (e.movementX * -this.distance * 0.3) * this.sensivity * Math.cos(entity.rotation.y) * 2;
 				entity.position.z += (e.movementX * -this.distance * 0.3) * this.sensivity * Math.sin(entity.rotation.y) * 2;
 			}
-			update();
+			if(this.moving || this.rotating) {
+				update();
+			}
 		}
 
 		const update = () => {
 			entity.rotation.y = this.angleY;
 			entity.rotation.x = this.angleX;
-			entity.origin.z = this.distance;
+
+			updateDistance();
 		}
 
-		this.viewport.addEventListener("wheel", wheel);
-		this.viewport.addEventListener("contextmenu", e => e.preventDefault());
-		this.viewport.addEventListener("mousedown", down);
+		let lastAnimationTick = 0;
+		let targetDelta = 0;
+
+		const updateDistance = (ts = 0) => {
+			if(ts == 0) {
+				ts = performance.now();
+				lastAnimationTick = ts;
+			}
+
+			const targetDelta = -entity.origin.z + this.distance;
+			const delta = (ts - lastAnimationTick) * 0.01;
+
+			if(Math.sqrt(Math.pow(entity.origin.z - (entity.origin.z + targetDelta), 2)) > 0.1) {
+				entity.origin.z += targetDelta * delta;
+				
+				lastAnimationTick = ts;
+				requestAnimationFrame(updateDistance);
+			}
+		}
+
+		this.viewport.canvas.addEventListener("wheel", wheel);
+		this.viewport.canvas.addEventListener("contextmenu", e => e.preventDefault());
+		this.viewport.canvas.addEventListener("mousedown", down);
 
 		window.addEventListener("mousemove", move);
 		window.addEventListener("mouseup", up);

@@ -4,24 +4,42 @@ import { Geometry } from "../scene/Geometry.js";
 
 export class Guide extends Geometry {
 
+	static vertecies(geo) {
+		const s = geo.scale * 10 || 10;
+		const { x, y, z } = geo.origin || new Vec();
+
+		return {
+			vertecies: [
+				[x, y, z + s],
+				[x, y, z + -s],
+				[x, y + s, z],
+				[x, y - s, z],
+				[x + s, y, z],
+				[x - s, y, z],
+			],
+			uvs: [
+				[0, 1],
+				[0, 1],
+				[0, 1],
+				[0, 1],
+				[0, 1],
+				[0, 1],
+			],
+			normals: [
+				[0, 0, 1],
+				[0, 0, 1],
+				[0, 1, 0],
+				[0, 1, 0],
+				[1, 0, 0],
+				[1, 0, 0],
+			],
+		}
+	}
+
 	onCreate(args) {
 		this.name = "Guide";
 		args.guide = true;
 		args.material = new PrimitivetMaterial();
-	}
-
-	get vertecies() {
-		const s = this.scale * 10 || 10;
-		const { x, y, z } = this.origin || new Vec();
-
-		return [
-			x, y, z + s, 0, 1, 0, 0, 0, 1,
-			x, y, z + -s, 0, 1, 0, 0, 0, 1,
-			x, y + s, z, 0, 1, 0, 0, 1, 0,
-			x, y - s, z, 0, 1, 0, 0, 1, 0,
-			x + s, y, z, 0, 1, 0, 1, 0, 0,
-			x - s, y, z, 0, 1, 0, 1, 0, 0
-		];
 	}
 
 }

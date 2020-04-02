@@ -3,45 +3,67 @@ import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
 
 export class Grid extends Guide {
 
-	get vertecies() {
-		return this.generate(this.size, this.count);
+	static generate(w = 1, s = 20, baseColor) {
+		const dataArray = {
+			vertecies: [],
+			uvs: [],
+			normals: [],
+		};
+
+		const size = w * (s / 2);
+		for (let x = -s / 2; x <= s / 2; x++) {
+			let color = baseColor;
+			if (x == 0) color = [.4, .4, 1];
+
+			dataArray.vertecies.push(
+				[w * x, 0, size],
+				[w * x, 0, -size]
+			);
+
+			dataArray.uvs.push(
+				[0, 0],
+				[0, 0]
+			);
+
+			dataArray.normals.push(
+				color,
+				color
+			);
+		}
+		for (let z = -s / 2; z <= s / 2; z++) {
+			let color = baseColor;
+			if (z == 0) color = [1, .4, .4];
+
+			dataArray.vertecies.push(
+				[size, 0, w * z],
+				[-size, 0, w * z]
+			);
+
+			dataArray.uvs.push(
+				[0, 0],
+				[0, 0]
+			);
+
+			dataArray.normals.push(
+				color,
+				color
+			);
+		}
+
+		return dataArray;
 	}
 
-	constructor(size, count) {
-		super();
-		this.size = size;
-		this.count = count;
-		this.guide = true;
-		this.name = "Grid";
-		this.selectable = false;
-		this.color = [0.5, 0.5, 0.5];
+	static vertecies(geo) {
+		return this.generate(geo.size, geo.count, geo.color);
 	}
 
 	onCreate(args) {
-		args.material = new PrimitivetMaterial();
-	}
-
-	generate(w = 1, s = 20) {
-		const dataArray = [];
-		const size = w * (s / 2);
-		for (let x = -s / 2; x <= s / 2; x++) {
-			let color = this.color;
-			if (x == 0) color = [.33, .33, 0.8];
-
-			dataArray.push(...[
-				w * x, 0, size, 0, 0, 0, ...color,
-				w * x, 0, -size, 0, 0, 0, ...color
-			])
-		}
-		for (let z = -s / 2; z <= s / 2; z++) {
-			let color = this.color;
-			if (z == 0) color = [0.8, .33, .33];
-
-			dataArray.push(...[
-				size, 0, w * z, 0, 0, 0, ...color,
-				-size, 0, w * z, 0, 0, 0, ...color
-			])
-		}
-		return dataArray;
+		this.guide = true;
+		this.name = "Grid";
+		this.selectable = false;
+		this.color = [0.4, 0.4, 0.4];
+		this.size = args.size;
+		this.count = args.count;
+		this.material = new PrimitivetMaterial();
 	}
 }

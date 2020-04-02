@@ -4,24 +4,45 @@ import { Geometry } from '../scene/Geometry.js';
 
 export class Box extends Geometry {
 
-	get vertecies() {
-		return [
-			[this.left, this.top, this.depth, 0, 0],
-			[this.right, this.top, this.depth, 1, 0],
-			[this.left, this.bottom, this.depth, 0, 1],
-			[this.right, this.bottom, this.depth, 1, 1],
+	static vertecies(geo) {
+		return {
+			vertecies: [
+				[geo.left, geo.top, geo.depth],
+				[geo.right, geo.top, geo.depth],
+				[geo.left, geo.bottom, geo.depth],
+				[geo.right, geo.bottom, geo.depth],
 
-			[this.left, this.top, -this.depth, 0, 1],
-			[this.right, this.top, -this.depth, 1, 1],
-			[this.left, this.bottom, -this.depth, 1, 1],
-			[this.right, this.bottom, -this.depth, 0, 1],
-		].map((vert, i) => {
-			const vertex = vert;
-			return [...vertex,  0,  ...this.color];
-		}).flat();
+				[geo.left, geo.top, -geo.depth],
+				[geo.right, geo.top, -geo.depth],
+				[geo.left, geo.bottom, -geo.depth],
+				[geo.right, geo.bottom, -geo.depth],
+			],
+			uvs: [
+				[0, 0],
+				[1, 0],
+				[0, 1],
+				[1, 1],
+
+				[0, 1],
+				[1, 1],
+				[1, 1],
+				[0, 1],
+			],
+			normals: [
+				[...geo.color],
+				[...geo.color],
+				[...geo.color],
+				[...geo.color],
+
+				[...geo.color],
+				[...geo.color],
+				[...geo.color],
+				[...geo.color],
+			],
+		};
 	}
 
-	get indecies() {
+	static indecies(geo) {
 		return [
 			// clipping off
 			// fron

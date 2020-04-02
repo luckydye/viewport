@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
+    "binary-file-lib": "git+ssh://git@github.com/luckydye/binary-file-lib.git",
     "gl-matrix": "^3.1.0",
     "lit-html": "^1.2.1",
     "parcel": "^1.12.4"
