@@ -1,4 +1,4 @@
-import { glMatrix, mat4, quat, vec3 } from 'gl-matrix';
+import { glMatrix, mat4, quat, vec3 } from "gl-matrix";
 import { Transform, uuidv4 } from "../Math.js";
 
 // performance option, use Array instad of Float32Arrays

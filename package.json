@@ -5,7 +5,7 @@
   "main": "./index.js",
   "module": "./index.js",
   "scripts": {
-    "test": "echo no tests"
+    "test": "parcel test/index.html"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,8 @@
   "homepage": "https://github.com/luckydye/gl-viewport#readme",
   "dependencies": {
     "gl-matrix": "^3.1.0",
-    "lit-html": "^1.1.2"
+    "lit-html": "^1.2.1",
+    "parcel": "^1.12.4"
   },
   "browserslist": [
     "last 1 Chrome versions"

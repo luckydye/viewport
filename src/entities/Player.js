@@ -1,7 +1,7 @@
-import DefaultMaterial from '../materials/DefaultMaterial';
-import { Entity } from '../scene/Entity';
-import Collider from '../traits/Collider';
-import Playable from '../traits/Playable';
+import DefaultMaterial from '../materials/DefaultMaterial.js';
+import { Entity } from '../scene/Entity.js';
+import Collider from '../traits/Collider.js';
+import Playable from '../traits/Playable.js';
 
 export default class Player extends Entity {
 

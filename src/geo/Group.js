@@ -1,5 +1,5 @@
 import { Geometry } from "../scene/Geometry.js";
-import { vec4 } from 'gl-matrix';
+import { vec4 } from "gl-matrix";
 
 export class Group extends Geometry {
 

@@ -3,26 +3,36 @@ import Config from '../src/Config.js';
 
 // An ui interface for the Config class (global config)
 
-const GLOBAL_COMMANDS = {
+const Commands = {
 
-    list(console, args) {
+    help(console, args) {
         const keys = Object.keys(Config.global);
 
         console.log('Command list:');
 
-        for(let key in GLOBAL_COMMANDS) {
+        for(let key in Commands) {
             console.log(key);
         }
 
         for(let key of keys) {
-            const param = Config.global[key];
-            console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
+            if(Commands[key] != null) {
+                const param = Config.global[key];
+                console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
+            }
+        }
+    },
+
+    list(console, args) {
+        console.log('Variable list:');
+
+        for(let key in Config.global) {
+            console.log(key);
         }
     },
 
     find(console, args) {
         const keys = Object.keys(Config.global);
-        const cmds = Object.keys(GLOBAL_COMMANDS);
+        const cmds = Object.keys(Commands);
 
         console.log('Matches:');
 
@@ -67,8 +77,8 @@ const GLOBAL_COMMANDS = {
 
 export class Console extends HTMLElement {
 
-    static get GLOBAL_COMMANDS() {
-        return GLOBAL_COMMANDS;
+    static get Commands() {
+        return Commands;
     }
 
     get input() {
@@ -78,6 +88,7 @@ export class Console extends HTMLElement {
     constructor(progress) {
         super();
 
+        this.suggestions = [];
         this.logs = ["Config loaded."];
         this.history = [];
 
@@ -106,7 +117,7 @@ export class Console extends HTMLElement {
         const args = string.split(" ");
         const config = Config.global;
 
-        const commands = Console.GLOBAL_COMMANDS;
+        const commands = Console.Commands;
 
         if(args[0] in commands) {
             commands[args[0]](this, args.slice(1));
@@ -132,11 +143,71 @@ export class Console extends HTMLElement {
 
     show() {
         this.setAttribute('open', "");
+        this.focus();
         this.input.focus();
+
+        this.onblur = () => this.hide();
     }
 
     connectedCallback() {
+        this.tabIndex = 0;
         this.render();
+    }
+
+    suggest() {
+        const options = [];
+        const str = this.input.value;
+
+        if(str.length > 1) {
+
+            for(let key in Config.global) {
+                if(key.toLocaleLowerCase().match(str.toLocaleLowerCase())) {
+                    options.push(key);
+                }
+             }
+
+            for(let key in Commands) {
+                if(key.toLocaleLowerCase().match(str.toLocaleLowerCase())) {
+                    options.push(key);
+                }
+            }
+        }
+
+        this.suggestions = options;
+    }
+
+    submit() {
+        this.eval(this.input.value);
+        this.input.value = "";
+        this.suggestions = [];
+        const log = this.shadowRoot.querySelector('.log');
+        log.scrollTo(0, log.scrollHeight);
+
+        this.render();
+    }
+
+    replaceCurrentWord(str) {
+        const words = this.input.value.split(" ");
+
+        // handle selection
+        words[words.length-1] = str;
+
+        this.input.value = words.join(" ");
+
+        this.suggest();
+        this.render();
+    }
+
+    historyUp(index) {
+        index = Math.min(index + 1, this.history.length - 1);
+        this.input.value = this.history[index] || "";
+        setTimeout(() => this.input.setSelectionRange(this.input.value.length, this.input.value.length), 0);
+    }
+
+    historyDown(index) {
+        index = Math.max(index - 1, 0);
+        this.input.value = this.history[index] || "";
+        setTimeout(() => this.input.setSelectionRange(this.input.value.length, this.input.value.length), 0);
     }
 
     render() {
@@ -147,10 +218,14 @@ export class Console extends HTMLElement {
                 :host {
                     display: flex;
                     flex-direction: column;
-                    color: #eee;
-                    overflow: hidden;
+                    color: #333;
                     z-index: 1000;
                     user-select: text;
+                    outline: none;
+                    position: relative;
+                }
+                :host(:not([open])) {
+                    display: none;
                 }
                 .log {
                     width: 100%;
@@ -198,35 +273,51 @@ export class Console extends HTMLElement {
                 ::-webkit-scrollbar-thumb:hover {
                     background: var(--gyro-highlight);
                 }
+                .suggestions {
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    font-family: sans-serif;
+                    font-size: 12px;
+                }
+                .suggestion {
+                    background: #23232382;
+                    padding: 4px 10px;
+                    cursor: pointer;
+                }
+                .suggestion:hover {
+                    background: #232323FF;
+                }
             </style>
             <div class="log">
                 ${this.logs.map(log => {
                     return html`<span class="log-line">${log}</span>`;
                 })}
             </div>
-            <input type="text" @blur=${() => {
-                this.hide();
-            }} @keydown=${e => {
+            <input type="text" @keydown=${e => {
                 if(e.key == "Escape") {
                     this.hide();
+                } else if(e.key == "ArrowUp") {
+                    this.historyUp(index);
+                } else if(e.key == "ArrowDown") {
+                    this.historyDown(index);
+                } else if(e.key == "Enter" && this.input.value != "") {
+                    this.submit();
+                } else if(e.key == "Tab") {
+                    this.replaceCurrentWord(this.suggestions[0]);
+                    e.preventDefault();
                 }
-                if(e.key == "ArrowUp") {
-                    index = Math.min(index + 1, this.history.length - 1);
-                    this.input.value = this.history[index] || "";
-                    setTimeout(() => this.input.setSelectionRange(this.input.value.length, this.input.value.length), 0);
-                }
-                if(e.key == "ArrowDown") {
-                    index = Math.max(index - 1, 0);
-                    this.input.value = this.history[index] || "";
-                    setTimeout(() => this.input.setSelectionRange(this.input.value.length, this.input.value.length), 0);
-                }
-                if(e.key == "Enter" && this.input.value != "") {
-                    this.eval(this.input.value);
-                    this.input.value = "";
-                    const log = this.shadowRoot.querySelector('.log');
-                    log.scrollTo(0, log.scrollHeight);
+            }} @keyup=${e => {
+                if(e.key !== "Escape" && e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "Enter") {
+                    this.suggest();
+                    this.render(); 
                 }
             }}/>
+            <div class="suggestions" data="${this.suggestions.length}">
+                ${this.suggestions.map(str => html`
+                    <div class="suggestion" @click=${() => {this.replaceCurrentWord(str)}}>${str}</div>
+                `)}
+            </div>
         `;
         render(template, this.shadowRoot);
     }

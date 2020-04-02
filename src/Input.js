@@ -1,4 +1,4 @@
-import { Raycast } from './Math';
+import { Raycast } from './Math.js';
 
 const keyRegister = new Map();
 const mouseListeners = [];

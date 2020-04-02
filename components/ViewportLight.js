@@ -1,8 +1,9 @@
-import { Renderer } from "../src/renderer/Renderer.js";
+import { LightRenderer } from "../src/renderer/LightRenderer.js";
 import { Resources } from "../src/resources/Resources.js";
 import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
+import { ViewportController } from "../src/controlers/ViewportController.js";
 
 export default class ViewportLight extends HTMLElement {
 
@@ -37,11 +38,11 @@ export default class ViewportLight extends HTMLElement {
         this._height = val;
     }
 
-    constructor(width, height) {
+    constructor() {
         super();
 
-        this.width = width;
-        this.height = height;
+        this.width = this.clientWidth;
+        this.height = this.clientHeight;
 
         this.scheduler = new Scheduler();
 
@@ -50,14 +51,16 @@ export default class ViewportLight extends HTMLElement {
 
         this.canvas = document.createElement('canvas');
 
-        // cursor stuff
+        this.renderer = new LightRenderer(this.canvas);
         
-        this.renderer = new Renderer(this.canvas);
         this.camera = new Camera({
-            position: [0, 0, -20],
-            rotation: [0, 0, 0],
-            fov: 75
+            position: [0, 5, -5],
+            rotation: [10, 0, 0],
+            fov: 90
         });
+
+        this.controller = new ViewportController(this.camera, this);
+
         this.scene = new Scene([ this.camera ]);
 
         this.frame = {
@@ -96,6 +99,16 @@ export default class ViewportLight extends HTMLElement {
     }
 
     init() {
+        window.addEventListener('resize', () => {
+            this.width = this.clientWidth;
+            this.height = this.clientHeight;
+            
+            this.setResolution(this.width, this.height);
+        });
+
+        this.width = this.clientWidth;
+        this.height = this.clientHeight;
+
         this.setResolution(this.width, this.height);
     }
 
@@ -131,10 +144,9 @@ export default class ViewportLight extends HTMLElement {
             camera: this.camera,
         });
 
-        this.renderer.info.cputime = this.frame.accumulator.toFixed(1);
         this.renderer.info.fps = Math.round(1000 / delta);
     }
 
 }
 
-customElements.define('gyro-canvas', ViewportLight);
+customElements.define('gyro-viewport-light', ViewportLight);

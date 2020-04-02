@@ -1,4 +1,4 @@
-import { Vec } from '../Math';
+import { Vec } from '../Math.js';
 
 export default  {
 

@@ -1,5 +1,5 @@
-import { Vec } from '../Math';
-import Input from '../Input';
+import { Vec } from '../Math.js';
+import Input from '../Input.js';
 
 let x = 0;
 let lastX = 0;

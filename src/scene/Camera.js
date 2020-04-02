@@ -1,4 +1,4 @@
-import { glMatrix, mat4 } from 'gl-matrix';
+import { glMatrix, mat4 } from "gl-matrix";
 import PrimitivetMaterial from '../materials/PrimitiveMaterial.js';
 import { Vec } from '../Math.js';
 import { Entity } from './Entity.js';

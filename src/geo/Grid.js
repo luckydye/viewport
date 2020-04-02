@@ -14,7 +14,7 @@ export class Grid extends Guide {
 		this.guide = true;
 		this.name = "Grid";
 		this.selectable = false;
-		this.color = [0.25, 0.25, 0.25];
+		this.color = [0.5, 0.5, 0.5];
 	}
 
 	onCreate(args) {
@@ -26,7 +26,7 @@ export class Grid extends Guide {
 		const size = w * (s / 2);
 		for (let x = -s / 2; x <= s / 2; x++) {
 			let color = this.color;
-			if (x == 0) color = [.33, .33, 0.65];
+			if (x == 0) color = [.33, .33, 0.8];
 
 			dataArray.push(...[
 				w * x, 0, size, 0, 0, 0, ...color,
@@ -35,7 +35,7 @@ export class Grid extends Guide {
 		}
 		for (let z = -s / 2; z <= s / 2; z++) {
 			let color = this.color;
-			if (z == 0) color = [0.65, .33, .33];
+			if (z == 0) color = [0.8, .33, .33];
 
 			dataArray.push(...[
 				size, 0, w * z, 0, 0, 0, ...color,

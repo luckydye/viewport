@@ -1,13 +1,13 @@
-import { Box } from '../geo/Box';
-import DefaultMaterial from '../materials/DefaultMaterial';
-import { Material } from '../materials/Material';
-import MattMaterial from '../materials/MattMaterial';
-import { Texture } from '../materials/Texture';
-import { Geometry } from '../scene/Geometry';
-import Prop from '../scene/Prop';
-import { Scene } from '../scene/Scene';
-import { BinaryFile } from './BinaryFile';
-import { Group } from '../geo/Group';
+import { Box } from '../geo/Box.js';
+import DefaultMaterial from '../materials/DefaultMaterial.js';
+import { Material } from '../materials/Material.js';
+import MattMaterial from '../materials/MattMaterial.js';
+import { Texture } from '../materials/Texture.js';
+import { Geometry } from '../scene/Geometry.js';
+import Prop from '../scene/Prop.js';
+import { Scene } from '../scene/Scene.js';
+import { BinaryFile } from './BinaryFile.js';
+import { Group } from '../geo/Group.js';
 
 const Structs = {
     fileHeader: {

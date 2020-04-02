@@ -1,6 +1,6 @@
-import DefaultMaterial from '../materials/DefaultMaterial';
-import { Entity } from '../scene/Entity';
-import Collider from '../traits/Collider';
+import DefaultMaterial from '../materials/DefaultMaterial.js';
+import { Entity } from '../scene/Entity.js';
+import Collider from '../traits/Collider.js';
 
 export default class Static extends Entity {
 
