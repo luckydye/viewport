@@ -11,7 +11,7 @@ export class ViewportController extends EntityControler {
 		this.sensivity = 0.0033;
 
 		entity.position.x = 0;
-		entity.position.y = 0;
+		entity.position.y = -2;
 		entity.position.z = 0;
 
 		this.angleY = 0;

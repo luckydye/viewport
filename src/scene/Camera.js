@@ -169,8 +169,8 @@ export class Camera extends Entity {
 		if (this.perspective == Camera.ORTHGRAPHIC) {
 			mat4.ortho(
 				this.projMatrix, 
-				-this.sensor.width, this.sensor.width, 
-				-this.sensor.height, this.sensor.height,
+				-this.sensor.width / 2, this.sensor.width / 2, 
+				-this.sensor.height / 2, this.sensor.height / 2,
 				this.nearplane, 
 				this.farplane
 			);

@@ -67,7 +67,7 @@ export class LightRenderer extends RendererContext {
 		this.renderConfig.define('show.grid', true, true);
 		this.renderConfig.define('debug', false, false);
 		this.renderConfig.define('debuglevel', 0, 0);
-		this.renderConfig.define('shadowMapSize', 1024, 1024);
+		this.renderConfig.define('shadowMapSize', 2048, 2048);
 		this.renderConfig.define('wireframe', false, false);
 		this.renderConfig.define('clearPass', true);
 		this.renderConfig.define('shadowPass', true);
@@ -126,7 +126,6 @@ export class LightRenderer extends RendererContext {
 					return self.currentScene.lightsource;
 				},
 				filter(geo) {
-					self.shadowPass = false;
 					return !geo.guide && geo.material && geo.material.castShadows;
 				},
 				colorBuffer: false,
@@ -140,7 +139,6 @@ export class LightRenderer extends RendererContext {
 		}
 
 		this.bloomShader = new LightShader();
-		this.postprocessingPass = new RenderPass(this, 'lighting');
 	}
 
 	setResolution(width, height) {
@@ -158,8 +156,6 @@ export class LightRenderer extends RendererContext {
 			for (let pass of this.renderPasses) {
 				pass.resize(this.width, this.height);
 			}
-
-			this.postprocessingPass.resize(this.width, this.height);
 		}, 10);
 
 		if(this.debug) {
@@ -203,8 +199,8 @@ export class LightRenderer extends RendererContext {
 		}
 
 		if(this.currentCamera && this.currentCamera.perspective == Camera.ORTHGRAPHIC) {
-			this.currentCamera.sensor.width = this.currentCamera.sensor.width;
-			this.currentCamera.sensor.height = this.currentCamera.sensor.width / (this.width / this.height);
+			this.currentCamera.sensor.width = 20;
+			this.currentCamera.sensor.height = 20;
 		}
 		
 		if(this.renderPasses.length > 0) {
@@ -231,9 +227,11 @@ export class LightRenderer extends RendererContext {
 			this.setTexture(this.emptyTexture, this.gl.TEXTURE_2D, TEXTURE.EMPTY);
 			this.setTexture(this.placeholderTexture, this.gl.TEXTURE_2D, TEXTURE.PLACEHOLDER);
 
-			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
-
 			this.initialRender = false;
+		}
+
+		if(this.shadowPass) {
+			this.setTexture(this.getBufferTexture('shadow.depth'), this.gl.TEXTURE_2D, TEXTURE.SHADOW_MAP, 'shadow');
 		}
 
 		if(this.clearPass) {
@@ -243,21 +241,6 @@ export class LightRenderer extends RendererContext {
 
 		this.clear();
 		this.drawScene(scene, setup.camera || scene.cameras[0], setup);
-
-		// this.drawPostProcessing();
-	}
-
-	drawPostProcessing() {
-		this.postprocessingPass.use();
-
-		this.useShader(this.bloomShader);
-		
-		this.setTexture(this.getBufferTexture('color'), this.gl.TEXTURE_2D, TEXTURE.FRAME_COLOR, 'color');
-		
-		this.clear();
-		this.drawScreen();
-
-		this.postprocessingPass.finalize();
 	}
 
 	prepareTexture(texture) {
@@ -338,6 +321,7 @@ export class LightRenderer extends RendererContext {
 			this.currentShader.setUniforms({
 				'shadowProjMat': lightSource.projMatrix,
 				'shadowViewMat': lightSource.viewMatrix,
+				'shadowMap': this.shadowPass
 			});
 		}
 

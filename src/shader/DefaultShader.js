@@ -11,6 +11,7 @@ export default class DefaultShader extends MeshShader {
         uniform sampler2D shadowDepth;
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
+        uniform bool shadowMap;
 
         uniform vec3 lightColor;
         uniform bool textureFlipY;
@@ -87,11 +88,11 @@ export default class DefaultShader extends MeshShader {
                 clamp(vertex_relative_to_light.x, 0.0, 1.0),
                 clamp(vertex_relative_to_light.y, 0.0, 1.0)
             );
-
+            
             vec4 shadowmap_color1 = texture(shadowDepth, vec2(shadowTexCoord.x, shadowTexCoord.y));
             float shadowmap_distance = shadowmap_color1.r;
 
-            float bias = 0.0001;
+            float bias = 0.0002;
             float illuminated = step(vertex_relative_to_light.z, shadowmap_distance + bias);
             float lightDist = vertex_relative_to_light.z;
 
@@ -130,8 +131,10 @@ export default class DefaultShader extends MeshShader {
 
             bool inShadow = Shadows();
             
-            Shading(oFragColor, normal, shadowColor, lightColor);
-            Specular(oFragColor, normal, lightColor * specular, roughness);
+            if(inShadow && shadowMap || !shadowMap) {
+                Shading(oFragColor, normal, shadowColor, lightColor);
+                Specular(oFragColor, normal, lightColor * specular, roughness);
+            }
         }
         `;
     }
