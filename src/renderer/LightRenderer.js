@@ -368,7 +368,7 @@ export class LightRenderer extends RendererContext {
 		this.info.verts = 0;
 
 		for(let [uid, buffer] of this.vertexBuffers) {
-			if(![...objects, this.renderTarget].find(obj => obj.uid === uid)) {
+			if(![...objects].find(obj => obj.uid === uid)) {
 				this.vertexBuffers.delete(uid);
 			}
 		}

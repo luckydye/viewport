@@ -18,8 +18,8 @@ export default class ViewportLight extends HTMLElement {
                     display: block;
                 }
                 dev-console {
-                    position: fixed;
-                    top: 10px;
+                    position: absolute;
+                    top: 50px;
                     left: 10px;
                     width: 500px;
                     height: 250px;

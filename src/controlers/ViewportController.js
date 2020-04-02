@@ -55,8 +55,6 @@ export class ViewportController extends EntityControler {
 		const update = () => {
 			entity.rotation.y = this.angleY;
 			entity.rotation.x = this.angleX;
-
-			updateDistance();
 		}
 
 		let lastAnimationTick = 0;
@@ -86,6 +84,7 @@ export class ViewportController extends EntityControler {
 		window.addEventListener("mousemove", move);
 		window.addEventListener("mouseup", up);
 
+		updateDistance();
 		update();
 	}
 
