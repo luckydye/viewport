@@ -70,8 +70,6 @@ export default class ViewportLight extends HTMLElement {
             fov: 106
         });
 
-        this.controller = new ViewportController(this.camera, this);
-
         this.scene = new Scene([ this.camera ]);
 
         this.frame = {

@@ -1,5 +1,7 @@
 import { EntityControler } from "./EntityControler.js";
 
+let lastAnimationTick = 0;
+
 export class ViewportController extends EntityControler {
 
 	initMouse() {
@@ -34,7 +36,7 @@ export class ViewportController extends EntityControler {
 		const wheel = e => {
 			if (this.locked) return;
 			this.distance -= 1 * Math.sign(e.deltaY);
-			updateDistance();
+			this.updateDistance();
 		}
 
 		const move = e => {
@@ -48,32 +50,7 @@ export class ViewportController extends EntityControler {
 				entity.position.z += (e.movementX * -this.distance * 0.3) * this.sensivity * Math.sin(entity.rotation.y) * 2;
 			}
 			if(this.moving || this.rotating) {
-				update();
-			}
-		}
-
-		const update = () => {
-			entity.rotation.y = this.angleY;
-			entity.rotation.x = this.angleX;
-		}
-
-		let lastAnimationTick = 0;
-		let targetDelta = 0;
-
-		const updateDistance = (ts = 0) => {
-			if(ts == 0) {
-				ts = performance.now();
-				lastAnimationTick = ts;
-			}
-
-			const targetDelta = -entity.origin.z + this.distance;
-			const delta = (ts - lastAnimationTick) * 0.01;
-
-			if(Math.sqrt(Math.pow(entity.origin.z - (entity.origin.z + targetDelta), 2)) > 0.1) {
-				entity.origin.z += targetDelta * delta;
-				
-				lastAnimationTick = ts;
-				requestAnimationFrame(updateDistance);
+				this.update();
 			}
 		}
 
@@ -84,8 +61,44 @@ export class ViewportController extends EntityControler {
 		window.addEventListener("mousemove", move);
 		window.addEventListener("mouseup", up);
 
-		updateDistance();
-		update();
+		this.updateDistance();
+		this.update();
+	}
+
+	updateDistance(ts = 0) {
+		if(ts == 0) {
+			ts = performance.now();
+			lastAnimationTick = ts;
+		}
+
+		const targetDelta = -this.entity.origin.z + this.distance;
+		const delta = (ts - lastAnimationTick) * 0.01;
+
+		if(Math.sqrt(Math.pow(this.entity.origin.z - (this.entity.origin.z + targetDelta), 2)) > 0.2) {
+			this.entity.origin.z += targetDelta * delta;
+			
+			lastAnimationTick = ts;
+			requestAnimationFrame(this.updateDistance.bind(this));
+		}
+	}
+
+	update(ms) {
+		this.entity.rotation.y = this.angleY;
+		this.entity.rotation.x = this.angleX;
+	}
+
+	reset() {
+		this.angleY = 0;
+		this.angleX = 0.7;
+		this.update();
+
+        this.distance = -5;
+        this.updateDistance();
+
+        this.entity.position.x = 0;
+        this.entity.position.y = 0;
+		this.entity.position.z = 0;
+		this.entity.update();
 	}
 
 }
