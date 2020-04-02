@@ -160,4 +160,4 @@ export default class ViewportLight extends HTMLElement {
 
 }
 
-customElements.define('gyro-viewport', ViewportLight);
+customElements.define('vp-viewport', ViewportLight);
