@@ -2,84 +2,7 @@ import { render, html } from 'lit-html';
 import Config from '../src/Config.js';
 
 // An ui interface for the Config class (global config)
-
-const Commands = {
-
-    help(console, args) {
-        const keys = Object.keys(Config.global);
-
-        console.log('Command list:');
-
-        for(let key in Commands) {
-            console.log(key);
-        }
-
-        for(let key of keys) {
-            if(Commands[key] != null) {
-                const param = Config.global[key];
-                console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
-            }
-        }
-    },
-
-    list(console, args) {
-        console.log('Variable list:');
-
-        for(let key in Config.global) {
-            console.log(key);
-        }
-    },
-
-    find(console, args) {
-        const keys = Object.keys(Config.global);
-        const cmds = Object.keys(Commands);
-
-        console.log('Matches:');
-
-        if(args[0]) {
-            for(let key of [...keys, ...cmds]) {
-                if(key.match(args[0])) {
-                    const param = Config.global[key];
-                    if(param) {
-                        console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
-                    } else {
-                        console.log(key.padEnd(15, " "));
-                    }
-                }
-            }
-        }
-    },
-
-    reset(console) {
-        const keys = Object.keys(Config.global);
-        for(let key of keys) {
-            const param = Config.global[key];
-            Config.global.setValue(param.name, param.default);
-        }
-        Config.global.save();
-
-        console.log('Config reset.');
-    },
-
-    reload() {
-        location.reload();
-    },
-
-    clear(console) {
-        console.clear();
-    },
-
-    exit(console) {
-        console.hide();
-    }
-
-}
-
 export class Console extends HTMLElement {
-
-    static get Commands() {
-        return Commands;
-    }
 
     get input() {
         return this.shadowRoot.querySelector('input');
@@ -87,6 +10,76 @@ export class Console extends HTMLElement {
 
     constructor(progress) {
         super();
+
+        const self = this;
+        
+        this.commands = {
+
+            help(console, args) {
+                const keys = Object.keys(Config.global);
+        
+                console.log('Command list:');
+        
+                for(let key in self.commands) {
+                    console.log(key);
+                }
+        
+                for(let key of keys) {
+                    if(self.commands[key] != null) {
+                        const param = Config.global[key];
+                        console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
+                    }
+                }
+            },
+        
+            list(console, args) {
+                console.log('Variable list:');
+        
+                for(let key in Config.global) {
+                    console.log(key);
+                }
+            },
+        
+            find(console, args) {
+                const keys = Object.keys(Config.global);
+                const cmds = Object.keys(self.commands);
+        
+                console.log('Matches:');
+        
+                if(args[0]) {
+                    for(let key of [...keys, ...cmds]) {
+                        if(key.match(args[0])) {
+                            const param = Config.global[key];
+                            if(param) {
+                                console.log(`${key.padEnd(15, " ")} ${(param.value || "undefined").toString().padEnd(15, " ")} default: ${param.default}`);
+                            } else {
+                                console.log(key.padEnd(15, " "));
+                            }
+                        }
+                    }
+                }
+            },
+        
+            reset(console) {
+                const keys = Object.keys(Config.global);
+                for(let key of keys) {
+                    const param = Config.global[key];
+                    Config.global.setValue(param.name, param.default);
+                }
+                Config.global.save();
+        
+                console.log('Config reset.');
+            },
+        
+            clear(console) {
+                console.clear();
+            },
+        
+            exit(console) {
+                console.hide();
+            }
+        
+        }
 
         this.suggestions = [];
         this.logs = ["Config loaded."];
@@ -122,7 +115,7 @@ export class Console extends HTMLElement {
         const args = string.split(" ");
         const config = Config.global;
 
-        const commands = Console.Commands;
+        const commands = this.commands;
 
         if(args[0] in commands) {
             commands[args[0]](this, args.slice(1));
@@ -171,7 +164,7 @@ export class Console extends HTMLElement {
                 }
              }
 
-            for(let key in Commands) {
+            for(let key in this.commands) {
                 if(key.toLocaleLowerCase().match(str.toLocaleLowerCase())) {
                     options.push(key);
                 }

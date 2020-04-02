@@ -4,7 +4,7 @@ import { Camera } from '../src/scene/Camera.js';
 import { Scene } from "../src/scene/Scene.js";
 import { Scheduler } from "../src/Scheduler.js";
 import { ViewportController } from "../src/controlers/ViewportController.js";
-import './Console.js';
+import { Cosnole } from './Console.js';
 
 export default class ViewportLight extends HTMLElement {
 
@@ -70,6 +70,8 @@ export default class ViewportLight extends HTMLElement {
             fov: 106
         });
 
+        this.controller = new ViewportController(this.camera, this);
+
         this.scene = new Scene([ this.camera ]);
 
         this.frame = {
@@ -89,6 +91,12 @@ export default class ViewportLight extends HTMLElement {
             this.init();
             this.render();
         });
+
+        const console = this.shadowRoot.querySelector('dev-console');
+
+        console.commands['reload'] = () => {
+            this.renderer = new LightRenderer(this.canvas);
+        }
     }
 
     disconnectedCallback() {
@@ -105,6 +113,7 @@ export default class ViewportLight extends HTMLElement {
     setResolution(width, height) {
         // resolution
         this.renderer.setResolution(width, height);
+        this.renderer.initialRender = true;
     }
 
     init() {

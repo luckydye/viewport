@@ -85,7 +85,7 @@ export class LightRenderer extends RendererContext {
 
 		this.grid = new Grid({ size: 1, count: 400 });
 		
-		this.compShader = new CompShader();
+		this.renderTimer = 0;
 
 		this.textures = {};
 		this.vertexBuffers = new Map();
@@ -145,12 +145,22 @@ export class LightRenderer extends RendererContext {
 
 	setResolution(width, height) {
 		super.setResolution(width, height);
-		
-		for (let pass of this.renderPasses) {
-			pass.resize(this.width, this.height);
+
+		if(this.renderTimer > 0) {
+			return;
 		}
 
-		this.postprocessingPass.resize(this.width, this.height);
+		// render timeout
+		this.renderTimer += 10;
+		setTimeout(() => {
+			this.renderTimer -= 10;
+		
+			for (let pass of this.renderPasses) {
+				pass.resize(this.width, this.height);
+			}
+
+			this.postprocessingPass.resize(this.width, this.height);
+		}, 10);
 
 		if(this.debug) {
 			console.log(`Resolution set to ${this.width}x${this.height}`);
