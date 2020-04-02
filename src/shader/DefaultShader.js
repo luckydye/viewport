@@ -1,6 +1,23 @@
 import MeshShader from './MeshShader.js';
+import Config from '../Config.js';
+
+Config.global.define('view_normal', false, false);
+Config.global.define('view_uv', false, false);
 
 export default class DefaultShader extends MeshShader {
+
+    constructor() {
+        super();
+
+        this.customUniforms = {
+            get normalView() {
+                return Config.global.getValue('view_normal');
+            },
+            get uvView() {
+                return Config.global.getValue('view_uv');
+            }
+        }
+    }
 
     static fragmentSource() {
         return MeshShader.shaderFragmentHeader`
@@ -12,6 +29,9 @@ export default class DefaultShader extends MeshShader {
         uniform mat4 shadowProjMat;
         uniform mat4 shadowViewMat;
         uniform bool shadowMap;
+
+        uniform bool normalView;
+        uniform bool uvView;
 
         uniform vec3 lightColor;
         uniform bool textureFlipY;
@@ -130,10 +150,18 @@ export default class DefaultShader extends MeshShader {
             );
 
             bool inShadow = Shadows();
-            
+
             if(inShadow && shadowMap || !shadowMap) {
                 Shading(oFragColor, normal, shadowColor, lightColor);
                 Specular(oFragColor, normal, lightColor * specular, roughness);
+            }
+
+            if(normalView) {
+                oFragColor = vec4(normal, 1.0);
+            }
+
+            if(uvView) {
+                oFragColor = vec4(TextureCoords(), 0.0, 1.0);
             }
         }
         `;
