@@ -111,6 +111,11 @@ export class Console extends HTMLElement {
         this.render();
     }
 
+    error(...stringArray) {
+        this.logs.push(html`<span style="color: #e96363;">${stringArray.join(" ")}</span>`);
+        this.render();
+    }
+
     eval(string) {
         this.history.unshift(string);
 
@@ -177,13 +182,17 @@ export class Console extends HTMLElement {
     }
 
     submit() {
-        this.eval(this.input.value);
-        this.input.value = "";
-        this.suggestions = [];
-        const log = this.shadowRoot.querySelector('.log');
-        log.scrollTo(0, log.scrollHeight);
+        try {
+            this.eval(this.input.value);
+            this.input.value = "";
+            this.suggestions = [];
+            const log = this.shadowRoot.querySelector('.log');
+            log.scrollTo(0, log.scrollHeight);
 
-        this.render();
+            this.render();
+        } catch(err) {
+            this.error(err);
+        }
     }
 
     replaceCurrentWord(str) {
