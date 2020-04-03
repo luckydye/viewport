@@ -151,7 +151,7 @@ export default class DefaultShader extends MeshShader {
 
             bool inShadow = Shadows();
 
-            if(inShadow && shadowMap || !shadowMap) {
+            if(!inShadow && shadowMap || !shadowMap) {
                 Shading(oFragColor, normal, shadowColor, lightColor);
                 Specular(oFragColor, normal, lightColor * specular, roughness);
             }
