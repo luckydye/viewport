@@ -196,7 +196,7 @@ export class VertexBuffer {
 
 		this.vertecies = new Float32Array(vertArray);
 		this.indecies = new Uint16Array(indexArray);
-
+		
 		this.attributes = attributes;
 
 		this.attributeElements = 0;
