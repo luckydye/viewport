@@ -99,6 +99,7 @@ export class FlatRenderer extends RendererContext {
 	}
 
 	setImage(image) {
+		this.setResolution(image.width, image.height);
 		this.source = new Texture(image);
 	}
 
